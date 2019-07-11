@@ -1,4 +1,4 @@
-from src.player_command.player_command import PlayerCommand, CommandType
+from lib.player_command.player_command import PlayerCommand, CommandType
 
 
 class PlayerSupportCommand(PlayerCommand):

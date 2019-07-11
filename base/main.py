@@ -1,6 +1,6 @@
-from src.udp_socket import UDPSocket, IPAddress
-from src.player_command.player_body_command import *
-from src.player_command.player_command import *
+from lib.udp_socket import UDPSocket, IPAddress
+from lib.player_command.player_body_command import *
+from lib.player_command.player_command import *
 
 
 def main():

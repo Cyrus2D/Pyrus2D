@@ -56,7 +56,7 @@ class PlayerInitCommand(PlayerCommand):
         self._goalie = golie
 
     def str(self):
-        return f"(init {self._team_name})"  # TODO change it
+        return f"(init {self._team_name} (version 8))"  # TODO change it
 
     def type(self):
         return CommandType.INIT
