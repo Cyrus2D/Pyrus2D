@@ -1,2 +1,2 @@
-#pyrus
+# PYRUS
 Python Cyrus Base
