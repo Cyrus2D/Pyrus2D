@@ -9,10 +9,13 @@ class MessageRecieveParser:
             return
         key = string.split(" ")[0]
         value = string[string.find(" "):]
-        if (key == ")(wind_rand"):
+        if (key == "wind_random"):
             print("HI")
         if not MessageRecieveParser.need_dict(value):
-            dic[key] = value[:value.find(")")]
+            if value.find(")") == -1:
+                dic[key] = value.strip()
+            else:
+                dic[key] = value[:value.find(")")].strip()
             MessageRecieveParser._parse(dic, value[value.find(")"):])
         else:
             dic[key] = {}
