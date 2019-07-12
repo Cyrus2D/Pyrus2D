@@ -50,13 +50,16 @@ class PlayerCommand:
 
 
 class PlayerInitCommand(PlayerCommand):
-    def __init__(self, team_name: str, golie: bool = False, version: float = None):
+    def __init__(self, team_name: str, version: float = None, golie: bool = False):
         self._team_name = team_name
         self._version = version
         self._goalie = golie
 
     def str(self):
-        return f"(init {self._team_name} (version 8))"  # TODO change it
+        return f"(init {self._team_name}" + \
+               (f" (version {self._version})" if self._version >= 4 else "") + \
+               ("(goalie)" if self._goalie else "") + \
+               ")"
 
     def type(self):
         return CommandType.INIT

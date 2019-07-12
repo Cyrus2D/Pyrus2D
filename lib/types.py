@@ -212,15 +212,15 @@ class Card(Enum):
 MAX_PLAYER = 11
 
 # ! uniform number that represents the unknown player
-Unum_Unknown = -1
+UNUM_UNKNOWN = -1
 
 # ! Id of the unknown player type
-Hetero_Unknown = -1
+HETERO_UNKNOWN = -1
 # ! Id of the default player type
-Hetero_Default = 0
+HETERO_DEFAULT = 0
 
 # ! playmode string table defined in rcssserver.
-PLAYMODE_STRINGS = ["",
+PLAYMODE_STRINGS = ["", #TODO Value of PlayerMode enum be these strings....?
                     "before_kick_off",
                     "time_over",
                     "play_on",

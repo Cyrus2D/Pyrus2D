@@ -29,7 +29,7 @@ class UDPSocket:
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def send_msg(self, msg: str):
-        self._sock.sendto(msg.encode(), 0, self._ip.tuple())
+        self._sock.sendto(msg.encode(), self._ip.tuple())
 
     def recieve_msg(self):
         return self._sock.recvfrom(MAX_BUFF_SIZE)
