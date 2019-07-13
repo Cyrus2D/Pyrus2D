@@ -7,3 +7,10 @@ class PlayerObject(Object):
         self._unum = 0
         self._vel = Vector2D(0, 0)
         self._side: SideID = SideID.NEUTRAL
+        self._body = AngleDeg(0)
+
+    def body(self):
+        return self._body
+
+    def unum(self):
+        return self._unum

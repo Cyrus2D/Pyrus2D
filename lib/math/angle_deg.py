@@ -1,6 +1,7 @@
 import math
 
 EPSILON = 1.0e-5
+ERROR_VALUE = 1e20
 DEG2RAD = math.pi / 180.0
 RAD2DEG = 180.0 / math.pi
 
@@ -143,6 +144,17 @@ class AngleDeg:
             return 0.0
         else:
             return AngleDeg.rad2deg(math.atan2(y, x))
+
+    @staticmethod
+    def bisect(left, right):
+        result = AngleDeg(left)
+        rel = AngleDeg(right - left)
+        diff = result.degree() - AngleDeg(right).degree()
+        half_deg = rel.degree() * 0.5
+        result += half_deg
+        if (0.0 < diff < 180.0) or diff < -180.0:
+            return result
+        return result + 180.0
 
 
 def test():
