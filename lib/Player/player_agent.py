@@ -1,12 +1,8 @@
 from lib.network.udp_socket import *
-from lib.parser import MessageParser
 from lib.player_command.player_command import *
 from lib.player_command.player_body_command import *
 from lib.server_param import *
-
-
-class WorldModel:
-    pass
+from lib.Player.world_model import *
 
 
 class PlayerAgent:
@@ -14,14 +10,15 @@ class PlayerAgent:
         self._socket = UDPSocket(IPAddress('localhost', 6000))
         self._world = WorldModel()
         self._full_world = WorldModel()
-        self._think_mode = False
-        self._server_param = ServerParam
+        self._think_mode = True
+        self._server_param = ServerParam()
 
     def run(self):
         self.connect()
         while True:
             message, server_address = self._socket.recieve_msg()
-            self.parse_message(message)
+            print(message, server_address)
+            self.parse_message(message.decode())
 
             if self._think_mode:
                 self.action()
@@ -30,16 +27,12 @@ class PlayerAgent:
         self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())
 
     def parse_message(self, message):
-        message = ""
-        if message.find("server_param"):
+        if message.find("server_param") is not -1:
+            print(message)
             self._server_param.parse(message)
-
-        dic = MessageParser().parse(string)
-        if dic['server_param']:
-            SP.i.set_data(dic)
-        elif dic['player_type']:
-            player_type.append(dic) # TODO where and how define PLAYER TYPE
+        elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find("sense_body") is not -1 or message.find("init") is not -1:
+            self._full_world.parse(message)
 
     def action(self):
-        command = PlayerDashCommand(100, 90)
+        command = PlayerDashCommand(100, 10)
         self._socket.send_msg(command.str())
