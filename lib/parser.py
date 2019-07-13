@@ -1,4 +1,4 @@
-class MessageRecieveParser:
+class MessageParser:
     def __init__(self):
         self._dic = {}
 
@@ -11,15 +11,15 @@ class MessageRecieveParser:
         value = string[string.find(" "):]
         if (key == "wind_random"):
             print("HI")
-        if not MessageRecieveParser.need_dict(value):
+        if not MessageParser.need_dict(value):
             if value.find(")") == -1:
                 dic[key] = value.strip()
             else:
                 dic[key] = value[:value.find(")")].strip()
-            MessageRecieveParser._parse(dic, value[value.find(")"):])
+            MessageParser._parse(dic, value[value.find(")"):])
         else:
             dic[key] = {}
-            MessageRecieveParser._parse(dic[key], value)
+            MessageParser._parse(dic[key], value)
 
     @staticmethod
     def need_dict(string):
@@ -28,7 +28,7 @@ class MessageRecieveParser:
         return string.find(")") > string.find("(")
 
     def parse(self, string):
-        MessageRecieveParser._parse(self._dic, string)
+        MessageParser._parse(self._dic, string)
         return self._dic
 
     def dic(self):

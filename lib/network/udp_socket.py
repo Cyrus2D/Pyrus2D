@@ -30,6 +30,8 @@ class UDPSocket:
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def send_msg(self, msg: str):
+        if msg[-1] != '\0':
+            msg += '\0'
         self._sock.sendto(msg.encode(), self._ip.tuple())
 
     def recieve_msg(self):
