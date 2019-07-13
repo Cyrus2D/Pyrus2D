@@ -166,16 +166,16 @@ class Line2D:
       \ brief get the intersection point of 2 lines
       \ param line1 the first line
       \ param line2 the second line
-      \ return the intersection point. if no intersection, invalid vector is returned.
+      \ return the intersection point. if no intersection, invalidated vector is returned.
     """
 
     @staticmethod
     def intersection(line1, line2):
         tmp = line1.a() * line2.b() - line1.b() * line2.a()
         if math.fabs(tmp) < EPSILON:
-            tmp_vec = Vector2D
-            tmp_vec.invalidate()
-            return tmp_vec
+            vec_invalid = Vector2D
+            vec_invalid.invalidate()
+            return vec_invalid
 
         return Vector2D((line1.b() * line2.c() - line2.b() * line1.c()) / tmp,
                         (line2.a() * line1.c() - line1.a() * line2.c()) / tmp)
