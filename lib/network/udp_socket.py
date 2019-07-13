@@ -2,6 +2,7 @@ import socket
 
 MAX_BUFF_SIZE = 8192
 
+
 class IPAddress:
     def __init__(self, ip, port):
         self._ip = ip
