@@ -1,20 +1,9 @@
 from lib.Player.player_type import *
 
 
-class Object:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
 
 
-class PlayerObject(Object):
-    def __init__(self):
-        self.unum = 0
 
-
-class BallObject(Object):
-    def __init__(self):
-        self.v = 0
 
 
 class WorldModel:
