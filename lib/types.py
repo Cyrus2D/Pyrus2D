@@ -220,7 +220,7 @@ HETERO_UNKNOWN = -1
 HETERO_DEFAULT = 0
 
 # ! playmode string table defined in rcssserver.
-PLAYMODE_STRINGS = ["", #TODO Value of PlayerMode enum be these strings....?
+PLAYMODE_STRINGS = ["",  # TODO Value of PlayerMode enum be these strings....?
                     "before_kick_off",
                     "time_over",
                     "play_on",

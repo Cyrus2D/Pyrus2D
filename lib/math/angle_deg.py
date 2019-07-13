@@ -1,6 +1,6 @@
 import math
 
-EPSILON = 1.0e-5;
+EPSILON = 1.0e-5
 DEG2RAD = math.pi / 180.0
 RAD2DEG = 180.0 / math.pi
 
@@ -15,7 +15,7 @@ class AngleDeg:
 
     def normal(self):
         if self._degree < -360.0 or 360.0 < self._degree:
-            self._degree = math.fmod(self._degree, 360.0);
+            self._degree = math.fmod(self._degree, 360.0)
 
         if self._degree < -180.0:
             self._degree += 360.0
@@ -25,7 +25,7 @@ class AngleDeg:
 
     def __eq__(self, other):
         if type(other) == AngleDeg:
-            self._degree = other._degree
+            self._degree = other.degree()
         else:
             self._degree = other
             self.normal()
@@ -63,37 +63,37 @@ class AngleDeg:
 
     def __add__(self, other):
         if type(other) == AngleDeg:
-            new_angledeg = AngleDeg(self._degree + other.degree())
+            new_angle_deg = AngleDeg(self._degree + other.degree())
         else:
-            new_angledeg = AngleDeg(self._degree + other)
-        return new_angledeg
+            new_angle_deg = AngleDeg(self._degree + other)
+        return new_angle_deg
 
     def __isub__(self, other):
         if type(other) == AngleDeg:
-            new_angledeg = AngleDeg(self._degree + other.degree())
+            new_angle_deg = AngleDeg(self._degree + other.degree())
         else:
-            new_angledeg = AngleDeg(self._degree + other)
-        return new_angledeg
+            new_angle_deg = AngleDeg(self._degree + other)
+        return new_angle_deg
 
     def __imul__(self, other):
-        new_angledeg = AngleDeg(self._degree * other)
-        return new_angledeg
+        new_angle_deg = AngleDeg(self._degree * other)
+        return new_angle_deg
 
     def __idiv__(self, other):
-        new_angledeg = AngleDeg(self._degree / other)
-        return new_angledeg
+        new_angle_deg = AngleDeg(self._degree / other)
+        return new_angle_deg
 
     def __repr__(self):
         return str(self.degree())
 
     def cos(self):
-        return math.cos( self.degree() * DEG2RAD )
+        return math.cos(self.degree() * DEG2RAD)
 
     def sin(self):
-        return math.sin( self.degree() * DEG2RAD )
+        return math.sin(self.degree() * DEG2RAD)
 
     def tan(self):
-        return math.tan( self.degree() * DEG2RAD )
+        return math.tan(self.degree() * DEG2RAD)
 
     @staticmethod
     def rad2deg(rad):
@@ -143,3 +143,18 @@ class AngleDeg:
             return 0.0
         else:
             return AngleDeg.rad2deg(math.atan2(y, x))
+
+
+def test():
+    a = AngleDeg(30)
+    b = AngleDeg(60)
+    print(a + b)
+    c = (a + b)
+    print(c.sin())
+    print(c.tan())
+
+    print(AngleDeg.atan2_deg(10, 5))
+
+
+if __name__ == "__main__":
+    test()
