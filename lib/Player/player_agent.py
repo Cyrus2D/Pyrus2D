@@ -3,7 +3,7 @@ from lib.player_command.player_command import *
 from lib.player_command.player_body_command import *
 from lib.server_param import *
 from lib.Player.world_model import *
-
+from base.decition import *
 
 class PlayerAgent:
     def __init__(self):
@@ -12,6 +12,7 @@ class PlayerAgent:
         self._full_world = WorldModel()
         self._think_mode = True
         self._server_param = ServerParam()
+        self.last_body_command = PlayerTurnCommand(0)
 
     def run(self):
         self.connect()
@@ -33,6 +34,19 @@ class PlayerAgent:
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find("sense_body") is not -1 or message.find("init") is not -1:
             self._full_world.parse(message)
 
+    def do_dash(self, power, angle):
+        self.last_body_command = PlayerDashCommand(power, angle)
+
+    def do_turn(self, angle):
+        self.last_body_command = PlayerTurnCommand(angle)
+
+    def world(self):
+        return self._world
+
+    def full_world(self):
+        return self._full_world
+
     def action(self):
-        command = PlayerDashCommand(100, 10)
+        get_decition(self)
+        command = self.last_body_command
         self._socket.send_msg(command.str())

@@ -2,3 +2,5 @@
 */__pycache__/
 */__pycache__/*
 venv/
+lib/network/__pycache__/udp_socket.cpython-36.pyc
+

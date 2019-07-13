@@ -1,5 +1,6 @@
 from lib.Player.player_type import *
-
+from lib.Player.object_player import *
+from lib.Player.object_ball import *
 
 
 
@@ -14,6 +15,12 @@ class WorldModel:
         self.our_players = [PlayerObject() for i in range(11)]
         self.their_players = [PlayerObject() for i in range(11)]
         self.ball = BallObject()
+
+    def ball(self):
+        return self.ball
+
+    def self(self):
+        return self.our_players[self.self_unum - 1]
 
     def parse(self, message):
         if message.find("fullstate") is not -1:
