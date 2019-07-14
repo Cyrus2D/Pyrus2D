@@ -62,7 +62,7 @@ class Ray2D:
       \ return true or false        
     """
 
-    def isRightDir(self, point: Vector2D, thr=10.0):
+    def inRightDir(self, point: Vector2D, thr=10.0):
         return ((point - self.origin).th() - self.direction).abs() < thr
 
     """
@@ -75,14 +75,10 @@ class Ray2D:
         tmp_sol = self.line().intersection(other)
 
         if not tmp_sol.isValid():
-            vec_invalid = Vector2D
-            vec_invalid.invalidate()
-            return vec_invalid
+            return Vector2D.invalid()
 
         if not self.inRightDir(tmp_sol):
-            vec_invalid = Vector2D
-            vec_invalid.invalidate()
-            return vec_invalid
+            return Vector2D.invalid()
 
         return tmp_sol
 
@@ -97,14 +93,10 @@ class Ray2D:
         tmp_sol = self.line().intersection(other.line())
 
         if not tmp_sol.isValid():
-            vec_invalid = Vector2D
-            vec_invalid.invalidate()
-            return vec_invalid
+            return Vector2D.invalid()
 
         if not self.inRightDir(tmp_sol) or not other.inRightDir(tmp_sol):
-            vec_invalid = Vector2D
-            vec_invalid.invalidate()
-            return vec_invalid
+            return Vector2D.invalid()
 
         return tmp_sol
 
