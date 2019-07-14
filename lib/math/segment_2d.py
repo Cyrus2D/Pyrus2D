@@ -3,82 +3,82 @@
   \ brief 2D segment line File.
 """
 
-from lib.math.line_2d import *
 from lib.math.triangle_2d import *
+from lib.math.line_2d import *
 
 CALC_ERROR = 1.0e-9
 
 
 class Segment2D:
     """
+        LEN = 2
       \ brief construct from 2 points
       \ param origin 1st point of segment edge
       \ param terminal 2nd point of segment edge
-    """
-
-    def __init__(self, origin: Vector2D, terminal: Vector2D):
-        self.origin = origin
-        self.terminal = terminal
-
-    """
+        LEN = 3
+      \ brief construct using origin, and length
+      \ param origin origin point
+      \ param length length of line segment
+      \ param direction line direction from origin point
+        LEN = 4
       \ brief construct directly using raw coordinate values
       \ param origin_x 1st point x value of segment edge
       \ param origin_y 1st point x value of segment edge
       \ param terminal_x 2nd point y value of segment edge
       \ param terminal_y 2nd point y value of segment edge
+        Len = none
+        Default
     """
 
-    def __init__(self, origin_x: float, origin_y: float, terminal_x: float, terminal_y: float):
-        self.origin = Vector2D(origin_x, origin_y)
-        self.terminal = Vector2D(terminal_x, terminal_y)
+    def __init__(self, *args):  # , **kwargs):
+        if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
+            self.origin = args[0]
+            self.terminal = args[1]
+        elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
+            self.origin = args[0]
+            self.terminal = args[0] + Vector2D.from_polar(args[1], args[2])
+        elif len(args) == 4:
+            self.origin = Vector2D(args[0], args[1])
+            self.terminal = Vector2D(args[2], args[3])
+        else:
+            self.origin = Vector2D(0, 0)
+            self.terminal = Vector2D(0, 0)
 
     """
-      \ brief construct using origin, and length
-      \ param origin origin point
-      \ param length length of line segment
-      \ param direction line direction from origin point
-    """
-
-    def __init__(self, origin: Vector2D, length: float, direction: AngleDeg):
-        self.origin = origin
-        self.terminal = origin + Vector2D.from_polar(length, direction)
-
-    """
+        LEN = 2
       \ brief construct from 2 points
       \ param origin first point
       \ param terminal second point
-    """
-
-    def assign(self, origin: Vector2D, terminal: Vector2D):
-        self.origin = origin
-        self.terminal = terminal
-
-    """
+        LEN = 3
+      \ brief construct using origin, and length
+      \ param origin origin point
+      \ param length length of line segment
+      \ param direction line direction from origin point
+        LEN = 4
       \ brief construct directly using raw coordinate values
       \ param origin_x 1st point x value of segment edge
       \ param origin_y 1st point x value of segment edge
       \ param terminal_x 2nd point y value of segment edge
       \ param terminal_y 2nd point y value of segment edge
-    """
+        """
 
-    def assign(self, origin_x: float, origin_y: float, terminal_x: float, terminal_y: float):
-        self.origin.assign(origin_x, origin_y)
-        self.terminal.assign(terminal_x, terminal_y)
-
-    """
-      \ brief construct using origin, and length
-      \ param origin origin point
-      \ param length length of line segment
-      \ param direction line direction from origin point
-    """
-
-    def assign(self, origin: Vector2D, length: float, direction: AngleDeg):
-        self.origin = origin
-        self.terminal = origin + Vector2D.from_polar(length, direction)
+    def assign(self, *args):  # **kwargs):
+        if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
+            self.origin = args[0]
+            self.terminal = args[1]
+        elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
+            self.origin = args[0]
+            self.terminal = args[0] + Vector2D.from_polar(args[1], args[2])
+        elif len(args) == 4:
+            self.origin = Vector2D(args[0], args[1])
+            self.terminal = Vector2D(args[2], args[3])
+        else:
+            self.origin = Vector2D(0, 0)
+            self.terminal = Vector2D(0, 0)
 
     """
       \ brief check if self line segment is valid or not.
-      origin's coodinates value have to be different from terminal's one.
+      origin's coordinates value have to be different from terminal's one.
       \ return checked result.
     """
 
@@ -211,67 +211,81 @@ class Segment2D:
         return Vector2D.invalid()
 
     """
+        LEN = 1
+      \ brief check & get the intersection point with other line
+      \ param l checked line object
+      \ return intersection point. if it does not exist, the invalidated value vector is returned.
+        LEN = 2
       \ brief check & get the intersection point with other line segment
       \ param other checked line segment
       \ param allow_end_point if self value is False, end point is disallowed as an intersection.
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
 
-    def intersection(self, other, allow_end_point: bool):
-        sol = self.line().intersection(other.line())
+    def intersection(self, *args):  # **kwargs):
+        if len(args) == 1 and isinstance(args[0], Line2D):
+            line = args[0]
+            tmp_line = self.line()
+            sol = tmp_line.intersection(line)
+            if not sol.isValid() or not self.contains(sol):
+                return Vector2D.invalid()
+            return sol
 
-        if not sol.isValid() or not self.contains(sol) or not other.contains(sol):
+        elif len(args) == 2 and isinstance(args[1], bool):
+            other = args[0]
+            sol = self.line().intersection(other.line())
+            if not sol.isValid() or not self.contains(sol) or not other.contains(sol):
+                return Vector2D.invalid()
+            if not args[1] and not self.existIntersectionExceptEndpoint(other):
+                return Vector2D.invalid()
+            return sol
+        else:
             return Vector2D.invalid()
 
-        if not allow_end_point and not self.existIntersectionExceptEndpoint(other):
-            return Vector2D.invalid()
-
-        return sol
-
     """
-      \ brief check & get the intersection point with other line
-      \ param l checked line object
-      \ return intersection point. if it does not exist, the invalidated value vector is returned.
-    """
-
-    def intersection(self, l: Line2D):
-        tmp_line = self.line()
-        sol = tmp_line.intersection(l)
-        if not sol.isValid() or not self.contains(sol):
-            return Vector2D.invalid()
-        return sol
-
-    """
+        Segment2D:
       \ brief check if segments cross each other or not.
       \ param other segment for cross checking
       \ return True if self segment crosses, returns False.
+        Line2D:
+      \ brief check if self line segment intersects with target line.
+      \ param l checked line
+      \ return checked result
     """
 
-    def existIntersection(self, other):
-        a0 = Triangle2D.double_signed_area(self.origin, self.terminal, other.origin())
-        a1 = Triangle2D.double_signed_area(self.origin, self.terminal, other.terminal())
-        b0 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.origin)
-        b1 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.terminal)
+    def existIntersection(self, *args):  # **kwargs):
+        if len(args) == 1 and isinstance(args[0], Segment2D):
+            other = args[0]
+            a0 = Triangle2D.double_signed_area(self.origin, self.terminal, other.origin())
+            a1 = Triangle2D.double_signed_area(self.origin, self.terminal, other.terminal())
+            b0 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.origin)
+            b1 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.terminal)
 
-        if a0 * a1 < 0.0 and b0 * b1 < 0.0:
-            return True
+            if a0 * a1 < 0.0 and b0 * b1 < 0.0:
+                return True
 
-        if self.origin == self.terminal:
-            if other.origin() == other.terminal():
-                return self.origin == other.origin()
+            if self.origin == self.terminal:
+                if other.origin() == other.terminal():
+                    return self.origin == other.origin()
 
-            return b0 == 0.0 and other.checkIntersectsOnLine(self.origin)
+                return b0 == 0.0 and other.checkIntersectsOnLine(self.origin)
 
-        elif other.origin() == other.terminal():
-            return a0 == 0.0 and self.checkIntersectsOnLine(other.origin())
+            elif other.origin() == other.terminal():
+                return a0 == 0.0 and self.checkIntersectsOnLine(other.origin())
 
-        if a0 == 0.0 and self.checkIntersectsOnLine(other.origin()) or (
-                a1 == 0.0 and self.checkIntersectsOnLine(other.terminal())) or (
-                b0 == 0.0 and other.checkIntersectsOnLine(self.origin)) or (
-                b1 == 0.0 and other.checkIntersectsOnLine(self.terminal)):
-            return True
+            if a0 == 0.0 and self.checkIntersectsOnLine(other.origin()) or (
+                    a1 == 0.0 and self.checkIntersectsOnLine(other.terminal())) or (
+                    b0 == 0.0 and other.checkIntersectsOnLine(self.origin)) or (
+                    b1 == 0.0 and other.checkIntersectsOnLine(self.terminal)):
+                return True
 
-        return False
+            return False
+
+        if len(args) == 1 and isinstance(args[0], Line2D):
+            line = args[0]
+            a0 = line.a() * self.origin.x + line.b() * self.origin.y + line.c()
+            a1 = line.a() * self.terminal.x + line.b() * self.terminal.y + line.c()
+            return a0 * a1 <= 0.0
 
     """
         \ brief check is that point Intersects On Line
@@ -288,10 +302,11 @@ class Segment2D:
                     self.terminal.x <= p.x <= self.origin.x)
 
     """
-      \ brief check if segments cross each other or not. This method is equivalent to existIntersection(), for convenience.
-      \ param other segment for cross checking
-      \ return True if self segment crosses, returns False.
-    """
+        This method is equivalent to existIntersection(), for convenience. .
+      \ brief check if segments cross each other or not / check if self line segment intersects with target line 
+      \ param other/l segment for cross checking / checked line
+      \ return True if self segment crosses, returns False / checked result
+     """
 
     def intersects(self, other):
         return self.existIntersection(other)
@@ -326,26 +341,6 @@ class Segment2D:
         return self.existIntersectionExceptEndpoint(other)
 
     """
-      \ brief check if self line segment intersects with target line.
-      \ param l checked line
-      \ return checked result
-     """
-
-    def existIntersection(self, l: Line2D):
-        a0 = l.a() * self.origin.x + l.b() * self.origin.y + l.c()
-        a1 = l.a() * self.terminal.x + l.b() * self.terminal.y + l.c()
-        return a0 * a1 <= 0.0
-
-    """
-      \ brief check if self line segment intersects with target line This method is equivalent to existIntersection(), for convenience. .
-      \ param l checked line
-      \ return checked result
-     """
-
-    def intersects(self, l: Line2D):
-        return self.existIntersection(l)
-
-    """
       \ brief get a point on segment where distance of point is minimal.
       \ param p point
       \ return nearest point on segment. if multiple nearest points found.
@@ -371,38 +366,35 @@ class Segment2D:
         return self.origin + vec_tmp * inner_product / len_square
 
     """
+        Line2D:
       \ brief get minimum distance between self segment and point
       \ param p point
       \ return minimum distance between self segment and point
-    """
-
-    def dist(self, p: Vector2D):
-        length = self.length()
-
-        if length == 0.0:
-            return self.origin.dist(p)
-
-        vec = self.terminal - self.origin
-        prod = vec.innerProduct(p - self.origin)
-
-        if 0.0 <= prod <= length * length:
-            return math.fabs(Triangle2D.double_signed_area(self.origin, self.terminal, p) / length)
-
-        return math.sqrt(min(self.origin.dist2(p),
-                             self.terminal.dist2(p)))
-
-    """
+        Segment2D:
       \ brief get minimum distance between 2 segments
       \ param seg segment
       \ return minimum distance between 2 segments
     """
 
-    def dist(self, seg):
-        if self.existIntersection(seg):
-            return 0.0
+    def dist(self, *args):  # **kwargs):
+        if len(args) == 1 and isinstance(args[0], Line2D):
+            vec = args[0]
+            length = self.length()
+            if length == 0.0:
+                return self.origin.dist(vec)
+            tmp_vec = self.terminal - self.origin
+            prod = tmp_vec.innerProduct(vec - self.origin)
+            if 0.0 <= prod <= length * length:
+                return math.fabs(Triangle2D.double_signed_area(self.origin, self.terminal, vec) / length)
+            return math.sqrt(min(self.origin.dist2(vec),
+                                 self.terminal.dist2(vec)))
 
-        return min(self.dist(seg.self.origin), self.dist(seg.self.terminal), seg.dist(self.origin),
-                   seg.dist(self.terminal))
+        if len(args) == 1 and isinstance(args[0], Segment2D):
+            seg = args[0]
+            if self.existIntersection(seg):
+                return 0.0
+            return min(self.dist(seg.self.origin), self.dist(seg.self.terminal), seg.dist(self.origin),
+                       seg.dist(self.terminal))
 
     """
       \ brief get maximum distance between self segment and point
@@ -438,12 +430,18 @@ class Segment2D:
     """
 
     def __repr__(self):
-        return "{[],[]}".format(self.origin, self.terminal)
+        return "[{},{}]".format(self.origin, self.terminal)
 
 
 def test():
-    tri = Triangle2D()
-    print(tri)
+    origin = Vector2D(0, 0)
+    terminal = Vector2D(10, 10)
+    seg = Segment2D(origin, terminal)
+    print(seg)
+    seg.assign(1.0, 2.0, 3, 4)
+    print(seg)
+    seg.assign(origin, 10, AngleDeg(53.1301023541559835905))
+    print(seg)
 
 
 if __name__ == "__main__":

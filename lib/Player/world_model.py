@@ -52,6 +52,6 @@ class WorldModel:
         print(self)
 
     def __repr__(self):
-        print(self._our_players) # TODO kir tut :\
+        print(self._our_players) # Fixed By MM _ temp
         return "time: {}, ball: {}, tm: {}, opp: {}".format(self._time, self.ball(), self._our_players,
                                                             self._their_players)
