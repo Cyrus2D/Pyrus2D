@@ -30,10 +30,25 @@ class Vector2D:
         return self
 
     """
+     \ brief accessor
+     \ return X coordinate
+    """
+
+    def x(self):
+        return self.x
+
+    """
+      \ brief accessor
+      \ return Y coordinate
+    """
+
+    def y(self):
+        return self.y
+
+    """
       \ brief assign XY value from POLAR value.
-      \ param radius vector's radius
-      \ param dir vector's angle
-      \ return reference to itself
+      \ param __r vector's radius
+      \ param __d vector's angle
      """
 
     def set_polar(self, __r, __d):
@@ -49,18 +64,12 @@ class Vector2D:
     def invalidate(self):
         self.is_valid = False
 
-    @staticmethod
-    def invalid():
-        vec_invalid = Vector2D()
-        vec_invalid.invalidate()
-        return vec_invalid
-
     """
       \ brief check is the object vaild
       \ return is_valid     
     """
 
-    def isvalid(self):
+    def isValid(self):
         return self.is_valid
 
     """
@@ -117,7 +126,7 @@ class Vector2D:
     """
 
     def abs(self):
-        return Vector2D(math.fabs(self.x), math.fabs(self.y))
+        return Vector2D(abs(self.x), abs(self.y))
 
     """
       \ brief get absolute x value
@@ -150,7 +159,7 @@ class Vector2D:
       \ param _y added y value
     """
 
-    def add(self, _x, _y):
+    def add(self, _x: int, _y: int):
         self.x += _x
         self.y += _y
 
@@ -262,6 +271,47 @@ class Vector2D:
         return new_vector
 
     """
+      \ brief get inner(dot) product with 'v'.
+      \ param v target vector
+      \ return value of inner product
+    """
+
+    def innerProduct(self, v):
+        return self.x * v.x() + self.y * v.y()
+        # ==  |this| * |v| * (*this - v).th().cos()
+
+    """
+      \ brief get virtual outer(cross) product with 'v'.
+      \ param v target vector
+      \ return value of outer product
+    """
+
+    def outerProduct(self, v):
+        #   xn = self.y * v.z - self.z * v.y;
+        #   yn = self.z * v.x - self.x * v.z;
+        #   zn = self.x * v.y - self.y * v.x;
+        return self.x * v.y() - self.y * v.x()
+        # == |this| * |v| * (*this - v).th().sin()
+
+    """
+      \ brief check if this vector is strictly same as given vector.
+      \ param other compared vector
+      \ return true if strictly same, otherwise false.
+    """
+
+    def equals(self, other):
+        return self.x == other.x() and self.y == other.y()
+
+    """
+      \ brief check if this vector is weakly same as given vector.
+      \ param other compared vector.
+      \ return true if weakly same, otherwise false.
+    """
+
+    def equalsWeakly(self, other):
+        return math.fabs(self.x - other.x) < EPSILON and math.fabs(self.y - other.y) < EPSILON
+
+    """
       \ brief rotate this vector with 'deg'
       \ param deg rotated angle by double type
     """
@@ -285,7 +335,7 @@ class Vector2D:
 
     """
       \ brief set vector's angle to 'angle'
-      \ param dir new angle to be set
+      \ param direction new angle to be set
       \ return reference to itself
     """
 
@@ -293,6 +343,28 @@ class Vector2D:
         radius = self.r()
         self.x = radius * direction.cos()
         self.y = radius * direction.sin()
+
+    """
+      \ brief make an invalid vector2D
+      \ return invalid vector2D   
+    """
+
+    @staticmethod
+    def invalid():
+        vec_invalid = Vector2D()
+        vec_invalid.invalidate()
+        return vec_invalid
+
+    """
+      \ brief get new Vector created by POLAR value.
+      \ param mag length of vector
+      \ param theta angle of vector
+      \ return new vector object
+    """
+
+    @staticmethod
+    def from_polar(mag, theta):
+        return Vector2D(mag * theta.cos(), mag * theta.sin())
 
     """
       \ brief get new Vector created by POLAR value.
@@ -305,6 +377,28 @@ class Vector2D:
     def polar2vector(__r, __d):
         new_vector = Vector2D()
         new_vector.set_polar(__r, __d)
+
+    """
+      \ brief get inner(dot) product for v1 and v2.
+      \ param v1 input 1
+      \ param v2 input 2
+      \ return value of inner product
+    """
+
+    @staticmethod
+    def inner_product(v1, v2):
+        return v1.innerProduct(v2)
+
+    """
+      \ brief get outer(cross) product for v1 and v2.
+      \ param v1 input 1
+      \ param v2 input 2
+      \ return value of outer product
+    """
+
+    @staticmethod
+    def outer_product(v1, v2):
+        return v1.outerProduct(v2)
 
     """
       \ brief make a logical print.

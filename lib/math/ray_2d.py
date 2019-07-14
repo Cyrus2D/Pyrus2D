@@ -1,6 +1,6 @@
 """
 
-  \ file ray_2d.h
+  \ file ray_2d.py
   \ brief 2D ray line class File.
 
 """

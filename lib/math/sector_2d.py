@@ -1,5 +1,5 @@
 """
-  \ file sector_2d.h
+  \ file sector_2d.py
   \ brief 2D sector region File.
 """
 
@@ -34,6 +34,7 @@ class Sector2D(Region2D):
             self.max_r = __max_r
         self.start = __start
         self.end = __end
+        self.is_valid = True
 
     """
    \ brief assign new value
