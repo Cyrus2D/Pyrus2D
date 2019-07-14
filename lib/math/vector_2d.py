@@ -49,6 +49,12 @@ class Vector2D:
     def invalidate(self):
         self.is_valid = False
 
+    @staticmethod
+    def InValid():
+        vec_invalid = Vector2D()
+        vec_invalid.invalidate()
+        return vec_invalid
+
     """
       \ brief check is the object vaild
       \ return is_valid     
@@ -272,6 +278,7 @@ class Vector2D:
       \ param deg rotated angle. double type.
       \ return new vector rotated by 'deg'
     """
+
     def rotate_vector(self, deg):
         new_vector = Vector2D(self.x, self.y)
         return new_vector.rotate(deg)
