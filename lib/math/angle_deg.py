@@ -4,13 +4,11 @@ EPSILON = 1.0e-5
 ERROR_VALUE = 1e20
 DEG2RAD = math.pi / 180.0
 RAD2DEG = 180.0 / math.pi
+PI = 3.14159265358979323846
 
 
 class AngleDeg:
-    def __init__(self):
-        self._degree = 0
-
-    def __init__(self, __degree):
+    def __init__(self, __degree=0.0):
         self._degree = __degree
         self.normal()
 
@@ -30,6 +28,19 @@ class AngleDeg:
         else:
             self._degree = other
             self.normal()
+
+    def isWithin(self, left, right):
+        if left.isLeftEqualOf(right):
+            if left.isLeftEqualOf(self) and self.isLeftEqualOf(right):
+                return True
+        else:
+            if self.isLeftEqualOf(right) or left.isLeftEqualOf(self):
+                return True
+        return False
+
+    def isLeftEqualOf(self, angle):
+        diff = angle.degree() - self._degree
+        return 0.0 <= diff < 180.0 or diff < -180.0
 
     def degree(self):
         return self._degree
@@ -69,18 +80,18 @@ class AngleDeg:
             new_angle_deg = AngleDeg(self._degree + other)
         return new_angle_deg
 
-    def __isub__(self, other):
+    def __sub__(self, other):
         if type(other) == AngleDeg:
             new_angle_deg = AngleDeg(self._degree + other.degree())
         else:
             new_angle_deg = AngleDeg(self._degree + other)
         return new_angle_deg
 
-    def __imul__(self, other):
+    def __mul__(self, other):
         new_angle_deg = AngleDeg(self._degree * other)
         return new_angle_deg
 
-    def __idiv__(self, other):
+    def __floordiv__(self, other):
         new_angle_deg = AngleDeg(self._degree / other)
         return new_angle_deg
 

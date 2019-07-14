@@ -311,7 +311,10 @@ class Matrix2D:
     def __mul__(self, other: Vector2D):
         return self.transform(other)
 
-    """ """
+    """
+      \ brief make a logical print.
+      \ return print_able str
+    """
 
     def __repr__(self):
         return "{ [ " + str(self.m11) + " ] , [ " + str(self.m12) + " ] , [ " + str(self.dx) + " ]\n  [ " + str(
