@@ -1,9 +1,6 @@
-from lib.Player.player_type import *
 from lib.Player.object_player import *
 from lib.Player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
-
-import lib.server_param as SP
 
 
 class WorldModel:
@@ -34,5 +31,6 @@ class WorldModel:
     def fullstate_parser(self, message):
         parser = FullStateWorldMessageParser()
         parser.parse(message)
+
 
 

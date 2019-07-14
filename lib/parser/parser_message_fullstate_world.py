@@ -39,6 +39,9 @@ class FullStateWorldMessageParser:
         self._dic.update(PlayerMessageParser().parse(msg))
         print(self._dic)
 
+    def dic(self):
+        return self._dic
+
 
 class PlayerMessageParser:
     def __init__(self):

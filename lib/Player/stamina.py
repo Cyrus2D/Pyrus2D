@@ -1,5 +1,5 @@
-import lib.server_param as SP
-from lib.Player.player_type import PlayerType
+import lib.rcsc.server_param as SP
+from lib.rcsc.player_type import PlayerType
 
 
 class Stamina:

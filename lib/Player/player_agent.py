@@ -1,9 +1,10 @@
-from lib.network.udp_socket import *
-from lib.player_command.player_command import *
-from lib.player_command.player_command_body import *
-from lib.server_param import *
-from lib.Player.world_model import *
 from base.decition import *
+from lib.Player.world_model import WorldModel
+from lib.network.udp_socket import UDPSocket, IPAddress
+from lib.player_command.player_command import PlayerInitCommand
+from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand
+from lib.rcsc.server_param import ServerParam
+
 
 class PlayerAgent:
     def __init__(self):
