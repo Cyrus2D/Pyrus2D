@@ -1,4 +1,4 @@
-from base.decition import *
+from base.decision import *
 from lib.Player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
@@ -48,6 +48,6 @@ class PlayerAgent:
         return self._full_world
 
     def action(self):
-        get_decition(self)
+        get_decision(self)
         command = self.last_body_command
         self._socket.send_msg(command.str())
