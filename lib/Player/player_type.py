@@ -39,3 +39,49 @@ class PlayerType:
     def parse(self, message):
         dic = MessageParamsParser().parse(message)
         self.set_data(dic)
+
+    def id(self):
+        return self._id
+
+    def player_speed_max(self):
+        return self._player_speed_max
+
+    def stamina_inc_max(self):
+        return self._stamina_inc_max
+
+    def player_decay(self):
+        return self._player_decay
+
+    def inertia_moment(self):
+        return self._inertia_moment
+
+    def dash_power_rate(self):
+        return self._dash_power_rate
+
+    def player_size(self):
+        return self._player_size
+
+    def kickable_margin(self):
+        return self._kickable_margin
+
+    def kick_rand(self):
+        return self._kick_rand
+
+    def extra_stamina(self):
+        return self._extra_stamina
+
+    def effort_max(self):
+        return self._effort_max
+
+    def effort_min(self):
+        return self._effort_min
+
+    def kick_power_rate(self):
+        return self._kick_power_rate
+
+    def foul_detect_probability(self):
+        return self._foul_detect_probability
+
+    def catchable_area_l_stretch(self):
+        return self._catchable_area_l_stretch
+
