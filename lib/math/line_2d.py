@@ -201,7 +201,8 @@ class Line2D:
     def perpendicular_bisector(point1, point2):
         if math.fabs(point2.x - point1.x) < EPSILON and math.fabs(point2.y - point1.y) < EPSILON:
             print("Error : points have same coordinate values")
-            return Line2D(point1, Vector2D(point1.x + 1.0, point1.y))
+            tmp_vec = Vector2D(point1.x + 1, point2.y)
+            return Line2D(point1, tmp_vec)
         tmp = (point2.x * point2.x - point1.x * point1.x + point2.y * point2.y - point1.y * point1.y) * -0.5
         return Line2D(point2.x - point1.x, point2.y - point1.y, tmp)
 
