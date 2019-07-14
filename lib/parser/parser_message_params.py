@@ -4,8 +4,10 @@ class MessageParamsParser:
 
     @staticmethod
     def _parse(dic, string: str):
+        if string[:6] == ") (arm":
+            print("HI")
         string = string.strip(" ()")
-        if (len(string) < 3):
+        if len(string) < 3:
             return
         key = string.split(" ")[0].strip("()")
         value = string[string.find(" "):]
@@ -17,13 +19,27 @@ class MessageParamsParser:
             MessageParamsParser._parse(dic, value[value.find(")"):])
         else:
             dic[key] = {}
-            MessageParamsParser._parse(dic[key], value)
+            end_of_dic = MessageParamsParser.end_of_dic(value)
+            MessageParamsParser._parse(dic[key], value[:end_of_dic])
+            MessageParamsParser._parse(dic, value[end_of_dic:])
 
     @staticmethod
     def need_dict(string):
         if string.find("(") == -1:
             return False
         return string.find(")") > string.find("(")
+
+    @staticmethod
+    def end_of_dic(string):
+        k = 1
+        for i in range(len(string)):
+            if string[i] == "(":
+                k += 1
+            elif string[i] == ")":
+                k -= 1
+            if k == 0:
+                return i
+        return -1
 
     def parse(self, string):
         MessageParamsParser._parse(self._dic, string)

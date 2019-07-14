@@ -3,11 +3,11 @@ from lib.math.geom import *
 
 class Object:
     def __init__(self):
-        self.pos = Vector2D(0, 0)
-        self.vel = Vector2D(0, 0)
+        self._pos = Vector2D.invalid()
+        self._vel = Vector2D.invalid()
 
     def pos(self):
-        return self.pos
+        return self._pos
 
     def vel(self):
-        return self.vel
+        return self._vel

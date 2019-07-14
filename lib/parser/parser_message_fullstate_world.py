@@ -2,7 +2,7 @@ from lib.parser.parser_message_params import MessageParamsParser
 
 """"
     (fullstate <time>
-    (pmode {goalie_catch_ball_{l|r}|<play mode>})
+    (pmod1e {goalie_catch_ball_{l|r}|<play mode>})
     (vmode {high|low} {narrow|normal|high})
     //(stamina <stamina> <effort> <recovery>)
     (count <kicks> <dashes> <turns> <catches> <moves>
@@ -37,7 +37,6 @@ class FullStateWorldMessageParser:
         # and now parsing players
         msg = message[message.find("((p"):]
         self._dic.update(PlayerMessageParser().parse(msg))
-        print(self._dic)
 
     def dic(self):
         return self._dic
@@ -64,8 +63,6 @@ class PlayerMessageParser:
                 k = 1
             if len(msg) > (15 if k == 0 else 16):
                 kk = 2
-            print(msg)
-            print(len(msg))
             player_dic = {
                 "side_id": msg[1],
                 "unum": msg[2],

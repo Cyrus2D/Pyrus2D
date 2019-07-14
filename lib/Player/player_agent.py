@@ -26,7 +26,7 @@ class PlayerAgent:
                 self.action()
 
     def connect(self):
-        self._socket.send_msg(PlayerInitCommand("Pyrus2", 15).str())
+        self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())
 
     def parse_message(self, message):
         if message.find("server_param") is not -1:
