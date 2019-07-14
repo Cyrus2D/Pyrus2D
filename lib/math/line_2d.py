@@ -173,7 +173,7 @@ class Line2D:
     def intersection(line1, line2):
         tmp = line1.a() * line2.b() - line1.b() * line2.a()
         if math.fabs(tmp) < EPSILON:
-            return Vector2D.InValid()
+            return Vector2D.invalid()
 
         return Vector2D((line1.b() * line2.c() - line2.b() * line1.c()) / tmp,
                         (line2.a() * line1.c() - line1.a() * line2.c()) / tmp)

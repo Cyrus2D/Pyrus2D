@@ -6,10 +6,11 @@ from lib.types import SideID
 class PlayerObject(Object):
     def __init__(self):
         self._unum: int = 0
+        self._pos: Vector2D = Vector2D.invalid()
         self._vel: Vector2D = Vector2D(0, 0)
-        self._pos: Vector2D = Vector2D(0, 0)
         self._side: SideID = SideID.NEUTRAL
-        self._body: float = AngleDeg(0)
+        self._body: AngleDeg = AngleDeg(0)
+        self._neck: AngleDeg = AngleDeg(0)
         self._goalie: bool = False
         self._player_type: PlayerType = None
 

@@ -50,7 +50,7 @@ class Vector2D:
         self.is_valid = False
 
     @staticmethod
-    def InValid():
+    def invalid():
         vec_invalid = Vector2D()
         vec_invalid.invalidate()
         return vec_invalid
