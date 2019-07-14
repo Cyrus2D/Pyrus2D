@@ -1,5 +1,26 @@
 from lib.parser.parser_message_params import MessageParamsParser
 
+""""
+    (fullstate <time>
+    (pmode {goalie_catch_ball_{l|r}|<play mode>})
+    (vmode {high|low} {narrow|normal|high})
+    //(stamina <stamina> <effort> <recovery>)
+    (count <kicks> <dashes> <turns> <catches> <moves>
+           <turn_necks> <change_views> <says>)
+    (arm (movable <MOVABLE>) (expires <EXPIRES>)
+    (target <DIST> <DIR>) (count <COUNT>))
+    (score <team_points> <enemy_points>)
+    ((b) <pos.x> <pos.y> <vel.x> <vel.y>)
+    <players>)
+"""
+"""
+    player: (v14)
+    ((p {l | r} < unum >[g] < player_type_id >)
+     < pos.x > < pos.y > < vel.x > < vel.y > < body_angle > < neck_angle > [ < point_dist > < point_dir >]
+     ( < stamina > < effort > < recovery >[< capacity >])
+    [t | k][y | r])
+"""
+
 
 class FullStateWorldMessageParser:
     def __init__(self):
@@ -33,24 +54,37 @@ class PlayerMessageParser:
             if next_seek == -1:
                 next_seek = len(message)
 
-            msg = message[seek: next_seek].strip("()").split(" ")
+            msg = message[seek: next_seek].strip(" ()").split(" ")
+            k = 0
+            kk = 0
+            if msg[3] == "g":
+                k = 1
+            if len(msg) > (15 if k == 0 else 16):
+                kk = 2
+            print(msg)
+            print(len(msg))
             player_dic = {
                 "side_id": msg[1],
                 "unum": msg[2],
-                "player_type": msg[3].strip("()"),
-                "pos_x": msg[4],
-                "pos_y": msg[5],
-                "vel_x": msg[6],
-                "vel_y": msg[7],
-                "body": msg[8],
-                "neck": msg[9],
+                "player_type": msg[3 + k].strip("()"),
+                "pos_x": msg[4 + k],
+                "pos_y": msg[5 + k],
+                "vel_x": msg[6 + k],
+                "vel_y": msg[7 + k],
+                "body": msg[8 + k],
+                "neck": msg[9 + k],
                 "stamina": {
-                    "stamina": msg[11],
-                    "effort": msg[12],
-                    "recovery": msg[13],
-                    "capacity": msg[14].strip("()")
+                    "stamina": msg[11 + k + kk],
+                    "effort": msg[12 + k + kk],
+                    "recovery": msg[13 + k + kk],
+                    "capacity": msg[14 + k + kk].strip("()")
                 }
             }
+            if kk == 2:
+                player_dic["pointto_dist"] = msg[10 + k].strip("()")
+                player_dic["pointto_dir"] = msg[11 + k].strip("()")
+            if k == 1:
+                player_dic['goalie'] = 'g'
             players.append(player_dic)
             seek = next_seek
         dic["players"] = players

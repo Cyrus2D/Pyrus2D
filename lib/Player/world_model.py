@@ -1,6 +1,7 @@
 from lib.Player.player_type import *
 from lib.Player.object_player import *
 from lib.Player.object_ball import *
+from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 
 import lib.server_param as SP
 
@@ -31,29 +32,7 @@ class WorldModel:
             pass
 
     def fullstate_parser(self, message):
-        """"
-        (fullstate <time>
-        (pmode {goalie_catch_ball_{l|r}|<play mode>})
-        (vmode {high|low} {narrow|normal|high})
-        //(stamina <stamina> <effort> <recovery>)
-        (count <kicks> <dashes> <turns> <catches> <moves>
-               <turn_necks> <change_views> <says>)
-        (arm (movable <MOVABLE>) (expires <EXPIRES>)
-        (target <DIST> <DIR>) (count <COUNT>))
-        (score <team_points> <enemy_points>)
-        ((b) <pos.x> <pos.y> <vel.x> <vel.y>)
-        <players>)
-        """
-        """
-        player: (v14)
-        ((p {l | r} < unum >[g] < player_type_id >)
-         < pos.x > < pos.y > < vel.x > < vel.y > < body_angle > < neck_angle > [ < point_dist > < point_dir >]
-         ( < stamina > < effort > < recovery >[< capacity >])
-        [t | k][y | r])
-        """
-
-        message = message[message.find("(")]
+        parser = FullStateWorldMessageParser()
+        parser.parse(message)
 
 
-def test():
-    SP.i._audio_cut_dist = "HOLY SHIIIT"

@@ -7,10 +7,7 @@ RAD2DEG = 180.0 / math.pi
 
 
 class AngleDeg:
-    def __init__(self):
-        self._degree = 0
-
-    def __init__(self, __degree):
+    def __init__(self, __degree=0):
         self._degree = __degree
         self.normal()
 
