@@ -696,3 +696,609 @@ class ServerParam:  # TODO spicfic TYPES and change them
     def parse(self, message):
         dic = MessageParamsParser().parse(message)
         self.set_data(dic['server_param'])
+
+    def goal_width(self):
+        return self._goal_width
+
+    def inertia_moment(self):
+        return self._inertia_moment
+
+    def player_size(self):
+        return self._player_size
+
+    def player_decay(self):
+        return self._player_decay
+
+    def player_rand(self):
+        return self._player_rand
+
+    def player_weight(self):
+        return self._player_weight
+
+    def player_speed_max(self):
+        return self._player_speed_max
+
+    def player_accel_max(self):
+        return self._player_accel_max
+
+    def stamina_max(self):
+        return self._stamina_max
+
+    def stamina_inc_max(self):
+        return self._stamina_inc_max
+
+    def recover_init(self):
+        return self._recover_init
+
+    def recover_dec_thr(self):
+        return self._recover_dec_thr
+
+    def recover_min(self):
+        return self._recover_min
+
+    def recover_dec(self):
+        return self._recover_dec
+
+    def effort_init(self):
+        return self._effort_init
+
+    def effort_dec_thr(self):
+        return self._effort_dec_thr
+
+    def effort_min(self):
+        return self._effort_min
+
+    def effort_dec(self):
+        return self._effort_dec
+
+    def effort_inc_thr(self):
+        return self._effort_inc_thr
+
+    def effort_inc(self):
+        return self._effort_inc
+
+    def kick_rand(self):
+        return self._kick_rand
+
+    def team_actuator_noise(self):
+        return self._team_actuator_noise
+
+    def player_rand_factor_l(self):
+        return self._player_rand_factor_l
+
+    def player_rand_factor_r(self):
+        return self._player_rand_factor_r
+
+    def kick_rand_factor_l(self):
+        return self._kick_rand_factor_l
+
+    def kick_rand_factor_r(self):
+        return self._kick_rand_factor_r
+
+    def ball_size(self):
+        return self._ball_size
+
+    def ball_decay(self):
+        return self._ball_decay
+
+    def ball_rand(self):
+        return self._ball_rand
+
+    def ball_weight(self):
+        return self._ball_weight
+
+    def ball_speed_max(self):
+        return self._ball_speed_max
+
+    def ball_accel_max(self):
+        return self._ball_accel_max
+
+    def dash_power_rate(self):
+        return self._dash_power_rate
+
+    def kick_power_rate(self):
+        return self._kick_power_rate
+
+    def kickable_margin(self):
+        return self._kickable_margin
+
+    def control_radius(self):
+        return self._control_radius
+
+    def control_radius_width(self):
+        return self._control_radius_width
+
+    def max_power(self):
+        return self._max_power
+
+    def min_power(self):
+        return self._min_power
+
+    def max_moment(self):
+        return self._max_moment
+
+    def min_moment(self):
+        return self._min_moment
+
+    def max_neck_moment(self):
+        return self._max_neck_moment
+
+    def min_neck_moment(self):
+        return self._min_neck_moment
+
+    def max_neck_angle(self):
+        return self._max_neck_angle
+
+    def min_neck_angle(self):
+        return self._min_neck_angle
+
+    def visible_angle(self):
+        return self._visible_angle
+
+    def visible_distance(self):
+        return self._visible_distance
+
+    def wind_dir(self):
+        return self._wind_dir
+
+    def wind_force(self):
+        return self._wind_force
+
+    def wind_angle(self):
+        return self._wind_angle
+
+    def wind_rand(self):
+        return self._wind_rand
+
+    def kickable_area(self):
+        return self._kickable_area
+
+    def catch_area_l(self):
+        return self._catch_area_l
+
+    def catch_area_w(self):
+        return self._catch_area_w
+
+    def catch_probability(self):
+        return self._catch_probability
+
+    def goalie_max_moves(self):
+        return self._goalie_max_moves
+
+    def corner_kick_margin(self):
+        return self._corner_kick_margin
+
+    def offside_active_area_size(self):
+        return self._offside_active_area_size
+
+    def wind_none(self):
+        return self._wind_none
+
+    def use_wind_random(self):
+        return self._use_wind_random
+
+    def coach_say_count_max(self):
+        return self._coach_say_count_max
+
+    def coach_say_msg_size(self):
+        return self._coach_say_msg_size
+
+    def clang_win_size(self):
+        return self._clang_win_size
+
+    def clang_define_win(self):
+        return self._clang_define_win
+
+    def clang_meta_win(self):
+        return self._clang_meta_win
+
+    def clang_advice_win(self):
+        return self._clang_advice_win
+
+    def clang_info_win(self):
+        return self._clang_info_win
+
+    def clang_mess_delay(self):
+        return self._clang_mess_delay
+
+    def clang_mess_per_cycle(self):
+        return self._clang_mess_per_cycle
+
+    def half_time(self):
+        return self._half_time
+
+    def simulator_step(self):
+        return self._simulator_step
+
+    def send_step(self):
+        return self._send_step
+
+    def recv_step(self):
+        return self._recv_step
+
+    def sense_body_step(self):
+        return self._sense_body_step
+
+    def lcm_step(self):
+        return self._lcm_step
+
+    def player_say_msg_size(self):
+        return self._player_say_msg_size
+
+    def player_hear_max(self):
+        return self._player_hear_max
+
+    def player_hear_inc(self):
+        return self._player_hear_inc
+
+    def player_hear_decay(self):
+        return self._player_hear_decay
+
+    def catch_ban_cycle(self):
+        return self._catch_ban_cycle
+
+    def slow_down_factor(self):
+        return self._slow_down_factor
+
+    def use_offside(self):
+        return self._use_offside
+
+    def kickoff_offside(self):
+        return self._kickoff_offside
+
+    def offside_kick_margin(self):
+        return self._offside_kick_margin
+
+    def audio_cut_dist(self):
+        return self._audio_cut_dist
+
+    def dist_quantize_step(self):
+        return self._dist_quantize_step
+
+    def landmark_dist_quantize_step(self):
+        return self._landmark_dist_quantize_step
+
+    def dir_quantize_step(self):
+        return self._dir_quantize_step
+
+    def dist_quantize_step_l(self):
+        return self._dist_quantize_step_l
+
+    def dist_quantize_step_r(self):
+        return self._dist_quantize_step_r
+
+    def landmark_dist_quantize_step_l(self):
+        return self._landmark_dist_quantize_step_l
+
+    def landmark_dist_quantize_step_r(self):
+        return self._landmark_dist_quantize_step_r
+
+    def dir_quantize_step_l(self):
+        return self._dir_quantize_step_l
+
+    def dir_quantize_step_r(self):
+        return self._dir_quantize_step_r
+
+    def coach_mode(self):
+        return self._coach_mode
+
+    def coach_with_referee_mode(self):
+        return self._coach_with_referee_mode
+
+    def use_old_coach_hear(self):
+        return self._use_old_coach_hear
+
+    def slowness_on_top_for_left_team(self):
+        return self._slowness_on_top_for_left_team
+
+    def slowness_on_top_for_right_team(self):
+        return self._slowness_on_top_for_right_team
+
+    def start_goal_l(self):
+        return self._start_goal_l
+
+    def start_goal_r(self):
+        return self._start_goal_r
+
+    def fullstate_l(self):
+        return self._fullstate_l
+
+    def fullstate_r(self):
+        return self._fullstate_r
+
+    def drop_ball_time(self):
+        return self._drop_ball_time
+
+    def synch_mode(self):
+        return self._synch_mode
+
+    def synch_offset(self):
+        return self._synch_offset
+
+    def synch_micro_sleep(self):
+        return self._synch_micro_sleep
+
+    def point_to_ban(self):
+        return self._point_to_ban
+
+    def point_to_duration(self):
+        return self._point_to_duration
+
+    def player_port(self):
+        return self._player_port
+
+    def trainer_port(self):
+        return self._trainer_port
+
+    def online_coach_port(self):
+        return self._online_coach_port
+
+    def verbose_mode(self):
+        return self._verbose_mode
+
+    def coach_send_vi_step(self):
+        return self._coach_send_vi_step
+
+    def replay_file(self):
+        return self._replay_file
+
+    def landmark_file(self):
+        return self._landmark_file
+
+    def send_comms(self):
+        return self._send_comms
+
+    def text_logging(self):
+        return self._text_logging
+
+    def game_logging(self):
+        return self._game_logging
+
+    def game_log_version(self):
+        return self._game_log_version
+
+    def text_log_dir(self):
+        return self._text_log_dir
+
+    def game_log_dir(self):
+        return self._game_log_dir
+
+    def text_log_fixed_name(self):
+        return self._text_log_fixed_name
+
+    def game_log_fixed_name(self):
+        return self._game_log_fixed_name
+
+    def use_text_log_fixed(self):
+        return self._use_text_log_fixed
+
+    def use_game_log_fixed(self):
+        return self._use_game_log_fixed
+
+    def use_text_log_dated(self):
+        return self._use_text_log_dated
+
+    def use_game_log_dated(self):
+        return self._use_game_log_dated
+
+    def log_date_format(self):
+        return self._log_date_format
+
+    def log_times(self):
+        return self._log_times
+
+    def record_message(self):
+        return self._record_message
+
+    def text_log_compression(self):
+        return self._text_log_compression
+
+    def game_log_compression(self):
+        return self._game_log_compression
+
+    def use_profile(self):
+        return self._use_profile
+
+    def tackle_dist(self):
+        return self._tackle_dist
+
+    def tackle_back_dist(self):
+        return self._tackle_back_dist
+
+    def tackle_width(self):
+        return self._tackle_width
+
+    def tackle_exponent(self):
+        return self._tackle_exponent
+
+    def tackle_cycles(self):
+        return self._tackle_cycles
+
+    def tackle_power_rate(self):
+        return self._tackle_power_rate
+
+    def freeform_wait_period(self):
+        return self._freeform_wait_period
+
+    def freeform_send_period(self):
+        return self._freeform_send_period
+
+    def free_kick_faults(self):
+        return self._free_kick_faults
+
+    def back_passes(self):
+        return self._back_passes
+
+    def proper_goal_kicks(self):
+        return self._proper_goal_kicks
+
+    def stopped_ball_vel(self):
+        return self._stopped_ball_vel
+
+    def max_goal_kicks(self):
+        return self._max_goal_kicks
+
+    def clang_del_win(self):
+        return self._clang_del_win
+
+    def clang_rule_win(self):
+        return self._clang_rule_win
+
+    def auto_mode(self):
+        return self._auto_mode
+
+    def kick_off_wait(self):
+        return self._kick_off_wait
+
+    def connect_wait(self):
+        return self._connect_wait
+
+    def game_over_wait(self):
+        return self._game_over_wait
+
+    def team_l_start(self):
+        return self._team_l_start
+
+    def team_r_start(self):
+        return self._team_r_start
+
+    def keepaway_mode(self):
+        return self._keepaway_mode
+
+    def keepaway_length(self):
+        return self._keepaway_length
+
+    def keepaway_width(self):
+        return self._keepaway_width
+
+    def keepaway_logging(self):
+        return self._keepaway_logging
+
+    def keepaway_log_dir(self):
+        return self._keepaway_log_dir
+
+    def keepaway_log_fixed_name(self):
+        return self._keepaway_log_fixed_name
+
+    def keepaway_log_fixed(self):
+        return self._keepaway_log_fixed
+
+    def keepaway_log_dated(self):
+        return self._keepaway_log_dated
+
+    def keepaway_start(self):
+        return self._keepaway_start
+
+    def nr_normal_halfs(self):
+        return self._nr_normal_halfs
+
+    def nr_extra_halfs(self):
+        return self._nr_extra_halfs
+
+    def penalty_shoot_outs(self):
+        return self._penalty_shoot_outs
+
+    def pen_before_setup_wait(self):
+        return self._pen_before_setup_wait
+
+    def pen_setup_wait(self):
+        return self._pen_setup_wait
+
+    def pen_ready_wait(self):
+        return self._pen_ready_wait
+
+    def pen_taken_wait(self):
+        return self._pen_taken_wait
+
+    def pen_nr_kicks(self):
+        return self._pen_nr_kicks
+
+    def pen_max_extra_kicks(self):
+        return self._pen_max_extra_kicks
+
+    def pen_dist_x(self):
+        return self._pen_dist_x
+
+    def pen_random_winner(self):
+        return self._pen_random_winner
+
+    def pen_allow_mult_kicks(self):
+        return self._pen_allow_mult_kicks
+
+    def pen_max_goalie_dist_x(self):
+        return self._pen_max_goalie_dist_x
+
+    def pen_coach_moves_players(self):
+        return self._pen_coach_moves_players
+
+    def module_dir(self):
+        return self._module_dir
+
+    def ball_stuck_area(self):
+        return self._ball_stuck_area
+
+    def max_tackle_power(self):
+        return self._max_tackle_power
+
+    def max_back_tackle_power(self):
+        return self._max_back_tackle_power
+
+    def player_speed_max_min(self):
+        return self._player_speed_max_min
+
+    def extra_stamina(self):
+        return self._extra_stamina
+
+    def synch_see_offset(self):
+        return self._synch_see_offset
+
+    def max_monitors(self):
+        return self._max_monitors
+
+    def extra_half_time(self):
+        return self._extra_half_time
+
+    def stamina_capacity(self):
+        return self._stamina_capacity
+
+    def max_dash_angle(self):
+        return self._max_dash_angle
+
+    def min_dash_angle(self):
+        return self._min_dash_angle
+
+    def dash_angle_step(self):
+        return self._dash_angle_step
+
+    def side_dash_rate(self):
+        return self._side_dash_rate
+
+    def back_dash_rate(self):
+        return self._back_dash_rate
+
+    def max_dash_power(self):
+        return self._max_dash_power
+
+    def min_dash_power(self):
+        return self._min_dash_power
+
+    def tackle_rand_factor(self):
+        return self._tackle_rand_factor
+
+    def foul_detect_probability(self):
+        return self._foul_detect_probability
+
+    def foul_exponent(self):
+        return self._foul_exponent
+
+    def foul_cycles(self):
+        return self._foul_cycles
+
+    def random_seed(self):
+        return self._random_seed
+
+    def golden_goal(self):
+        return self._golden_goal
+
+
+i: ServerParam = ServerParam()

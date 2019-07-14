@@ -6,3 +6,5 @@ venv/
 lib/network/__pycache__/udp_socket.cpython-36.pyc
 lib/Player/__pycache__/
 lib/math/__pycache__/
+variables
+accessors

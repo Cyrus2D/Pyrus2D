@@ -2,6 +2,9 @@ from lib.Player.player_type import *
 from lib.Player.object_player import *
 from lib.Player.object_ball import *
 
+import lib.server_param as SP
+
+
 class WorldModel:
     def __init__(self):
         self.player_types = [PlayerType() for i in range(17)]
@@ -50,3 +53,7 @@ class WorldModel:
         """
 
         message = message[message.find("(")]
+
+
+def test():
+    SP.i._audio_cut_dist = "HOLY SHIIIT"
