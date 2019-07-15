@@ -4,8 +4,6 @@ class MessageParamsParser:
 
     @staticmethod
     def _parse(dic, string: str):
-        if string[:6] == ") (arm":
-            print("HI")
         string = string.strip(" ()")
         if len(string) < 3:
             return

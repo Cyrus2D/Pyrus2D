@@ -3,9 +3,10 @@ import time
 from base.decision import *
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
-from lib.player_command.player_command import PlayerInitCommand, PlayerSendCommands
+from lib.player_command.player_command import PlayerInitCommand
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand
 from lib.player_command.player_command_support import PlayerDoneCommand
+from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
 
 
@@ -45,6 +46,7 @@ class PlayerAgent:
         self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())
 
     def parse_message(self, message):
+        self._think_mode = False
         if message.find("server_param") is not -1:
             print(message)
             self._server_param.parse(message)

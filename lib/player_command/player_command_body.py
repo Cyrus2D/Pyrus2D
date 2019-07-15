@@ -2,6 +2,8 @@ from lib.player_command.player_command import PlayerCommand, CommandType
 
 
 class PlayerBodyCommand(PlayerCommand):
+    body_commands = []
+
     def type(self):
         pass
 
@@ -104,3 +106,11 @@ class PlayerTackleCommand(PlayerBodyCommand):
 
     def type(self):
         return CommandType.TACKLE
+
+
+PlayerBodyCommand.body_commands = [PlayerMoveCommand,
+                                   PlayerDashCommand,
+                                   PlayerTurnCommand,
+                                   PlayerKickCommand,
+                                   PlayerCatchCommand,
+                                   PlayerTackleCommand]
