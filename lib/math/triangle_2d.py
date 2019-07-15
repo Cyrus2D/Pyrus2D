@@ -183,25 +183,19 @@ class Triangle2D(Region2D):
         Line2D
       \ brief calculate intersection point with line.
       \ param line considered line.
-      \ param sol1 pointer to the 1st solution variable
-      \ param sol2 pointer to the 2nd solution variable
-      \ return number of intersection
+      \ return number of intersection + sol 1 + sol 2
         Ray2D
       \ brief calculate intersection point with ray.
       \ param ray considered ray line.
-      \ param sol1 pointer to the 1st solution variable
-      \ param sol2 pointer to the 2nd solution variable
-      \ return number of intersection
+      \ return number of intersection + sol 1 + sol 2
         Segment2D
       \ brief calculate intersection point with line segment.
       \ param segment considered line segment.
-      \ param sol1 pointer to the 1st solution variable
-      \ param sol2 pointer to the 2nd solution variable
-      \ return number of intersection
+      \ return number of intersection + sol 1 + sol 2
     """
 
     def intersection(self, *args):  # , **kwargs):):):
-        if len(args) == 3 and isinstance(args[0], Line2D):
+        if len(args) == 1 and isinstance(args[0], Line2D):
             line = args[0]
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
@@ -221,34 +215,27 @@ class Triangle2D(Region2D):
             if n_sol == 2 and math.fabs(t_sol[0].x - t_sol[1].x) < EPSILON and math.fabs(
                     t_sol[0].y - t_sol[1].y) < EPSILON:
                 n_sol = 1
+            sol_list = [n_sol, t_sol[0], t_sol[1]]
 
-            if n_sol > 0:
-                args[1] = t_sol[0]
-            if n_sol > 1:
-                args[2] = t_sol[1]
-
-            return n_sol
-        if len(args) == 3 and isinstance(args[0], Ray2D):
+            return sol_list
+        elif len(args) == 1 and isinstance(args[0], Ray2D):
             ray = args[0]
             t_sol1 = Vector2D()
             t_sol2 = Vector2D()
             n_sol = Triangle2D.intersection(ray.line(), t_sol1, t_sol2)
 
-            if n_sol > 1 and not ray.inRightDir(t_sol2, 1.0):
-                n_sol -= 1
+            if n_sol[0] > 1 and not ray.inRightDir(t_sol2, 1.0):
+                n_sol[0] -= 1
 
-            if n_sol > 0 and not ray.inRightDir(t_sol1, 1.0):
+            if n_sol[0] > 0 and not ray.inRightDir(t_sol1, 1.0):
                 t_sol1 = t_sol2
-                n_sol -= 1
+                n_sol[0] -= 1
 
-            if n_sol > 0:
-                args[1] = t_sol1
+            sol_list = [n_sol[0], t_sol1, t_sol2]
 
-            if n_sol > 1:
-                args[2] = t_sol2
+            return sol_list
 
-            return n_sol
-        if len(args) == 3 and isinstance(args[0], Segment2D):
+        elif len(args) == 1 and isinstance(args[0], Segment2D):
             segment = args[0]
             t_sol1 = Vector2D()
             t_sol2 = Vector2D()
@@ -260,14 +247,9 @@ class Triangle2D(Region2D):
             if n_sol > 0 and not segment.contains(t_sol1):
                 t_sol1 = t_sol2
                 n_sol -= 1
+            sol_list = [n_sol, t_sol1, t_sol2]
 
-            if n_sol > 0:
-                args[1] = t_sol1
-
-            if n_sol > 1:
-                args[2] = t_sol2
-
-            return n_sol
+            return sol_list
 
     """  ----------------- static method  ----------------- """
 

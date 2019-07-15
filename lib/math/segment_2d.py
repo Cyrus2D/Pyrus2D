@@ -421,8 +421,8 @@ class Segment2D:
     """
 
     def onSegmentWeakly(self, p: Vector2D):
-        proj = self.projection(p)
-        return proj.isValid() and p.equalsWeakly(proj)
+        projection = self.projection(p)
+        return projection.isValid() and p.equalsWeakly(projection)
 
     """
       \ brief make a logical print.
