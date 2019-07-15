@@ -10,10 +10,18 @@ from lib.math.vector_2d import *
 
 class Line2D:
     """
-       \ brief construct directly
-       \ param __a assigned a value
-       \ param __b assigned b value
-       \ param __c assigned c value
+     \ brief construct directly
+     \ param __a assigned a value
+     \ param __b assigned b value
+     \ param __c assigned c value
+        2 Vec
+     \ brief construct from 2 points
+     \ param p1 first point
+     \ param p2 second point
+        Vec + Ang
+     \ brief construct from origin point + direction
+     \ param org origin point
+     \ param linedir direction from origin point
     """
 
     def __init__(self, *args):  # , **kwargs):):
@@ -28,21 +36,14 @@ class Line2D:
             self.c = 0.0
             self.is_valid = True
             self.assign(args[0], args[1])
+        else:
+            self.a = 0.0
+            self.b = 0.0
+            self.c = 0.0
+            self.is_valid = True
 
     """
-      \ brief construct from 2 points
-      \ param p1 first point
-      \ param p2 second point
-      ###### OR ######
-      \ brief construct from origin point + direction
-      \ param org origin point
-      \ param linedir direction from origin point      
-    """
-
-    def __int__(self, p1_org, p2_linedir):
-        self.assign(p1_org, p2_linedir)
-
-    """
+        Len = 2 / 2 Vector2D
       \ brief assign abc value from 2 points
       \ param p1 first point
       \ param p2 second point

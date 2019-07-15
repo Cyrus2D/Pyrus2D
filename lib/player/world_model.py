@@ -22,6 +22,12 @@ class WorldModel:
     def self(self) -> PlayerObject:
         return self._our_players[self._self_unum - 1]
 
+    def our_player(self, unum):
+        return self._our_players[unum - 1]
+
+    def their_player(self, unum):
+        return self.their_player(unum - 1)
+    
     def parse(self, message):
         if message.find("fullstate") is not -1:
             self.fullstate_parser(message)

@@ -22,11 +22,17 @@ class PlayerAgent:
     def run(self):
         self.connect()
         while True:
-            message, server_address = self._socket.recieve_msg()
-            print(message, server_address)
-            self.parse_message(message.decode())
-
-            if self._think_mode:
+            message_and_address = []
+            message_count = 0
+            while self._socket.recieve_msg(message_and_address) > 0:
+                message = message_and_address[0]
+                server_address = message_and_address[1]
+                self.parse_message(message.decode())
+                message_count += 1
+                
+            if message_count > 0:
+                self.action()
+            elif self._think_mode:
                 cycle_start = time.time()
 
                 self.action()
