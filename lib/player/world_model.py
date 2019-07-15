@@ -27,7 +27,7 @@ class WorldModel:
             self.fullstate_parser(message)
         if message.find("init") is not -1:
             self.self_parser(message)
-        elif 0 < message.find("player_type") < 10:
+        elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
         elif message.find("sense_body") is not -1:
             pass

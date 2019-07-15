@@ -41,8 +41,9 @@ class PlayerType:
         return f"kickable_margin: {self.kickable_margin()}"
 
     def parse(self, message):
-        dic = MessageParamsParser().parse(message)
-        self.set_data(dic["player_type"])
+        parser = MessageParamsParser()
+        parser.parse(message)
+        self.set_data(parser.dic()['player_type'])
 
     def id(self):
         return self._id

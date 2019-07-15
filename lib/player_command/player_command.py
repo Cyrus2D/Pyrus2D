@@ -65,6 +65,16 @@ class PlayerInitCommand(PlayerCommand):
         return CommandType.INIT
 
 
+class PlayerSendCommands(PlayerCommand):
+    @staticmethod
+    def all_to_str(commands):
+        commands_msg = ""
+        for command in commands:
+            commands_msg += command.str()
+        print("message", commands_msg)
+        return commands_msg
+
+
 class PlayerReconnectCommand(PlayerCommand):
     def __init__(self, team_name: str, unum: int):
         self._team_name = team_name

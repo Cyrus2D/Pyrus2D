@@ -3,7 +3,7 @@ import time
 from base.decision import *
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
-from lib.player_command.player_command import PlayerInitCommand
+from lib.player_command.player_command import PlayerInitCommand, PlayerSendCommands
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.rcsc.server_param import ServerParam
@@ -15,8 +15,9 @@ class PlayerAgent:
         self._world = WorldModel()
         self._full_world = WorldModel()
         self._think_mode = True
+        self._is_synch_mode = True
         self._server_param = ServerParam()
-        self.last_body_command = PlayerTurnCommand(0)
+        self.last_body_command = []
 
     def run(self):
         self.connect()
@@ -48,13 +49,13 @@ class PlayerAgent:
             self._think_mode = True
 
     def do_dash(self, power, angle):
-        self.last_body_command = PlayerDashCommand(power, angle)
+        self.last_body_command.append(PlayerDashCommand(power, angle))
 
     def do_turn(self, angle):
-        self.last_body_command = PlayerTurnCommand(angle)
+        self.last_body_command.append(PlayerTurnCommand(angle))
 
     def do_move(self, x, y):
-        self.last_body_command = PlayerMoveCommand(x, y)
+        self.last_body_command.append(PlayerMoveCommand(x, y))
 
     def world(self) -> WorldModel:
         return self._full_world
@@ -64,5 +65,8 @@ class PlayerAgent:
 
     def action(self):
         get_decision(self)
-        command = self.last_body_command
-        self._socket.send_msg(command.str() + PlayerDoneCommand().str())
+        commands = self.last_body_command
+        if self._is_synch_mode:
+            commands.append(PlayerDoneCommand())
+        self._socket.send_msg(PlayerSendCommands.all_to_str(commands))
+        self.last_body_command= []
