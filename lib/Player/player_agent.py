@@ -1,3 +1,5 @@
+import time
+
 from base.decision import *
 from lib.Player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
@@ -24,8 +26,13 @@ class PlayerAgent:
             self.parse_message(message.decode())
 
             if self._think_mode:
+                cycle_start = time.time()
+
                 self.action()
                 self._think_mode = False
+
+                cycle_end = time.time()
+                print(f"run-time: {cycle_end-cycle_start}s")
 
     def connect(self):
         self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())

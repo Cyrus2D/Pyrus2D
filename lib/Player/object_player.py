@@ -13,6 +13,7 @@ class PlayerObject(Object):
         self._neck: AngleDeg = AngleDeg(0)
         self._goalie: bool = False
         self._player_type: PlayerType = None
+        self._player_type_id: int = None
         self._pointto: Vector2D = Vector2D.invalid()
         self._stamina: Stamina = Stamina()
         self._kick: bool = False
@@ -28,7 +29,7 @@ class PlayerObject(Object):
         self._body = AngleDeg(float(dic["body"]))
         self._neck = AngleDeg(float(dic["neck"]))
         self._goalie = True if "goalie" in dic else False
-        # self._player_type = self.get_player_type(int(dic["player_type"]))  # TODO write GET PLAYER TYPE
+        self._player_type_id = int(dic["player_type"])
         self._pointto = Vector2D.invalid()
         if "pointto_dist" in dic:
             self._pointto = Vector2D.polar2vector(dic["pointto_dist"], dic["pointto_dir"])
@@ -43,6 +44,9 @@ class PlayerObject(Object):
     def __repr__(self):
         return "(side: " + str(self.side().name) + ")(unum: " + str(self.unum()) + ")(pos: " + str(
             self.pos()) + ")(vel: " + str(self.vel()) + ")"
+
+    def set_player_type(self, player_type: PlayerType):
+        self._player_type = player_type
 
     def unum(self):
         return self._unum
@@ -79,3 +83,6 @@ class PlayerObject(Object):
 
     def card(self):
         return self._card
+
+    def player_type_id(self):
+        return self._player_type_id

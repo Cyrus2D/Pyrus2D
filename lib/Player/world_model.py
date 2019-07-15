@@ -6,7 +6,7 @@ from lib.rcsc.game_time import GameTime
 
 class WorldModel:
     def __init__(self):
-        self._player_types = [PlayerType() for i in range(17)]
+        self._player_types = [PlayerType() for i in range(18)]
         self._self_unum: int = 0
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for i in range(11)]
@@ -27,8 +27,8 @@ class WorldModel:
             self.fullstate_parser(message)
         if message.find("init") is not -1:
             self.self_parser(message)
-        elif message.find("player_type") is not -1:
-            pass
+        elif 0 < message.find("player_type") < 10:
+            self.player_type_parser(message)
         elif message.find("sense_body") is not -1:
             pass
         elif message.find("init") is not -1:
@@ -46,12 +46,9 @@ class WorldModel:
 
         for player_dic in parser.dic()['players']:
             player = PlayerObject()
-            print("player_dic", player_dic)
             player.init_dic(player_dic)
-            print(player.side().value)
-            print(self._our_side)
+            player.set_player_type(self._player_types[player.player_type_id()])
             if player.side().value == self._our_side:
-                print("HERE:", player)
                 self._our_players[player.unum() - 1] = player
             elif player.side() == SideID.NEUTRAL:
                 self._unknown_player[player.unum() - 1] = player
@@ -69,3 +66,8 @@ class WorldModel:
         message = message.split(" ")
         self._self_unum = int(message[2])
         self._our_side = message[1]
+
+    def player_type_parser(self, message):
+        new_player_type = PlayerType()
+        new_player_type.parse(message)
+        self._player_types[new_player_type.id()] = new_player_type
