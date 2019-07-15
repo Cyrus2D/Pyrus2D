@@ -3,49 +3,60 @@
   \ brief 2D triangle class File.
 """
 
+from lib.math.segment_2d import *
 from lib.math.region_2d import *
 from lib.math.ray_2d import *
-from lib.math.segment_2d import *
 
 
 class Triangle2D(Region2D):
     """
+        Len = 3 / Vector2D
       \ brief constructor with  OR def with (0,0) , (0,1) , (1,0)
       \ param v1 first vertex point
       \ param v2 second vertex point
       \ param v3 third vertex point
-    """
-
-    def __init__(self, v1=Vector2D(0, 0), v2=Vector2D(0, 1), v3=Vector2D(1, 0)):
-        super().__init__()
-        self.a = v1
-        self.b = v2
-        self.c = v3
-
-    """
+            Len = 2 / Segment2D
       \ brief constructor with a segment and a point
       \ param seg segment consist of triangle, and second vertex points
       \ param v third vertex point
     """
 
-    def __init__(self, seg: Segment2D, v: Vector2D):
+    def __init__(self, *args):  # , **kwargs):):):
         super().__init__()
-        self.a = seg.origin()
-        self.b = seg.terminal()
-        self.c = v
+        if len(args) == 3 and isinstance(args[0], Vector2D):
+            self.a = args[0]
+            self.b = args[1]
+            self.c = args[2]
+        elif len(args) == 2 and isinstance(args[0], Segment2D):
+            seg = args[0]
+            self.a = seg.origin()
+            self.b = seg.terminal()
+            self.c = args[1]
 
     """
+        Len = 3 / Vector2d
       \ brief assign vertex points
       \ param v1 first vertex point
       \ param v2 second vertex point
       \ param v3 third vertex point
       \ return  reference to itself
+        Len = 2 / Segment2D
+      \ brief assign segment and vertex point
+      \ param seg segment consist of triangle, and second vertex points
+      \ param v third vertex point
+      \ return  reference to itself
     """
 
-    def assign(self, v1: Vector2D, v2: Vector2D, v3: Vector2D):
-        self.a = v1
-        self.b = v2
-        self.c = v3
+    def assign(self, *args):  # , **kwargs):):):
+        if len(args) == 3 and isinstance(args[0], Vector2D):
+            self.a = args[0]
+            self.b = args[1]
+            self.c = args[2]
+        elif len(args) == 2 and isinstance(args[0], Segment2D):
+            seg = args[0]
+            self.a = seg.origin()
+            self.b = seg.terminal()
+            self.c = args[1]
 
     """
       \ brief check if self triangle is valid or not.
@@ -54,18 +65,6 @@ class Triangle2D(Region2D):
 
     def isValid(self):
         return self.a.isValid() and self.b.isValid() and self.c.isValid() and self.a != self.b and self.b != self.c and self.a != self.a
-
-    """
-      \ brief assign segment and vertex point
-      \ param seg segment consist of triangle, and second vertex points
-      \ param v third vertex point
-      \ return  reference to itself
-    """
-
-    def assign(self, seg: Segment2D, v: Vector2D):
-        self.a = seg.origin()
-        self.b = seg.terminal()
-        self.c = v
 
     """
       \ brief get 1st point
@@ -127,7 +126,7 @@ class Triangle2D(Region2D):
      """
 
     def ccw(self):
-        return Triangle2D.ccw(self.a, self.b, self.c)
+        return Triangle2D.Sccw(self.a, self.b, self.c)
 
     """
       \ brief check if self triangle contains 'point'.
@@ -154,7 +153,7 @@ class Triangle2D(Region2D):
      """
 
     def centroid(self):
-        return Triangle2D.centroid(self.a, self.b, self.c)
+        return Triangle2D.Scentroid(self.a, self.b, self.c)
 
     """
       \ brief get the center of inscribed circle
@@ -162,7 +161,7 @@ class Triangle2D(Region2D):
     """
 
     def incenter(self):
-        return Triangle2D.incenter(self.a, self.b, self.c)
+        return Triangle2D.Sincenter(self.a, self.b, self.c)
 
     """
       \ brief get the center of circumscribed circle
@@ -170,7 +169,7 @@ class Triangle2D(Region2D):
     """
 
     def circumcenter(self):
-        return Triangle2D.circumcenter(self.a, self.b, self.c)
+        return Triangle2D.Scircumcenter(self.a, self.b, self.c)
 
     """
       \ brief get the orthocenter
@@ -178,71 +177,22 @@ class Triangle2D(Region2D):
     """
 
     def orthocenter(self):
-        return Triangle2D.orthocenter(self.a, self.b, self.c)
+        return Triangle2D.Sorthocenter(self.a, self.b, self.c)
 
     """
+        Line2D
       \ brief calculate intersection point with line.
       \ param line considered line.
       \ param sol1 pointer to the 1st solution variable
       \ param sol2 pointer to the 2nd solution variable
       \ return number of intersection
-    """
-
-    def intersection(self, line: Line2D, sol1=Vector2D.invalid(), sol2=Vector2D.invalid()):
-        n_sol = 0
-        t_sol = [Vector2D(), Vector2D()]
-
-        t_sol[n_sol] = Segment2D(self.a, self.b).intersection(line)
-        if n_sol < 2 and t_sol[n_sol].isValid():
-            n_sol += 1
-
-        t_sol[n_sol] = Segment2D(self.b, self.c).intersection(line)
-        if n_sol < 2 and t_sol[n_sol].isValid():
-            n_sol += 1
-
-        t_sol[n_sol] = Segment2D(self.c, self.a).intersection(line)
-        if n_sol < 2 and t_sol[n_sol].isValid():
-            n_sol += 1
-
-        if n_sol == 2 and math.fabs(t_sol[0].x - t_sol[1].x) < EPSILON and math.fabs(t_sol[0].y - t_sol[1].y) < EPSILON:
-            n_sol = 1
-
-        if n_sol > 0:
-            sol1 = t_sol[0]
-        if n_sol > 1:
-            sol2 = t_sol[1]
-
-        return n_sol
-
-    """
+        Ray2D
       \ brief calculate intersection point with ray.
       \ param ray considered ray line.
       \ param sol1 pointer to the 1st solution variable
       \ param sol2 pointer to the 2nd solution variable
       \ return number of intersection
-    """
-
-    def intersection(self, ray: Ray2D, sol1=Vector2D.invalid(), sol2=Vector2D.invalid()):
-        t_sol1 = Vector2D()
-        t_sol2 = Vector2D()
-        n_sol = Triangle2D.intersection(ray.line(), t_sol1, t_sol2)
-
-        if n_sol > 1 and not ray.inRightDir(t_sol2, 1.0):
-            n_sol -= 1
-
-        if n_sol > 0 and not ray.inRightDir(t_sol1, 1.0):
-            t_sol1 = t_sol2
-            n_sol -= 1
-
-        if n_sol > 0:
-            sol1 = t_sol1
-
-        if n_sol > 1:
-            sol2 = t_sol2
-
-        return n_sol
-
-    """
+        Segment2D
       \ brief calculate intersection point with line segment.
       \ param segment considered line segment.
       \ param sol1 pointer to the 1st solution variable
@@ -250,25 +200,74 @@ class Triangle2D(Region2D):
       \ return number of intersection
     """
 
-    def intersection(self, segment: Segment2D, sol1=Vector2D.invalid(), sol2=Vector2D.invalid()):
-        t_sol1 = Vector2D()
-        t_sol2 = Vector2D()
-        n_sol = Triangle2D.intersection(segment.line(), t_sol1, t_sol2)
+    def intersection(self, *args):  # , **kwargs):):):
+        if len(args) == 3 and isinstance(args[0], Line2D):
+            line = args[0]
+            n_sol = 0
+            t_sol = [Vector2D(), Vector2D()]
 
-        if n_sol > 1 and not segment.contains(t_sol2):
-            n_sol -= 1
+            t_sol[n_sol] = Segment2D(self.a, self.b).intersection(line)
+            if n_sol < 2 and t_sol[n_sol].isValid():
+                n_sol += 1
 
-        if n_sol > 0 and not segment.contains(t_sol1):
-            t_sol1 = t_sol2
-            n_sol -= 1
+            t_sol[n_sol] = Segment2D(self.b, self.c).intersection(line)
+            if n_sol < 2 and t_sol[n_sol].isValid():
+                n_sol += 1
 
-        if n_sol > 0:
-            sol1 = t_sol1
+            t_sol[n_sol] = Segment2D(self.c, self.a).intersection(line)
+            if n_sol < 2 and t_sol[n_sol].isValid():
+                n_sol += 1
 
-        if n_sol > 1:
-            sol2 = t_sol2
+            if n_sol == 2 and math.fabs(t_sol[0].x - t_sol[1].x) < EPSILON and math.fabs(
+                    t_sol[0].y - t_sol[1].y) < EPSILON:
+                n_sol = 1
 
-        return n_sol
+            if n_sol > 0:
+                args[1] = t_sol[0]
+            if n_sol > 1:
+                args[2] = t_sol[1]
+
+            return n_sol
+        if len(args) == 3 and isinstance(args[0], Ray2D):
+            ray = args[0]
+            t_sol1 = Vector2D()
+            t_sol2 = Vector2D()
+            n_sol = Triangle2D.intersection(ray.line(), t_sol1, t_sol2)
+
+            if n_sol > 1 and not ray.inRightDir(t_sol2, 1.0):
+                n_sol -= 1
+
+            if n_sol > 0 and not ray.inRightDir(t_sol1, 1.0):
+                t_sol1 = t_sol2
+                n_sol -= 1
+
+            if n_sol > 0:
+                args[1] = t_sol1
+
+            if n_sol > 1:
+                args[2] = t_sol2
+
+            return n_sol
+        if len(args) == 3 and isinstance(args[0], Segment2D):
+            segment = args[0]
+            t_sol1 = Vector2D()
+            t_sol2 = Vector2D()
+            n_sol = Triangle2D.intersection(segment.line(), t_sol1, t_sol2)
+
+            if n_sol > 1 and not segment.contains(t_sol2):
+                n_sol -= 1
+
+            if n_sol > 0 and not segment.contains(t_sol1):
+                t_sol1 = t_sol2
+                n_sol -= 1
+
+            if n_sol > 0:
+                args[1] = t_sol1
+
+            if n_sol > 1:
+                args[2] = t_sol2
+
+            return n_sol
 
     """  ----------------- static method  ----------------- """
 
@@ -312,7 +311,7 @@ class Triangle2D(Region2D):
       """
 
     @staticmethod
-    def ccw(a: Vector2D, b: Vector2D, c: Vector2D):
+    def Sccw(a: Vector2D, b: Vector2D, c: Vector2D):
         return Triangle2D.double_signed_area(a, b, c) > 0.0
 
     """
@@ -326,7 +325,7 @@ class Triangle2D(Region2D):
      """
 
     @staticmethod
-    def centroid(a: Vector2D, b: Vector2D, c: Vector2D):
+    def Scentroid(a: Vector2D, b: Vector2D, c: Vector2D):
         return Vector2D(a).add(b).add(c) / 3.0
 
     """
@@ -338,7 +337,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def incenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def Sincenter(a: Vector2D, b: Vector2D, c: Vector2D):
         ab = b - a
         ac = c - a
         bisect_a = Line2D(a, AngleDeg.bisect(ab.th(), ac.th()))
@@ -358,7 +357,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def circumcenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def Scircumcenter(a: Vector2D, b: Vector2D, c: Vector2D):
 
         perpendicular_ab = Line2D.perpendicular_bisector(a, b)
         perpendicular_bc = Line2D.perpendicular_bisector(b, c)
@@ -404,7 +403,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def orthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def Sorthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
         perpend_a = Line2D(b, c).perpendicular(a)
         perpend_b = Line2D(c, a).perpendicular(b)
         return perpend_a.intersection(perpend_b)
@@ -419,7 +418,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def contains(a: Vector2D, b: Vector2D, c: Vector2D, point: Vector2D):
+    def Scontains(a: Vector2D, b: Vector2D, c: Vector2D, point: Vector2D):
         rel1 = Vector2D(a - point)
         rel2 = Vector2D(b - point)
         rel3 = Vector2D(c - point)
