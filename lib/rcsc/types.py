@@ -14,9 +14,9 @@ from enum import Enum, unique, auto
 
 @unique
 class SideID(Enum):
-    LEFT = 1
-    NEUTRAL = 0
-    RIGHT = -1
+    LEFT = 'l'
+    NEUTRAL = 'n'
+    RIGHT = 'r'
 
 
 """
