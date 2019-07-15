@@ -4,10 +4,10 @@ from lib.rcsc.player_type import PlayerType
 
 class Stamina:
     def __init__(self, stamina=None, effort=None, recovery=None, capacity=None):
-        self._stamina = int(stamina) if stamina else SP.DEFAULT_STAMINA_MAX
-        self._effort = int(effort) if effort else SP.DEFAULT_EFFORT_INIT
-        self._recovery = int(recovery) if recovery else SP.DEFAULT_RECOVER_INIT
-        self._capacity = int(capacity) if capacity else -1
+        self._stamina: float = float(stamina) if stamina else SP.DEFAULT_STAMINA_MAX
+        self._effort: float = float(effort) if effort else SP.DEFAULT_EFFORT_INIT
+        self._recovery: float = float(recovery) if recovery else SP.DEFAULT_RECOVER_INIT
+        self._capacity: float = float(capacity) if capacity else -1
 
     def init(self, player_type: PlayerType):
         self._stamina = SP.i.stamina_max()

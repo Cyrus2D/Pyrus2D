@@ -2,7 +2,8 @@ from base.decision import *
 from lib.Player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
-from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand
+from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand
+from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.rcsc.server_param import ServerParam
 
 
@@ -24,6 +25,7 @@ class PlayerAgent:
 
             if self._think_mode:
                 self.action()
+                self._think_mode = False
 
     def connect(self):
         self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())
@@ -35,6 +37,8 @@ class PlayerAgent:
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("init") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)
+        elif message.find("think") is not -1:
+            self._think_mode = True
 
     def do_dash(self, power, angle):
         self.last_body_command = PlayerDashCommand(power, angle)
@@ -42,13 +46,16 @@ class PlayerAgent:
     def do_turn(self, angle):
         self.last_body_command = PlayerTurnCommand(angle)
 
-    def world(self):
-        return self._world
+    def do_move(self, x, y):
+        self.last_body_command = PlayerMoveCommand(x, y)
 
-    def full_world(self):
+    def world(self) -> WorldModel:
+        return self._full_world
+
+    def full_world(self) -> WorldModel:
         return self._full_world
 
     def action(self):
         get_decision(self)
         command = self.last_body_command
-        self._socket.send_msg(command.str())
+        self._socket.send_msg(command.str() + PlayerDoneCommand().str())

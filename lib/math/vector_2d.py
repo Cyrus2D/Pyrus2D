@@ -110,7 +110,7 @@ class Vector2D:
     """
 
     def th(self):
-        return AngleDeg.atan2_deg(self.y, self.x)
+        return AngleDeg(AngleDeg.atan2_deg(self.y, self.x))
 
     """
       \ brief get the angle of vector. this method is equivalent to th().
