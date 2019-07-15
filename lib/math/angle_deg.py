@@ -82,9 +82,9 @@ class AngleDeg:
 
     def __sub__(self, other):
         if type(other) == AngleDeg:
-            new_angle_deg = AngleDeg(self._degree + other.degree())
+            new_angle_deg = AngleDeg(self._degree - other.degree())
         else:
-            new_angle_deg = AngleDeg(self._degree + other)
+            new_angle_deg = AngleDeg(self._degree - other)
         return new_angle_deg
 
     def __mul__(self, other):

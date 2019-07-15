@@ -37,7 +37,7 @@ class WorldModel:
     def fullstate_parser(self, message):
         parser = FullStateWorldMessageParser()
         parser.parse(message)
-        self._time = parser.dic()['time']
+        self._time._cycle = int(parser.dic()['time'])
         self._play_mode = parser.dic()['pmode']
 
         # TODO vmode counters and arm
@@ -67,5 +67,5 @@ class WorldModel:
 
     def self_parser(self, message: str):
         message = message.split(" ")
-        self._self_unum = message[2]
+        self._self_unum = int(message[2])
         self._our_side = message[1]
