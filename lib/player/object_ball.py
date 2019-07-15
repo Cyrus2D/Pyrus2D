@@ -1,4 +1,4 @@
-from lib.Player.object import *
+from lib.player.object import *
 
 
 class BallObject(Object):

@@ -1,6 +1,6 @@
-from lib.Player.object import *
+from lib.player.object import *
 from lib.rcsc.player_type import PlayerType
-from lib.Player.stamina import Stamina
+from lib.player.stamina import Stamina
 from lib.rcsc.types import SideID, Card
 
 
