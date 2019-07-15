@@ -1,5 +1,5 @@
-from lib.Player.object_player import *
-from lib.Player.object_ball import *
+from lib.player.object_player import *
+from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.rcsc.game_time import GameTime
 

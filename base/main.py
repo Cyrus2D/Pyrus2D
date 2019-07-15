@@ -1,4 +1,4 @@
-from lib.Player.player_agent import *
+from lib.player.player_agent import *
 
 
 def main():
