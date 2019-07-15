@@ -25,8 +25,8 @@ class WorldModel:
     def parse(self, message):
         if message.find("fullstate") is not -1:
             self.fullstate_parser(message)
-        # if message.find("init") is not -1:
-            # self.self_parser(message)
+        if message.find("init") is not -1:
+            self.self_parser(message)
         elif message.find("player_type") is not -1:
             pass
         elif message.find("sense_body") is not -1:
@@ -48,7 +48,10 @@ class WorldModel:
             player = PlayerObject()
             print("player_dic", player_dic)
             player.init_dic(player_dic)
-            if player.side().name == self._our_side:
+            print(player.side().value)
+            print(self._our_side)
+            if player.side().value == self._our_side:
+                print("HERE:", player)
                 self._our_players[player.unum() - 1] = player
             elif player.side() == SideID.NEUTRAL:
                 self._unknown_player[player.unum() - 1] = player
@@ -64,5 +67,5 @@ class WorldModel:
 
     def self_parser(self, message: str):
         message = message.split(" ")
-        self._self_unum = message[1]
-        self._our_side = message[2]
+        self._self_unum = message[2]
+        self._our_side = message[1]
