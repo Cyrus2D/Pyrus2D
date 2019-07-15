@@ -20,6 +20,9 @@ class PlayerMoveCommand(PlayerBodyCommand):
     def str(self):
         return f"(move {self._x} {self._y})"
 
+    def __repr__(self):
+        return "(Move To {}, {})".format(self._x, self._y)
+
     def type(self):
         return CommandType.MOVE
 
@@ -32,6 +35,9 @@ class PlayerDashCommand(PlayerBodyCommand):
     def str(self):
         return f"(dash {self._power}" + (f" {self._dir})" if self._dir != 0 else ")")
 
+    def __repr__(self):
+        return "(Dash power:{}, dir:{})".format(self._power, self._dir)
+
     def type(self):
         return CommandType.DASH
 
@@ -42,6 +48,9 @@ class PlayerTurnCommand(PlayerBodyCommand):
 
     def str(self):
         return f"(turn {self._moment})"
+
+    def __repr__(self):
+        return "(Turn moment:{})".format(self._moment)
 
     def type(self):
         return CommandType.TURN
@@ -54,6 +63,9 @@ class PlayerKickCommand(PlayerBodyCommand):
 
     def str(self):
         return f"(kick {self._power} {self._dir})"
+
+    def __repr__(self):
+        return "(Kick power:{}, dir:{})".format(self._power, self._dir)
 
     def type(self):
         return CommandType.KICK
@@ -72,6 +84,9 @@ class PlayerCatchCommand(PlayerBodyCommand):
     def str(self):
         return f"(catch {self._dir})"
 
+    def __repr__(self):
+        return "(Catch dir:{})".format(self._dir)
+
     def type(self):
         return CommandType.CATCH
 
@@ -83,6 +98,9 @@ class PlayerTackleCommand(PlayerBodyCommand):
 
     def str(self):
         return f"(tackle {self._power_or_dir}" + (f" on)" if self._foul else ")")
+
+    def __repr__(self):
+        return "(Tackle power{}, foul{})".format(self._power_or_dir, self._foul)
 
     def type(self):
         return CommandType.TACKLE
