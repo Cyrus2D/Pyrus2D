@@ -65,7 +65,7 @@ class Vector2D:
         self.is_valid = False
 
     """
-      \ brief check is the object vaild
+      \ brief check is the object valid
       \ return is_valid     
     """
 
@@ -110,7 +110,7 @@ class Vector2D:
     """
 
     def th(self):
-        return AngleDeg(AngleDeg.atan2_deg(self.y, self.x))
+        return AngleDeg.atan2_deg(self.y, self.x)
 
     """
       \ brief get the angle of vector. this method is equivalent to th().
@@ -145,23 +145,22 @@ class Vector2D:
         return math.fabs(self.y)
 
     """
+        Len = 1 / Vector2D
       \ brief add vector.
       \ param other added vector
-    """
-
-    def add(self, other):
-        self.x += other.x
-        self.y += other.y
-
-    """
+        Len = 2 / XY
       \ brief add XY values respectively.
       \ param _x added x value
       \ param _y added y value
     """
 
-    def add(self, _x: int, _y: int):
-        self.x += _x
-        self.y += _y
+    def add(self, *args):  # **kwargs):
+        if len(args) == 1 and isinstance(args[0], Vector2D):
+            self.x += args[0].x()
+            self.y += args[0].y()
+        elif len(args) == 2:
+            self.x += args[0]
+            self.y += args[1]
 
     """
       \ brief scale this vector

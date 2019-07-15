@@ -10,26 +10,29 @@ from lib.math.line_2d import *
 
 class Ray2D:
     """
+        AngleDeg:
+      \ brief constructor with origin and direction else default constructor. all values are set to 0.
+      \ param __o origin point
+      \ param __d direction angle
+        Vector2D:
       \ brief constructor with origin and direction else default constructor. all values are set to 0.
       \ param __o origin point
       \ param __d direction angle
     """
 
-    def __init__(self, __o=Vector2D(0, 0), __d=AngleDeg(0)):
-        self.origin = __o
-        self.direction = __d
-        self.is_valid = True
-
-    """
-      \ brief constructor with origin and direction else default constructor. all values are set to 0.
-      \ param __o origin point
-      \ param __d direction angle
-    """
-
-    def __init__(self, __o=Vector2D(), __d=Vector2D()):
-        self.origin = __o
-        self.direction = (__d - __o).th()
-        self.is_valid = True
+    def __init__(self, *args):  # , **kwargs):)
+        if len(args) == 2 and isinstance(args[1], AngleDeg):
+            self.origin = args[0]
+            self.direction = args[1]
+            self.is_valid = True
+        elif len(args) == 2 and isinstance(args[1], Vector2D):
+            self.origin = args[0]
+            self.direction = (args[1] - args[0]).th()
+            self.is_valid = True
+        else:
+            self.origin = Vector2D()
+            self.direction = AngleDeg()
+            self.is_valid = True
 
     """
       \ brief get origin point
@@ -71,34 +74,35 @@ class Ray2D:
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
 
-    def intersection(self, other: Line2D):
-        tmp_sol = self.line().intersection(other)
+    def intersection(self, *args):  # , **kwargs):):
+        if len(args) == 1 and isinstance(args[0], Ray2D):
+            other = args[0]
+            tmp_sol = self.line().intersection(other.line())
 
-        if not tmp_sol.isValid():
-            return Vector2D.invalid()
+            if not tmp_sol.isValid():
+                return Vector2D.invalid()
 
-        if not self.inRightDir(tmp_sol):
-            return Vector2D.invalid()
+            if not self.inRightDir(tmp_sol) or not other.inRightDir(tmp_sol):
+                return Vector2D.invalid()
 
-        return tmp_sol
+            return tmp_sol
+        if len(args) == 1 and isinstance(args[0], Line2D):
+            line = args[0]
+            tmp_sol = self.line().intersection(line)
+
+            if not tmp_sol.isValid():
+                return Vector2D.invalid()
+
+            if not self.inRightDir(tmp_sol):
+                return Vector2D.invalid()
+
+            return tmp_sol
 
     """
       \ brief get the intersection point with 'ray'
       \ param other considered line
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
-
-    def intersection(self, other):
-
-        tmp_sol = self.line().intersection(other.line())
-
-        if not tmp_sol.isValid():
-            return Vector2D.invalid()
-
-        if not self.inRightDir(tmp_sol) or not other.inRightDir(tmp_sol):
-            return Vector2D.invalid()
-
-        return tmp_sol
 
     """
       \ brief make a logical print.
@@ -111,11 +115,11 @@ class Ray2D:
 
 
 def test():
-    a = Vector2D(1, 1)
+    a = Ray2D(Vector2D(5, 10), Vector2D(10, 10))
     print(a)
-    b = Vector2D(10, 10)
+    b = Ray2D(Vector2D(0, 0), AngleDeg(45))
     print(b)
-    c = Ray2D(a, b)
+    c = Ray2D(a.origin, b.dir())
     print(c)
 
 

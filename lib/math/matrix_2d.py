@@ -122,8 +122,8 @@ class Matrix2D:
         return self.m11 * self.m22 - self.m12 * self.m21
 
     """
-      \ brief check if this matrix is invertible (is not isingular).
-      \ return true if this matirix is invertibale.
+      \ brief check if this matrix is invertible (is not insular).
+      \ return true if this matrix is invertible.
     """
 
     def invertible(self):
@@ -146,7 +146,7 @@ class Matrix2D:
                         (self.dx * self.m21 - self.m11 * self.dy) * dinv)
 
     """
-      \ brief moves the coordinate systeother.
+      \ brief moves the coordinate as the other matrix.
       \ param dx move factor for the x axis.
       \ param dy move factor for the y axis.
       
@@ -202,25 +202,25 @@ class Matrix2D:
         self.dy = tdy
 
     """
+        Len = 1 / Vector2D
       \ brief create transformed vector from input vector with this matrix
       \ param v input vector
       \ return mapped vector object
-    """
-
-    def transform(self, v: Vector2D):
-        return Vector2D(self.m11 * v.x + self.m12 * v.y + self.dx,
-                        self.m21 * v.x + self.m22 * v.y + self.dy)
-
-    """
+        Len = 2 / XY
       \ brief create transformed vector from input coordinates with this matrix
       \ param x input x-coordinates value
       \ param y input y-coordinates value
       \ return mapped vector object
     """
 
-    def transform(self, x: int, y: int):
-        return Vector2D(self.m11 * x + self.m12 * y + self.dx,
-                        self.m21 * x + self.m22 * y + self.dy)
+    def transform(self, *args):  # **kwargs):
+        if len(args) == 1 and isinstance(args[0], Vector2D):
+            v = args[0]
+            return Vector2D(self.m11 * v.x + self.m12 * v.y + self.dx,
+                            self.m21 * v.x + self.m22 * v.y + self.dy)
+        if len(args) == 2:
+            return Vector2D(self.m11 * args[0] + self.m12 * args[1] + self.dx,
+                            self.m21 * args[0] + self.m22 * args[1] + self.dy)
 
     """
       \ brief transform input vector with this matrix
@@ -291,25 +291,24 @@ class Matrix2D:
         self.dy = tdy
 
     """
+        Len = 1 / Matrix2D
      \ brief multiplication operator of Matrix x Matrix.
      \ param lhs left hand side matrix.
      \ param rhs right hand side matrix
      \ return result matrix object
-    """
-
-    def __mul__(self, other):
-        mat_tmp = self
-        return mat_tmp.__imul__(other)
-
-    """
+        Len = 1 / Vector2D
      \ brief multiplication(transformation) operator of Matrix x Vector.
      \ param lhs left hand side matrix.
      \ param rhs right hand side vector
      \ return result vector object
     """
 
-    def __mul__(self, other: Vector2D):
-        return self.transform(other)
+    def __mul__(self, *args):  # , **kwargs):):
+        if len(args) == 1 and isinstance(args[0], Matrix2D):
+            mat_tmp = self
+            return mat_tmp.__imul__(args[0])
+        elif len(args) == 1 and isinstance(args[0], Vector2D):
+            return self.transform(args[0])
 
     """
       \ brief make a logical print.

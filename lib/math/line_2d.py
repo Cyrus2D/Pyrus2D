@@ -16,11 +16,18 @@ class Line2D:
        \ param __c assigned c value
     """
 
-    def __init__(self, __a=1, __b=1, __c=0):
-        self.a = __a
-        self.b = __b
-        self.c = __c
-        self.is_valid = True
+    def __init__(self, *args):  # , **kwargs):):
+        if len(args) == 3:
+            self.a = args[0]
+            self.b = args[1]
+            self.c = args[2]
+            self.is_valid = True
+        elif len(args) == 2 and isinstance(args[0], Vector2D):
+            self.a = 0.0
+            self.b = 0.0
+            self.c = 0.0
+            self.is_valid = True
+            self.assign(args[0], args[1])
 
     """
       \ brief construct from 2 points
@@ -39,23 +46,22 @@ class Line2D:
       \ brief assign abc value from 2 points
       \ param p1 first point
       \ param p2 second point
-    """
-
-    def assign(self, p1: Vector2D, p2: Vector2D):
-        self.a = -(p2.y - p1.y)
-        self.b = p2.x - p1.x
-        self.c = -self.a * p1.x - self.b * p1.y
-
-    """
+        Len = 2 / AngleDeg
       \ brief assign abc value t from origin point + direction
       \ param org origin point
       \ param linedir direction from origin point
     """
 
-    def assign(self, org: Vector2D, linedir: AngleDeg):
-        self.a = -linedir.sin()
-        self.b = linedir.cos()
-        self.c = self.a * org.x - self.b * org.y
+    def assign(self, *args):  # , **kwargs):):
+        if len(args) == 2 and isinstance(args[1], Vector2D):
+            self.a = -(args[1].y - args[0].y)
+            self.b = args[1].x - args[0].x
+            self.c = -self.a * args[0].x - self.b * args[0].y
+        if len(args) == 2 and isinstance(args[1], AngleDeg):
+            linedir = args[1]
+            self.a = -linedir.sin()
+            self.b = linedir.cos()
+            self.c = self.a * args[0].x - self.b * args[0].y
 
     """
       \ brief accessor
@@ -139,7 +145,7 @@ class Line2D:
     """
 
     def intersection(self, other):
-        return Line2D.intersection(self, other)
+        return Line2D.Lintersection(self, other)
 
     """ 
       \ brief calc perpendicular line 
@@ -170,7 +176,7 @@ class Line2D:
     """
 
     @staticmethod
-    def intersection(line1, line2):
+    def Lintersection(line1, line2):
         tmp = line1.a() * line2.b() - line1.b() * line2.a()
         if math.fabs(tmp) < EPSILON:
             return Vector2D.invalid()
