@@ -32,7 +32,8 @@ class PlayerAgent:
         if message.find("server_param") is not -1:
             print(message)
             self._server_param.parse(message)
-        elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find("sense_body") is not -1 or message.find("init") is not -1:
+        elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
+                "sense_body") is not -1 or message.find("init") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)
 
     def do_dash(self, power, angle):

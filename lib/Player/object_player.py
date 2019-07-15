@@ -41,9 +41,8 @@ class PlayerObject(Object):
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
 
     def __repr__(self):
-        return "(side : {" + str(0) + " } + (unum: { " + str(self.unum()) + "})(pos: { " + str(
-            self.pos()) + "} (vel : {" + str(self.vel()) + "}"
-        # return "(side: {})(unum: {})(pos: {})(vel: {})".format(0, self.unum(), self.pos, self.vel())
+        return "(side: " + str(self.side().name) + ")(unum: " + str(self.unum()) + ")(pos: " + str(
+            self.pos()) + ")(vel: " + str(self.vel()) + ")"
 
     def unum(self):
         return self._unum
