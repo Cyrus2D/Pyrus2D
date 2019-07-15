@@ -20,8 +20,8 @@ class PlayerAgent:
         self._server_param = ServerParam()
         self.last_body_command = []
 
-    def run(self):
-        self.connect()
+    def run(self, team_name, goalie):
+        self.connect(team_name, goalie)
         while True:
             message_and_address = []
             message_count = 0
@@ -42,8 +42,8 @@ class PlayerAgent:
                 cycle_end = time.time()
                 print(f"run-time: {cycle_end-cycle_start}s")
 
-    def connect(self):
-        self._socket.send_msg(PlayerInitCommand("Pyrus", 15).str())
+    def connect(self, team_name, goalie, version = 15):
+        self._socket.send_msg(PlayerInitCommand(team_name, 15, goalie).str())
 
     def parse_message(self, message):
         self._think_mode = False
