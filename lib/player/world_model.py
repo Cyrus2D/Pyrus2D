@@ -6,12 +6,12 @@ from lib.rcsc.game_time import GameTime
 
 class WorldModel:
     def __init__(self):
-        self._player_types = [PlayerType() for i in range(18)]
+        self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = 0
         self._our_side: SideID = SideID.NEUTRAL
-        self._our_players = [PlayerObject() for i in range(11)]
-        self._their_players = [PlayerObject() for i in range(11)]
-        self._unknown_player = [PlayerObject() for i in range(22)]
+        self._our_players = [PlayerObject() for _ in range(11)]
+        self._their_players = [PlayerObject() for _ in range(11)]
+        self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
         self._play_mode: str = ""  # TODO should match with Play Mode ENUM
@@ -22,16 +22,22 @@ class WorldModel:
     def self(self) -> PlayerObject:
         return self._our_players[self._self_unum - 1]
 
+    def our_side(self):
+        return SideID.RIGHT if self._our_side == 'r' else SideID.LEFT if self._our_side == 'l' else SideID.NEUTRAL
+
     def our_player(self, unum):
         return self._our_players[unum - 1]
 
     def their_player(self, unum):
         return self.their_player(unum - 1)
-    
+
+    def time(self):
+        return self._time
+
     def parse(self, message):
         if message.find("fullstate") is not -1:
             self.fullstate_parser(message)
-        if message.find("init") is not -1:
+        if message.find("(init") is not -1:
             self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
@@ -60,6 +66,8 @@ class WorldModel:
                 self._unknown_player[player.unum() - 1] = player
             else:
                 self._their_players[player.unum() - 1] = player
+        if self.self().side() == SideID.RIGHT:
+            self.reverse()
 
         print(self)
 
@@ -77,3 +85,8 @@ class WorldModel:
         new_player_type = PlayerType()
         new_player_type.parse(message)
         self._player_types[new_player_type.id()] = new_player_type
+
+    def reverse(self):
+        self.ball().reverse()
+        Object.reverse_list(self._our_players)
+        Object.reverse_list(self._their_players)

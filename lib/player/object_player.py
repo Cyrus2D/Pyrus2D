@@ -41,6 +41,10 @@ class PlayerObject(Object):
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
 
+    def reverse_more(self):
+        self._body.reverse()
+        self._neck.reverse() # TODO neck is relative?!?!?!
+
     def __repr__(self):
         return "(side: " + str(self.side().name) + ")(unum: " + str(self.unum()) + ")(pos: " + str(
             self.pos()) + ")(vel: " + str(self.vel()) + ")"

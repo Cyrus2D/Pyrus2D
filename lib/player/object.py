@@ -11,3 +11,16 @@ class Object:
 
     def vel(self):
         return self._vel
+
+    def reverse(self):
+        self._pos.reverse()
+        self._vel.reverse()
+        self.reverse_more()
+
+    def reverse_more(self):
+        pass
+
+    @staticmethod
+    def reverse_list(lst):
+        for i in range(len(lst)):
+            lst[i].reverse()

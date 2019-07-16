@@ -51,6 +51,13 @@ class AngleDeg:
     def radian(self):
         return self.degree() * DEG2RAD
 
+    def reverse(self):
+        if self._degree > 0:
+            self._degree = -(180 - self._degree) # yani khar madaramo gaidii :|||||
+        elif self._degree < 0:
+            self._degree = 180 + self._degree
+        return self._degree
+
     def __iadd__(self, other):
         if type(other) == AngleDeg:
             self._degree += other.degree()
@@ -97,6 +104,9 @@ class AngleDeg:
 
     def __repr__(self):
         return str(self.degree())
+
+    def __float__(self):
+        return self.degree()
 
     def cos(self):
         return math.cos(self.degree() * DEG2RAD)

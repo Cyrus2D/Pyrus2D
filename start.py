@@ -1,7 +1,8 @@
 from base.main_player import main
 from threading import Thread
+from random import randrange
 
-team_name = "Pyrus"
+team_name = str(randrange(0, 1000))
 
 
 def make_agent_runner(team_name, goalie, agents):
@@ -11,12 +12,11 @@ def make_agent_runner(team_name, goalie, agents):
 
 def start_main():
     agents = []
-    # Todo run Goalie
     # goalie
     make_agent_runner(team_name, True, agents)
 
     # Players
-    for i in range(10):
+    for i in range(4):
         make_agent_runner(team_name, False, agents)
 
     for agent in agents:

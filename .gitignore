@@ -8,3 +8,4 @@ lib/Player/__pycache__/
 lib/math/__pycache__/
 variables
 accessors
+*.log

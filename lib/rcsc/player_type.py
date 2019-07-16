@@ -20,7 +20,6 @@ class PlayerType:
         self._catchable_area_l_stretch = 1
 
     def set_data(self, dic):
-        print("(((",dic)
         self._id = int(dic["id"])
         self._player_speed_max = float(dic["player_speed_max"])
         self._stamina_inc_max = float(dic["stamina_inc_max"])
