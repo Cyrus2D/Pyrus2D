@@ -16,21 +16,21 @@ from lib.math.triangle_2d import *
  """
 
 
-def QUADRATIC_F(a, b, c, sol1, sol2):
+def QUADRATIC_F(a, b, c):
     d = b * b - 4.0 * a * c
-    # ignore small noise
+    sol1 = 0.0
+    sol2 = 0.0
     if math.fabs(d) < EPSILON:
         sol1 = -b / (2.0 * a)
-        return 1
-
+        ans = 1
     elif d < 0.0:
-        return 0
-
+        ans = 0
     else:
         d = math.sqrt(d)
         sol1 = (-b + d) / (2.0 * a)
         sol2 = (-b - d) / (2.0 * a)
-        return 2
+        ans = 2
+    return [ans, sol1, sol2]
 
 
 def SQUARE(v):
@@ -130,21 +130,18 @@ class Circle2D:
                 if math.fabs(line.b()) < EPSILON:
                     return 0
 
-                x1 = 0.0
-                x2 = 0.0
                 n_sol = QUADRATIC_F(1.0,
                                     -2.0 * self.center.x,
                                     (SQUARE(self.center.x)
                                      + SQUARE(line.c() / line.b() + self.center.y)
-                                     - SQUARE(self.radius)),
-                                    x1,
-                                    x2)
-
-                if n_sol > 0:
+                                     - SQUARE(self.radius)))
+                x1 = n_sol[1]
+                x2 = n_sol[2]
+                if n_sol[0] > 0:
                     y1 = -line.c() / line.b()
-                    sol_list = [n_sol, Vector2D(x1, y1), Vector2D(x2, y1)]
+                    sol_list = [n_sol[0], Vector2D(x1, y1), Vector2D(x2, y1)]
                 else:
-                    sol_list = [n_sol]
+                    sol_list = [n_sol[0]]
                 return sol_list
 
             else:
@@ -155,46 +152,45 @@ class Circle2D:
                 b = 2.0 * (-self.center.y + (d + self.center.x) * m)
                 c = SQUARE(d + self.center.x) + SQUARE(self.center.y) - SQUARE(self.radius)
 
-            y1 = 0.0
-            y2 = 0.0
-            n_sol = QUADRATIC_F(a, b, c, y1, y2)
-
-            sol_list = [n_sol, Vector2D(line.getX(y1), y1), Vector2D(line.getX(y2), y2)]
+            n_sol = QUADRATIC_F(a, b, c)
+            y1 = n_sol[1]
+            y2 = n_sol[2]
+            sol_list = [n_sol[0], Vector2D(line.getX(y1), y1), Vector2D(line.getX(y2), y2)]
             return sol_list
         elif len(args) == 1 and isinstance(args[0], Ray2D):
             ray = args[0]
-            tsol1 = Vector2D(0, 0)
-            tsol2 = Vector2D(0, 0)
+            t_sol1 = Vector2D(0, 0)
+            t_sol2 = Vector2D(0, 0)
             line_tmp = Line2D(ray.origin(), ray.dir())
 
             n_sol = Circle2D.intersection(line_tmp)  # TODO Check LineTMP
 
-            if n_sol[0] > 1 and not ray.inRightDir(tsol2, 1.0):
+            if n_sol[0] > 1 and not ray.inRightDir(t_sol2, 1.0):
                 n_sol[0] -= 1
 
-            if n_sol[0] > 0 and not ray.inRightDir(tsol1, 1.0):
-                tsol1 = tsol2
+            if n_sol[0] > 0 and not ray.inRightDir(t_sol1, 1.0):
+                t_sol1 = t_sol2
                 n_sol[0] -= 1
 
-            sol_list = [n_sol[0], tsol1, tsol2]
+            sol_list = [n_sol[0], t_sol1, t_sol2]
 
             return sol_list
 
         elif len(args) == 1 and (args[0], Segment2D):
             seg = args[0]
             line = seg.line()
-            tsol1 = Vector2D()
-            tsol2 = Vector2D()
+            t_sol1 = Vector2D()
+            t_sol2 = Vector2D()
 
             n_sol = Circle2D.intersection(line)
 
-            if n_sol[0] > 1 and not seg.contains(tsol2):
+            if n_sol[0] > 1 and not seg.contains(t_sol2):
                 n_sol[0] -= 1
 
-            if n_sol > 0 and not seg.contains(tsol1):
+            if n_sol > 0 and not seg.contains(t_sol1):
                 n_sol[0] -= 1
 
-            sol_list = [n_sol[0], tsol1, tsol2]
+            sol_list = [n_sol[0], t_sol1, t_sol2]
 
             return sol_list
 
