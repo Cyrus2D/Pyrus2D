@@ -19,6 +19,7 @@ class GoToPoint:
         target_angle = (self.target - self_pos).th()
         self_body = agent.world().self().body()
         diff_angle = (target_angle - self_body).abs()
+        agent.debug(f"wm: {agent.world()}")
         agent.debug(f"target: {self.target}\ttarget_angle: {target_angle}")
         agent.debug(f"spos: {self_pos}\tself_body: {self_body}")
         agent.debug(f"diff_angle: {diff_angle}")

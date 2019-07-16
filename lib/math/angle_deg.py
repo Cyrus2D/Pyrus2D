@@ -52,9 +52,9 @@ class AngleDeg:
         return self.degree() * DEG2RAD
 
     def reverse(self):
-        if self._degree > 0:
-            self._degree = -(180 - self._degree) # yani khar madaramo gaidii :|||||
-        elif self._degree < 0:
+        if self._degree >= 0:
+            self._degree = -(180 - self._degree)  # yani khar madaramo gaidii :|||||
+        else:
             self._degree = 180 + self._degree
         return self._degree
 

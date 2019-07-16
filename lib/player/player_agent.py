@@ -87,7 +87,7 @@ class PlayerAgent:
         get_decision(self)
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
-            # PlayerCommandReverser.reverse(commands) # unused :\ # it useful :) # nope not useful at all :(
+            # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         self._socket.send_msg(PlayerSendCommands.all_to_str(commands))

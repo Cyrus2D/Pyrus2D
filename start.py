@@ -16,7 +16,7 @@ def start_main():
     make_agent_runner(team_name, True, agents)
 
     # Players
-    for i in range(4):
+    for i in range(10):
         make_agent_runner(team_name, False, agents)
 
     for agent in agents:
