@@ -2,7 +2,6 @@ from lib.action.go_to_point import *
 from base.strategy import *
 
 def get_decision(agent):
-    agent.debug(f"time: {agent.world().time()}")
     st = Strategy()
     wm = agent.world()
     st.update(agent.world().ball().pos())

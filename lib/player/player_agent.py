@@ -97,4 +97,4 @@ class PlayerAgent:
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
-        self._logger = setup_logger(f"dlog{unum}", f"debug/{side}{unum}.log", level=logging.DEBUG)
+        self._logger = setup_logger(f"dlog{unum}", f"../debug/{side}{unum}.log", level=logging.DEBUG)

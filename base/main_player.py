@@ -1,7 +1,7 @@
 from lib.player.player_agent import *
 
 
-def main(team_name="Pyrus2", goalie=False):
+def main(team_name="Pyrus", goalie=False):
     player_agent = PlayerAgent()
     player_agent.run(team_name, goalie)
 

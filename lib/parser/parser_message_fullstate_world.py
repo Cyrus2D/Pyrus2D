@@ -61,7 +61,7 @@ class PlayerMessageParser:
             kk = 0
             if msg[3] == "g":
                 k = 1
-            if len(msg) > (15 if k == 0 else 16):
+            if PlayerMessageParser.n_inner_dict(message[seek: next_seek]) > 2:
                 kk = 2
             player_dic = {
                 "side_id": msg[1],
@@ -89,6 +89,18 @@ class PlayerMessageParser:
             seek = next_seek
         dic["players"] = players
 
+    @staticmethod
+    def n_inner_dict(message: str):
+        print("message", message)
+        n = 0
+        for c in message[1:-1]:
+            if c == '(':
+                n += 1
+        print("n", n)
+        return n
+
+
     def parse(self, message):
         PlayerMessageParser._parser(self._dic, message)
         return self._dic
+

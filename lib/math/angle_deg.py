@@ -53,7 +53,7 @@ class AngleDeg:
 
     def reverse(self):
         if self._degree >= 0:
-            self._degree = -(180 - self._degree)  # Aref eh zeshte :))
+            self._degree = -(180 - self._degree)  # Aref eh zeshte :)) # 3 saat debug budam saresh :/
         else:
             self._degree = 180 + self._degree
         return self._degree
