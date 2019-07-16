@@ -69,7 +69,12 @@ class Ray2D:
         return ((point - self.origin).th() - self.direction).abs() < thr
 
     """
+        Line2D
       \ brief get the intersection point with 'line'
+      \ param other considered line
+      \ return intersection point. if it does not exist, the invalidated value vector is returned.
+        Ray2D
+      \ brief get the intersection point with 'ray'
       \ param other considered line
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
@@ -97,12 +102,6 @@ class Ray2D:
                 return Vector2D.invalid()
 
             return tmp_sol
-
-    """
-      \ brief get the intersection point with 'ray'
-      \ param other considered line
-      \ return intersection point. if it does not exist, the invalidated value vector is returned.
-    """
 
     """
       \ brief make a logical print.
