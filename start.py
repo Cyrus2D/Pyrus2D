@@ -1,3 +1,5 @@
+import sys
+
 from base.main_player import main
 from threading import Thread
 from random import randrange
@@ -11,6 +13,7 @@ def make_agent_runner(team_name, goalie, agents):
 
 
 def start_main():
+    stdout = sys.stdout
     agents = []
     # goalie
     make_agent_runner(team_name, True, agents)
@@ -24,8 +27,6 @@ def start_main():
 
     for agent in agents:
         agent.join()
-
-    print("Done :\\")
 
 
 if __name__ == "__main__":

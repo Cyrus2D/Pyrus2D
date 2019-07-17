@@ -1,5 +1,6 @@
-from lib.player.player_agent import *
+#!/usr/bin/python3
 
+from lib.player.player_agent import *
 
 def main(team_name="Pyrus", goalie=False):
     player_agent = PlayerAgent()

@@ -1,3 +1,4 @@
+from lib.debug.logger import dlog
 from lib.parser.parser_message_params import MessageParamsParser
 
 """"
@@ -91,16 +92,14 @@ class PlayerMessageParser:
 
     @staticmethod
     def n_inner_dict(message: str):
-        print("message", message)
+        dlog.debug(f"message {message}")
         n = 0
         for c in message[1:-1]:
             if c == '(':
                 n += 1
-        print("n", n)
+        dlog.debug(f"n {n}")
         return n
-
 
     def parse(self, message):
         PlayerMessageParser._parser(self._dic, message)
         return self._dic
-

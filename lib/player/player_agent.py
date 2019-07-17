@@ -1,16 +1,16 @@
 import logging
 import time
+import sys
 
 from base.decision import *
-from lib.debug.logger import setup_logger
+from lib.debug.logger import dlog
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand
 from lib.player_command.player_command_support import PlayerDoneCommand
-from lib.player_command.player_command_sender import PlayerSendCommands, PlayerCommandReverser
+from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import SideID
 
 
 class PlayerAgent:
@@ -22,10 +22,10 @@ class PlayerAgent:
         self._is_synch_mode = True
         self._server_param = ServerParam()
         self._last_body_command = []
-        self._logger = logging.Logger("2") # make debug folder in Pyrus directory
 
     def run(self, team_name, goalie):
         self.connect(team_name, goalie)
+        last_time_rec = time.time()
         while True:
             message_and_address = []
             message_count = 0
@@ -34,6 +34,7 @@ class PlayerAgent:
                 server_address = message_and_address[1]
                 self.parse_message(message.decode())
                 message_count += 1
+                last_time_rec = time.time()
 
             if message_count > 0:
                 self.action()
@@ -45,6 +46,10 @@ class PlayerAgent:
 
                 cycle_end = time.time()
                 print(f"run-time: {cycle_end-cycle_start}s")
+            elif time.time() - last_time_rec > 3:
+                print("srever down")
+                # sys.stdout.close()
+                break
 
     def connect(self, team_name, goalie, version=15):
         self._socket.send_msg(PlayerInitCommand(team_name, 15, goalie).str())
@@ -52,7 +57,7 @@ class PlayerAgent:
     def parse_message(self, message):
         self._think_mode = False
         if message.find("(init") is not -1:
-            self.init_logger(message)
+            self.init_print(message)
         if message.find("server_param") is not -1:
             print(message)
             self._server_param.parse(message)
@@ -77,24 +82,19 @@ class PlayerAgent:
     def full_world(self) -> WorldModel:
         return self._full_world
 
-    def logger(self):
-        return self._logger
-
-    def debug(self, msg):
-        self.logger().debug(msg)
-
     def action(self):
         get_decision(self)
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
-            # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
+        # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         self._socket.send_msg(PlayerSendCommands.all_to_str(commands))
         self._last_body_command = []
 
-    def init_logger(self, message: str):
+    def init_print(self, message: str):
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
-        self._logger = setup_logger(f"dlog{unum}", f"../debug/{side}{unum}.log", level=logging.DEBUG)
+        # sys.stdout = open(f"debug/{side}{unum}.log", 'w')
+        dlog.setup_logger(f"dlog{side}{unum}", f"debug/{side}{unum}.log", logging.DEBUG)
