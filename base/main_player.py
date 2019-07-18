@@ -8,4 +8,8 @@ def main(team_name="Pyrus", goalie=False):
 
 
 if __name__ == "__main__":
-    main()
+    print(sys.argv)
+    goalie = False
+    if len(sys.argv) > 1 and sys.argv[1] == "g":
+        goalie = True
+    main(goalie=goalie)

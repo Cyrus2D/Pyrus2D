@@ -9,3 +9,4 @@ lib/math/__pycache__/
 variables
 accessors
 *.log
+main_test.py

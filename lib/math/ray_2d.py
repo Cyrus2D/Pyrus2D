@@ -22,17 +22,17 @@ class Ray2D:
 
     def __init__(self, *args):  # , **kwargs):)
         if len(args) == 2 and isinstance(args[1], AngleDeg):
-            self.origin = args[0]
-            self.direction = args[1]
-            self.is_valid = True
+            self._origin = args[0]
+            self._direction = args[1]
+            self._is_valid = True
         elif len(args) == 2 and isinstance(args[1], Vector2D):
-            self.origin = args[0]
-            self.direction = (args[1] - args[0]).th()
-            self.is_valid = True
+            self._origin = args[0]
+            self._direction = (args[1] - args[0]).th()
+            self._is_valid = True
         else:
-            self.origin = Vector2D()
-            self.direction = AngleDeg()
-            self.is_valid = True
+            self._origin = Vector2D()
+            self._direction = AngleDeg()
+            self._is_valid = True
 
     """
       \ brief get origin point
@@ -40,7 +40,7 @@ class Ray2D:
     """
 
     def origin(self):
-        return self.origin
+        return self._origin
 
     """
       \ brief get the angle of this ray line
@@ -48,7 +48,7 @@ class Ray2D:
     """
 
     def dir(self):
-        return self.direction
+        return self._direction
 
     """
       \ brief get line generated from this ray
@@ -56,7 +56,7 @@ class Ray2D:
     """
 
     def line(self):
-        return Line2D(self.origin, self.direction)
+        return Line2D(self._origin, self._direction)
 
     """
       \ brief check whether p is on the direction of this Ray
@@ -66,7 +66,7 @@ class Ray2D:
     """
 
     def inRightDir(self, point: Vector2D, thr=10.0):
-        return ((point - self.origin).th() - self.direction).abs() < thr
+        return ((point - self._origin).th() - self._direction).abs() < thr
 
     """
         Line2D
@@ -110,7 +110,7 @@ class Ray2D:
     """
 
     def __repr__(self):
-        return str(self.origin) + " dir : " + str(self.direction)
+        return str(self._origin) + " dir : " + str(self._direction)
 
 
 def test():
@@ -118,7 +118,7 @@ def test():
     print(a)
     b = Ray2D(Vector2D(0, 0), AngleDeg(45))
     print(b)
-    c = Ray2D(a.origin, b.dir())
+    c = Ray2D(a._origin, b.dir())
     print(c)
 
 

@@ -49,15 +49,15 @@ class Circle2D:
 
     def __init__(self, *args):  # , **kwargs):)
         if len(args) == 2 and isinstance(args[0], Vector2D):
-            self.center = args[0]
-            self.radius = args[1]
+            self._center = args[0]
+            self._radius = args[1]
             if args[1] < 0.0:
-                self.radius = 0.0
-            self.is_valid = True
+                self._radius = 0.0
+            self._is_valid = True
         else:
-            self.center = Vector2D()
-            self.radius = 0.0
-            self.is_valid = True
+            self._center = Vector2D()
+            self._radius = 0.0
+            self._is_valid = True
 
     """
       \ brief assign value.
@@ -66,10 +66,10 @@ class Circle2D:
     """
 
     def assign(self, c: Vector2D, r: float):
-        self.center = c
-        self.radius = r
+        self._center = c
+        self._radius = r
         if r < 0.0:
-            self.radius = 0.0
+            self._radius = 0.0
 
     """
       \ brief get the area value of self circle
@@ -77,7 +77,7 @@ class Circle2D:
      """
 
     def area(self):
-        return PI * self.radius * self.radius
+        return PI * self._radius * self._radius
 
     """
       \ brief check if point is within self region
@@ -86,7 +86,7 @@ class Circle2D:
      """
 
     def contains(self, point: Vector2D):
-        return self.center.dist2(point) < self.radius * self.radius
+        return self._center.dist2(point) < self._radius * self._radius
 
     """
       \ brief get the center point
@@ -94,7 +94,7 @@ class Circle2D:
      """
 
     def center(self):
-        return self.center
+        return self._center
 
     """
       \ brief get the radius value
@@ -102,7 +102,7 @@ class Circle2D:
     """
 
     def radius(self):
-        return self.radius
+        return self._radius
 
     """
         Line2D
@@ -131,10 +131,10 @@ class Circle2D:
                     return 0
 
                 n_sol = QUADRATIC_F(1.0,
-                                    -2.0 * self.center.x,
-                                    (SQUARE(self.center.x)
-                                     + SQUARE(line.c() / line.b() + self.center.y)
-                                     - SQUARE(self.radius)))
+                                    -2.0 * self._center.x,
+                                    (SQUARE(self._center.x)
+                                     + SQUARE(line.c() / line.b() + self._center.y)
+                                     - SQUARE(self._radius)))
                 x1 = n_sol[1]
                 x2 = n_sol[2]
                 if n_sol[0] > 0:
@@ -149,8 +149,8 @@ class Circle2D:
                 d = line.c() / line.a()
 
                 a = 1.0 + m * m
-                b = 2.0 * (-self.center.y + (d + self.center.x) * m)
-                c = SQUARE(d + self.center.x) + SQUARE(self.center.y) - SQUARE(self.radius)
+                b = 2.0 * (-self._center.y + (d + self._center.x) * m)
+                c = SQUARE(d + self._center.x) + SQUARE(self._center.y) - SQUARE(self._radius)
 
             n_sol = QUADRATIC_F(a, b, c)
             y1 = n_sol[1]
@@ -159,11 +159,11 @@ class Circle2D:
             return sol_list
         elif len(args) == 1 and isinstance(args[0], Ray2D):
             ray = args[0]
-            t_sol1 = Vector2D(0, 0)
-            t_sol2 = Vector2D(0, 0)
             line_tmp = Line2D(ray.origin(), ray.dir())
 
-            n_sol = Circle2D.intersection(line_tmp)  # TODO Check LineTMP
+            n_sol = self.intersection(line_tmp)  # TODO Check LineTMP
+            t_sol1 = n_sol[1]
+            t_sol2 = n_sol[2]
 
             if n_sol[0] > 1 and not ray.inRightDir(t_sol2, 1.0):
                 n_sol[0] -= 1
@@ -197,17 +197,17 @@ class Circle2D:
         elif len(args) == 1 and isinstance(args[0], Circle2D):
             circle = args[0]
 
-            rel_x = circle.center().x - self.center.x
-            rel_y = circle.center().y - self.center.y
+            rel_x = circle.center().x - self._center.x
+            rel_y = circle.center().y - self._center.y
 
             center_dist2 = rel_x * rel_x + rel_y * rel_y
             center_dist = math.sqrt(center_dist2)
 
-            if center_dist < math.fabs(self.radius - circle.radius()) or self.radius + circle.radius() < center_dist:
+            if center_dist < math.fabs(self._radius - circle.radius()) or self._radius + circle.radius() < center_dist:
                 return
 
             line = Line2D(-2.0 * rel_x, -2.0 * rel_y,
-                          circle.center().r2() - circle.radius() * circle.radius() - self.center.r2() + self.radius * self.radius)
+                          circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
 
             return self.intersection(line)
 
@@ -262,7 +262,7 @@ class Circle2D:
     """
 
     def __repr__(self):
-        return "({} , {})".format(self.center, self.radius)
+        return "({} , {})".format(self._center, self._radius)
 
 
 def test():

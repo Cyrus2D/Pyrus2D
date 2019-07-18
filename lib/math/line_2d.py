@@ -26,20 +26,20 @@ class Line2D:
 
     def __init__(self, *args):  # , **kwargs):):
         if len(args) == 3:
-            self.a = args[0]
-            self.b = args[1]
-            self.c = args[2]
+            self._a = args[0]
+            self._b = args[1]
+            self._c = args[2]
             self.is_valid = True
         elif len(args) == 2 and isinstance(args[0], Vector2D):
-            self.a = 0.0
-            self.b = 0.0
-            self.c = 0.0
+            self._a = 0.0
+            self._b = 0.0
+            self._c = 0.0
             self.is_valid = True
             self.assign(args[0], args[1])
         else:
-            self.a = 0.0
-            self.b = 0.0
-            self.c = 0.0
+            self._a = 0.0
+            self._b = 0.0
+            self._c = 0.0
             self.is_valid = True
 
     """
@@ -55,14 +55,14 @@ class Line2D:
 
     def assign(self, *args):  # , **kwargs):):
         if len(args) == 2 and isinstance(args[1], Vector2D):
-            self.a = -(args[1].y - args[0].y)
-            self.b = args[1].x - args[0].x
-            self.c = -self.a * args[0].x - self.b * args[0].y
+            self._a = -(args[1].y - args[0].y)
+            self._b = args[1].x - args[0].x
+            self._c = -self._a * args[0].x - self._b * args[0].y
         if len(args) == 2 and isinstance(args[1], AngleDeg):
             linedir = args[1]
-            self.a = -linedir.sin()
-            self.b = linedir.cos()
-            self.c = self.a * args[0].x - self.b * args[0].y
+            self._a = -linedir.sin()
+            self._b = linedir.cos()
+            self._c = self._a * args[0].x - self._b * args[0].y
 
     """
       \ brief accessor
@@ -70,7 +70,7 @@ class Line2D:
     """
 
     def a(self):
-        return self.a
+        return self._a
 
     """
       \ brief accessor
@@ -78,7 +78,7 @@ class Line2D:
     """
 
     def b(self):
-        return self.b
+        return self._b
 
     """
       \ brief accessor
@@ -86,7 +86,7 @@ class Line2D:
     """
 
     def c(self):
-        return self.c
+        return self._c
 
     """
       \ brief get X-coordinate correspond to 'y'
@@ -95,9 +95,9 @@ class Line2D:
     """
 
     def getX(self, y):
-        if math.fabs(self.a) < EPSILON:
+        if math.fabs(self._a) < EPSILON:
             return ERROR_VALUE
-        return -(self.b * y + self.c) / self.a
+        return -(self._b * y + self._c) / self._a
 
     """
       \ brief get Y-coordinate correspond to 'x'
@@ -106,9 +106,9 @@ class Line2D:
     """
 
     def getY(self, x):
-        if math.fabs(self.b) < EPSILON:
+        if math.fabs(self._b) < EPSILON:
             return ERROR_VALUE
-        return -(self.a * x + self.c) / self.b
+        return -(self._a * x + self._c) / self._b
 
     """
       \ brief calculate distance from point to this line
@@ -117,7 +117,7 @@ class Line2D:
     """
 
     def dist(self, p: Vector2D):
-        return math.fabs((self.a * p.x + self.b * p.y + self.c) / math.sqrt(self.a * self.a + self.b * self.b))
+        return math.fabs((self._a * p.x + self._b * p.y + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
 
     """
       \ brief get squared distance from this line to point
@@ -126,8 +126,8 @@ class Line2D:
     """
 
     def dist2(self, p: Vector2D):
-        d = self.a * p.x + self.b * p.y + self.c
-        return (d * d) / (self.a * self.a + self.b * self.b)
+        d = self._a * p.x + self._b * p.y + self._c
+        return (d * d) / (self._a * self._a + self._b * self._b)
 
     """    
       \ brief check if the slope of this line is same to the slope of 'other'
@@ -137,7 +137,7 @@ class Line2D:
     """
 
     def isParallel(self, other):
-        return math.fabs(self.a * other.b() - other.a() * self.b) < EPSILON
+        return math.fabs(self._a * other.b() - other.a() * self._b) < EPSILON
 
     """ 
       \ brief get the intersection point with 'other'
@@ -155,7 +155,7 @@ class Line2D:
     """
 
     def perpendicular(self, point):
-        return Line2D(self.b, -self.a, self.a * point.y - self.b * point.x)
+        return Line2D(self._b, -self._a, self._a * point.y - self._b * point.x)
 
     """
       \ brief calc projection point from p
@@ -220,9 +220,9 @@ class Line2D:
     """
 
     def __repr__(self):
-        if self.c == 0:
-            return "({} X + {} Y = 0)".format(self.a, self.b)
-        return "({} X + {} Y + {} = 0)".format(self.a, self.b, self.c)
+        if self._c == 0:
+            return "({} X + {} Y = 0)".format(self._a, self._b)
+        return "({} X + {} Y + {} = 0)".format(self._a, self._b, self._c)
 
 
 def test():
