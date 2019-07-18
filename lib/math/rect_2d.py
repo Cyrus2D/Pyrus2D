@@ -47,33 +47,33 @@ class Rect2D(Region2D):
     def __init__(self, *args):  # , **kwargs):)
         super().__init__()
         if len(args) == 4:
-            self.top_left = Vector2D(args[0], args[1])
-            self.size = Size2D(args[2], args[3])
-            self.is_valid = True
+            self._top_left = Vector2D(args[0], args[1])
+            self._size = Size2D(args[2], args[3])
+            self._is_valid = True
         elif len(args) == 3 and isinstance(args[0], Vector2D):
-            self.top_left = args[0]
-            self.size = Size2D(args[1], args[2])
-            self.is_valid = True
+            self._top_left = args[0]
+            self._size = Size2D(args[1], args[2])
+            self._is_valid = True
         elif len(args) == 2 and isinstance(args[1], Size2D):
-            self.top_left = args[0]
-            self.size = args[1]
-            self.is_valid = True
+            self._top_left = args[0]
+            self._size = args[1]
+            self._is_valid = True
         elif len(args) == 2 and isinstance(args[1], Vector2D):
-            self.top_left = args[0]
+            self._top_left = args[0]
             bottom_right = args[1]
             top_left = args[0]
-            self.size = Size2D(bottom_right.x - top_left.x, bottom_right.y - top_left.y)
+            self._size = Size2D(bottom_right.x - top_left.x, bottom_right.y - top_left.y)
             if bottom_right.x - top_left.x < 0.0:
-                self.top_left.x = bottom_right.x
+                self._top_left.x = bottom_right.x
 
             if bottom_right.y - top_left.y < 0.0:
-                self.top_left.y = bottom_right.y
-                self.size = Size2D()
-                self.is_valid = True
+                self._top_left.y = bottom_right.y
+                self._size = Size2D()
+                self._is_valid = True
             else:
-                self.top_left = Vector2D()
-                self.size = Size2D()
-                self.is_valid = True
+                self._top_left = Vector2D()
+                self._size = Size2D()
+                self._is_valid = True
 
     """
         4 NUM
@@ -96,14 +96,14 @@ class Rect2D(Region2D):
     def assign(self, *args):  # , **kwargs):)
         super().__init__()
         if len(args) == 4:
-            self.top_left.assign(args[0], args[1])
-            self.size.assign(args[0], args[3])
+            self._top_left.assign(args[0], args[1])
+            self._size.assign(args[0], args[3])
         elif len(args) == 3 and isinstance(args[0], Vector2D):
-            self.top_left = args[0]
-            self.size.assign(args[1], args[2])
+            self._top_left = args[0]
+            self._size.assign(args[1], args[2])
         elif len(args) == 2 and isinstance(args[1], Size2D):
-            self.top_left = args[0]
-            self.size = args[1]
+            self._top_left = args[0]
+            self._size = args[1]
 
     """
       \ brief move the rectangle.
@@ -113,7 +113,7 @@ class Rect2D(Region2D):
     """
 
     def moveCenter(self, point):
-        self.top_left.assign(point.x - self.size._length() * 0.5, point.y - self.size._width() * 0.5)
+        self._top_left.assign(point.x - self._size._length() * 0.5, point.y - self._size._width() * 0.5)
 
     """
       \ brief move the rectangle.
@@ -123,7 +123,7 @@ class Rect2D(Region2D):
     """
 
     def moveTopLeft(self, point):
-        self.top_left = point
+        self._top_left = point
 
     """
       \ brief move the rectangle.
@@ -133,7 +133,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottomRight(self, point):
-        self.top_left.assign(point.x - self.size._length(), point.y - self.size._width())
+        self._top_left.assign(point.x - self._size._length(), point.y - self._size._width())
 
     """
       \ brief move the rectangle.
@@ -143,7 +143,7 @@ class Rect2D(Region2D):
     """
 
     def moveLeft(self, x):
-        self.top_left.x = x
+        self._top_left.x = x
 
     """
       \ brief alias of moveLeft.
@@ -161,7 +161,7 @@ class Rect2D(Region2D):
     """
 
     def moveRight(self, x):
-        self.top_left.x = x - self.size._length()
+        self._top_left.x = x - self._size._length()
 
     """
       \ brief alias of moveRight.
@@ -179,7 +179,7 @@ class Rect2D(Region2D):
     """
 
     def moveTop(self, y):
-        self.top_left.y = y
+        self._top_left.y = y
 
     """
       \ brief alias of moveTop.
@@ -197,7 +197,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottom(self, y):
-        self.top_left.y = y - self.size._width()
+        self._top_left.y = y - self._size._width()
 
     """
       \ brief alias of moveTop.
@@ -268,8 +268,8 @@ class Rect2D(Region2D):
     def setLeft(self, x):
         new_left = min(self.right(), x)
         new_right = max(self.right(), x)
-        self.top_left.x = new_left
-        self.size.setLength(new_right - new_left)
+        self._top_left.x = new_left
+        self._size.setLength(new_right - new_left)
 
     """
       \ brief alias of setLeft.
@@ -289,8 +289,8 @@ class Rect2D(Region2D):
         new_left = min(self.left(), x)
         new_right = max(self.left(), x)
 
-        self.top_left.x = new_left
-        self.size.setLength(new_right - new_left)
+        self._top_left.x = new_left
+        self._size.setLength(new_right - new_left)
 
     """
       \ brief alias of setRight.
@@ -310,8 +310,8 @@ class Rect2D(Region2D):
         new_top = min(self.bottom(), y)
         new_bottom = max(self.bottom(), y)
 
-        self.top_left.y = new_top
-        self.size.setWidth(new_bottom - new_top)
+        self._top_left.y = new_top
+        self._size.setWidth(new_bottom - new_top)
 
     """
       \ brief alias of setTop.
@@ -331,8 +331,8 @@ class Rect2D(Region2D):
         new_top = min(self.top(), y)
         new_bottom = max(self.top(), y)
 
-        self.top_left.y = new_top
-        self.size.setWidth(new_bottom - new_top)
+        self._top_left.y = new_top
+        self._size.setWidth(new_bottom - new_top)
 
     """
       \ brief alias of setBottom.
@@ -348,7 +348,7 @@ class Rect2D(Region2D):
     """
 
     def setLength(self, length):
-        self.size.setLength(length)
+        self._size.setLength(length)
 
     """
       \ brief set a y-range
@@ -356,7 +356,7 @@ class Rect2D(Region2D):
     """
 
     def setWidth(self, width):
-        self.size.setWidth(width)
+        self._size.setWidth(width)
 
     """
         2 NUM
@@ -370,9 +370,9 @@ class Rect2D(Region2D):
 
     def setSize(self, *args):  # , **kwargs):)
         if len(args) == 2:
-            self.size.assign(args[0], args[1])
+            self._size.assign(args[0], args[1])
         elif len(args) == 1 and isinstance(args[0], Size2D):
-            self.size = args[0]
+            self._size = args[0]
 
     """
       \ brief check if self rectangle is valid or not.
@@ -380,7 +380,7 @@ class Rect2D(Region2D):
     """
 
     def isValid(self):
-        return self.size.isValid()
+        return self._size.isValid()
 
     """
       \ brief get the area value of self rectangle.
@@ -388,7 +388,7 @@ class Rect2D(Region2D):
     """
 
     def area(self):
-        return self.size._length() * self.size._width()
+        return self._size._length() * self._size._width()
 
     """
       \ brief check if point is within self region.
@@ -415,7 +415,7 @@ class Rect2D(Region2D):
     """
 
     def left(self):
-        return self.top_left.x
+        return self._top_left.x
 
     """
       \ brief get the right x coordinate of self rectangle.
@@ -423,7 +423,7 @@ class Rect2D(Region2D):
     """
 
     def right(self):
-        return self.left() + self.size._length()
+        return self.left() + self._size._length()
 
     """
       \ brief get the top y coordinate of self rectangle.
@@ -431,7 +431,7 @@ class Rect2D(Region2D):
     """
 
     def top(self):
-        return self.top_left.y
+        return self._top_left.y
 
     """
       \ brief get the bottom y coordinate of self rectangle.
@@ -439,7 +439,7 @@ class Rect2D(Region2D):
     """
 
     def bottom(self):
-        return self.top() + self.size._width()
+        return self.top() + self._size._width()
 
     """
       \ brief get minimum value of x coordinate of self rectangle
@@ -479,7 +479,7 @@ class Rect2D(Region2D):
     """
 
     def size(self):
-        return self.size
+        return self._size
 
     """
       \ brief get center point
@@ -496,7 +496,7 @@ class Rect2D(Region2D):
     """
 
     def topLeft(self):
-        return self.top_left
+        return self._top_left
 
     """
       \ brief get the top-right corner point
@@ -557,6 +557,90 @@ class Rect2D(Region2D):
     """  ----------------- static method  ----------------- """
 
     """
+        Line2D
+      \ brief calculate intersection point with line.
+      \ param line considered line.
+      \ param sol1 pointer to the 1st solution variable
+      \ param sol2 pointer to the 2nd solution variable
+      \ return number of intersection
+        Ray2D
+      \ brief calculate intersection point with ray.
+      \ param ray considered ray line.
+      \ param sol1 pointer to the 1st solution variable
+      \ param sol2 pointer to the 2nd solution variable
+      \ return number of intersection
+        Segment2D
+      \ brief calculate intersection point with line segment.
+      \ param segment considered line segment.
+      \ param sol1 pointer to the 1st solution variable
+      \ param sol2 pointer to the 2nd solution variable
+      \ return number of intersection
+    """
+
+    def intersection(self, *args):  # , **kwargs):):
+        if len(args) == 1 and isinstance(args[0], Line2D):
+            line = args[0]
+            n_sol = 0
+            t_sol = [Vector2D(0, 0), Vector2D(0, 0)]
+
+            left_x = self.left()
+            right_x = self.right()
+            top_y = self.top()
+            bottom_y = self.bottom()
+
+            t_sol[n_sol] = self.leftEdge().intersection(line)
+
+            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol].y <= bottom_y:
+                n_sol += 1
+
+            t_sol[n_sol] = self.rightEdge().intersection(line)
+
+            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol].y <= bottom_y:
+                n_sol += 1
+
+            t_sol[n_sol] = self.topEdge().intersection(line)
+
+            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol].x <= right_x:
+                n_sol += 1
+
+            t_sol[n_sol] = self.topEdge().intersection(line)
+
+            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol].x <= right_x:
+                n_sol += 1
+
+            if n_sol == 2 and math.fabs(t_sol[0].x - t_sol[1].x) < EPSILON and math.fabs(
+                    t_sol[0].y - t_sol[1].y) < EPSILON:
+                n_sol = 1
+
+            sol_list = [n_sol, t_sol[0], t_sol[1]]
+
+            return sol_list
+
+        if len(args) == 1 and isinstance(args[0], Ray2D):
+            ray = args[0]
+            n_sol = self.intersection(ray.line())
+
+            if n_sol[0] > 1 and not ray.inRightDir(n_sol[2], 1.0):
+                n_sol[0] -= 1
+
+            if n_sol[0] > 0 and not ray.inRightDir(n_sol[1], 1.0):
+                n_sol[1] = n_sol[2]
+                n_sol[0] -= 1
+
+            return n_sol
+        if len(args) == 1 and isinstance(args[0], Segment2D):
+            seg = args[0]
+            n_sol = self.intersection(seg.line())
+            if n_sol[0] > 1 and not seg.contains(n_sol[2]):
+                n_sol[0] -= 1
+
+            if n_sol[0] > 0 and not seg.contains(n_sol[1]):
+                n_sol[1] = n_sol[2]
+                n_sol[0] -= 1
+
+            return n_sol
+
+    """
         4 NUM
       \ brief create rectangle with center point and size.
       \ param center_x x value of center point of rectangle.
@@ -588,7 +672,7 @@ class Rect2D(Region2D):
     """
 
     def __repr__(self):
-        return "[len:{},wid:{}]".format(self.top_left, self.size)
+        return "[len:{},wid:{}]".format(self._top_left, self._size)
 
 
 def test():

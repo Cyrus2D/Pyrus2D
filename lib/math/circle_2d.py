@@ -4,6 +4,7 @@
 """
 
 from lib.math.triangle_2d import *
+from lib.math.segment_2d import *
 
 """
   \ brief solve quadratic formula
