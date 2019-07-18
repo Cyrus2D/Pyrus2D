@@ -69,7 +69,7 @@ class WorldModel:
         if self.self().side() == SideID.RIGHT:
             self.reverse()
 
-        print(self)
+        # print(self)
 
     def __repr__(self):
         # Fixed By MM _ temp

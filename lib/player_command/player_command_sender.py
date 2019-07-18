@@ -14,7 +14,6 @@ class PlayerSendCommands(PlayerCommand):
             else:
                 commands_msg += command.str()
         commands_msg = last_body_command.str() + commands_msg
-        print("message", commands_msg)
         return commands_msg
 
 
@@ -22,12 +21,9 @@ class PlayerCommandReverser(PlayerCommand):
     @staticmethod
     def reverse(commands):
         for i in range(len(commands)):
-            print(commands[i].__dict__)
             # if "_dir" in commands[i].__dict__:
-            #     print("HERE")
             #     commands[i]._dir = PlayerCommandReverser.reverse_deg(commands[i]._dir)
             if "_moment" in commands[i].__dict__:
-                print("HERE2")
                 commands[i]._moment = PlayerCommandReverser.reverse_deg(commands[i]._moment)
 
     @staticmethod

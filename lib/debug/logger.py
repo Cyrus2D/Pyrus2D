@@ -30,7 +30,7 @@ class dlog:
         logger.addHandler(handler)
 
         dlog._logger = logger
-        dlog.debug("logger initialized")
+        # dlog.debug("logger initialized")
 
     @staticmethod
     def name():

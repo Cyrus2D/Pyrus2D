@@ -45,7 +45,7 @@ class PlayerAgent:
                 self._think_mode = False
 
                 cycle_end = time.time()
-                print(f"run-time: {cycle_end-cycle_start}s")
+                # print(f"run-time: {cycle_end-cycle_start}s")
             elif time.time() - last_time_rec > 3:
                 print("srever down")
                 # sys.stdout.close()
@@ -59,7 +59,6 @@ class PlayerAgent:
         if message.find("(init") is not -1:
             self.init_print(message)
         if message.find("server_param") is not -1:
-            print(message)
             self._server_param.parse(message)
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:

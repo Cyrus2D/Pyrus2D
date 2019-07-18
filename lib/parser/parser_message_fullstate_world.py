@@ -92,12 +92,12 @@ class PlayerMessageParser:
 
     @staticmethod
     def n_inner_dict(message: str):
-        dlog.debug(f"message {message}")
+        # dlog.debug(f"message {message}")
         n = 0
         for c in message[1:-1]:
             if c == '(':
                 n += 1
-        dlog.debug(f"n {n}")
+        # dlog.debug(f"n {n}")
         return n
 
     def parse(self, message):
