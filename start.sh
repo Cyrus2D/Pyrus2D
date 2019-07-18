@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PYTHONPATH="${PYTHONPATH}:`pwd`"
+
 ./base/main_player.py g &
 
 i=1
