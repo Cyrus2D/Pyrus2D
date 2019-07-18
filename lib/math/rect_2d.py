@@ -554,8 +554,6 @@ class Rect2D(Region2D):
     def bottomEdge(self):
         return Line2D(self.bottomLeft(), self.bottomRight())
 
-    """  ----------------- static method  ----------------- """
-
     """
         Line2D
       \ brief calculate intersection point with line.
@@ -639,6 +637,55 @@ class Rect2D(Region2D):
                 n_sol[0] -= 1
 
             return n_sol
+
+    """
+     \ brief get the intersected rectangle of self rectangle and the other rectangle.
+     If no intersection between rectangles,empty rectangle is returned.
+     \ param other other rectangle
+     \ return rectangle instance.
+    """
+
+    def intersected(self, other):
+        if not self.isValid or not other.isValid():
+            self._top_left.assign(0.0, 0.0)
+            self._size.assign(0.0, 0.0)
+
+        left = max(self.left(), other.left())
+        top = max(self.top(), other.top())
+        w = min(self.right(), other.right()) - left
+        h = min(self.bottom(), other.bottom()) - top
+
+        if w <= 0.0 or h <= 0.0:
+            self._top_left.assign(0.0, 0.0)
+            self._size.assign(0.0, 0.0)
+
+        self._top_left.assign(left, top)
+        self._size.assign(w, h)
+
+    """
+      \ brief get the united rectangle of self rectangle and the other rectangle.
+      \ param other other rectangle
+      \ return rectangle instance.
+    """
+
+    def united(self, other):
+        if not self.isValid or not other.isValid():
+            self._top_left.assign(0.0, 0.0)
+        self._size.assign(0.0, 0.0)
+
+        left = max(self.left(), other.left())
+        top = max(self.top(), other.top())
+        w = min(self.right(), other.right()) - left
+        h = min(self.bottom(), other.bottom()) - top
+
+        if w <= 0.0 or h <= 0.0:
+            self._top_left.assign(0.0, 0.0)
+            self._size.assign(0.0, 0.0)
+
+        self._top_left.assign(left, top)
+        self._size.assign(w, h)
+
+    """  ----------------- static method  ----------------- """
 
     """
         4 NUM
