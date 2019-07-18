@@ -146,7 +146,7 @@ class Line2D:
     """
 
     def intersection(self, other):
-        return Line2D.Lintersection(self, other)
+        return Line2D.line_intersection(self, other)
 
     """ 
       \ brief calc perpendicular line 
@@ -177,7 +177,7 @@ class Line2D:
     """
 
     @staticmethod
-    def Lintersection(line1, line2):
+    def line_intersection(line1, line2):
         tmp = line1.a() * line2.b() - line1.b() * line2.a()
         if math.fabs(tmp) < EPSILON:
             return Vector2D.invalid()

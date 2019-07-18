@@ -6,12 +6,12 @@
 from lib.math.triangle_2d import *
 
 """
-  \brief solve quadratic fomula
-  \param a fomula constant A
-  \param b fomula constant B
-  \param c fomula constant C
-  \param sol1 reference to the result variable
-  \param sol2 reference to the result variable
+  \ brief solve quadratic formula
+  \ param a formula constant A
+  \ param b formula constant B
+  \ param c formula constant C
+  \ param sol1 reference to the result variable
+  \ param sol2 reference to the result variable
   \ return number of solution
  """
 
@@ -223,7 +223,7 @@ class Circle2D:
 
     @staticmethod
     def circumcircle(p0, p1, p2):
-        center = Triangle2D.Scircumcenter(p0, p1, p2)
+        center = Triangle2D.tri_circumcenter(p0, p1, p2)
 
         if not center.isValid():
             return Circle2D()
@@ -240,7 +240,7 @@ class Circle2D:
     """
 
     @staticmethod
-    def Scontains(point, p0, p1, p2):
+    def circle_contains(point, p0, p1, p2):
         a = p1.x - p0.x
         b = p1.y - p0.y
         c = p2.x - p0.x

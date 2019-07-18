@@ -24,14 +24,14 @@ class Triangle2D(Region2D):
     def __init__(self, *args):  # , **kwargs):):):
         super().__init__()
         if len(args) == 3 and isinstance(args[0], Vector2D):
-            self.a = args[0]
-            self.b = args[1]
-            self.c = args[2]
+            self._a = args[0]
+            self._b = args[1]
+            self._c = args[2]
         elif len(args) == 2 and isinstance(args[0], Segment2D):
             seg = args[0]
-            self.a = seg.origin()
-            self.b = seg.terminal()
-            self.c = args[1]
+            self._a = seg.origin()
+            self._b = seg.terminal()
+            self._c = args[1]
 
     """
         Len = 3 / Vector2d
@@ -49,14 +49,14 @@ class Triangle2D(Region2D):
 
     def assign(self, *args):  # , **kwargs):):):
         if len(args) == 3 and isinstance(args[0], Vector2D):
-            self.a = args[0]
-            self.b = args[1]
-            self.c = args[2]
+            self._a = args[0]
+            self._b = args[1]
+            self._c = args[2]
         elif len(args) == 2 and isinstance(args[0], Segment2D):
             seg = args[0]
-            self.a = seg.origin()
-            self.b = seg.terminal()
-            self.c = args[1]
+            self._a = seg.origin()
+            self._b = seg.terminal()
+            self._c = args[1]
 
     """
       \ brief check if self triangle is valid or not.
@@ -64,7 +64,7 @@ class Triangle2D(Region2D):
     """
 
     def isValid(self):
-        return self.a.isValid() and self.b.isValid() and self.c.isValid() and self.a != self.b and self.b != self.c and self.a != self.a
+        return self._a.isValid() and self._b.isValid() and self._c.isValid() and self._a != self._b and self._b != self._c and self._a != self._a
 
     """
       \ brief get 1st point
@@ -72,7 +72,7 @@ class Triangle2D(Region2D):
      """
 
     def a(self):
-        return self.a
+        return self._a
 
     """
       \ brief get 2nd point
@@ -80,7 +80,7 @@ class Triangle2D(Region2D):
      """
 
     def b(self):
-        return self.b
+        return self._b
 
     """
       \ brief get 3rd point
@@ -88,7 +88,7 @@ class Triangle2D(Region2D):
      """
 
     def c(self):
-        return self.c
+        return self._c
 
     """
       \ brief get the area of self region
@@ -96,7 +96,7 @@ class Triangle2D(Region2D):
      """
 
     def area(self):
-        return math.fabs((self.b - self.a).outerProduct(self.c - self.a)) * 0.5
+        return math.fabs((self._b - self._a).outerProduct(self._c - self._a)) * 0.5
 
     """
          \ brief get a signed area. self method is equivalent to signed_area().
@@ -107,7 +107,7 @@ class Triangle2D(Region2D):
         """
 
     def signedArea(self):
-        return Triangle2D.signed_area(self.a, self.b, self.c)
+        return Triangle2D.signed_area(self._a, self._b, self._c)
 
     """
       \ brief get a double of signed area value. self method is equivalent to double_signed_area().
@@ -118,7 +118,7 @@ class Triangle2D(Region2D):
      """
 
     def doubleSignedArea(self):
-        return Triangle2D.double_signed_area(self.a, self.b, self.c)
+        return Triangle2D.double_signed_area(self._a, self._b, self._c)
 
     """
       \ brief check if self triangle's vertices are placed counterclockwise order.
@@ -126,7 +126,7 @@ class Triangle2D(Region2D):
      """
 
     def ccw(self):
-        return Triangle2D.Sccw(self.a, self.b, self.c)
+        return Triangle2D.tri_ccw(self._a, self._b, self._c)
 
     """
       \ brief check if self triangle contains 'point'.
@@ -135,9 +135,9 @@ class Triangle2D(Region2D):
     """
 
     def contains(self, point: Vector2D):
-        rel1 = Vector2D(self.a - point)
-        rel2 = Vector2D(self.b - point)
-        rel3 = Vector2D(self.c - point)
+        rel1 = Vector2D(self._a - point)
+        rel2 = Vector2D(self._b - point)
+        rel3 = Vector2D(self._c - point)
 
         outer1 = rel1.outerProduct(rel2)
         outer2 = rel2.outerProduct(rel3)
@@ -153,7 +153,7 @@ class Triangle2D(Region2D):
      """
 
     def centroid(self):
-        return Triangle2D.Scentroid(self.a, self.b, self.c)
+        return Triangle2D.tri_centroid(self._a, self._b, self._c)
 
     """
       \ brief get the center of inscribed circle
@@ -161,7 +161,7 @@ class Triangle2D(Region2D):
     """
 
     def incenter(self):
-        return Triangle2D.Sincenter(self.a, self.b, self.c)
+        return Triangle2D.tri_incenter(self._a, self._b, self._c)
 
     """
       \ brief get the center of circumscribed circle
@@ -169,7 +169,7 @@ class Triangle2D(Region2D):
     """
 
     def circumcenter(self):
-        return Triangle2D.Scircumcenter(self.a, self.b, self.c)
+        return Triangle2D.tri_circumcenter(self._a, self._b, self._c)
 
     """
       \ brief get the orthocenter
@@ -177,7 +177,7 @@ class Triangle2D(Region2D):
     """
 
     def orthocenter(self):
-        return Triangle2D.Sorthocenter(self.a, self.b, self.c)
+        return Triangle2D.tri_orthocenter(self._a, self._b, self._c)
 
     """
         Line2D
@@ -200,15 +200,15 @@ class Triangle2D(Region2D):
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
 
-            t_sol[n_sol] = Segment2D(self.a, self.b).intersection(line)
+            t_sol[n_sol] = Segment2D(self._a, self._b).intersection(line)
             if n_sol < 2 and t_sol[n_sol].isValid():
                 n_sol += 1
 
-            t_sol[n_sol] = Segment2D(self.b, self.c).intersection(line)
+            t_sol[n_sol] = Segment2D(self._b, self._c).intersection(line)
             if n_sol < 2 and t_sol[n_sol].isValid():
                 n_sol += 1
 
-            t_sol[n_sol] = Segment2D(self.c, self.a).intersection(line)
+            t_sol[n_sol] = Segment2D(self._c, self._a).intersection(line)
             if n_sol < 2 and t_sol[n_sol].isValid():
                 n_sol += 1
 
@@ -293,7 +293,7 @@ class Triangle2D(Region2D):
       """
 
     @staticmethod
-    def Sccw(a: Vector2D, b: Vector2D, c: Vector2D):
+    def tri_ccw(a: Vector2D, b: Vector2D, c: Vector2D):
         return Triangle2D.double_signed_area(a, b, c) > 0.0
 
     """
@@ -307,7 +307,7 @@ class Triangle2D(Region2D):
      """
 
     @staticmethod
-    def Scentroid(a: Vector2D, b: Vector2D, c: Vector2D):
+    def tri_centroid(a: Vector2D, b: Vector2D, c: Vector2D):
         return Vector2D(a).add(b).add(c) / 3.0
 
     """
@@ -319,7 +319,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def Sincenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def tri_incenter(a: Vector2D, b: Vector2D, c: Vector2D):
         ab = b - a
         ac = c - a
         bisect_a = Line2D(a, AngleDeg.bisect(ab.th(), ac.th()))
@@ -339,7 +339,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def Scircumcenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def tri_circumcenter(a: Vector2D, b: Vector2D, c: Vector2D):
 
         perpendicular_ab = Line2D.perpendicular_bisector(a, b)
         perpendicular_bc = Line2D.perpendicular_bisector(b, c)
@@ -385,7 +385,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def Sorthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
+    def tri_orthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
         perpend_a = Line2D(b, c).perpendicular(a)
         perpend_b = Line2D(c, a).perpendicular(b)
         return perpend_a.intersection(perpend_b)
@@ -400,7 +400,7 @@ class Triangle2D(Region2D):
     """
 
     @staticmethod
-    def Scontains(a: Vector2D, b: Vector2D, c: Vector2D, point: Vector2D):
+    def tri_contains(a: Vector2D, b: Vector2D, c: Vector2D, point: Vector2D):
         rel1 = Vector2D(a - point)
         rel2 = Vector2D(b - point)
         rel3 = Vector2D(c - point)
@@ -419,7 +419,7 @@ class Triangle2D(Region2D):
     """
 
     def __repr__(self):
-        return "{[],[],[]}".format(self.a, self.b, self.c)
+        return "{[],[],[]}".format(self._a, self._b, self._c)
 
 
 def test():

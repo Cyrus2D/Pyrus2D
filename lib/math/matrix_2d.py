@@ -31,12 +31,12 @@ class Matrix2D:
     """
 
     def __init__(self, __11=1.0, __12=0.0, __21=0.0, __22=1.0, __x=0.0, __y=0.0):
-        self.m11 = __11
-        self.m12 = __12
-        self.m21 = __21
-        self.m22 = __22
-        self.dx = __x
-        self.dy = __y
+        self._m11 = __11
+        self._m12 = __12
+        self._m21 = __21
+        self._m22 = __22
+        self._dx = __x
+        self._dy = __y
         self.is_valid = True
 
     """
@@ -44,8 +44,8 @@ class Matrix2D:
     """
 
     def reset(self):
-        self.m11 = self.m22 = 1.0
-        self.m12 = self.m21 = self.dx = self.dy = 0.0
+        self._m11 = self._m22 = 1.0
+        self._m12 = self._m21 = self._dx = self._dy = 0.0
 
     """
       \ brief set a matrix element with the specified values.
@@ -58,12 +58,12 @@ class Matrix2D:
     """
 
     def assign(self, __11, __12, __21, __22, __x, __y):
-        self.m11 = __11
-        self.m12 = __12
-        self.m21 = __21
-        self.m22 = __22
-        self.dx = __x
-        self.dy = __y
+        self._m11 = __11
+        self._m12 = __12
+        self._m21 = __21
+        self._m22 = __22
+        self._dx = __x
+        self._dy = __y
 
     """
       \ brief accessor : get the horizontal scaling factor.
@@ -71,7 +71,7 @@ class Matrix2D:
     """
 
     def m11(self):
-        return self.m11
+        return self._m11
 
     """
       \ brief accessor : get the vertical shearing factor.
@@ -79,7 +79,7 @@ class Matrix2D:
     """
 
     def m12(self):
-        return self.m12
+        return self._m12
 
     """
       \ brief accessor : get the horizontal shearing factor.
@@ -87,7 +87,7 @@ class Matrix2D:
     """
 
     def m21(self):
-        return self.m21
+        return self._m21
 
     """
       \ brief accessor : get the vertical scaling factor.
@@ -95,7 +95,7 @@ class Matrix2D:
     """
 
     def m22(self):
-        return self.m22
+        return self._m22
 
     """
       \ brief accessor : get the horizontal translation factor.
@@ -103,7 +103,7 @@ class Matrix2D:
     """
 
     def dx(self):
-        return self.dx
+        return self._dx
 
     """
       \ brief accessor : get the vertical translation factor.
@@ -111,7 +111,7 @@ class Matrix2D:
     """
 
     def dy(self):
-        return self.dy
+        return self._dy
 
     """ 
      \ brief get the matrix's determinant
@@ -119,7 +119,7 @@ class Matrix2D:
     """
 
     def det(self):
-        return self.m11 * self.m22 - self.m12 * self.m21
+        return self._m11 * self._m22 - self._m12 * self._m21
 
     """
       \ brief check if this matrix is invertible (is not insular).
@@ -140,10 +140,10 @@ class Matrix2D:
             return Matrix2D()  # default matrix
 
         dinv = 1.0 / determinant
-        return Matrix2D(self.m22 * dinv, -self.m12 * dinv,
-                        -self.m21 * dinv, self.m11 * dinv,
-                        (self.m12 * self.dy - self.dx * self.m22) * dinv,
-                        (self.dx * self.m21 - self.m11 * self.dy) * dinv)
+        return Matrix2D(self._m22 * dinv, -self._m12 * dinv,
+                        -self._m21 * dinv, self._m11 * dinv,
+                        (self._m12 * self._dy - self._dx * self._m22) * dinv,
+                        (self._dx * self._m21 - self._m11 * self._dy) * dinv)
 
     """
       \ brief moves the coordinate as the other matrix.
@@ -156,8 +156,8 @@ class Matrix2D:
     """
 
     def translate(self, dx, dy):
-        self.dx += dx
-        self.dy += dy
+        self._dx += dx
+        self._dy += dy
 
     """
       \ brief scales the coordinate systeother.
@@ -169,12 +169,12 @@ class Matrix2D:
     """
 
     def scale(self, sx, sy):
-        self.m11 *= sx
-        self.m12 *= sx
-        self.dx *= sx
-        self.m21 *= sy
-        self.m22 *= sy
-        self.dy *= sy
+        self._m11 *= sx
+        self._m12 *= sx
+        self._dx *= sx
+        self._m21 *= sy
+        self._m22 *= sy
+        self._dy *= sy
 
     """
       \ brief rotates the coordinate system
@@ -187,19 +187,19 @@ class Matrix2D:
     def rotate(self, angle: AngleDeg):
         ang_sin = angle.sin()
         ang_cos = angle.cos()
-        tm11 = self.m11 * ang_cos - self.m21 * ang_sin
-        tm12 = self.m12 * ang_cos - self.m22 * ang_sin
-        tm21 = self.m11 * ang_sin + self.m21 * ang_cos
-        tm22 = self.m12 * ang_sin + self.m22 * ang_cos
-        tdx = self.dx * ang_cos - self.dy * ang_sin
-        tdy = self.dx * ang_sin + self.dy * ang_cos
+        tm11 = self._m11 * ang_cos - self._m21 * ang_sin
+        tm12 = self._m12 * ang_cos - self._m22 * ang_sin
+        tm21 = self._m11 * ang_sin + self._m21 * ang_cos
+        tm22 = self._m12 * ang_sin + self._m22 * ang_cos
+        tdx = self._dx * ang_cos - self._dy * ang_sin
+        tdy = self._dx * ang_sin + self._dy * ang_cos
 
-        self.m11 = tm11
-        self.m12 = tm12
-        self.dx = tdx
-        self.m21 = tm21
-        self.m22 = tm22
-        self.dy = tdy
+        self._m11 = tm11
+        self._m12 = tm12
+        self._dx = tdx
+        self._m21 = tm21
+        self._m22 = tm22
+        self._dy = tdy
 
     """
         Len = 1 / Vector2D
@@ -216,11 +216,11 @@ class Matrix2D:
     def transform(self, *args):  # **kwargs):
         if len(args) == 1 and isinstance(args[0], Vector2D):
             v = args[0]
-            return Vector2D(self.m11 * v.x + self.m12 * v.y + self.dx,
-                            self.m21 * v.x + self.m22 * v.y + self.dy)
+            return Vector2D(self._m11 * v.x + self._m12 * v.y + self._dx,
+                            self._m21 * v.x + self._m22 * v.y + self._dy)
         if len(args) == 2:
-            return Vector2D(self.m11 * args[0] + self.m12 * args[1] + self.dx,
-                            self.m21 * args[0] + self.m22 * args[1] + self.dy)
+            return Vector2D(self._m11 * args[0] + self._m12 * args[1] + self._dx,
+                            self._m21 * args[0] + self._m22 * args[1] + self._dy)
 
     """
       \ brief transform input vector with this matrix
@@ -228,8 +228,8 @@ class Matrix2D:
     """
 
     def transform_vec(self, v: Vector2D):
-        tx = self.m11 * v.x() + self.m12 * v.y() + self.dx
-        ty = self.m21 * v.x() + self.m22 * v.y() + self.dy
+        tx = self._m11 * v.x() + self._m12 * v.y() + self._dx
+        ty = self._m21 * v.x() + self._m22 * v.y() + self._dy
         v.assign(tx, ty)
 
     """  ----------------- static method  ----------------- """
@@ -276,19 +276,19 @@ class Matrix2D:
     """
 
     def __imul__(self, other):
-        tm11 = self.m11 * other.m11() + self.m12 * other.m21()
-        tm12 = self.m11 * other.m12() + self.m12 * other.m22()
-        tm21 = self.m21 * other.m11() + self.m22 * other.m21()
-        tm22 = self.m21 * other.m12() + self.m22 * other.m22()
-        tdx = self.m11 * other.dx() + self.m12 * other.dcy() + self.dx
-        tdy = self.m21 * other.dx() + self.m22 * other.dy() + self.dy
+        tm11 = self._m11 * other.m11() + self._m12 * other.m21()
+        tm12 = self._m11 * other.m12() + self._m12 * other.m22()
+        tm21 = self._m21 * other.m11() + self._m22 * other.m21()
+        tm22 = self._m21 * other.m12() + self._m22 * other.m22()
+        tdx = self._m11 * other.dx() + self._m12 * other.dcy() + self._dx
+        tdy = self._m21 * other.dx() + self._m22 * other.dy() + self._dy
 
-        self.m11 = tm11
-        self.m12 = tm12
-        self.m21 = tm21
-        self.m22 = tm22
-        self.dx = tdx
-        self.dy = tdy
+        self._m11 = tm11
+        self._m12 = tm12
+        self._m21 = tm21
+        self._m22 = tm22
+        self._dx = tdx
+        self._dy = tdy
 
     """
         Len = 1 / Matrix2D
@@ -316,8 +316,8 @@ class Matrix2D:
     """
 
     def __repr__(self):
-        return "{ [ " + str(self.m11) + " ] , [ " + str(self.m12) + " ] , [ " + str(self.dx) + " ]\n  [ " + str(
-            self.m21) + " ] , [ " + str(self.m22) + " ] , [ " + str(self.dy) + " ] }"
+        return "{ [ " + str(self._m11) + " ] , [ " + str(self._m12) + " ] , [ " + str(self._dx) + " ]\n  [ " + str(
+            self._m21) + " ] , [ " + str(self._m22) + " ] , [ " + str(self._dy) + " ] }"
 
 
 def test():

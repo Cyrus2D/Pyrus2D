@@ -32,17 +32,17 @@ class Segment2D:
 
     def __init__(self, *args):  # , **kwargs):
         if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
-            self.origin = args[0]
-            self.terminal = args[1]
+            self._origin = args[0]
+            self._terminal = args[1]
         elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
-            self.origin = args[0]
-            self.terminal = args[0] + Vector2D.from_polar(args[1], args[2])
+            self._origin = args[0]
+            self._terminal = args[0] + Vector2D.from_polar(args[1], args[2])
         elif len(args) == 4:
-            self.origin = Vector2D(args[0], args[1])
-            self.terminal = Vector2D(args[2], args[3])
+            self._origin = Vector2D(args[0], args[1])
+            self._terminal = Vector2D(args[2], args[3])
         else:
-            self.origin = Vector2D(0, 0)
-            self.terminal = Vector2D(0, 0)
+            self._origin = Vector2D(0, 0)
+            self._terminal = Vector2D(0, 0)
 
     """
         LEN = 2
@@ -64,17 +64,17 @@ class Segment2D:
 
     def assign(self, *args):  # **kwargs):
         if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
-            self.origin = args[0]
-            self.terminal = args[1]
+            self._origin = args[0]
+            self._terminal = args[1]
         elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
-            self.origin = args[0]
-            self.terminal = args[0] + Vector2D.from_polar(args[1], args[2])
+            self._origin = args[0]
+            self._terminal = args[0] + Vector2D.from_polar(args[1], args[2])
         elif len(args) == 4:
-            self.origin = Vector2D(args[0], args[1])
-            self.terminal = Vector2D(args[2], args[3])
+            self._origin = Vector2D(args[0], args[1])
+            self._terminal = Vector2D(args[2], args[3])
         else:
-            self.origin = Vector2D(0, 0)
-            self.terminal = Vector2D(0, 0)
+            self._origin = Vector2D(0, 0)
+            self._terminal = Vector2D(0, 0)
 
     """
       \ brief check if self line segment is valid or not.
@@ -83,7 +83,7 @@ class Segment2D:
     """
 
     def isValid(self):
-        return not self.origin.equalsWeakly(self.terminal)
+        return not self._origin.equalsWeakly(self._terminal)
 
     """
       \ brief get 1st point of segment edge
@@ -91,7 +91,7 @@ class Segment2D:
     """
 
     def origin(self):
-        return self.origin
+        return self._origin
 
     """
       \ brief get 2nd point of segment edge
@@ -99,7 +99,7 @@ class Segment2D:
     """
 
     def terminal(self):
-        return self.terminal
+        return self._terminal
 
     """
       \ brief get line generated from segment
@@ -107,7 +107,7 @@ class Segment2D:
     """
 
     def line(self):
-        return Line2D(self.origin, self.terminal)
+        return Line2D(self._origin, self._terminal)
 
     """
       \ brief get the length of self segment
@@ -115,7 +115,7 @@ class Segment2D:
     """
 
     def length(self):
-        return self.origin.dist(self.terminal)
+        return self._origin.dist(self._terminal)
 
     """
       \ brief get the direction angle of self line segment
@@ -123,7 +123,7 @@ class Segment2D:
     """
 
     def direction(self):
-        return (self.terminal - self.origin).th()
+        return (self._terminal - self._origin).th()
 
     """
       \ brief swap segment edge point
@@ -131,9 +131,9 @@ class Segment2D:
     """
 
     def swap(self):
-        tmp = self.origin
-        self.origin = self.terminal
-        self.terminal = tmp
+        tmp = self._origin
+        self._origin = self._terminal
+        self._terminal = tmp
 
     """
       \ brief swap segment edge point. This method is equivalent to swap(), for convenience.
@@ -149,7 +149,7 @@ class Segment2D:
     """
 
     def reversedSegment(self):
-        return Segment2D(self.origin, self.terminal).reverse()
+        return Segment2D(self._origin, self._terminal).reverse()
 
     """
       \ brief make perpendicular bisector line from segment points
@@ -157,7 +157,7 @@ class Segment2D:
     """
 
     def perpendicularBisector(self):
-        return Line2D.perpendicular_bisector(self.origin, self.terminal)
+        return Line2D.perpendicular_bisector(self._origin, self._terminal)
 
     """
       \ brief check if the point is within the rectangle defined by self segment as a diagonal line.
@@ -165,8 +165,8 @@ class Segment2D:
     """
 
     def contains(self, p: Vector2D):
-        return ((p.x - self.origin.x) * (p.x - self.terminal.x) <= CALC_ERROR and (p.y - self.origin.y) * (
-                p.y - self.origin.y) <= CALC_ERROR)
+        return ((p.x - self._origin.x) * (p.x - self._terminal.x) <= CALC_ERROR and (p.y - self._origin.y) * (
+                p.y - self._origin.y) <= CALC_ERROR)
 
     """
       \ brief check if self line segment has completely same value as input line segment.
@@ -175,7 +175,7 @@ class Segment2D:
     """
 
     def equals(self, other):
-        return self.origin.equals(other.self.origin) and self.terminal.equals(other.self.terminal)
+        return self._origin.equals(other.self.origin) and self._terminal.equals(other.self.terminal)
 
     """
      \ brief check if self line segment has weakly same value as input line segment.
@@ -184,7 +184,7 @@ class Segment2D:
     """
 
     def equalsWeakly(self, other):
-        return self.origin.equalsWeakly(other.self.origin) and self.terminal.equalsWeakly(other.self.terminal)
+        return self._origin.equalsWeakly(other.self.origin) and self._terminal.equalsWeakly(other.self.terminal)
 
     """
       \ brief calculates projection point from p
@@ -193,18 +193,18 @@ class Segment2D:
     """
 
     def projection(self, p: Vector2D):
-        direction = self.terminal - self.origin
+        direction = self._terminal - self._origin
         length = direction.r()
 
         if length < EPSILON:
-            return self.origin
+            return self._origin
 
         direction /= length  # normalize
 
-        d = direction.innerProduct(p - self.origin)
+        d = direction.innerProduct(p - self._origin)
         if -EPSILON < d < length + EPSILON:
             direction *= d
-            tmp_vec = Vector2D(self.origin)
+            tmp_vec = Vector2D(self._origin)
             tmp_vec += direction
             return tmp_vec
 
@@ -256,35 +256,35 @@ class Segment2D:
     def existIntersection(self, *args):  # **kwargs):
         if len(args) == 1 and isinstance(args[0], Segment2D):
             other = args[0]
-            a0 = Triangle2D.double_signed_area(self.origin, self.terminal, other.origin())
-            a1 = Triangle2D.double_signed_area(self.origin, self.terminal, other.terminal())
-            b0 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.origin)
-            b1 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self.terminal)
+            a0 = Triangle2D.double_signed_area(self._origin, self._terminal, other.origin())
+            a1 = Triangle2D.double_signed_area(self._origin, self._terminal, other.terminal())
+            b0 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self._origin)
+            b1 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self._terminal)
 
             if a0 * a1 < 0.0 and b0 * b1 < 0.0:
                 return True
 
-            if self.origin == self.terminal:
+            if self._origin == self._terminal:
                 if other.origin() == other.terminal():
-                    return self.origin == other.origin()
+                    return self._origin == other.origin()
 
-                return b0 == 0.0 and other.checkIntersectsOnLine(self.origin)
+                return b0 == 0.0 and other.checkIntersectsOnLine(self._origin)
 
             elif other.origin() == other.terminal():
                 return a0 == 0.0 and self.checkIntersectsOnLine(other.origin())
 
             if a0 == 0.0 and self.checkIntersectsOnLine(other.origin()) or (
                     a1 == 0.0 and self.checkIntersectsOnLine(other.terminal())) or (
-                    b0 == 0.0 and other.checkIntersectsOnLine(self.origin)) or (
-                    b1 == 0.0 and other.checkIntersectsOnLine(self.terminal)):
+                    b0 == 0.0 and other.checkIntersectsOnLine(self._origin)) or (
+                    b1 == 0.0 and other.checkIntersectsOnLine(self._terminal)):
                 return True
 
             return False
 
         if len(args) == 1 and isinstance(args[0], Line2D):
             line = args[0]
-            a0 = line.a() * self.origin.x + line.b() * self.origin.y + line.c()
-            a1 = line.a() * self.terminal.x + line.b() * self.terminal.y + line.c()
+            a0 = line.a() * self._origin.x + line.b() * self._origin.y + line.c()
+            a1 = line.a() * self._terminal.x + line.b() * self._terminal.y + line.c()
             return a0 * a1 <= 0.0
 
     """
@@ -294,12 +294,12 @@ class Segment2D:
     """
 
     def checkIntersectsOnLine(self, p: Vector2D):
-        if self.origin.x == self.terminal.x:
-            return (self.origin.y <= p.y <= self.terminal.y) or (
-                    self.terminal.y <= p.y <= self.origin.y)
+        if self._origin.x == self._terminal.x:
+            return (self._origin.y <= p.y <= self._terminal.y) or (
+                    self._terminal.y <= p.y <= self._origin.y)
         else:
-            return (self.origin.x <= p.x <= self.terminal.x) or (
-                    self.terminal.x <= p.x <= self.origin.x)
+            return (self._origin.x <= p.x <= self._terminal.x) or (
+                    self._terminal.x <= p.x <= self._origin.x)
 
     """
         This method is equivalent to existIntersection(), for convenience. .
@@ -320,14 +320,14 @@ class Segment2D:
     """
 
     def existIntersectionExceptEndpoint(self, other):
-        return (Triangle2D.double_signed_area(self.origin, self.terminal,
-                                              other.origin()) * Triangle2D.double_signed_area(self.origin,
-                                                                                              self.terminal,
+        return (Triangle2D.double_signed_area(self._origin, self._terminal,
+                                              other.origin()) * Triangle2D.double_signed_area(self._origin,
+                                                                                              self._terminal,
                                                                                               other.terminal() < 0.0) and (
                         Triangle2D.double_signed_area(other.self.origin, other.terminal(),
-                                                      self.origin) * Triangle2D.double_signed_area(other.origin(),
-                                                                                                   other.terminal(),
-                                                                                                   self.terminal) < 0.0))
+                                                      self._origin) * Triangle2D.double_signed_area(other.origin(),
+                                                                                                    other.terminal(),
+                                                                                                    self._terminal) < 0.0))
 
     """
       \ brief check if segments intersect each other on non terminal point. This method is equivalent to existIntersectionExceptEndpoint(), for convenience.
@@ -348,22 +348,22 @@ class Segment2D:
     """
 
     def nearestPoint(self, p: Vector2D):
-        vec_tmp = self.terminal - self.origin
+        vec_tmp = self._terminal - self._origin
 
         len_square = vec_tmp.r2()
 
         if len_square == 0.0:
-            return self.origin
+            return self._origin
 
-        inner_product = vec_tmp.innerProduct((p - self.origin))
+        inner_product = vec_tmp.innerProduct((p - self._origin))
 
         if inner_product <= 0.0:
-            return self.origin
+            return self._origin
 
         elif inner_product >= len_square:
-            return self.terminal
+            return self._terminal
 
-        return self.origin + vec_tmp * inner_product / len_square
+        return self._origin + vec_tmp * inner_product / len_square
 
     """
         Line2D:
@@ -381,20 +381,20 @@ class Segment2D:
             vec = args[0]
             length = self.length()
             if length == 0.0:
-                return self.origin.dist(vec)
-            tmp_vec = self.terminal - self.origin
-            prod = tmp_vec.innerProduct(vec - self.origin)
+                return self._origin.dist(vec)
+            tmp_vec = self._terminal - self._origin
+            prod = tmp_vec.innerProduct(vec - self._origin)
             if 0.0 <= prod <= length * length:
-                return math.fabs(Triangle2D.double_signed_area(self.origin, self.terminal, vec) / length)
-            return math.sqrt(min(self.origin.dist2(vec),
-                                 self.terminal.dist2(vec)))
+                return math.fabs(Triangle2D.double_signed_area(self._origin, self._terminal, vec) / length)
+            return math.sqrt(min(self._origin.dist2(vec),
+                                 self._terminal.dist2(vec)))
 
         if len(args) == 1 and isinstance(args[0], Segment2D):
             seg = args[0]
             if self.existIntersection(seg):
                 return 0.0
-            return min(self.dist(seg.self.origin), self.dist(seg.self.terminal), seg.dist(self.origin),
-                       seg.dist(self.terminal))
+            return min(self.dist(seg.self.origin), self.dist(seg.self.terminal), seg.dist(self._origin),
+                       seg.dist(self._terminal))
 
     """
       \ brief get maximum distance between self segment and point
@@ -403,7 +403,7 @@ class Segment2D:
     """
 
     def farthestDist(self, p: Vector2D):
-        return math.sqrt(max(self.origin.dist2(p), self.terminal.dist2(p)))
+        return math.sqrt(max(self._origin.dist2(p), self._terminal.dist2(p)))
 
     """
       \ brief strictly check if point is on segment or not
@@ -412,7 +412,7 @@ class Segment2D:
     """
 
     def onSegment(self, p: Vector2D):
-        return Triangle2D.double_signed_area(self.origin, self.terminal, p) == 0.0 and self.checkIntersectsOnLine(p)
+        return Triangle2D.double_signed_area(self._origin, self._terminal, p) == 0.0 and self.checkIntersectsOnLine(p)
 
     """
       \ brief weakly check if point is on segment or not
@@ -430,7 +430,7 @@ class Segment2D:
     """
 
     def __repr__(self):
-        return "[{},{}]".format(self.origin, self.terminal)
+        return "[{},{}]".format(self._origin, self._terminal)
 
 
 def test():

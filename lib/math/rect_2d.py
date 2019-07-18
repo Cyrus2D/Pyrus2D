@@ -4,6 +4,7 @@
 """
 from lib.math.size_2d import *
 from lib.math.segment_2d import *
+from lib.math.region_2d import *
 
 """
     The model and naming rules are depend on soccer simulator environment
@@ -112,7 +113,7 @@ class Rect2D(Region2D):
     """
 
     def moveCenter(self, point):
-        self.top_left.assign(point.x - self.size.length() * 0.5, point.y - self.size.width() * 0.5)
+        self.top_left.assign(point.x - self.size._length() * 0.5, point.y - self.size._width() * 0.5)
 
     """
       \ brief move the rectangle.
@@ -132,7 +133,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottomRight(self, point):
-        self.top_left.assign(point.x - self.size.length(), point.y - self.size.width())
+        self.top_left.assign(point.x - self.size._length(), point.y - self.size._width())
 
     """
       \ brief move the rectangle.
@@ -160,7 +161,7 @@ class Rect2D(Region2D):
     """
 
     def moveRight(self, x):
-        self.top_left.x = x - self.size.length()
+        self.top_left.x = x - self.size._length()
 
     """
       \ brief alias of moveRight.
@@ -196,7 +197,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottom(self, y):
-        self.top_left.y = y - self.size.width()
+        self.top_left.y = y - self.size._width()
 
     """
       \ brief alias of moveTop.
@@ -387,7 +388,7 @@ class Rect2D(Region2D):
     """
 
     def area(self):
-        return self.size.length() * self.size.width()
+        return self.size._length() * self.size._width()
 
     """
       \ brief check if point is within self region.
@@ -422,7 +423,7 @@ class Rect2D(Region2D):
     """
 
     def right(self):
-        return self.left() + self.size.length()
+        return self.left() + self.size._length()
 
     """
       \ brief get the top y coordinate of self rectangle.
@@ -438,7 +439,7 @@ class Rect2D(Region2D):
     """
 
     def bottom(self):
-        return self.top() + self.size.width()
+        return self.top() + self.size._width()
 
     """
       \ brief get minimum value of x coordinate of self rectangle

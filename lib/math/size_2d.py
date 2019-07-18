@@ -15,8 +15,8 @@ class Size2D:
     """
 
     def __init__(self, __l=0.0, __w=0.0):
-        self.length = math.fabs(__l)
-        self.width = math.fabs(__w)
+        self._length = math.fabs(__l)
+        self._width = math.fabs(__w)
 
     """
       \ brief assign range directly.
@@ -25,8 +25,8 @@ class Size2D:
     """
 
     def assign(self, length, width):
-        self.length = math.fabs(length)
-        self.width = math.fabs(width)
+        self._length = math.fabs(length)
+        self._width = math.fabs(width)
 
     """
       \ brief set X range
@@ -34,7 +34,7 @@ class Size2D:
     """
 
     def setLength(self, length):
-        self.length = math.fabs(length)
+        self._length = math.fabs(length)
 
     """
       \ brief set Y range
@@ -43,7 +43,7 @@ class Size2D:
     """
 
     def setWidth(self, width):
-        self.width = math.fabs(width)
+        self._width = math.fabs(width)
 
     """
       \ brief get the value of X range
@@ -51,7 +51,7 @@ class Size2D:
      """
 
     def length(self):
-        return self.length
+        return self._length
 
     """
       \ brief get the value of Y range
@@ -59,7 +59,7 @@ class Size2D:
      """
 
     def width(self):
-        return self.width
+        return self._width
 
     """
       \ brief get the length of diagonal line
@@ -67,7 +67,7 @@ class Size2D:
      """
 
     def diagonal(self):
-        return math.sqrt(self.length * self.length + self.width * self.width)
+        return math.sqrt(self._length * self._length + self._width * self._width)
 
     """
       \ brief check if size is valid or not.
@@ -75,7 +75,7 @@ class Size2D:
      """
 
     def isValid(self):
-        return self.length > 0.0 and self.width > 0.0
+        return self._length > 0.0 and self._width > 0.0
 
     """
       \ brief make a logical print.
@@ -83,4 +83,4 @@ class Size2D:
     """
 
     def __repr__(self):
-        return "[len:{},wid:{}]".format(self.length, self.width)
+        return "[len:{},wid:{}]".format(self._length, self._width)
