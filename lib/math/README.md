@@ -26,3 +26,10 @@ print(b.intersection(a)) #  calculate the intersection with straight line.
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
+
+## TODO
+composite_region_2d | 
+convex_hull | 
+triangulation | 
+delaunay_triangulation | 
+voronoi_diagram
