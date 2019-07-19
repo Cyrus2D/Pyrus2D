@@ -63,7 +63,7 @@ class Polygon2D(Region2D):
     """
 
     def getBoundingBox(self):
-        if len(self._vertices):
+        if len(self._vertices) == 0:
             return Rect2D()
         x_min = float("inf")
         x_max = - float("inf")
@@ -108,7 +108,7 @@ class Polygon2D(Region2D):
         line = Segment2D(p, Vector2D(p.x + ((r.maxX() - r.minX()
                                              + r.maxY() - r.minY())
                                             + (self._vertices[0] - p).r()) * 3.0,
-                                     p.y))
+                                     p.y)) # TODO Check Contains
 
         #
         # check intersection with all segments
@@ -268,12 +268,13 @@ class Polygon2D(Region2D):
 
 
 def test():
-    p = Polygon2D([Vector2D(0, 2), Vector2D(0, 4), Vector2D(0, 0), Vector2D(3, 0)])
-    v = [Vector2D(1, 1), Vector2D(5, 5)]
+    p = Polygon2D([Vector2D(0, 0), Vector2D(0, 4), Vector2D(4, 4), Vector2D(4, 0)])
+    v = [Vector2D(2, 2), Vector2D(5, 5)]
     print(p)
     print(p.isClockwise(), p.isCounterclockwise())
     print(p.doubleSignedArea(), p.area())
-    print(p.contains(v[0]), p.contains(v[1]))  # TODO Check Contains
+    print(p.getBoundingBox())
+    print(p.contains(v[0]), p.contains(v[1]))
 
 
 if __name__ == "__main__":
