@@ -14,7 +14,7 @@ class Vector2D:
     """
 
     def __init__(self, __x=0, __y=0):
-        self.x = __x if math.fabs(__x) > EPSILON else 0 # TODO maybe need some change in EPSILON
+        self.x = __x if math.fabs(__x) > EPSILON else 0  # TODO maybe need some change in EPSILON
         self.y = __y if math.fabs(__y) > EPSILON else 0
         self.is_valid = True
 

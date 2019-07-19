@@ -46,6 +46,9 @@ class Rect2D(Region2D):
 
     def __init__(self, *args):  # , **kwargs):)
         super().__init__()
+        self._top_left = Vector2D()
+        self._size = Size2D()
+        self._is_valid = True
         if len(args) == 4:
             self._top_left = Vector2D(args[0], args[1])
             self._size = Size2D(args[2], args[3])
@@ -423,7 +426,7 @@ class Rect2D(Region2D):
     """
 
     def right(self):
-        return self.left() + self._size._length()
+        return self.left() + self._size.length()
 
     """
       \ brief get the top y coordinate of self rectangle.
@@ -439,7 +442,7 @@ class Rect2D(Region2D):
     """
 
     def bottom(self):
-        return self.top() + self._size._width()
+        return self.top() + self._size.width()
 
     """
       \ brief get minimum value of x coordinate of self rectangle
