@@ -7,3 +7,4 @@ from lib.math.triangle_2d import *
 from lib.math.segment_2d import *
 from lib.math.matrix_2d import * # not necessary but optimized for 2d
 from lib.math.circle_2d import *
+from lib.math.rect_2d import *

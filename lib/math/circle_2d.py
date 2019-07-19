@@ -162,7 +162,7 @@ class Circle2D:
             ray = args[0]
             line_tmp = Line2D(ray.origin(), ray.dir())
 
-            n_sol = self.intersection(line_tmp)  # TODO Check LineTMP
+            n_sol = self.intersection(line_tmp)
             t_sol1 = n_sol[1]
             t_sol2 = n_sol[2]
 
