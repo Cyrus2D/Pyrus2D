@@ -1,6 +1,6 @@
 import math
 
-EPSILON = 1.0e-5
+EPSILON = 1.0e-6
 ERROR_VALUE = 1e20
 DEG2RAD = math.pi / 180.0
 RAD2DEG = 180.0 / math.pi
