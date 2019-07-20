@@ -165,8 +165,8 @@ class Segment2D:
     """
 
     def contains(self, p: Vector2D):
-        return ((p.x - self._origin.x) * (p.x - self._terminal.x) <= CALC_ERROR and (p.y - self._origin.y) * (
-                p.y - self._origin.y) <= CALC_ERROR)
+        return ((p._x - self._origin._x) * (p._x - self._terminal._x) <= CALC_ERROR and (p._y - self._origin._y) * (
+                p._y - self._origin._y) <= CALC_ERROR)
 
     """
       \ brief check if self line segment has completely same value as input line segment.
@@ -283,8 +283,8 @@ class Segment2D:
 
         if len(args) == 1 and isinstance(args[0], Line2D):
             line = args[0]
-            a0 = line.a() * self._origin.x + line.b() * self._origin.y + line.c()
-            a1 = line.a() * self._terminal.x + line.b() * self._terminal.y + line.c()
+            a0 = line.a() * self._origin._x + line.b() * self._origin._y + line.c()
+            a1 = line.a() * self._terminal._x + line.b() * self._terminal._y + line.c()
             return a0 * a1 <= 0.0
 
     """
@@ -294,12 +294,12 @@ class Segment2D:
     """
 
     def checkIntersectsOnLine(self, p: Vector2D):
-        if self._origin.x == self._terminal.x:
-            return (self._origin.y <= p.y <= self._terminal.y) or (
-                    self._terminal.y <= p.y <= self._origin.y)
+        if self._origin._x == self._terminal._x:
+            return (self._origin._y <= p._y <= self._terminal._y) or (
+                    self._terminal._y <= p._y <= self._origin._y)
         else:
-            return (self._origin.x <= p.x <= self._terminal.x) or (
-                    self._terminal.x <= p.x <= self._origin.x)
+            return (self._origin._x <= p._x <= self._terminal._x) or (
+                    self._terminal._x <= p._x <= self._origin._x)
 
     """
         This method is equivalent to existIntersection(), for convenience. .

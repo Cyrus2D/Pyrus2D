@@ -12,7 +12,7 @@ class XLessEqual:
         self._thr = thr
 
     def operator(self, p: Vector2D):
-        return p.x <= self._thr
+        return p._x <= self._thr
 
     def thr(self):
         return self._thr
@@ -23,7 +23,7 @@ class XMoreEqual:
         self._thr = thr
 
     def operator(self, p: Vector2D):
-        return p.x >= self._thr
+        return p._x >= self._thr
 
     def thr(self):
         return self._thr
@@ -34,7 +34,7 @@ class YLessEqual:
         self._thr = thr
 
     def operator(self, p: Vector2D):
-        return p.y <= self._thr
+        return p._y <= self._thr
 
     def thr(self):
         return self._thr
@@ -45,7 +45,7 @@ class YMoreEqual:
         self._thr = thr
 
     def operator(self, p: Vector2D):
-        return p.y >= self._thr
+        return p._y >= self._thr
 
     def thr(self):
         return self._thr
@@ -114,17 +114,17 @@ class Polygon2D(Region2D):
         y_min = float("inf")
         y_max = - float("inf")
         for p in self._vertices:
-            if p.x > x_max:
-                x_max = p.x
+            if p._x > x_max:
+                x_max = p._x
 
-            if p.x < x_min:
-                x_min = p.x
+            if p._x < x_min:
+                x_min = p._x
 
-            if p.y > y_max:
-                y_max = p.y
+            if p._y > y_max:
+                y_max = p._y
 
-            if p.y < y_min:
-                y_min = p.y
+            if p._y < y_min:
+                y_min = p._y
         return Rect2D(Vector2D(x_min, y_min), Size2D(x_max - x_min, y_max - y_min))
 
     """
@@ -149,9 +149,9 @@ class Polygon2D(Region2D):
         # make virtual half line
         #
         # print(r.right()) -> maxX
-        line = Segment2D(p, Vector2D(p.x + ((r.right() - r.left() + r.bottom() - r.top())
-                                            + (self._vertices[0] - p).r()) * 3.0,
-                                     p.y))
+        line = Segment2D(p, Vector2D(p._x + ((r.right() - r.left() + r.bottom() - r.top())
+                                             + (self._vertices[0] - p).r()) * 3.0,
+                                     p._y))
 
         #
         # check intersection with all segments
@@ -175,19 +175,19 @@ class Polygon2D(Region2D):
                 return True
 
             if line.existIntersection(Segment2D(p0, p1)):
-                if p0.y == p.y or p1.y == p.y:
-                    if p0.y == p.y:
-                        if p0.x < min_line_x:
-                            min_line_x = p0.x
+                if p0._y == p._y or p1._y == p._y:
+                    if p0._y == p._y:
+                        if p0._x < min_line_x:
+                            min_line_x = p0._x
 
-                    if p1.y == p.y:
-                        if p1.x < min_line_x:
-                            min_line_x = p1.x
+                    if p1._y == p._y:
+                        if p1._x < min_line_x:
+                            min_line_x = p1._x
 
-                    if p0.y == p1.y:
+                    if p0._y == p1._y:
                         continue
 
-                    elif p0.y < p.y or p1.y < p.y:
+                    elif p0._y < p._y or p1._y < p._y:
                         continue
 
                 inside = (not inside)
@@ -272,7 +272,7 @@ class Polygon2D(Region2D):
             n = i + 1
             if n == size:
                 n = 0
-            ds_area_value += (self._vertices[i].x * self._vertices[n].y - self._vertices[n].x * self._vertices[i].y)
+            ds_area_value += (self._vertices[i]._x * self._vertices[n]._y - self._vertices[n]._x * self._vertices[i]._y)
 
         return ds_area_value
 

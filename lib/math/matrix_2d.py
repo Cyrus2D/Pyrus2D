@@ -228,8 +228,8 @@ class Matrix2D:
     """
 
     def transform_vec(self, v: Vector2D):
-        tx = self._m11 * v.x() + self._m12 * v.y() + self._dx
-        ty = self._m21 * v.x() + self._m22 * v.y() + self._dy
+        tx = self._m11 * v._x() + self._m12 * v._y() + self._dx
+        ty = self._m21 * v._x() + self._m22 * v._y() + self._dy
         v.assign(tx, ty)
 
     """  ----------------- static method  ----------------- """

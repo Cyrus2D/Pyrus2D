@@ -54,7 +54,7 @@ def AngleSortPredicate(item1, item2):
         return -1
 
     if area < EPSILON:
-        if BASE_.y < item1.y:
+        if BASE_._y < item1.y:
             if BASE_.dist2(item1) > BASE_.dist2(item2):
                 return -1
 

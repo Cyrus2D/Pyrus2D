@@ -6,7 +6,7 @@
 from lib.math.angle_deg import *
 
 
-class Vector2D:
+class Vector2D: #TODO maybe give some bugs because of x and _x and x()
     """
        \ brief default constructor : create Vector with XY value directly.
        \ param __x assigned x value
@@ -14,8 +14,8 @@ class Vector2D:
     """
 
     def __init__(self, __x=0, __y=0):
-        self.x = __x if math.fabs(__x) > EPSILON else 0  # TODO maybe need some change in EPSILON
-        self.y = __y if math.fabs(__y) > EPSILON else 0
+        self._x = __x if math.fabs(__x) > EPSILON else 0  # TODO maybe need some change in EPSILON
+        self._y = __y if math.fabs(__y) > EPSILON else 0
         self.is_valid = True
 
     """
@@ -35,7 +35,7 @@ class Vector2D:
     """
 
     def x(self):
-        return self.x
+        return self._x
 
     """
       \ brief accessor
@@ -43,7 +43,7 @@ class Vector2D:
     """
 
     def y(self):
-        return self.y
+        return self._y
 
     """
       \ brief assign XY value from POLAR value.
@@ -54,8 +54,8 @@ class Vector2D:
     def set_polar(self, __r, __d):
         if type(__d) is not AngleDeg:
             __d = AngleDeg(__d)
-        self.x = __r * __d.cos()
-        self.y = __r * __d.sin()
+        self._x = __r * __d.cos()
+        self._y = __r * __d.sin()
 
     """
       \ brief invalidate this object     
@@ -78,7 +78,7 @@ class Vector2D:
     """
 
     def r2(self):
-        return self.x * self.x + self.y * self.y
+        return self._x * self._x + self._y * self._y
 
     """
       \ brief get the length of vector.
@@ -110,7 +110,7 @@ class Vector2D:
     """
 
     def th(self):
-        return AngleDeg(AngleDeg.atan2_deg(self.y, self.x))
+        return AngleDeg(AngleDeg.atan2_deg(self._y, self._x))
 
     """
       \ brief get the angle of vector. this method is equivalent to th().
@@ -126,7 +126,7 @@ class Vector2D:
     """
 
     def abs(self):
-        return Vector2D(abs(self.x), abs(self.y))
+        return Vector2D(abs(self._x), abs(self._y))
 
     """
       \ brief get absolute x value
@@ -134,7 +134,7 @@ class Vector2D:
     """
 
     def absX(self):
-        return math.fabs(self.x)
+        return math.fabs(self._x)
 
     """
       \ brief get absolute y value
@@ -142,7 +142,7 @@ class Vector2D:
     """
 
     def absY(self):
-        return math.fabs(self.y)
+        return math.fabs(self._y)
 
     """
         Len = 1 / Vector2D
@@ -156,11 +156,11 @@ class Vector2D:
 
     def add(self, *args):  # **kwargs):
         if len(args) == 1 and isinstance(args[0], Vector2D):
-            self.x += args[0].x()
-            self.y += args[0].y()
+            self._x += args[0].x()
+            self._y += args[0].y()
         elif len(args) == 2:
-            self.x += args[0]
-            self.y += args[1]
+            self._x += args[0]
+            self._y += args[1]
 
     """
       \ brief scale this vector
@@ -168,32 +168,32 @@ class Vector2D:
     """
 
     def scale(self, scalar):
-        self.x *= scalar
-        self.y *= scalar
+        self._x *= scalar
+        self._y *= scalar
 
     """  __ operator section __"""
 
     def __add__(self, other):
-        return Vector2D(self.x + other.x, self.y + other.y)
+        return Vector2D(self._x + other.x(), self._y + other.y())
 
     def __sub__(self, other):
-        return Vector2D(self.x - other.x, self.y - other.y)
+        return Vector2D(self._x - other.x(), self._y - other.y())
 
     def __iadd__(self, other):
-        self.x += other.x
-        self.y += other.y
+        self._x += other.x()
+        self._y += other.y()
 
     def __isub__(self, other):
-        self.x -= other.x
-        self.y -= other.y
+        self._x -= other.x()
+        self._y -= other.y()
 
     def __imul__(self, other):
-        self.x *= other
-        self.y *= other
+        self._x *= other
+        self._y *= other
 
     def __idiv__(self, other):
-        self.x /= other
-        self.y /= other
+        self._x /= other
+        self._y /= other
 
     """
       \ brief get the squared distance from this to 'other'.
@@ -202,7 +202,7 @@ class Vector2D:
     """
 
     def dist2(self, other):
-        return math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2)
+        return math.pow(self._x - other.x(), 2) + math.pow(self._y - other.y(), 2)
 
     """
       \ brief get the distance from this to 'p'.
@@ -218,8 +218,8 @@ class Vector2D:
     """
 
     def reverse(self):
-        self.x *= (-1.0)
-        self.y *= (-1.0)
+        self._x *= (-1.0)
+        self._y *= (-1.0)
 
     """
       \ brief get reversed vector.
@@ -227,7 +227,7 @@ class Vector2D:
     """
 
     def reverse_vector(self):
-        new_vector = Vector2D(self.x, self.y)
+        new_vector = Vector2D(self._x, self._y)
         new_vector.reverse()
         return new_vector
 
@@ -248,7 +248,7 @@ class Vector2D:
     """
 
     def set_length_vector(self, length):
-        new_vector = Vector2D(self.x, self.y)
+        new_vector = Vector2D(self._x, self._y)
         new_vector.set_length(length)
         return new_vector
 
@@ -265,7 +265,7 @@ class Vector2D:
     """
 
     def normalize_vector(self):
-        new_vector = Vector2D(self.x, self.y)
+        new_vector = Vector2D(self._x, self._y)
         new_vector.set_length(1)
         return new_vector
 
@@ -276,7 +276,7 @@ class Vector2D:
     """
 
     def innerProduct(self, v):
-        return self.x * v.x() + self.y * v.y()
+        return self._x * v.x() + self._y * v.y()
         # ==  |this| * |v| * (*this - v).th().cos()
 
     """
@@ -289,7 +289,7 @@ class Vector2D:
         #   xn = self.y * v.z - self.z * v.y;
         #   yn = self.z * v.x - self.x * v.z;
         #   zn = self.x * v.y - self.y * v.x;
-        return self.x * v.y() - self.y * v.x()
+        return self._x * v.y() - self._y * v.x()
         # == |this| * |v| * (*this - v).th().sin()
 
     """
@@ -299,7 +299,7 @@ class Vector2D:
     """
 
     def equals(self, other):
-        return self.x == other.x() and self.y == other.y()
+        return self._x == other.x() and self._y == other.y()
 
     """
       \ brief check if this vector is weakly same as given vector.
@@ -308,7 +308,7 @@ class Vector2D:
     """
 
     def equalsWeakly(self, other):
-        return math.fabs(self.x - other.x) < EPSILON and math.fabs(self.y - other.y) < EPSILON
+        return math.fabs(self._x - other.x) < EPSILON and math.fabs(self._y - other.y) < EPSILON
 
     """
       \ brief rotate this vector with 'deg'
@@ -320,7 +320,7 @@ class Vector2D:
             self.rotate(deg.degree())
         cos_tmp = math.cos(deg * DEG2RAD)
         sin_tmp = math.sin(deg * DEG2RAD)
-        self.assign(self.x * cos_tmp - self.y * sin_tmp, self.x * sin_tmp + self.y * cos_tmp)
+        self.assign(self._x * cos_tmp - self._y * sin_tmp, self._x * sin_tmp + self._y * cos_tmp)
 
     """
       \ brief get new vector that is rotated by 'deg'.
@@ -329,7 +329,7 @@ class Vector2D:
     """
 
     def rotate_vector(self, deg):
-        new_vector = Vector2D(self.x, self.y)
+        new_vector = Vector2D(self._x, self._y)
         return new_vector.rotate(deg)
 
     """
@@ -340,8 +340,8 @@ class Vector2D:
 
     def set_dir(self, direction):
         radius = self.r()
-        self.x = radius * direction.cos()
-        self.y = radius * direction.sin()
+        self._x = radius * direction.cos()
+        self._y = radius * direction.sin()
 
     """
       \ brief make an invalid vector2D
@@ -405,7 +405,7 @@ class Vector2D:
     """
 
     def __repr__(self):
-        return "({},{})".format(self.x, self.y)
+        return "({},{})".format(self._x, self._y)
 
 
 def test():

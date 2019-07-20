@@ -67,10 +67,10 @@ class Rect2D(Region2D):
             top_left = args[0]
             self._size = Size2D(bottom_right.x - top_left.x, bottom_right.y - top_left.y)
             if bottom_right.x - top_left.x < 0.0:
-                self._top_left.x = bottom_right.x
+                self._top_left._x = bottom_right.x
 
             if bottom_right.y - top_left.y < 0.0:
-                self._top_left.y = bottom_right.y
+                self._top_left._y = bottom_right.y
                 self._size = Size2D()
                 self._is_valid = True
             else:
@@ -146,7 +146,7 @@ class Rect2D(Region2D):
     """
 
     def moveLeft(self, x):
-        self._top_left.x = x
+        self._top_left._x = x
 
     """
       \ brief alias of moveLeft.
@@ -164,7 +164,7 @@ class Rect2D(Region2D):
     """
 
     def moveRight(self, x):
-        self._top_left.x = x - self._size._length()
+        self._top_left._x = x - self._size._length()
 
     """
       \ brief alias of moveRight.
@@ -182,7 +182,7 @@ class Rect2D(Region2D):
     """
 
     def moveTop(self, y):
-        self._top_left.y = y
+        self._top_left._y = y
 
     """
       \ brief alias of moveTop.
@@ -200,7 +200,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottom(self, y):
-        self._top_left.y = y - self._size._width()
+        self._top_left._y = y - self._size._width()
 
     """
       \ brief alias of moveTop.
@@ -271,7 +271,7 @@ class Rect2D(Region2D):
     def setLeft(self, x):
         new_left = min(self.right(), x)
         new_right = max(self.right(), x)
-        self._top_left.x = new_left
+        self._top_left._x = new_left
         self._size.setLength(new_right - new_left)
 
     """
@@ -292,7 +292,7 @@ class Rect2D(Region2D):
         new_left = min(self.left(), x)
         new_right = max(self.left(), x)
 
-        self._top_left.x = new_left
+        self._top_left._x = new_left
         self._size.setLength(new_right - new_left)
 
     """
@@ -313,7 +313,7 @@ class Rect2D(Region2D):
         new_top = min(self.bottom(), y)
         new_bottom = max(self.bottom(), y)
 
-        self._top_left.y = new_top
+        self._top_left._y = new_top
         self._size.setWidth(new_bottom - new_top)
 
     """
@@ -334,7 +334,7 @@ class Rect2D(Region2D):
         new_top = min(self.top(), y)
         new_bottom = max(self.top(), y)
 
-        self._top_left.y = new_top
+        self._top_left._y = new_top
         self._size.setWidth(new_bottom - new_top)
 
     """
@@ -400,7 +400,7 @@ class Rect2D(Region2D):
     """
 
     def contains(self, point):
-        return self.left() <= point.x <= self.right() and self.top() <= point.y <= self.bottom()
+        return self.left() <= point._x <= self.right() and self.top() <= point._y <= self.bottom()
 
     """
       \ brief check if point is within self region with error threshold.
@@ -418,7 +418,7 @@ class Rect2D(Region2D):
     """
 
     def left(self):
-        return self._top_left.x
+        return self._top_left._x
 
     """
       \ brief get the right x coordinate of self rectangle.
@@ -434,7 +434,7 @@ class Rect2D(Region2D):
     """
 
     def top(self):
-        return self._top_left.y
+        return self._top_left._y
 
     """
       \ brief get the bottom y coordinate of self rectangle.
@@ -592,26 +592,26 @@ class Rect2D(Region2D):
 
             t_sol[n_sol] = self.leftEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol].y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol]._y <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.rightEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol].y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol]._y <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol].x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol]._x <= right_x:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol].x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol]._x <= right_x:
                 n_sol += 1
 
-            if n_sol == 2 and math.fabs(t_sol[0].x - t_sol[1].x) < EPSILON and math.fabs(
-                    t_sol[0].y - t_sol[1].y) < EPSILON:
+            if n_sol == 2 and math.fabs(t_sol[0]._x - t_sol[1]._x) < EPSILON and math.fabs(
+                    t_sol[0]._y - t_sol[1]._y) < EPSILON:
                 n_sol = 1
 
             sol_list = [n_sol, t_sol[0], t_sol[1]]

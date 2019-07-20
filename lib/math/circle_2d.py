@@ -132,9 +132,9 @@ class Circle2D:
                     return 0
 
                 n_sol = QUADRATIC_F(1.0,
-                                    -2.0 * self._center.x,
-                                    (SQUARE(self._center.x)
-                                     + SQUARE(line.c() / line.b() + self._center.y)
+                                    -2.0 * self._center._x,
+                                    (SQUARE(self._center._x)
+                                     + SQUARE(line.c() / line.b() + self._center._y)
                                      - SQUARE(self._radius)))
                 x1 = n_sol[1]
                 x2 = n_sol[2]
@@ -150,8 +150,8 @@ class Circle2D:
                 d = line.c() / line.a()
 
                 a = 1.0 + m * m
-                b = 2.0 * (-self._center.y + (d + self._center.x) * m)
-                c = SQUARE(d + self._center.x) + SQUARE(self._center.y) - SQUARE(self._radius)
+                b = 2.0 * (-self._center._y + (d + self._center._x) * m)
+                c = SQUARE(d + self._center._x) + SQUARE(self._center._y) - SQUARE(self._radius)
 
             n_sol = QUADRATIC_F(a, b, c)
             y1 = n_sol[1]
@@ -198,8 +198,8 @@ class Circle2D:
         elif len(args) == 1 and isinstance(args[0], Circle2D):
             circle = args[0]
 
-            rel_x = circle.center().x - self._center.x
-            rel_y = circle.center().y - self._center.y
+            rel_x = circle.center().x - self._center._x
+            rel_y = circle.center().y - self._center._y
 
             center_dist2 = rel_x * rel_x + rel_y * rel_y
             center_dist = math.sqrt(center_dist2)

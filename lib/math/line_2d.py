@@ -117,7 +117,7 @@ class Line2D:
     """
 
     def dist(self, p: Vector2D):
-        return math.fabs((self._a * p.x + self._b * p.y + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
+        return math.fabs((self._a * p._x + self._b * p._y + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
 
     """
       \ brief get squared distance from this line to point
@@ -126,7 +126,7 @@ class Line2D:
     """
 
     def dist2(self, p: Vector2D):
-        d = self._a * p.x + self._b * p.y + self._c
+        d = self._a * p._x + self._b * p._y + self._c
         return (d * d) / (self._a * self._a + self._b * self._b)
 
     """    

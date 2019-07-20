@@ -2,6 +2,7 @@ import logging
 
 from lib.debug.color import Color
 from lib.debug.level import Level
+from lib.math.circle_2d import Circle2D
 from lib.math.vector_2d import Vector2D
 from lib.rcsc.game_time import GameTime
 
@@ -56,13 +57,41 @@ class dlog:
 
     @staticmethod
     def add_line(level: Level = Level.LEVEL_ANY,
+                 x1: float = None,
+                 y1: float = None,
+                 x2: float = None,
+                 y2: float = None,
                  start: Vector2D = None,
                  end: Vector2D = None,
                  color: Color = Color(hexa="red")):
-        dlog._commands += f"{dlog._time.cycle()} {level.value} l {start.x} {start.y} {end.x} {end.y} {color}\n"
+        if x1 is not None:
+            dlog._commands += f"{dlog._time} {level.value} l {x1} {y1} {x2} {y2} {color}\n"
+        elif start is not None:
+            dlog.add_line(level, start.x(), start.y(), end.x(), end.y(), color=color)
+
+    @staticmethod
+    def add_text(level: Level = Level.LEVEL_ANY, message: str = ""):
+        dlog._commands += f"{dlog._time} {level.value} M {message}\n"  # TODO flush if message size is so large like 8192 and bigger
+
+    @staticmethod
+    def add_circle(level: Level = Level.LEVEL_ANY,
+                   r: float = None,
+                   cx: float = None,
+                   cy: float = None,
+                   center: Vector2D = None,
+                   cicle: Circle2D = None,
+                   fill: bool = False,
+                   color: Color = Color(hexa='red'), ):
+        if cx is not None:
+            dlog._commands += f"{dlog._time} {level.value} {'C' if fill else 'c'} {cx} {cy} {r} {color}\n"
+        elif center is not None:
+            dlog.add_circle(level, r, center._x, center._y, color=color, fill=fill)
+        elif cicle is not None:
+            dlog.add_circle(level, cicle.radius(), cicle.center().x(), cicle.center().y(), fill=fill, color=color)
 
     @staticmethod
     def flush():
-        if dlog._time is None or dlog._time.cycle() == 0: return
+        if dlog._time is None or dlog._time.cycle() == 0:
+            return
         dlog.debug(dlog._commands)
         dlog._commands = ""
