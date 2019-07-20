@@ -449,6 +449,7 @@ class Rect2D(Region2D):
       \ return x coordinate value (equivalent to left())
     """
 
+    # TODO minX / minY / maxX / minX
     def minX(self):
         self.left()
 
@@ -713,8 +714,6 @@ class Rect2D(Region2D):
     @staticmethod
     def from_corners(*args):  # , **kwargs):)
         return Rect2D(args)
-
-    """ """
 
     """
       \ brief make a logical print.

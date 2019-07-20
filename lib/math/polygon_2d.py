@@ -7,6 +7,50 @@ from lib.math.rect_2d import *
 from lib.math.region_2d import *
 
 
+class XLessEqual:
+    def __init__(self, thr):
+        self._thr = thr
+
+    def operator(self, p: Vector2D):
+        return p.x <= self._thr
+
+    def thr(self):
+        return self._thr
+
+
+class XMoreEqual:
+    def __init__(self, thr):
+        self._thr = thr
+
+    def operator(self, p: Vector2D):
+        return p.x >= self._thr
+
+    def thr(self):
+        return self._thr
+
+
+class YLessEqual:
+    def __init__(self, thr):
+        self._thr = thr
+
+    def operator(self, p: Vector2D):
+        return p.y <= self._thr
+
+    def thr(self):
+        return self._thr
+
+
+class YMoreEqual:
+    def __init__(self, thr):
+        self._thr = thr
+
+    def operator(self, p: Vector2D):
+        return p.y >= self._thr
+
+    def thr(self):
+        return self._thr
+
+
 class Polygon2D(Region2D):
     """
       \ brief create empty polygon
@@ -255,7 +299,68 @@ class Polygon2D(Region2D):
       each separated polygon is connected to one polygon.
     """
 
-    #    def getScissoredConnectedPolygon(self, r: Rect2D):
+    def getScissoredConnectedPolygon(self, r: Rect2D):
+        if len(self._vertices) == 0:
+            return Polygon2D()
+
+        p = self._vertices
+        clipped_p_1 = []
+        clipped_p_2 = []
+        clipped_p_3 = []
+        clipped_p_4 = []
+        clipped_p_1 = Polygon2D.scissorWithLine(XLessEqual(r.right()),
+                                                p, clipped_p_1,
+                                                Line2D(Vector2D(r.maxX(), 0.0), 90.0))
+
+        clipped_p_2 = Polygon2D.scissorWithLine(YLessEqual(r.bottom()),
+                                                clipped_p_1, clipped_p_2,
+                                                Line2D(Vector2D(0.0, r.maxY()), 0.0))
+
+        clipped_p_3 = Polygon2D.scissorWithLine(XMoreEqual(r.left()),
+                                                clipped_p_2, clipped_p_3,
+                                                Line2D(Vector2D(r.minX(), 0.0), 90.0))
+
+        clipped_p_4 = Polygon2D.scissorWithLine(YMoreEqual(r.top()),
+                                                clipped_p_3, clipped_p_4,
+                                                Line2D(Vector2D(0.0, r.minY()), 0.0))
+
+        return Polygon2D(clipped_p_4)
+
+    @staticmethod
+    def scissorWithLine(in_region, points, new_points, line):
+        new_points.clear()
+
+        in_rectangle = []
+        for i in range(len(points)):
+            in_rectangle.append(in_region(points[i]))
+        for i in range(len(points)):
+            index_0 = i
+            index_1 = i + 1
+            if index_1 >= len(points):
+                index_1 = 0
+
+            p0 = points[index_0]
+            p1 = points[index_1]
+
+            if in_rectangle[index_0]:
+                if in_rectangle[index_1]:
+                    new_points.append(p1)
+                else:
+                    c = line.intersection(Line2D(p0, p1))
+
+                    if not c.isValid():
+                        return
+                    new_points.push_back(c)
+            else:
+                if in_rectangle[index_1]:
+                    c = line.intersection(Line2D(p0, p1))
+
+                    if not c.isValid():
+                        return
+
+                    new_points.push_back(c)
+                    new_points.push_back(p1)
+        return new_points
 
     """
       \ brief make a logical print.
