@@ -98,23 +98,22 @@ class Polygon2D(Region2D):
             return allow_on_segment and (self._vertices[0] == p)
 
         r = self.getBoundingBox()
-
         if not r.contains(p):
             return False
 
         #
         # make virtual half line
         #
-        line = Segment2D(p, Vector2D(p.x + ((r.maxX() - r.minX()
-                                             + r.maxY() - r.minY())
+        # print(r.right()) -> maxX
+        line = Segment2D(p, Vector2D(p.x + ((r.right() - r.left() + r.bottom() - r.top())
                                             + (self._vertices[0] - p).r()) * 3.0,
-                                     p.y)) # TODO Check Contains
+                                     p.y))
 
         #
         # check intersection with all segments
         #
         inside = False
-        min_line_x = r.maxX() + 1.0
+        min_line_x = r.right() + 1.0
         for i in range(len(self._vertices)):
             p1_index = i + 1
 
