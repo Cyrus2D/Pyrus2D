@@ -28,8 +28,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## TODO
-composite_region_2d | 
-convex_hull | 
 triangulation | 
 delaunay_triangulation | 
+composite_region_2d | 
 voronoi_diagram
