@@ -1,11 +1,18 @@
 import logging
 
+from lib.debug.color import Color
+from lib.debug.level import Level
+from lib.math.vector_2d import Vector2D
+from lib.rcsc.game_time import GameTime
+
 
 class dlog:
     _name: str = ""
     _log_file: str = ""
     _formatter = logging.Formatter('%(message)s')
     _logger = None
+    _commands: str = ""
+    _time: GameTime = GameTime()
 
     def __init__(self):
         pass
@@ -30,7 +37,6 @@ class dlog:
         logger.addHandler(handler)
 
         dlog._logger = logger
-        # dlog.debug("logger initialized")
 
     @staticmethod
     def name():
@@ -47,3 +53,16 @@ class dlog:
     @staticmethod
     def debug(msg):
         return dlog._logger.debug(msg)
+
+    @staticmethod
+    def add_line(level: Level = Level.LEVEL_ANY,
+                 start: Vector2D = None,
+                 end: Vector2D = None,
+                 color: Color = Color(hexa="red")):
+        dlog._commands += f"{dlog._time.cycle()} {level.value} l {start.x} {start.y} {end.x} {end.y} {color}\n"
+
+    @staticmethod
+    def flush():
+        if dlog._time is None or dlog._time.cycle() == 0: return
+        dlog.debug(dlog._commands)
+        dlog._commands = ""

@@ -3,7 +3,7 @@ import time
 import sys
 
 from base.decision import *
-from lib.debug.logger import dlog
+from lib.debug.logger import *
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
@@ -25,6 +25,7 @@ class PlayerAgent:
 
     def run(self, team_name, goalie):
         self.connect(team_name, goalie)
+        self._full_world._team_name = team_name
         last_time_rec = time.time()
         while True:
             message_and_address = []
@@ -48,21 +49,22 @@ class PlayerAgent:
                 # print(f"run-time: {cycle_end-cycle_start}s")
             elif time.time() - last_time_rec > 3:
                 print("srever down")
-                # sys.stdout.close()
                 break
 
     def connect(self, team_name, goalie, version=15):
         self._socket.send_msg(PlayerInitCommand(team_name, 15, goalie).str())
 
     def parse_message(self, message):
+        print(message)
         self._think_mode = False
         if message.find("(init") is not -1:
-            self.init_print(message)
+            self.init_dlog(message)
         if message.find("server_param") is not -1:
             self._server_param.parse(message)
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)
+            dlog._time = self.world().time()
         elif message.find("think") is not -1:
             self._think_mode = True
 
@@ -89,11 +91,13 @@ class PlayerAgent:
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         self._socket.send_msg(PlayerSendCommands.all_to_str(commands))
+        dlog.flush()
         self._last_body_command = []
 
-    def init_print(self, message: str):
+    def init_dlog(self, message: str):
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
         # sys.stdout = open(f"debug/{side}{unum}.log", 'w')
-        dlog.setup_logger(f"dlog{side}{unum}", f"debug/{side}{unum}.log", logging.DEBUG)
+        dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
+        print("INIT")

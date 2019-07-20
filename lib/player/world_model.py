@@ -8,6 +8,7 @@ class WorldModel:
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = 0
+        self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for _ in range(11)]
         self._their_players = [PlayerObject() for _ in range(11)]
@@ -90,3 +91,6 @@ class WorldModel:
         self.ball().reverse()
         Object.reverse_list(self._our_players)
         Object.reverse_list(self._their_players)
+
+    def team_name(self):
+        return self._team_name
