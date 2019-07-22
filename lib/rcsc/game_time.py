@@ -17,4 +17,3 @@ class GameTime:
 
     def __repr__(self):
         return f"{self.cycle()}"
-
