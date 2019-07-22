@@ -10,7 +10,7 @@ class GoToPoint:
 
     def execute(self, agent):
         if agent.world().time().cycle() < 1:
-            agent.do_move(-20, agent.world()._self_unum * 5 - 30)
+            agent.do_move(-20, agent.world().self().unum() * 5 - 30)
             return True
         self_pos = agent.world().self().pos()
         if self_pos.dist(self.target) < self.thr:

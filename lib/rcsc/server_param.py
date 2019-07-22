@@ -288,7 +288,7 @@ FOUL_EXPONENT = 10.0
 FOUL_CYCLES = 5
 
 
-class ServerParam:  # TODO spicfic TYPES and change them
+class ServerParam:  # TODO specific TYPES and change them
     def __init__(self):
         self._goal_width = DEFAULT_GOAL_WIDTH
         self._inertia_moment = DEFAULT_INERTIA_MOMENT

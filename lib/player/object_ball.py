@@ -4,7 +4,7 @@ from lib.player.object import *
 class BallObject(Object):
     def __init__(self, string=None):
         super().__init__()
-        if string == None:
+        if string is None:
             return
         self.init_str(string)
 
