@@ -59,9 +59,9 @@ class PlayerTurnCommand(PlayerBodyCommand):
 
 
 class PlayerKickCommand(PlayerBodyCommand):
-    def __init__(self, power, dir):
+    def __init__(self, power, rel_dir):
         self._power = power
-        self._dir = dir  # relative to body angle
+        self._dir = rel_dir  # relative to body angle
 
     def str(self):
         return f"(kick {self._power} {self._dir})"
