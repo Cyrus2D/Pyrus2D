@@ -288,7 +288,7 @@ FOUL_EXPONENT = 10.0
 FOUL_CYCLES = 5
 
 
-class ServerParam:  # TODO specific TYPES and change them
+class _ServerParam:  # TODO specific TYPES and change them
     def __init__(self):
         self._goal_width = DEFAULT_GOAL_WIDTH
         self._inertia_moment = DEFAULT_INERTIA_MOMENT
@@ -558,7 +558,7 @@ class ServerParam:  # TODO specific TYPES and change them
         self._audio_cut_dist = dic["audio_cut_dist"]
         self._back_passes = dic["back_passes"]
         self._ball_accel_max = dic["ball_accel_max"]
-        self._ball_decay = dic["ball_decay"]
+        self._ball_decay = float(dic["ball_decay"])
         self._ball_rand = dic["ball_rand"]
         self._ball_size = dic["ball_size"]
         self._ball_speed_max = dic["ball_speed_max"]
@@ -1300,5 +1300,22 @@ class ServerParam:  # TODO specific TYPES and change them
     def golden_goal(self):
         return self._golden_goal
 
+    def pitch_length(self):
+        return DEFAULT_PITCH_LENGTH
 
-i: ServerParam = ServerParam()
+    def pitch_half_lenght(self):
+        return self.pitch_length() / 2
+
+    def pitch_width(self):
+        return DEFAULT_PITCH_WIDTH
+
+    def pitch_half_width(self):
+        return self.pitch_width() / 2
+
+
+class ServerParam:
+    _i: _ServerParam = _ServerParam()
+
+    @staticmethod
+    def i() -> _ServerParam:
+        return ServerParam._i

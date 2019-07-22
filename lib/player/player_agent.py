@@ -21,7 +21,6 @@ class PlayerAgent:
         self._full_world = WorldModel()
         self._think_mode = True
         self._is_synch_mode = True
-        self._server_param = ServerParam()
         self._last_body_command = []
 
     def run(self, team_name, goalie):
@@ -61,7 +60,7 @@ class PlayerAgent:
         if message.find("(init") is not -1:
             self.init_dlog(message)
         if message.find("server_param") is not -1:
-            self._server_param.parse(message)
+            ServerParam.i().parse(message)
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)

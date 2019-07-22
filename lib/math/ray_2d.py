@@ -84,7 +84,7 @@ class Ray2D:
             other = args[0]
             tmp_sol = self.line().intersection(other.line())
 
-            if not tmp_sol.isValid():
+            if not tmp_sol.is_valid():
                 return Vector2D.invalid()
 
             if not self.inRightDir(tmp_sol) or not other.inRightDir(tmp_sol):
@@ -95,7 +95,7 @@ class Ray2D:
             line = args[0]
             tmp_sol = self.line().intersection(line)
 
-            if not tmp_sol.isValid():
+            if not tmp_sol.is_valid():
                 return Vector2D.invalid()
 
             if not self.inRightDir(tmp_sol):

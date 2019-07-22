@@ -63,7 +63,7 @@ class dlog:
                  y2: float = None,
                  start: Vector2D = None,
                  end: Vector2D = None,
-                 color: Color = Color(hexa="red")):
+                 color: Color = Color(string="red")):
         if x1 is not None:
             dlog._commands += f"{dlog._time} {level.value} l {x1} {y1} {x2} {y2} {color}\n"
         elif start is not None:
@@ -81,13 +81,24 @@ class dlog:
                    center: Vector2D = None,
                    cicle: Circle2D = None,
                    fill: bool = False,
-                   color: Color = Color(hexa='red'), ):
+                   color: Color = Color(string='red'), ):
         if cx is not None:
             dlog._commands += f"{dlog._time} {level.value} {'C' if fill else 'c'} {cx} {cy} {r} {color}\n"
         elif center is not None:
             dlog.add_circle(level, r, center._x, center._y, color=color, fill=fill)
         elif cicle is not None:
             dlog.add_circle(level, cicle.radius(), cicle.center().x(), cicle.center().y(), fill=fill, color=color)
+
+    @staticmethod
+    def add_point(level: Level.LEVEL_ANY,
+                  x: float = None,
+                  y: float = None,
+                  pos: Vector2D = None,
+                  color: Color = Color(string='red')):
+        if x is not None:
+            dlog._commands += f"{dlog._time} {level.value} p {x} {y} {color}"
+        elif pos is not None:
+            dlog.add_point(level, pos.x(), pos.y(), color=color)
 
     @staticmethod
     def flush():

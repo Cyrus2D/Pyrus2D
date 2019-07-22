@@ -1,23 +1,23 @@
 class Color:
-    def __init__(self, red: int = 0, green: int = 0, blue: int = 0, hexa: str = None):
+    def __init__(self, red: int = 0, green: int = 0, blue: int = 0, string: str = None):
         self._hex: str = ""
-        if hexa is None:
+        if string is None:
             red = ('0' if red < 16 else "") + hex(red).split("x")[1]
             green = ('0' if green < 16 else "") + hex(green).split("x")[1]
             blue = ('0' if blue < 16 else "") + hex(blue).split("x")[1]
             self._hex = f"#{red}{green}{blue}"
         else:
-            if hexa[0] == '#':
-                self._hex = hexa
-            elif hexa == "white":
+            if string[0] == '#':
+                self._hex = string
+            elif string == "white":
                 self.__init__(255, 255, 255)
-            elif hexa == "black":
+            elif string == "black":
                 self.__init__(0, 0, 0)
-            elif hexa == "red":
+            elif string == "red":
                 self.__init__(255, 0, 0)
-            elif hexa == "green":
+            elif string == "green":
                 self.__init__(0, 255, 0)
-            elif hexa == "blue":
+            elif string == "blue":
                 self.__init__(0, 0, 255)
 
     def hex(self):
