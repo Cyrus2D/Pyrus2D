@@ -43,8 +43,8 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        # self._kickable = True if "kickable" in dic else False # TODO check this
-        # self._kick_power_rate = float(dic["kick_power_rate"])
+        # self._kickable = # [ Soccer Math ] # TODO check this
+        # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
 
     def reverse_more(self):
         self._body.reverse()
