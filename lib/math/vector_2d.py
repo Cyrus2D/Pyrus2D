@@ -179,7 +179,13 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     def __sub__(self, other):
         return Vector2D(self._x - other.x(), self._y - other.y())
 
-    def __iadd__(self, other):  # Tip: iadd isub imul i... should return their self
+    def __truediv__(self, other):
+        return Vector2D(self._x / other, self._y / other)
+
+    def __mul__(self, other):
+        return Vector2D(self._x * other, self._y * other)
+
+    def __iadd__(self, other):
         self._x += other.x()
         self._y += other.y()
         return self
