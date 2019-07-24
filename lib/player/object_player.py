@@ -90,3 +90,7 @@ class PlayerObject(Object):
 
     def player_type_id(self):
         return self._player_type_id
+
+    def inertia_point(self, n_step):
+        return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
+
