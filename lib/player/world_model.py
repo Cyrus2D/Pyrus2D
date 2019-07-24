@@ -2,6 +2,7 @@ from lib.action.intercept_table import InterceptTable
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
+from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import PlayMode
 
@@ -18,7 +19,7 @@ class WorldModel:
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
         self._intercept_table: InterceptTable = InterceptTable()
-        self._game_mode: PlayMode = PlayMode.Null  # TODO should match with Play Mode ENUM
+        self._game_mode: GameMode = GameMode()
 
     def ball(self):
         return self._ball
@@ -55,7 +56,7 @@ class WorldModel:
         parser = FullStateWorldMessageParser()
         parser.parse(message)
         self._time._cycle = int(parser.dic()['time'])
-        self._game_mode = PlayMode(parser.dic()['pmode'])
+        self._game_mode.set_game_mode(PlayMode(parser.dic()['pmode']))
 
         # TODO vmode counters and arm
 
@@ -73,11 +74,6 @@ class WorldModel:
                 self._their_players[player.unum() - 1] = player
         if self.self().side() == SideID.RIGHT:
             self.reverse()
-
-        for i in range(len(self._our_players)):
-            self._our_players[i].update_with_world(self)
-        for i in range(len(self._their_players)):
-            self._their_players[i].update_with_world(self)
 
         # print(self)
 
@@ -105,6 +101,11 @@ class WorldModel:
         return self._team_name
 
     def update(self):
+        for i in range(len(self._our_players)):
+            self._our_players[i].update_with_world(self)
+        for i in range(len(self._their_players)):
+            self._their_players[i].update_with_world(self)
+
         self._intercept_table.update(self)
 
     def game_mode(self):

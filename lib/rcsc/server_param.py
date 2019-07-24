@@ -1,6 +1,7 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
 import lib.math.soccer_math as smath
+
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
 DEFAULT_PITCH_WIDTH = 68.0
@@ -1311,14 +1312,14 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def normalize_dash_angle(self, dir):
         if dir < self.min_dash_angle():
-            return  self.min_dash_angle()
+            return self.min_dash_angle()
         elif dir > self.max_dash_angle():
             return self.max_dash_angle()
         return dir
 
     def normalize_power(self, power):
         if power < self.min_dash_power():
-            return  self.min_power()
+            return self.min_power()
         elif power > self.max_power():
             return self.max_power()
         return power
@@ -1334,11 +1335,12 @@ class _ServerParam:  # TODO specific TYPES and change them
         d = self.discretize_dash_angle(self.normalize_dash_angle(dir))
         if math.fabs(d) > 90.0:
             r = self.back_dash_rate() - (
-                        (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
+                    (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
         else:
             r = self.side_dash_rate() + ((1.0 - self.side_dash_rate()) * (1.0 - math.fabs(d) / 90.0))
         return min(max(1.0e-5, r), 1.0)
 
+    # default params
     def pitch_length(self):
         return DEFAULT_PITCH_LENGTH
 
@@ -1354,11 +1356,24 @@ class _ServerParam:  # TODO specific TYPES and change them
     def goal_post_radius(self):
         return DEFAULT_GOAL_POST_RADIUS
 
-    def goal_width(self):
-        return self._goal_width
-
     def goal_half_width(self):
         return self.goal_width() / 2
+
+    def penalty_area_length(self):
+        return DEFAULT_PENALTY_AREA_LENGTH
+
+    def our_penalty_area_line_x(self):
+        return -self.pitch_half_length() + self.penalty_area_length()
+
+    def their_penalty_area_line_x(self):
+        return self.pitch_half_length() - self.penalty_area_length()
+
+    def penalty_area_width(self):
+        return DEFAULT_PENALTY_AREA_WIDTH
+
+    def penalty_area_half_width(self):
+        return self.penalty_area_width() / 2
+
 
 class ServerParam:
     _i: _ServerParam = _ServerParam()
