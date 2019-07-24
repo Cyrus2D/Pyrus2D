@@ -3,15 +3,31 @@ from lib.math.geom import *
 
 
 class GoToPoint:
-    def __init__(self, target, thr, dash_power):
+    def __init__(self, target, dist_thr, max_dash_power, dash_speed=-1.0, cycle=100, save_recovery=True, dir_thr=15.0):
         self.target = target
-        self.thr = thr
-        self.dash_power = dash_power
+        self.dist_thr = dist_thr
+        self.max_dash_power = max_dash_power
+        self.dash_speed = dash_speed
+        self.cycle = cycle
+        self.save_recovery = save_recovery
+        self.dir_thr = dir_thr
 
-    def execute(self, agent):
-        if agent.world().time().cycle() < 1:
-            agent.do_move(-20, agent.world()._self_unum * 5 - 30)
+
+
+
+    def execute(self, agent: PlayerAgent):
+        if self.max_dash_power < 0.1 or self.dash_speed < 0.01:
+            agent.do_turn(0)
             return True
+        wm: WorldModel = agent.world()
+        inertia_point: Vector2D = wm.self().inertia_point(self.cycle)
+        target_rel: Vector2D = self.target - inertia_point
+
+        target_dist = target_rel.r();
+        if target_dist < self.dist_thr:
+            agent.do_turn(0.0)
+            return False;
+
         self_pos = agent.world().self().pos()
         if self_pos.dist(self.target) < self.thr:
             agent.do_turn(0)

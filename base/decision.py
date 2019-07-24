@@ -6,6 +6,11 @@ from lib.debug.logger import *
 def get_decision(agent):
     st = Strategy()
     wm: WorldModel = agent.world()
+
+    if agent.world().time().cycle() < 1:
+        agent.do_move(-20, wm._self_unum * 5 - 30)
+        return True
+
     dlog.add_line(Level.BLOCK, start=wm.self().pos(), end=wm.ball().pos(), color=Color(hexa="black"))
     dlog.add_text(Level.BLOCK, f"HOLYY SHIITTTTTTT {wm.self().pos()}")
     dlog.add_circle(cicle=Circle2D(wm.self().pos(), 3), color=Color(hexa="blue"))
