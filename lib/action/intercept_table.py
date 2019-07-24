@@ -1,3 +1,4 @@
+from lib.action.intercept_self import SelfIntercept
 from lib.debug.color import Color
 from lib.debug.level import Level
 from lib.debug.logger import dlog
@@ -14,8 +15,10 @@ class InterceptInfo:
 class InterceptTable:
     def __init__(self):
         self._last_update_time: GameTime = GameTime(-10, -100)
-        self._ball_cache = []
         self._max_cycle: int = 30
+
+        self._ball_cache = []
+        self._self_cache = []
 
     def update(self, wm):
         # if self._last_update_time == wm.time():
@@ -64,3 +67,12 @@ class InterceptTable:
                 break
 
         # TODO if len == 1 push ball pos again :| why??
+
+    def predict_self(self, wm):
+        if wm.self().is_kickable():
+            dlog.add_text(Level.INTERCEPT, "Intercept predict self already kickable")
+            return
+
+        max_cycle = min(self._max_cycle, len(self._ball_cache))
+        predictor = SelfIntercept(wm, self._ball_cache)
+        predictor.predict(max_cycle, self._self_cache)

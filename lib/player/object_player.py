@@ -21,7 +21,7 @@ class PlayerObject(Object):
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
-        self._kickable: bool = False
+        self._kickable: bool = False # TODO does it change?
         self._kickrate: float = 0.0
 
     def init_dic(self, dic: dict):
@@ -90,7 +90,7 @@ class PlayerObject(Object):
     def card(self):
         return self._card
 
-    def isKickable(self):
+    def is_kickable(self):
         return self._kickable
 
     def kickrate(self):

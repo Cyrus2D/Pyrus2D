@@ -27,7 +27,7 @@ class StopBall(BodyAction):
 
     def execute(self, agent: PlayerAgent):
         wm: WorldModel = agent.world()
-        if not wm.self().isKickable():
+        if not wm.self().is_kickable():
             return False
         # if not wm.ball().velValid()   nice :)
         accel_radius = 0.0
