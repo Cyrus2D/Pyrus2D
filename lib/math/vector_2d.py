@@ -26,7 +26,8 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     """
 
     def assign(self, __x, __y):
-        self.__init__(__x, __y)
+        self._x = __x
+        self._y = __y
         return self
 
     """
@@ -328,9 +329,11 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     def rotate(self, deg):
         if type(deg) == AngleDeg:
             self.rotate(deg.degree())
+            return self
         cos_tmp = math.cos(deg * DEG2RAD)
         sin_tmp = math.sin(deg * DEG2RAD)
         self.assign(self._x * cos_tmp - self._y * sin_tmp, self._x * sin_tmp + self._y * cos_tmp)
+        return self
 
     """
       \ brief get new vector that is rotated by 'deg'.

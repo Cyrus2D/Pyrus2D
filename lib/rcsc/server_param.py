@@ -1,5 +1,6 @@
 from lib.parser.parser_message_params import MessageParamsParser
-
+import math
+import lib.math.soccer_math as smath
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
 DEFAULT_PITCH_WIDTH = 68.0
@@ -560,13 +561,13 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._ball_accel_max = dic["ball_accel_max"]
         self._ball_decay = float(dic["ball_decay"])
         self._ball_rand = dic["ball_rand"]
-        self._ball_size = dic["ball_size"]
+        self._ball_size = float(dic["ball_size"])
         self._ball_speed_max = dic["ball_speed_max"]
         self._ball_weight = dic["ball_weight"]
         self._catch_ban_cycle = dic["catch_ban_cycle"]
         self._catch_probability = dic["catch_probability"]
-        self._catch_area_l = dic["catchable_area_l"]
-        self._catch_area_w = dic["catchable_area_w"]
+        self._catch_area_l = float(dic["catchable_area_l"])
+        self._catch_area_w = float(dic["catchable_area_w"])
         self._corner_kick_margin = dic["ckick_margin"]
         self._clang_advice_win = dic["clang_advice_win"]
         self._clang_define_win = dic["clang_define_win"]
@@ -587,7 +588,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._effort_dec_thr = dic["effort_dec_thr"]
         self._effort_inc = dic["effort_inc"]
         self._effort_inc_thr = dic["effort_inc_thr"]
-        self._effort_init = dic["effort_init"]
+        self._effort_init = float(dic["effort_init"])
         self._effort_min = dic["effort_min"]
         self._kickoff_offside = dic["forbid_kick_off_offside"]
         self._free_kick_faults = dic["free_kick_faults"]
@@ -602,7 +603,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._game_log_fixed_name = dic["game_log_fixed_name"]
         self._game_log_version = dic["game_log_version"]
         self._game_logging = dic["game_logging"]
-        self._goal_width = dic["goal_width"]
+        self._goal_width = float(dic["goal_width"])
         self._goalie_max_moves = dic["goalie_max_moves"]
         self._half_time = dic["half_time"]
         self._player_hear_decay = dic["hear_decay"]
@@ -618,7 +619,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._log_date_format = dic["log_date_format"]
         self._log_times = dic["log_times"]
         self._max_goal_kicks = dic["max_goal_kicks"]
-        self._max_moment = dic["maxmoment"]
+        self._max_moment = float(dic["maxmoment"])
         self._max_neck_angle = dic["maxneckang"]
         self._max_neck_moment = dic["maxneckmoment"]
         self._max_power = dic["maxpower"]
@@ -647,7 +648,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._dist_quantize_step_l = dic["quantize_step_l"]
         self._record_message = dic["record_messages"]
         self._recover_dec = dic["recover_dec"]
-        self._recover_dec_thr = dic["recover_dec_thr"]
+        self._recover_dec_thr = float(dic["recover_dec_thr"])
         self._recover_min = dic["recover_min"]
         self._recv_step = dic["recv_step"]
         self._coach_say_count_max = dic["say_coach_cnt_max"]
@@ -662,7 +663,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._slowness_on_top_for_left_team = dic["slowness_on_top_for_left_team"]
         self._slowness_on_top_for_right_team = dic["slowness_on_top_for_right_team"]
         self._stamina_inc_max = dic["stamina_inc_max"]
-        self._stamina_max = dic["stamina_max"]
+        self._stamina_max = float(dic["stamina_max"])
         self._start_goal_l = dic["start_goal_l"]
         self._start_goal_r = dic["start_goal_r"]
         self._stopped_ball_vel = dic["stopped_ball_vel"]
@@ -732,6 +733,9 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def recover_dec_thr(self):
         return self._recover_dec_thr
+
+    def recover_dec_thr_value(self):
+        return self._recover_dec_thr * self._stamina_max
 
     def recover_min(self):
         return self._recover_min
@@ -1300,10 +1304,45 @@ class _ServerParam:  # TODO specific TYPES and change them
     def golden_goal(self):
         return self._golden_goal
 
+    def discretize_dash_angle(self, dir):
+        if self.dash_angle_step() < 1.0e-10:
+            return dir
+        return self.dash_angle_step() * smath.rint(dir / self.dash_angle_step())
+
+    def normalize_dash_angle(self, dir):
+        if dir < self.min_dash_angle():
+            return  self.min_dash_angle()
+        elif dir > self.max_dash_angle():
+            return self.max_dash_angle()
+        return dir
+
+    def normalize_power(self, power):
+        if power < self.min_dash_power():
+            return  self.min_power()
+        elif power > self.max_power():
+            return self.max_power()
+        return power
+
+    def normalize_dash_power(self, power):
+        if power < self.min_dash_power():
+            return self.min_dash_power()
+        elif power > self.max_dash_power():
+            return self.max_dash_power()
+        return power
+
+    def dash_dir_rate(self, dir):
+        d = self.discretize_dash_angle(self.normalize_dash_angle(dir))
+        if math.fabs(d) > 90.0:
+            r = self.back_dash_rate() - (
+                        (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
+        else:
+            r = self.side_dash_rate() + ((1.0 - self.side_dash_rate()) * (1.0 - math.fabs(d) / 90.0))
+        return min(max(1.0e-5, r), 1.0)
+
     def pitch_length(self):
         return DEFAULT_PITCH_LENGTH
 
-    def pitch_half_lenght(self):
+    def pitch_half_length(self):
         return self.pitch_length() / 2
 
     def pitch_width(self):
@@ -1312,6 +1351,14 @@ class _ServerParam:  # TODO specific TYPES and change them
     def pitch_half_width(self):
         return self.pitch_width() / 2
 
+    def goal_post_radius(self):
+        return DEFAULT_GOAL_POST_RADIUS
+
+    def goal_width(self):
+        return self._goal_width
+
+    def goal_half_width(self):
+        return self.goal_width() / 2
 
 class ServerParam:
     _i: _ServerParam = _ServerParam()

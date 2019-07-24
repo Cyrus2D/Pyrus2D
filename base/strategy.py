@@ -1,4 +1,4 @@
-from lib.math.geom import *
+from lib.math.geom_2d import *
 
 
 class Strategy:

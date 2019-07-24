@@ -1,4 +1,4 @@
-from lib.math.geom import *
+from lib.math.geom_2d import *
 
 
 class Object:
@@ -6,10 +6,10 @@ class Object:
         self._pos = Vector2D.invalid()
         self._vel = Vector2D.invalid()
 
-    def pos(self):
+    def pos(self) -> Vector2D:
         return self._pos.copy() # TODO How it is?!?
 
-    def vel(self):
+    def vel(self) -> Vector2D:
         return self._vel.copy() # TODO How it is?!?
 
     def reverse(self):

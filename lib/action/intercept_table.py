@@ -41,7 +41,7 @@ class InterceptTable:
 
     def create_ball_cache(self, wm):
         SP = ServerParam.i()
-        pitch_max_x = SP.pitch_half_lenght() + 5
+        pitch_max_x = SP.pitch_half_length() + 5
         pitch_max_y = SP.pitch_half_width() + 5
         ball_decay = SP.ball_decay()
 

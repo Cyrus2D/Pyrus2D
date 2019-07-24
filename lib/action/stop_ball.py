@@ -3,7 +3,7 @@
   \ brief kick the ball to keep a current positional relation.
 """
 from lib.player.soccer_action import *
-from lib.math.geom import *
+from lib.math.geom_2d import *
 
 """
   \ class Body_StopBall

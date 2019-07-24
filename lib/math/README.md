@@ -1,6 +1,6 @@
-# Geom
+# Geom2D | Soccer_Math
 
-Geom is a Python library for dealing with math problems in SS2D.
+Geom is a Python library for dealing with math and geometry problems in SS2D.
 
 ## Installation
 
@@ -13,7 +13,7 @@ from lib.math.geom import *
 ## Usage
 
 ```python
-from lib.math.geom import *
+from lib.math.soccer_math import *
 
 vec1 = Vector2D() # create Vector with default value.
 vec2 = Vector2D(20,20) # create Vector with 20 , 20 value directly.

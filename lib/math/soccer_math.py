@@ -4,10 +4,7 @@
 
 """
 
-from lib.math.geom import *
-import numpy as np
-
-SERVER_EPS = 1.0e-10
+from lib.math.geom_2d import *
 
 """
   \ brief calculate kick rate
@@ -22,13 +19,9 @@ SERVER_EPS = 1.0e-10
 """
 
 
-def kick_rate(dist: float, dir_diff: float, kprate: float, bsize: float, psize: float, kmargin: float):
-    return kprate * (1.0
-                     - 0.25 * math.fabs(dir_diff) / 180.0
-                     - 0.25 * (dist - bsize - psize) / kmargin)
+def kick_rate(dist, dir_diff, kprate, bsize, psize, kmargin):
+    return kprate * (1.0 - 0.25 * math.fabs(dir_diff) / 180.0 - 0.25 * (dist - bsize - psize) / kmargin)
 
-
-# dash command related
 
 """
   \ brief calculate effective dash power rate according to the input dash direction
@@ -41,9 +34,8 @@ def kick_rate(dist: float, dir_diff: float, kprate: float, bsize: float, psize: 
 
 def dir_rate(dir_r, back_dash_rate, side_dash_rate):
     if math.fabs(dir_r) > 90.0:
-        return back_dash_rate - (back_dash_rate - side_dash_rate) * (1.0 - (math.fabs(dir_r) - 90.0) / 90.0)
-    else:
-        return side_dash_rate + ((1.0 - side_dash_rate) * (1.0 - math.fabs(dir_r) / 90.0))
+        return back_dash_rate - ((back_dash_rate - side_dash_rate) * (1.0 - (math.fabs(dir_r) - 90.0) / 90.0))
+    return side_dash_rate + ((1.0 - side_dash_rate) * (1.0 - math.fabs(dir_r) / 90.0))
 
 
 """
@@ -56,13 +48,9 @@ def dir_rate(dir_r, back_dash_rate, side_dash_rate):
 """
 
 
-def effective_turn(turn_moment,
-                   speed,
-                   inertiamoment):
+def effective_turn(turn_moment, speed, inertiamoment):
     return turn_moment / (1.0 + inertiamoment * speed)
 
-
-# dash command related
 
 """
   \ brief calculate converged max speed, using "dash_power"
@@ -76,23 +64,10 @@ def effective_turn(turn_moment,
 """
 
 
-def final_speed(dash_power: float,
-                dprate: float,
-                effort: float,
-                decay: float):
-    # if player continue to run using the same dash power
-    # achieved speed at n step later is sum of infinite geometric series
-
-    # not ! NOTE not !
-    # You must compare self value to the PlayerType.playerSpeedMax()
-
-    # return ( (dash_power * dprate * effort) # == accel
-    #         * (1.0 / (1.0 - decay)) ); # == sum inf geom series
-    return ((math.fabs(dash_power) * dprate * effort)  # == accel
-            / (1.0 - decay))  # == sum inf geom series
+def final_speed(dash_power, dprate, effort, decay):
+    return (math.fabs(dash_power) * dprate * effort) / (1.0 - decay)
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief check if player's potential max speed is over player_speed_max
   parameter.
@@ -105,18 +80,10 @@ def final_speed(dash_power: float,
 """
 
 
-def can_over_speed_max(dash_power: float,
-                       dprate: float,
-                       effort: float,
-                       decay: float,
-                       speed_max: float):
-    return (math.fabs(dash_power) * dprate * effort  # max accel
-            > speed_max * (1.0 - decay))  # is over speed decay
+def can_over_speed_max(dash_power, dprate, effort, decay, speed_max):
+    return math.fabs(dash_power) * dprate * effort > speed_max * (1.0 - decay)
 
 
-# predictor method for inertia movement
-
-"""-------------------------------------------------------------------"""
 """
   \ brief estimate future travel after n steps only by inertia.
   No additional acceleration.
@@ -127,12 +94,12 @@ def can_over_speed_max(dash_power: float,
 """
 
 
-def inertia_n_step_travel(initial_vel: Vector2D, n_step, decay):
-    tmp = initial_vel * ((1.0 - math.pow(decay, n_step)) / (1.0 - decay))
+def inertia_n_step_travel(initial_vel, n_step, decay):
+    tmp = Vector2D(initial_vel.x(), initial_vel.y())
+    tmp *= ((1.0 - math.pow( decay, n_step)) / (1.0 - decay))
     return tmp
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief estimate future point after n steps only by inertia.
   No additional acceleration
@@ -144,13 +111,12 @@ def inertia_n_step_travel(initial_vel: Vector2D, n_step, decay):
 """
 
 
-def inertia_n_step_point(initial_pos: Vector2D,
-                         initial_vel: Vector2D, n_step, decay):
-    tmp = initial_pos + inertia_n_step_travel(initial_vel, n_step, decay)
+def inertia_n_step_point(initial_pos: Vector2D, initial_vel: Vector2D, n_step, decay):
+    tmp = Vector2D(initial_pos.x(), initial_pos.y())
+    tmp += inertia_n_step_travel(initial_vel, n_step, decay)
     return tmp
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief estimate travel distance only by inertia.
   No additional acceleration
@@ -162,10 +128,12 @@ def inertia_n_step_point(initial_pos: Vector2D,
 
 
 def inertia_n_step_distance(initial_speed, n_step, decay):
-    return initial_speed * (1.0 - math.pow(decay, n_step)) / (1.0 - decay)
+    if type(n_step) == int:
+        return initial_speed * (1.0 - math.pow(decay, n_step)) / (1.0 - decay)
+    else:
+        return initial_speed * (1.0 - math.pow(decay, n_step)) / (1.0 - decay)
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate total travel only by inertia movement.
   \ param initial_vel object's first velocity
@@ -174,13 +142,13 @@ def inertia_n_step_distance(initial_speed, n_step, decay):
 """
 
 
-def inertia_final_travel(initial_vel: Vector2D,
-                         decay):
-    tmp = initial_vel / (1.0 - decay)
+
+def inertia_final_travel(initial_vel: Vector2D, decay):
+    tmp = Vector2D(initial_vel.x, initial_vel.y)
+    tmp /= (1.0 - decay)
     return tmp
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate final reach point only by inertia.
   \ param initial_pos object's first position
@@ -190,14 +158,12 @@ def inertia_final_travel(initial_vel: Vector2D,
 """
 
 
-def inertia_final_point(initial_pos: Vector2D,
-                        initial_vel: Vector2D,
-                        decay):
-    tmp = Vector2D(initial_pos) + inertia_final_travel(initial_vel, decay)
+def inertia_final_point(initial_pos: Vector2D, initial_vel: Vector2D, decay):
+    tmp = Vector2D(initial_pos.x, initial_pos.y)
+    tmp += inertia_final_travel(initial_vel, decay)
     return tmp
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate total travel distance only by inertia.
   \ param initial_speed object's first speed
@@ -206,36 +172,66 @@ def inertia_final_point(initial_pos: Vector2D,
 """
 
 
-def inertia_final_distance(initial_speed,
-                           decay):
+def inertia_final_distance(initial_speed, decay):
     return initial_speed / (1.0 - decay)
 
 
+"""
+    \ brief Rounds the floating-point argument f to an integer value (in floating-point format), using the current rounding mode. 
+    \ param f floating point value
+    \ return If no errors occur, the nearest integer value to f, according to the current rounding mode, is returned.a
+"""
+def rint(f):
+    fi = int(f)
+    fi_diff = math.fabs(fi - f)
+    fi_left = fi - 1
+    fi_left_diff = math.fabs(fi_left - f)
+    fi_right = fi + 1
+    fi_right_diff = math.fabs(fi_right - f)
+    if fi_diff < fi_left_diff and fi_diff < fi_right_diff:
+        return fi
+    elif fi_left_diff < fi_right_diff:
+        return fi_left
+    else:
+        return fi_right
+
+
+
+def calc_first_term_geom_series(sum, r, len):
+    return sum * (1.0 - r) / (1.0 - math.pow(r, len))
+
+
+def bound(a, b, c):
+    if a < b < c:
+        return b
+    if b < a < c:
+        return a
+    return c
+
+SERVER_EPS = 1.0e-10
+
 # localization
 
-"""-------------------------------------------------------------------"""
 """
   \ brief quantize a floating point number
   \ param value value to be rounded
   \ param qstep round precision
   \ return rounded value
 
-  same as define Quantize(v,q) ((np.rint((v)/(q)))*(q))
+  same as define Quantize(v,q) ((rint((v)/(q)))*(q))
 """
 
 
 def quantize(value,
              qstep):
-    return np.rint(value / qstep) * qstep
+    return rint(value / qstep) * qstep
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate quantized distance value about dist quantization
   \ param unq_dist actual distance
   \ param qstep server parameter
   \ return quantized distance
-
 """
 
 
@@ -246,7 +242,6 @@ def quantize_dist(unq_dist,
                               (unq_dist + SERVER_EPS), qstep)), 0.1)
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate minimal value by inverse quantize function
   \ param dist quantized distance
@@ -257,10 +252,9 @@ def quantize_dist(unq_dist,
 
 def unquantize_min(dist,
                    qstep):
-    return (np.rint(dist / qstep) - 0.5) * qstep
+    return (rint(dist / qstep) - 0.5) * qstep
 
 
-"""-------------------------------------------------------------------"""
 """
   \ brief calculate maximal value by inverse quantize function
   \ param dist quantized distance
@@ -271,10 +265,10 @@ def unquantize_min(dist,
 
 def unquantize_max(dist,
                    qstep):
-    return (np.rint(dist / qstep) + 0.5) * qstep
+    return (rint(dist / qstep) + 0.5) * qstep
 
 
-"""-------------------------------------------------------------------"""
+"""add in servers"""
 """
   \ brief calculate wind effect
   \ param speed current object's speed
