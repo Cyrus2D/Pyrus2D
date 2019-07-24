@@ -648,7 +648,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._dist_quantize_step_l = dic["quantize_step_l"]
         self._record_message = dic["record_messages"]
         self._recover_dec = dic["recover_dec"]
-        self._recover_dec_thr = dic["recover_dec_thr"]
+        self._recover_dec_thr = float(dic["recover_dec_thr"])
         self._recover_min = dic["recover_min"]
         self._recv_step = dic["recv_step"]
         self._coach_say_count_max = dic["say_coach_cnt_max"]
@@ -663,7 +663,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._slowness_on_top_for_left_team = dic["slowness_on_top_for_left_team"]
         self._slowness_on_top_for_right_team = dic["slowness_on_top_for_right_team"]
         self._stamina_inc_max = dic["stamina_inc_max"]
-        self._stamina_max = dic["stamina_max"]
+        self._stamina_max = float(dic["stamina_max"])
         self._start_goal_l = dic["start_goal_l"]
         self._start_goal_r = dic["start_goal_r"]
         self._stopped_ball_vel = dic["stopped_ball_vel"]
@@ -733,6 +733,9 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def recover_dec_thr(self):
         return self._recover_dec_thr
+
+    def recover_dec_thr_value(self):
+        return self._recover_dec_thr * self._stamina_max
 
     def recover_min(self):
         return self._recover_min
