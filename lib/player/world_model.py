@@ -17,7 +17,7 @@ class WorldModel:
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
         self._intercept_table: InterceptTable = InterceptTable()
-        self._play_mode: str = ""  # TODO should match with Play Mode ENUM
+        self._game_mode: str = ""  # TODO should match with Play Mode ENUM
 
     def ball(self):
         return self._ball
@@ -54,7 +54,7 @@ class WorldModel:
         parser = FullStateWorldMessageParser()
         parser.parse(message)
         self._time._cycle = int(parser.dic()['time'])
-        self._play_mode = parser.dic()['pmode']
+        self._game_mode = parser.dic()['pmode']
 
         # TODO vmode counters and arm
 
@@ -100,3 +100,6 @@ class WorldModel:
 
     def update(self):
         self._intercept_table.update(self)
+
+    def game_mode(self):
+        return self._game_mode
