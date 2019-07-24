@@ -23,26 +23,26 @@ def can_over_speed_max(dash_power, dprate, effort, decay, speed_max):
     return ( math.fabs( dash_power ) * dprate * effort > speed_max * ( 1.0 - decay ) )
 
 
-def inertia_n_step_travel(initial_vel :Vector2D, n_step, decay):
-    tmp = Vector2D(initial_vel.x, initial_vel.y)
-    tmp *= (( 1.0 - math.pow( decay, n_step)) / (1.0 - decay))
+def inertia_n_step_travel(initial_vel, n_step, decay):
+    tmp = Vector2D(initial_vel.x(), initial_vel.y())
+    tmp *= ((1.0 - math.pow( decay, n_step)) / (1.0 - decay))
     return tmp
 
 
-def inertia_n_step_point(initial_pos: Vector2D, initial_vel: Vector2D, n_step, decay):
-    tmp = Vector2D(initial_pos.x, initial_pos.y)
-    tmp += inertia_n_step_travel( initial_vel, n_step, decay );
+def inertia_n_step_point(initial_pos, initial_vel, n_step, decay):
+    tmp = Vector2D(initial_pos.x(), initial_pos.y())
+    tmp += inertia_n_step_travel(initial_vel, n_step, decay)
     return tmp
 
 
 def inertia_n_step_distance(initial_speed, n_step, decay):
     if type(n_step) == int:
-        return initial_speed * ( 1.0 - math.pow( decay, n_step ) ) / ( 1.0 - decay )
+        return initial_speed * (1.0 - math.pow(decay, n_step)) / (1.0 - decay)
     else:
-        return initial_speed * (1.0 - math.pow( decay, n_step) ) / (1.0 - decay)
+        return initial_speed * (1.0 - math.pow(decay, n_step)) / (1.0 - decay)
 
 
-def inertia_final_travel( initial_vel: Vector2D, decay):
+def inertia_final_travel(initial_vel: Vector2D, decay):
     tmp = Vector2D(initial_vel.x, initial_vel.y)
     tmp /= (1.0 - decay)
     return tmp
@@ -56,6 +56,7 @@ def inertia_final_point(initial_pos: Vector2D, initial_vel: Vector2D, decay):
 
 def inertia_final_distance(initial_speed, decay):
     return initial_speed / (1.0 - decay)
+
 
 def rint(f):
     fi = int(f)
@@ -71,3 +72,14 @@ def rint(f):
     else:
         return fi_right
 
+
+def calc_first_term_geom_series(sum, r, len):
+    return sum * (1.0 - r) / (1.0 - math.pow(r, len))
+
+
+def bound(a, b, c):
+    if a < b < c:
+        return b
+    if b < a < c:
+        return a
+    return c

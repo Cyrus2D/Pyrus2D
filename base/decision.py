@@ -8,7 +8,7 @@ def get_decision(agent):
     wm: WorldModel = agent.world()
 
     if agent.world().time().cycle() < 1:
-        agent.do_move(-20, wm._self_unum * 5 - 30)
+        agent.do_move(-20, wm.self().unum() * 5 - 30)
         return True
 
     dlog.add_line(Level.BLOCK, start=wm.self().pos(), end=wm.ball().pos(), color=Color(string="black"))
@@ -27,5 +27,6 @@ def get_decision(agent):
                 nearest_tm = u
     if nearest_tm == wm.self().unum():
         target = wm.ball().pos()
-    GoToPoint(target, 2, 100).execute(agent)
+
+    GoToPoint(target, 1, 100).execute(agent)
     return True
