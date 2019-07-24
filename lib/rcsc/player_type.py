@@ -1,5 +1,8 @@
 from lib.parser.parser_message_params import MessageParamsParser
-
+import lib.rcsc.server_param as SP
+import math
+import lib.math.soccer_math as smath
+from lib.math.geom import *
 
 class PlayerType:
     def __init__(self):
@@ -19,6 +22,16 @@ class PlayerType:
         self._foul_detect_probability = 0.5
         self._catchable_area_l_stretch = 1
 
+        # update in init_additional_params
+        self._kickable_area = 1.0
+        self._reliable_catchable_dist = 1.0
+        self._max_catchable_dist = 1.0
+        self._real_speed_max = 1.0
+        self._cycles_to_reach_max_speed = -1;
+
+        self._dash_distance_table = []
+        self.init_additional_params()
+
     def set_data(self, dic):
         self._id = int(dic["id"])
         self._player_speed_max = float(dic["player_speed_max"])
@@ -35,6 +48,7 @@ class PlayerType:
         self._kick_power_rate = float(dic["kick_power_rate"])
         self._foul_detect_probability = float(dic["foul_detect_probability"])
         self._catchable_area_l_stretch = float(dic["catchable_area_l_stretch"])
+        self.init_additional_params()
 
     def __repr__(self):
         return f"kickable_margin: {self.kickable_margin()}"
@@ -88,4 +102,103 @@ class PlayerType:
 
     def catchable_area_l_stretch(self):
         return self._catchable_area_l_stretch
+
+    def kickable_aria(self):
+        return self._kickable_area
+
+    def reliable_catchable_dist(self):
+        return self._real_speed_max
+
+    def max_catchable_dist(self):
+        return self._max_catchable_dist
+
+    def real_speed_max(self):
+        return self._real_speed_max
+
+    def init_additional_params(self):
+        self._kickable_area = self.player_size() + self.kickable_margin() + SP.i.ball_size()
+        catch_stretch_length_x = (self.catchable_area_l_stretch() - 1.0) * SP.i.catch_area_l()
+        catch_length_min_x = SP.i.catch_area_l() - catch_stretch_length_x
+        catch_length_max_x = SP.i.catch_area_l() + catch_stretch_length_x
+        catch_half_width2 = math.pow(SP.i.catch_area_w() / 2.0, 2)
+        self._reliable_catchable_dist = math.sqrt(math.pow(catch_length_min_x, 2) + catch_half_width2)
+        self._max_catchable_dist = math.sqrt(math.pow(catch_length_max_x, 2) + catch_half_width2)
+        accel = SP.i.max_dash_power() * self.dash_power_rate() * self.effort_max()
+        self._real_speed_max = accel / (1.0 - self.player_decay())
+
+        if self._real_speed_max > self.player_speed_max():
+            self._real_speed_max = self.player_speed_max()
+
+        speed = 0.0
+        dash_power = SP.i.max_dash_power()
+        reach_dist = 0.0
+
+        self._dash_distance_table.clear()
+        self._dash_distance_table = [0 for i in range(50)]
+        for c in range(50):
+            if speed + accel > self.player_speed_max():
+                accel = self.player_speed_max() - speed
+                dash_power = min(SP.i.max_dash_power(), accel / (self.dash_power_rate() * 1.0)) # should change
+            speed += accel
+            reach_dist += speed
+            self._dash_distance_table[c] = reach_dist
+            if self._cycles_to_reach_max_speed < 0 and speed >= self.real_speed_max() - 0.01:
+                self._cycles_to_reach_max_speed = c
+            # stamina_model.simulateDash(*this, dash_power);
+            #
+            # if (stamina_model.stamina() <= 0.0)
+            #     {
+            # break;
+            # }
+            #
+            speed *= self.player_decay()
+
+    def cycles_to_reach_max_speed(self, dash_power):
+        accel = math.fabs( dash_power ) * self.dash_power_rate() * self.effort_max()
+        speed_max = accel / ( 1.0 - self.player_decay())
+        if speed_max > self.player_speed_max():
+            speed_max = self.player_speed_max()
+        decn = 1.0 - ( ( speed_max - 0.01 ) * ( 1.0 - self.player_decay() ) / accel )
+        return int( math.ceil( math.log( decn ) / math.log( self.player_decay() ) ) )
+
+    def cycles_to_reach_distance(self, dash_dist):
+        if dash_dist <= 0.001:
+            return 0
+
+        ddc = 0
+        for dd in self._dash_distance_table:
+            if dash_dist <= dd:
+                return ddc
+            ddc += 1
+
+        cycle = len(self._dash_distance_table)
+        rest_dist = dash_dist - self._dash_distance_table[cycle - 1]
+        cycle += int(math.ceil( rest_dist / self.real_speed_max() ) )
+        return cycle
+
+    def kickRate(self, ball_dist, dir_diff):
+        return (self.kick_power_rate() * (1.0 - 0.25 * math.fabs(dir_diff) / 180.0 - (
+                    0.25 * (ball_dist - SP.i.ball_size() - self.player_size()) / self.kickable_margin())))
+
+    def dashRate(self, effort, rel_dir):
+        return self.dashRate(effort) * SP.i.dash_dir_rate(rel_dir)
+
+    def effective_turn(self, command_moment, speed):
+        return command_moment / (1.0 + self.inertia_moment() * speed )
+
+    def final_speed(self, dash_power, effort):
+        return min(self.player_speed_max(),
+                   ((math.fabs(dash_power) * self.dash_power_rate() * effort) / (1.0 - self.player_decay())))
+
+    def inertia_travel(self, initial_vel, n_step):
+        return smath.inertia_n_step_travel( initial_vel, n_step, self.player_decay())
+
+    def inertia_point(self, initial_pos: Vector2D, initial_vel: Vector2D, n_step):
+        return smath.inertia_n_step_point(initial_pos, initial_vel, n_step, self.player_decay())
+
+    def inertia_final_travel(self, initial_vel:Vector2D):
+        return smath.inertia_final_travel(initial_vel, self.player_decay())
+
+    def inertiaFinalPoint(self, initial_pos: Vector2D, initial_vel :Vector2D):
+        return smath.inertia_final_point(initial_pos, initial_vel, self.player_decay())
 
