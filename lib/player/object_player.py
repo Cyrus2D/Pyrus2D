@@ -77,7 +77,7 @@ class PlayerObject(Object):
         return self._pointto
 
     def stamina(self):
-        return self._stamina
+        return self._stamina._stamina
 
     def kick(self):
         return self._kick
