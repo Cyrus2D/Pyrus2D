@@ -74,6 +74,11 @@ class WorldModel:
         if self.self().side() == SideID.RIGHT:
             self.reverse()
 
+        for i in range(len(self._our_players)):
+            self._our_players[i].update_with_world(self)
+        for i in range(len(self._their_players)):
+            self._their_players[i].update_with_world(self)
+
         # print(self)
 
     def __repr__(self):

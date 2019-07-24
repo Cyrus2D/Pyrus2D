@@ -17,14 +17,15 @@ class PlayerObject(Object):
         self._player_type: PlayerType = None
         self._player_type_id: int = None
         self._pointto: Vector2D = Vector2D.invalid()
-        self._stamina: Stamina = Stamina() #TODO change to STAMINA MODEL
+        self._stamina: Stamina = Stamina()  # TODO change to STAMINA MODEL
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
-        self._kickable: bool = False # TODO does it change?
+        self._kickable: bool = False  # TODO does it change?
         self._kickrate: float = 0.0
 
+    # update with server data
     def init_dic(self, dic: dict):
         self._unum = int(dic["unum"])
         self._pos = Vector2D(float(dic["pos_x"]), float(dic["pos_y"]))
@@ -44,8 +45,17 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        # self._kickable = # [ Soccer Math ] # TODO check this
         # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
+        # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
+
+    # update other data
+    def update_with_world(self, wm):
+        # kickable
+        if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_aria():
+            self._kickable = True
+        else:
+            self._kickable = False
+
 
     def reverse_more(self):
         self._body.reverse()
