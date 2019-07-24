@@ -112,7 +112,7 @@ def inertia_n_step_travel(initial_vel, n_step, decay):
 
 
 def inertia_n_step_point(initial_pos: Vector2D, initial_vel: Vector2D, n_step, decay):
-    tmp = Vector2D(initial_pos.x, initial_pos.y)
+    tmp = Vector2D(initial_pos.x(), initial_pos.y())
     tmp += inertia_n_step_travel(initial_vel, n_step, decay)
     return tmp
 

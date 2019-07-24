@@ -200,6 +200,10 @@ def test():
 
     print(AngleDeg.atan2_deg(10, 5))
 
+    x = AngleDeg(-10)
+    y = (-x)
+    print(y)
+    print(-x)
 
 if __name__ == "__main__":
     test()
