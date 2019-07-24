@@ -1,6 +1,5 @@
 from lib.parser.parser_message_params import MessageParamsParser
-import lib.rcsc.server_param as SP
-import math
+from lib.rcsc.server_param import ServerParam as SP
 import lib.math.soccer_math as smath
 from lib.math.geom import *
 
@@ -116,21 +115,21 @@ class PlayerType:
         return self._real_speed_max
 
     def init_additional_params(self):
-        self._kickable_area = self.player_size() + self.kickable_margin() + SP.i.ball_size()
-        catch_stretch_length_x = (self.catchable_area_l_stretch() - 1.0) * SP.i.catch_area_l()
-        catch_length_min_x = SP.i.catch_area_l() - catch_stretch_length_x
-        catch_length_max_x = SP.i.catch_area_l() + catch_stretch_length_x
-        catch_half_width2 = math.pow(SP.i.catch_area_w() / 2.0, 2)
+        self._kickable_area = self.player_size() + self.kickable_margin() + SP.i().ball_size()
+        catch_stretch_length_x = (self.catchable_area_l_stretch() - 1.0) * SP.i().catch_area_l()
+        catch_length_min_x = SP.i().catch_area_l() - catch_stretch_length_x
+        catch_length_max_x = SP.i().catch_area_l() + catch_stretch_length_x
+        catch_half_width2 = math.pow(SP.i().catch_area_w() / 2.0, 2)
         self._reliable_catchable_dist = math.sqrt(math.pow(catch_length_min_x, 2) + catch_half_width2)
         self._max_catchable_dist = math.sqrt(math.pow(catch_length_max_x, 2) + catch_half_width2)
-        accel = SP.i.max_dash_power() * self.dash_power_rate() * self.effort_max()
+        accel = SP.i().max_dash_power() * self.dash_power_rate() * self.effort_max()
         self._real_speed_max = accel / (1.0 - self.player_decay())
 
         if self._real_speed_max > self.player_speed_max():
             self._real_speed_max = self.player_speed_max()
 
         speed = 0.0
-        dash_power = SP.i.max_dash_power()
+        dash_power = SP.i().max_dash_power()
         reach_dist = 0.0
 
         self._dash_distance_table.clear()
@@ -138,7 +137,7 @@ class PlayerType:
         for c in range(50):
             if speed + accel > self.player_speed_max():
                 accel = self.player_speed_max() - speed
-                dash_power = min(SP.i.max_dash_power(), accel / (self.dash_power_rate() * 1.0)) # should change
+                dash_power = min(SP.i().max_dash_power(), accel / (self.dash_power_rate() * 1.0)) # should change
             speed += accel
             reach_dist += speed
             self._dash_distance_table[c] = reach_dist
@@ -178,13 +177,13 @@ class PlayerType:
 
     def kickRate(self, ball_dist, dir_diff):
         return (self.kick_power_rate() * (1.0 - 0.25 * math.fabs(dir_diff) / 180.0 - (
-                    0.25 * (ball_dist - SP.i.ball_size() - self.player_size()) / self.kickable_margin())))
+                    0.25 * (ball_dist - SP.i().ball_size() - self.player_size()) / self.kickable_margin())))
 
     def dashRate(self, effort, rel_dir):
-        return self.dashRate(effort) * SP.i.dash_dir_rate(rel_dir)
+        return self.dashRate(effort) * SP.i().dash_dir_rate(rel_dir)
 
     def effective_turn(self, command_moment, speed):
-        return command_moment / (1.0 + self.inertia_moment() * speed )
+        return command_moment / (1.0 + self.inertia_moment() * speed)
 
     def final_speed(self, dash_power, effort):
         return min(self.player_speed_max(),
