@@ -2,7 +2,7 @@ from lib.parser.parser_message_params import MessageParamsParser
 import lib.rcsc.server_param as SP
 import math
 import lib.math.soccer_math as smath
-from lib.math.geom import *
+from lib.math.geom_2d import *
 
 class PlayerType:
     def __init__(self):
