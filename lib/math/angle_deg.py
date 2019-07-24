@@ -108,6 +108,10 @@ class AngleDeg:
     def __float__(self):
         return self.degree()
 
+    def __neg__(self):
+        new_angle_deg = AngleDeg(-self._degree)
+        return new_angle_deg
+
     def cos(self):
         return math.cos(self.degree() * DEG2RAD)
 
@@ -116,6 +120,14 @@ class AngleDeg:
 
     def tan(self):
         return math.tan(self.degree() * DEG2RAD)
+
+    def is_left_of(self, angle):
+        diff = angle.degree() - self.degree()
+        return (0.0 < diff and diff < 180.0 ) or diff < -180.0
+
+    def is_right_of(self, angle):
+        diff = self.degree() - angle.degree()
+        return (0.0 < diff and diff < 180.0) or diff < -180.0
 
     @staticmethod
     def rad2deg(rad):
@@ -153,7 +165,7 @@ class AngleDeg:
         elif sine <= -1.0:
             return -90.0
         else:
-            AngleDeg.rad2deg(math.asin(sine))
+            return AngleDeg.rad2deg(math.asin(sine))
 
     @staticmethod
     def atan_deg(tangent):
