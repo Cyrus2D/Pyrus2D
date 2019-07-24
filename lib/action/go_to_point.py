@@ -3,6 +3,8 @@ from lib.player.world_model import *
 from lib.math.geom import *
 from lib.rcsc.server_param import ServerParam as SP
 import lib.math.soccer_math as smath
+from lib.player.player_agent import *
+from lib.math.geom_2d import *
 
 
 class GoToPoint:
