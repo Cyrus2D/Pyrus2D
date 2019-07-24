@@ -24,6 +24,7 @@ class PlayerObject(Object):
         self._card: Card = Card.NO_CARD
         self._kickable: bool = False  # TODO does it change?
         self._kickrate: float = 0.0
+        self._dist_from_ball: float = 0
 
     # update with server data
     def init_dic(self, dic: dict):
@@ -51,10 +52,14 @@ class PlayerObject(Object):
     # update other data
     def update_with_world(self, wm):
         # kickable
-        if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_aria():
-            self._kickable = True
-        else:
-            self._kickable = False
+        if self.player_type() is not None: # TODO its wrong
+            if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_aria():
+                self._kickable = True
+            else:
+                self._kickable = False
+
+        # dist from ball
+        self._dist_from_ball = self.pos().dist(wm.ball().pos())
 
 
     def reverse_more(self):
@@ -121,3 +126,6 @@ class PlayerObject(Object):
 
     def dash_rate(self):
         return self.effort() * self.player_type().dash_power_rate()
+
+    def dist_from_ball(self):
+        return self._dist_from_ball

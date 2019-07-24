@@ -4,22 +4,33 @@ from lib.rcsc.types import SideID, PlayMode
 class GameMode:
     def __init__(self, game_mode: PlayMode = None):
         self._game_mode: PlayMode = game_mode
+        self._mode_name: str = None
+        self._side: SideID = None
+        if game_mode is not None:
+            self._mode_name = self._set_mode_name()
+            self._side = self._set_side()
 
     def mode(self) -> PlayMode:
         return self._game_mode
 
     def side(self) -> SideID:
-        if self._game_mode[-2:] == '_l' or self._game_mode[-2:] == '_r':
-            return SideID(self._game_mode[-1])
-        return SideID.NEUTRAL
+        return self._side
 
     def mode_name(self) -> str:
-        if self._game_mode[-2:] == '_l' or self._game_mode[-2:] == '_r':
-            return self._game_mode[:-2]
-        return self._game_mode
+        return self._mode_name
+
+    def _set_side(self) -> SideID:
+        if self._game_mode.value[-2:] == '_l' or self._game_mode.value[-2:] == '_r':
+            return SideID(self._game_mode.value[-1])
+        return SideID.NEUTRAL
+
+    def _set_mode_name(self) -> str:
+        if self._game_mode.value[-2:] == '_l' or self._game_mode.value[-2:] == '_r':
+            return self._game_mode.value[:-2]
+        return self._game_mode.value
 
     def set_game_mode(self, play_mode: PlayMode):
-        self._game_mode = play_mode
+        self.__init__(play_mode)
 
     def is_teams_set_play(self, team_side: SideID):
         mode_name = self.mode_name()

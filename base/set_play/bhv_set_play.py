@@ -1,8 +1,8 @@
+from base.strategy import Strategy
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.player_agent import PlayerAgent
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import PlayMode
 
 
 class Bhv_SetPlay:
@@ -55,10 +55,12 @@ class Bhv_SetPlay:
             # return Bhv_SetPlayIndirectFreeKick().execute(agent)
             pass
         elif mode_name == "foul_charge" or mode_name == "foul_push":
-            if wm.ball().pos().x() < ServerParam.i().penalty_area_half_width() + 1 and wm.ball().pos().absY() < ServerParam.i().penalty_area_half_width() + 1:
+            if wm.ball().pos().x() < ServerParam.i().penalty_area_half_width() + 1 and \
+                    wm.ball().pos().absY() < ServerParam.i().penalty_area_half_width() + 1:
                 # return Bhv_SetPlayIndirectFreeKick().execute(agent)
                 pass
-            elif wm.ball().pos().x() > ServerParam.i().their_penalty_area_line_x() - 1 and wm.ball().pos().y() < ServerParam.i().penalty_area_half_width() + 1:
+            elif wm.ball().pos().x() > ServerParam.i().their_penalty_area_line_x() - 1 and \
+                    wm.ball().pos().y() < ServerParam.i().penalty_area_half_width() + 1:
                 # return Bhv_SetPlayIndirectFreeKick().execute(agent)
                 pass
 
@@ -69,3 +71,49 @@ class Bhv_SetPlay:
             # doBasicTheirSetPlayMove(agent)
             return True
         return False
+
+    @staticmethod
+    def is_kicker( agent: PlayerAgent):
+        wm = agent.world()
+        if wm.game_mode().mode_name() == "goalie_catch" and \
+                wm.game_mode().side() == wm.our_side() and \
+                not wm.self().goalie():
+            dlog.add_text(Level.TEAM, "(is_kicker) goalie free kick")
+            return False
+        if not wm.self().goalie() and \
+                wm.game_mode().mode_name() == "goal_kick" and \
+                wm.game_mode().side() == wm.our_side():
+            return False
+        if wm.self().goalie() and \
+                wm.game_mode().mode_name() == "goal_kick" and \
+                wm.game_mode().side() == wm.our_side():
+            return True
+        st = Strategy()  # TODO Instance?!!?
+        kicker_unum = 0
+        min_dist2 = 1000000
+        second_kicker_unum = 0
+        second_min_dist2 = 1000000
+        for unum in range(1, 12):
+            if unum == wm.our_goalie_unum():
+                continue
+
+            home_pos = st.get_pos(unum)
+            if not home_pos.is_valid():
+                continue
+
+            d2 = home_pos.dist2(wm.ball().pos())
+            if d2 < second_min_dist2:
+                second_kicker_unum = unum
+                second_min_dist2 = d2
+
+                if second_min_dist2 < min_dist2:
+                    # swaping (fun in python :))
+                    second_min_dist2, min_dist2 = min_dist2, second_min_dist2
+                    second_kicker_unum, kicker_unum = kicker_unum, second_kicker_unum
+
+        dlog.add_text(Level.TEAM, f"(is kicker) kicker_unum={kicker_unum}, second_kicker_unum={second_kicker_unum}")
+
+        kicker = wm.our_player(kicker_unum)
+        second_kicker = wm.our_player(second_kicker_unum)
+
+        # if kicker ==

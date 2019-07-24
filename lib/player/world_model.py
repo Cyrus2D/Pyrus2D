@@ -14,12 +14,14 @@ class WorldModel:
         self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for _ in range(11)]
+        self._teammates_from_ball = []
         self._their_players = [PlayerObject() for _ in range(11)]
         self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode()
+        self._our_goalie_unum: int = 0
 
     def ball(self):
         return self._ball
@@ -105,8 +107,39 @@ class WorldModel:
             self._our_players[i].update_with_world(self)
         for i in range(len(self._their_players)):
             self._their_players[i].update_with_world(self)
+        self._set_our_goalie_unum()  # TODO should it call here?!
+        self._set_teammates_from_ball()
 
         self._intercept_table.update(self)
 
     def game_mode(self):
         return self._game_mode
+
+    def our_goalie_unum(self):
+        return self._our_goalie_unum
+
+    def _set_our_goalie_unum(self):
+        for i in range(1, 12):
+            tm = self.our_player(i)
+            if tm is None:
+                continue
+            if tm.goalie():
+                self._our_goalie_unum = i
+                return
+
+    def teammates_from_ball(self):
+        return self._teammates_from_ball
+
+    def _set_teammates_from_ball(self):
+        self._teammates_from_ball = []
+        for i in range(1, 12):
+            tm = self.our_player(i)
+            if tm is None:
+                continue
+
+            self._teammates_from_ball.append(tm)
+
+        self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball())
+
+
+
