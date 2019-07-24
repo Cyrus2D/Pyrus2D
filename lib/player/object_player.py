@@ -3,6 +3,7 @@ from lib.rcsc.player_type import PlayerType
 from lib.player.stamina import Stamina
 from lib.rcsc.types import SideID, Card
 from lib.player.object_ball import *
+from lib.rcsc.server_param import ServerParam as SP
 
 
 class PlayerObject(Object):
@@ -105,3 +106,8 @@ class PlayerObject(Object):
     def unum(self):
         return self._unum
 
+    def effort(self):  # TODO update effort
+        return SP.i().effort_init()
+
+    def dash_rate(self):
+        return self.effort() * self.player_type().dash_power_rate()
