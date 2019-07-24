@@ -5,6 +5,14 @@ from base.set_play import SetPlay
 from base.bhv_kick import BhvKick
 from base.bhv_move import BhvMove
 
+# TIP: 
+# game mode use:
+# if agent.world().game_mode() ==  PlayMode.PlayOn:
+#     pass
+# or
+# if agent.world().game_mode().value == "play_on":
+#     pass
+
 
 def get_decision(agent):
     st = Strategy()

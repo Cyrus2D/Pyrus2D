@@ -17,7 +17,7 @@ class PlayerObject(Object):
         self._player_type: PlayerType = None
         self._player_type_id: int = None
         self._pointto: Vector2D = Vector2D.invalid()
-        self._stamina: Stamina = Stamina()
+        self._stamina: Stamina = Stamina() #TODO change to STAMINA MODEL
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False

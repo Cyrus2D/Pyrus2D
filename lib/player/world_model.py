@@ -3,6 +3,7 @@ from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.rcsc.game_time import GameTime
+from lib.rcsc.types import PlayMode
 
 
 class WorldModel:
@@ -17,7 +18,7 @@ class WorldModel:
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
         self._intercept_table: InterceptTable = InterceptTable()
-        self._game_mode: str = ""  # TODO should match with Play Mode ENUM
+        self._game_mode: PlayMode = PlayMode.Null  # TODO should match with Play Mode ENUM
 
     def ball(self):
         return self._ball
@@ -54,7 +55,7 @@ class WorldModel:
         parser = FullStateWorldMessageParser()
         parser.parse(message)
         self._time._cycle = int(parser.dic()['time'])
-        self._game_mode = parser.dic()['pmode']
+        self._game_mode = PlayMode(parser.dic()['pmode'])
 
         # TODO vmode counters and arm
 
