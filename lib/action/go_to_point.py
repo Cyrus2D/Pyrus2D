@@ -72,22 +72,14 @@ class GoToPoint:
         wm: WorldModel = agent.world()
 
         inertia_pos: Vector2D = wm.self().inertia_point(self._cycle)
-        print('inpos', inertia_pos)
         target_rel: Vector2D = self._target - inertia_pos
-        print('tarrel', target_rel)
 
         accel_angle: AngleDeg = wm.self().body()
         if self._back_mode:
-            print('back is true')
             accel_angle += 180.0
 
-        print(target_rel)
-        print('acc ang', accel_angle)
         target_rel.rotate(-accel_angle)
-        print(target_rel)
         first_speed = smath.calc_first_term_geom_series(target_rel.x(), wm.self().player_type().player_decay(), self._cycle)
-        print(target_rel.x(), wm.self().player_type().player_decay(), self._cycle)
-        print('first speed', first_speed)
         first_speed = smath.bound(- wm.self().player_type().player_speed_max(), first_speed,
                                   wm.self().player_type().player_speed_max())
         if self._dash_speed > 0.0:
@@ -95,22 +87,16 @@ class GoToPoint:
                 first_speed = min(first_speed, self._dash_speed)
             else:
                 first_speed = max(first_speed, -self._dash_speed)
-        print('first speed', first_speed)
         rel_vel = wm.self().vel()
         rel_vel.rotate(-accel_angle)
         required_accel = first_speed - rel_vel.x()
-        print('req acc', required_accel)
         if math.fabs(required_accel) < 0.05:
             return False
         dash_power = required_accel / wm.self().dash_rate()
-        print('dash power', dash_power)
         dash_power = min(dash_power, self._max_dash_power)
-        print('dash power', dash_power)
         if self._back_mode:
             dash_power = -dash_power
-        print('dash power', dash_power)
         dash_power = SP.i().normalize_dash_power(dash_power)
-        print('dash power', dash_power)
         # TODO check stamina check for save recovery
         return agent.do_dash(dash_power)
 
