@@ -6,7 +6,7 @@
 from lib.math.angle_deg import *
 
 
-class Vector2D: #TODO maybe give some bugs because of x and _x and x()
+class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     """
        \ brief default constructor : create Vector with XY value directly.
        \ param __x assigned x value
@@ -16,7 +16,7 @@ class Vector2D: #TODO maybe give some bugs because of x and _x and x()
     def __init__(self, __x=0, __y=0):
         self._x = __x if math.fabs(__x) > EPSILON else 0  # TODO maybe need some change in EPSILON
         self._y = __y if math.fabs(__y) > EPSILON else 0
-        self.is_valid = True
+        self._is_valid = True
 
     """
         \ brief assign XY value directly.
@@ -62,15 +62,15 @@ class Vector2D: #TODO maybe give some bugs because of x and _x and x()
     """
 
     def invalidate(self):
-        self.is_valid = False
+        self._is_valid = False
 
     """
       \ brief check is the object valid
       \ return is_valid     
     """
 
-    def isValid(self):
-        return self.is_valid
+    def is_valid(self):
+        return self._is_valid
 
     """
       \ brief get the squared length of vector.
@@ -179,21 +179,31 @@ class Vector2D: #TODO maybe give some bugs because of x and _x and x()
     def __sub__(self, other):
         return Vector2D(self._x - other.x(), self._y - other.y())
 
+    def __truediv__(self, other):
+        return Vector2D(self._x / other, self._y / other)
+
+    def __mul__(self, other):
+        return Vector2D(self._x * other, self._y * other)
+
     def __iadd__(self, other):
         self._x += other.x()
         self._y += other.y()
+        return self
 
     def __isub__(self, other):
         self._x -= other.x()
         self._y -= other.y()
+        return self
 
     def __imul__(self, other):
         self._x *= other
         self._y *= other
+        return self
 
     def __idiv__(self, other):
         self._x /= other
         self._y /= other
+        return self
 
     """
       \ brief get the squared distance from this to 'other'.
@@ -406,6 +416,9 @@ class Vector2D: #TODO maybe give some bugs because of x and _x and x()
 
     def __repr__(self):
         return "({},{})".format(self._x, self._y)
+
+    def copy(self):
+        return Vector2D(self._x, self._y)
 
 
 def test():

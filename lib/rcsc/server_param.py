@@ -1,5 +1,6 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
+import lib.math.soccer_math as smath
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
 DEFAULT_PITCH_WIDTH = 68.0
@@ -288,7 +289,7 @@ FOUL_EXPONENT = 10.0
 FOUL_CYCLES = 5
 
 
-class ServerParam:  # TODO spicfic TYPES and change them
+class _ServerParam:  # TODO specific TYPES and change them
     def __init__(self):
         self._goal_width = DEFAULT_GOAL_WIDTH
         self._inertia_moment = DEFAULT_INERTIA_MOMENT
@@ -558,7 +559,7 @@ class ServerParam:  # TODO spicfic TYPES and change them
         self._audio_cut_dist = dic["audio_cut_dist"]
         self._back_passes = dic["back_passes"]
         self._ball_accel_max = dic["ball_accel_max"]
-        self._ball_decay = dic["ball_decay"]
+        self._ball_decay = float(dic["ball_decay"])
         self._ball_rand = dic["ball_rand"]
         self._ball_size = dic["ball_size"]
         self._ball_speed_max = dic["ball_speed_max"]
@@ -1303,7 +1304,7 @@ class ServerParam:  # TODO spicfic TYPES and change them
     def discretize_dash_angle(self, dir):
         if self.dash_angle_step() < 1.0e-10:
             return dir
-        return self.dash_angle_step() * math.rint( dir / self.dash_angle_step() )
+        return self.dash_angle_step() * smath.rint(dir / self.dash_angle_step())
 
     def normalize_dash_angle(self, dir):
         if dir < self.min_dash_angle():
@@ -1313,12 +1314,31 @@ class ServerParam:  # TODO spicfic TYPES and change them
         return dir
 
     def dash_dir_rate(self, dir):
-        d = self.discretize_dash_angle( self.normalize_dash_angle( dir ) )
-        if math.fabs( d ) > 90.0:
+        d = self.discretize_dash_angle(self.normalize_dash_angle(dir))
+        if math.fabs(d) > 90.0:
             r = self.back_dash_rate() - (
                         (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
         else:
-            r = self.side_dash_rate() + ( ( 1.0 - self.side_dash_rate() ) * ( 1.0 - math.fabs( d ) / 90.0 ) )
-        return min( max( 1.0e-5, r ), 1.0 )
+            r = self.side_dash_rate() + ((1.0 - self.side_dash_rate()) * (1.0 - math.fabs(d) / 90.0))
+        return min(max(1.0e-5, r), 1.0)
 
-i: ServerParam = ServerParam()
+    def pitch_length(self):
+        return DEFAULT_PITCH_LENGTH
+
+
+    def pitch_half_lenght(self):
+        return self.pitch_length() / 2
+
+    def pitch_width(self):
+        return DEFAULT_PITCH_WIDTH
+
+    def pitch_half_width(self):
+        return self.pitch_width() / 2
+
+
+class ServerParam:
+    _i: _ServerParam = _ServerParam()
+
+    @staticmethod
+    def i() -> _ServerParam:
+        return ServerParam._i

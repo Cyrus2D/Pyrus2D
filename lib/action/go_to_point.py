@@ -12,21 +12,19 @@ class GoToPoint:
         self.save_recovery = save_recovery
         self.dir_thr = dir_thr
 
-
-
-
     def execute(self, agent: PlayerAgent):
         if self.max_dash_power < 0.1 or self.dash_speed < 0.01:
             agent.do_turn(0)
             return True
+
         wm: WorldModel = agent.world()
         inertia_point: Vector2D = wm.self().inertia_point(self.cycle)
         target_rel: Vector2D = self.target - inertia_point
 
-        target_dist = target_rel.r();
+        target_dist = target_rel.r()
         if target_dist < self.dist_thr:
             agent.do_turn(0.0)
-            return False;
+            return False
 
         self_pos = agent.world().self().pos()
         if self_pos.dist(self.target) < self.thr:

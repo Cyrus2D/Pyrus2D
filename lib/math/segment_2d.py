@@ -227,14 +227,14 @@ class Segment2D:
             line = args[0]
             tmp_line = self.line()
             sol = tmp_line.intersection(line)
-            if not sol.isValid() or not self.contains(sol):
+            if not sol.is_valid() or not self.contains(sol):
                 return Vector2D.invalid()
             return sol
 
         elif len(args) == 2 and isinstance(args[1], bool):
             other = args[0]
             sol = self.line().intersection(other.line())
-            if not sol.isValid() or not self.contains(sol) or not other.contains(sol):
+            if not sol.is_valid() or not self.contains(sol) or not other.contains(sol):
                 return Vector2D.invalid()
             if not args[1] and not self.existIntersectionExceptEndpoint(other):
                 return Vector2D.invalid()
@@ -422,7 +422,7 @@ class Segment2D:
 
     def onSegmentWeakly(self, p: Vector2D):
         projection = self.projection(p)
-        return projection.isValid() and p.equalsWeakly(projection)
+        return projection.is_valid() and p.equalsWeakly(projection)
 
     """
       \ brief make a logical print.

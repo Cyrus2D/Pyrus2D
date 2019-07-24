@@ -7,7 +7,8 @@ from lib.debug.logger import *
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
-from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand
+from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand, \
+    PlayerKickCommand
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
@@ -20,7 +21,6 @@ class PlayerAgent:
         self._full_world = WorldModel()
         self._think_mode = True
         self._is_synch_mode = True
-        self._server_param = ServerParam()
         self._last_body_command = []
 
     def run(self, team_name, goalie):
@@ -60,7 +60,7 @@ class PlayerAgent:
         if message.find("(init") is not -1:
             self.init_dlog(message)
         if message.find("server_param") is not -1:
-            self._server_param.parse(message)
+            ServerParam.i().parse(message)
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)
@@ -76,6 +76,9 @@ class PlayerAgent:
 
     def do_move(self, x, y):
         self._last_body_command.append(PlayerMoveCommand(x, y))
+
+    def do_kick(self, power: float, rel_dir: AngleDeg):
+        self._last_body_command.append(PlayerKickCommand(power, rel_dir))
 
     def world(self) -> WorldModel:
         return self._full_world

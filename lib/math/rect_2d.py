@@ -592,22 +592,22 @@ class Rect2D(Region2D):
 
             t_sol[n_sol] = self.leftEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol]._y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol]._y <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.rightEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].isValid() and top_y <= t_sol[n_sol]._y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol]._y <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol]._x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol]._x <= right_x:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).isValid() and left_x <= t_sol[n_sol]._x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol]._x <= right_x:
                 n_sol += 1
 
             if n_sol == 2 and math.fabs(t_sol[0]._x - t_sol[1]._x) < EPSILON and math.fabs(
@@ -650,7 +650,7 @@ class Rect2D(Region2D):
     """
 
     def intersected(self, other):
-        if not self.isValid or not other.isValid():
+        if not self.isValid or not other.is_valid():
             self._top_left.assign(0.0, 0.0)
             self._size.assign(0.0, 0.0)
 
@@ -673,7 +673,7 @@ class Rect2D(Region2D):
     """
 
     def united(self, other):
-        if not self.isValid or not other.isValid():
+        if not self.isValid or not other.is_valid():
             self._top_left.assign(0.0, 0.0)
         self._size.assign(0.0, 0.0)
 

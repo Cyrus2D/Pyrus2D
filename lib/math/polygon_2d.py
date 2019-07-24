@@ -348,14 +348,14 @@ class Polygon2D(Region2D):
                 else:
                     c = line.intersection(Line2D(p0, p1))
 
-                    if not c.isValid():
+                    if not c.is_valid():
                         return
                     new_points.push_back(c)
             else:
                 if in_rectangle[index_1]:
                     c = line.intersection(Line2D(p0, p1))
 
-                    if not c.isValid():
+                    if not c.is_valid():
                         return
 
                     new_points.push_back(c)

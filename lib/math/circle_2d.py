@@ -226,7 +226,7 @@ class Circle2D:
     def circumcircle(p0, p1, p2):
         center = Triangle2D.tri_circumcenter(p0, p1, p2)
 
-        if not center.isValid():
+        if not center.is_valid():
             return Circle2D()
 
         return Circle2D(center, center.dist(p0))

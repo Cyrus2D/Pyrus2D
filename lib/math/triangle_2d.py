@@ -64,7 +64,7 @@ class Triangle2D(Region2D):
     """
 
     def isValid(self):
-        return self._a.isValid() and self._b.isValid() and self._c.isValid() and self._a != self._b and self._b != self._c and self._a != self._a
+        return self._a.is_valid() and self._b.is_valid() and self._c.is_valid() and self._a != self._b and self._b != self._c and self._a != self._a
 
     """
       \ brief get 1st point
@@ -201,15 +201,15 @@ class Triangle2D(Region2D):
             t_sol = [Vector2D(), Vector2D()]
 
             t_sol[n_sol] = Segment2D(self._a, self._b).intersection(line)
-            if n_sol < 2 and t_sol[n_sol].isValid():
+            if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
             t_sol[n_sol] = Segment2D(self._b, self._c).intersection(line)
-            if n_sol < 2 and t_sol[n_sol].isValid():
+            if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
             t_sol[n_sol] = Segment2D(self._c, self._a).intersection(line)
-            if n_sol < 2 and t_sol[n_sol].isValid():
+            if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
             if n_sol == 2 and math.fabs(t_sol[0]._x - t_sol[1]._x) < EPSILON and math.fabs(
@@ -346,17 +346,17 @@ class Triangle2D(Region2D):
 
         sol = perpendicular_ab.intersection(perpendicular_bc)
 
-        if not sol.isValid():
+        if not sol.is_valid():
             perpendicular_ca = Line2D.perpendicular_bisector(c, a)
 
             sol = perpendicular_ab.intersection(perpendicular_ca)
 
-            if sol.isValid():
+            if sol.is_valid():
                 return sol
 
             sol = perpendicular_bc.intersection(perpendicular_ca)
 
-            if sol.isValid():
+            if sol.is_valid():
                 return sol
 
         ab = b - a

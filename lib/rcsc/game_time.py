@@ -18,3 +18,5 @@ class GameTime:
     def __repr__(self):
         return f"{self.cycle()}"
 
+    def __eq__(self, other):
+        return self.cycle() == other.cycle()

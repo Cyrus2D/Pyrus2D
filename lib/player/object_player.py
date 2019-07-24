@@ -2,6 +2,7 @@ from lib.player.object import *
 from lib.rcsc.player_type import PlayerType
 from lib.player.stamina import Stamina
 from lib.rcsc.types import SideID, Card
+from lib.player.object_ball import *
 
 
 class PlayerObject(Object):
@@ -20,6 +21,8 @@ class PlayerObject(Object):
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
+        self._kickable: bool = False
+        self._kickrate: float = 0.0
 
     def init_dic(self, dic: dict):
         self._unum = int(dic["unum"])
@@ -40,20 +43,19 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
+        # self._kickable = # [ Soccer Math ] # TODO check this
+        # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
 
     def reverse_more(self):
         self._body.reverse()
-        self._neck.reverse() # TODO neck is relative?!?!?!
+        self._neck.reverse()  # TODO neck is relative?!?!?!
 
     def __repr__(self):
-        return "(side: " + str(self.side().name) + ")(unum: " + str(self.unum()) + ")(pos: " + str(
+        return "(side: " + str(self.side().name) + ")(unum: " + str(self._unum) + ")(pos: " + str(
             self.pos()) + ")(vel: " + str(self.vel()) + ")"
 
     def set_player_type(self, player_type: PlayerType):
         self._player_type = player_type
-
-    def unum(self):
-        return self._unum
 
     def side(self):
         return self._side
@@ -88,9 +90,18 @@ class PlayerObject(Object):
     def card(self):
         return self._card
 
+    def isKickable(self):
+        return self._kickable
+
+    def kickrate(self):
+        return self._kickrate
+
     def player_type_id(self):
         return self._player_type_id
 
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
+
+    def unum(self):
+        return self._unum
 

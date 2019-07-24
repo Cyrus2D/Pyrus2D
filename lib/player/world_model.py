@@ -1,3 +1,4 @@
+from lib.action.intercept_table import InterceptTable
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
@@ -15,6 +16,7 @@ class WorldModel:
         self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
         self._time: GameTime = GameTime(0, 0)
+        self._intercept_table: InterceptTable = InterceptTable()
         self._play_mode: str = ""  # TODO should match with Play Mode ENUM
 
     def ball(self):
@@ -38,6 +40,7 @@ class WorldModel:
     def parse(self, message):
         if message.find("fullstate") is not -1:
             self.fullstate_parser(message)
+            self.update()
         if message.find("(init") is not -1:
             self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
@@ -94,3 +97,6 @@ class WorldModel:
 
     def team_name(self):
         return self._team_name
+
+    def update(self):
+        self._intercept_table.update(self)
