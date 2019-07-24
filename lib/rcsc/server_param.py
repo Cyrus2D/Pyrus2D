@@ -1,5 +1,5 @@
 from lib.parser.parser_message_params import MessageParamsParser
-
+import math
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
 DEFAULT_PITCH_WIDTH = 68.0
@@ -1300,5 +1300,25 @@ class ServerParam:  # TODO spicfic TYPES and change them
     def golden_goal(self):
         return self._golden_goal
 
+    def discretize_dash_angle(self, dir):
+        if self.dash_angle_step() < 1.0e-10:
+            return dir
+        return self.dash_angle_step() * math.rint( dir / self.dash_angle_step() )
+
+    def normalize_dash_angle(self, dir):
+        if dir < self.min_dash_angle():
+            return  self.min_dash_angle()
+        elif dir > self.max_dash_angle():
+            return self.max_dash_angle()
+        return dir
+
+    def dash_dir_rate(self, dir):
+        d = self.discretize_dash_angle( self.normalize_dash_angle( dir ) )
+        if math.fabs( d ) > 90.0:
+            r = self.back_dash_rate() - (
+                        (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
+        else:
+            r = self.side_dash_rate() + ( ( 1.0 - self.side_dash_rate() ) * ( 1.0 - math.fabs( d ) / 90.0 ) )
+        return min( max( 1.0e-5, r ), 1.0 )
 
 i: ServerParam = ServerParam()
