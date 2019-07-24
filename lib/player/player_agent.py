@@ -68,17 +68,21 @@ class PlayerAgent:
         elif message.find("think") is not -1:
             self._think_mode = True
 
-    def do_dash(self, power, angle):
+    def do_dash(self, power, angle=0):
         self._last_body_command.append(PlayerDashCommand(power, float(angle)))
+        return True
 
     def do_turn(self, angle):
         self._last_body_command.append(PlayerTurnCommand(float(angle)))
+        return True
 
     def do_move(self, x, y):
         self._last_body_command.append(PlayerMoveCommand(x, y))
+        return True
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
         self._last_body_command.append(PlayerKickCommand(power, rel_dir))
+        return True
 
     def world(self) -> WorldModel:
         return self._full_world
