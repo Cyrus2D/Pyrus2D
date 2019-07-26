@@ -7,11 +7,6 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
 
-class InterceptInfo:
-    def __init__(self):
-        pass
-
-
 class InterceptTable:
     def __init__(self):
         self._last_update_time: GameTime = GameTime(-10, -100)

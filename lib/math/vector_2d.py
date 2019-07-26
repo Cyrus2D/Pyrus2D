@@ -341,7 +341,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
       \ return new vector rotated by 'deg'
     """
 
-    def rotate_vector(self, deg):
+    def rotated_vector(self, deg):
         new_vector = Vector2D(self._x, self._y)
         return new_vector.rotate(deg)
 

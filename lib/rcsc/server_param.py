@@ -1377,7 +1377,19 @@ class _ServerParam:  # TODO specific TYPES and change them
     def penalty_area_half_width(self):
         return self.penalty_area_width() / 2
 
+    def effort_dec_thr_value(self):
+        return self.effort_inc_thr() * self.stamina_max()
 
+    def effort_inc_thr_value(self):
+        return self.effort_inc_thr() * self.stamina_max()
+
+
+# TODO we can use function instance class
+# like:
+# def ServerParam():
+#     if _ServerParam._i == None:
+#         _ServerParam.init_i()
+#     return _ServerParam.i()
 class ServerParam:
     _i: _ServerParam = _ServerParam()
 

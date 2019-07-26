@@ -53,7 +53,7 @@ class PlayerObject(Object):
     def update_with_world(self, wm):
         # kickable
         if self.player_type() is not None:  # TODO its wrong
-            if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_aria():
+            if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_area():
                 self._kickable = True
             else:
                 self._kickable = False
@@ -91,7 +91,7 @@ class PlayerObject(Object):
         return self._pointto
 
     def stamina_model(self) -> StaminaModel:
-        return self._stamina_model
+        return self._stamina_model.copy()
 
     def kick(self):
         return self._kick
