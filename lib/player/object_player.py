@@ -1,6 +1,6 @@
 from lib.player.object import *
 from lib.rcsc.player_type import PlayerType
-from lib.player.stamina import Stamina
+from lib.player.stamina_model import StaminaModel
 from lib.rcsc.types import SideID, Card
 from lib.player.object_ball import *
 from lib.rcsc.server_param import ServerParam as SP
@@ -17,7 +17,7 @@ class PlayerObject(Object):
         self._player_type: PlayerType = None
         self._player_type_id: int = None
         self._pointto: Vector2D = Vector2D.invalid()
-        self._stamina: Stamina = Stamina()  # TODO change to STAMINA MODEL
+        self._stamina_model: StaminaModel = StaminaModel()  # TODO change to STAMINA MODEL
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False
@@ -39,7 +39,7 @@ class PlayerObject(Object):
         self._pointto = Vector2D.invalid()
         if "pointto_dist" in dic:
             self._pointto = Vector2D.polar2vector(dic["pointto_dist"], dic["pointto_dir"])
-        self._stamina = Stamina(**dic["stamina"])
+        self._stamina_model = StaminaModel(**dic["stamina"])
         self._kick = True if "kick" in dic else False
         self._tackle = True if "tackle" in dic else False
         self._charged = True if "charged" in dic else False
@@ -90,8 +90,8 @@ class PlayerObject(Object):
     def pointto(self):
         return self._pointto
 
-    def stamina(self):
-        return self._stamina._stamina
+    def stamina_model(self) -> StaminaModel:
+        return self._stamina_model
 
     def kick(self):
         return self._kick

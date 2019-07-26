@@ -10,7 +10,7 @@ def get_decision(agent):
     st = Strategy()
     wm: WorldModel = agent.world()
 
-    if wm.game_mode() is not 'play_on ':
+    if wm.game_mode().mode() != PlayMode.PlayOn:
         return Bhv_SetPlay().execute(agent)
     if wm.self().is_kickable():
         return BhvKick().execute(agent)

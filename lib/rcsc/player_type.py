@@ -111,17 +111,20 @@ class PlayerType:
     def max_catchable_dist(self):
         return self._max_catchable_dist
 
+    def catchable_area(self):
+        return self._max_catchable_dist
+
     def real_speed_max(self):
         return self._real_speed_max
 
     def init_additional_params(self):
-        self._kickable_area = self.player_size() + self.kickable_margin() + SP.i().ball_size()
+        self._kickable_area = self.player_size() + self.kickable_margin() + SP.i().ball_size() # TODO in cpp base define this in SP?!?!?!
         catch_stretch_length_x = (self.catchable_area_l_stretch() - 1.0) * SP.i().catch_area_l()
         catch_length_min_x = SP.i().catch_area_l() - catch_stretch_length_x
         catch_length_max_x = SP.i().catch_area_l() + catch_stretch_length_x
         catch_half_width2 = math.pow(SP.i().catch_area_w() / 2.0, 2)
         self._reliable_catchable_dist = math.sqrt(math.pow(catch_length_min_x, 2) + catch_half_width2)
-        self._max_catchable_dist = math.sqrt(math.pow(catch_length_max_x, 2) + catch_half_width2)
+        self._max_catchable_dist = math.sqrt(math.pow(catch_length_max_x, 2) + catch_half_width2) # TODO catch_length_max_x { / 2} ?!
         accel = SP.i().max_dash_power() * self.dash_power_rate() * self.effort_max()
         self._real_speed_max = accel / (1.0 - self.player_decay())
 

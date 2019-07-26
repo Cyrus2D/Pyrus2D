@@ -67,6 +67,8 @@ class InterceptTable:
                 break
 
         # TODO if len == 1 push ball pos again :| why??
+        if len(self._ball_cache) == 1:
+            self._ball_cache.append(ball_pos)
 
     def predict_self(self, wm):
         if wm.self().is_kickable():

@@ -556,6 +556,9 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._random_seed = -1
         self._golden_goal = True
 
+        self._catchable_area: float = 0
+        self._real_speed_max: float = 0
+
     def set_data(self, dic):
         self._audio_cut_dist = dic["audio_cut_dist"]
         self._back_passes = dic["back_passes"]
@@ -1373,6 +1376,8 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def penalty_area_half_width(self):
         return self.penalty_area_width() / 2
+
+    def
 
 
 class ServerParam:
