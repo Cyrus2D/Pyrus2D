@@ -1,6 +1,7 @@
 from base.strategy import Strategy
 from lib.debug.level import Level
 from lib.debug.logger import dlog
+from lib.player.object_player import PlayerObject
 from lib.player.player_agent import PlayerAgent
 from lib.rcsc.server_param import ServerParam
 
@@ -73,7 +74,7 @@ class Bhv_SetPlay:
         return False
 
     @staticmethod
-    def is_kicker( agent: PlayerAgent):
+    def is_kicker(agent: PlayerAgent):
         wm = agent.world()
         if wm.game_mode().mode_name() == "goalie_catch" and \
                 wm.game_mode().side() == wm.our_side() and \
@@ -113,7 +114,41 @@ class Bhv_SetPlay:
 
         dlog.add_text(Level.TEAM, f"(is kicker) kicker_unum={kicker_unum}, second_kicker_unum={second_kicker_unum}")
 
-        kicker = wm.our_player(kicker_unum)
-        second_kicker = wm.our_player(second_kicker_unum)
+        kicker: PlayerObject = None
+        second_kicker: PlayerObject = None
 
-        # if kicker ==
+        if kicker_unum != 0:
+            kicker = wm.our_player(kicker_unum)
+        if second_kicker_unum != 0:
+            second_kicker = wm.our_player(second_kicker_unum)
+
+        if kicker is None:
+            if len(wm.teammates_from_ball()) > 0 and \
+                    wm.teammates_from_ball()[0].dist_from_ball() < wm.ball().dist_from_self() * 0.9:
+                dlog.add_text(Level.TEAM, "(is kicker) first kicker")
+                return False
+
+            dlog.add_text(Level.TEAM, "(is_kicker) self(1)")
+            return True
+
+        if kicker is not None and \
+                second_kicker is not None and \
+                (kicker.unum() == wm.self().unum() or \
+                 second_kicker.unum() == wm.self().unum()):
+            if min_dist2 ** 0.5 < (second_min_dist2 ** 0.5) * 0.95:
+                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (1)")
+                return kicker.unum() == wm.self().unum()
+            elif kicker.dist_from_ball() < second_kicker.dist_from_ball() * 0.95:
+                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (2)")
+                return kicker.unum() == wm.self().unum()
+            elif second_kicker.dist_from_ball() < kicker.dist_from_ball() * 0.95:
+                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (3)")
+                return second_kicker.unum() == wm.self().unum()
+            elif len(wm.teammates_from_ball()) > 0 and \
+                    wm.teammates_from_ball()[0].dist_from_ball() < wm.self().dist_from_ball() * 0.95:
+                dlog.add_text(Level.TEAM, "(is kicker) other kicker")
+                return False
+            else:
+                dlog.add_text(Level.TEAM, "(is kicker) self (2)")
+                return True
+        return kicker.unum() == wm.self().unum()

@@ -24,3 +24,6 @@ class Object:
     def reverse_list(lst):
         for i in range(len(lst)):
             lst[i].reverse()
+
+    def update_with_world(self, wm):
+        pass

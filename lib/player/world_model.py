@@ -23,7 +23,7 @@ class WorldModel:
         self._game_mode: GameMode = GameMode()
         self._our_goalie_unum: int = 0
 
-    def ball(self):
+    def ball(self) -> BallObject:
         return self._ball
 
     def self(self) -> PlayerObject:
@@ -107,6 +107,8 @@ class WorldModel:
             self._our_players[i].update_with_world(self)
         for i in range(len(self._their_players)):
             self._their_players[i].update_with_world(self)
+        self.ball().update_with_world(self)
+
         self._set_our_goalie_unum()  # TODO should it call here?!
         self._set_teammates_from_ball()
 

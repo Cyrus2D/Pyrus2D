@@ -52,7 +52,7 @@ class PlayerObject(Object):
     # update other data
     def update_with_world(self, wm):
         # kickable
-        if self.player_type() is not None: # TODO its wrong
+        if self.player_type() is not None:  # TODO its wrong
             if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_aria():
                 self._kickable = True
             else:
@@ -60,7 +60,6 @@ class PlayerObject(Object):
 
         # dist from ball
         self._dist_from_ball = self.pos().dist(wm.ball().pos())
-
 
     def reverse_more(self):
         self._body.reverse()
