@@ -1377,8 +1377,6 @@ class _ServerParam:  # TODO specific TYPES and change them
     def penalty_area_half_width(self):
         return self.penalty_area_width() / 2
 
-    def
-
 
 class ServerParam:
     _i: _ServerParam = _ServerParam()

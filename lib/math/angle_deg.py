@@ -8,6 +8,8 @@ PI = 3.14159265358979323846
 
 
 class AngleDeg:
+    PI = 3.14159265358979323846
+
     def __init__(self, __degree=0.0):
         self._degree = __degree
         self.normal()

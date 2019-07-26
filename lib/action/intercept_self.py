@@ -1,13 +1,13 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
-from lib.player.world_model import WorldModel
+# from lib.player.world_model import WorldModel
 from lib.rcsc.server_param import ServerParam
 
 
 class SelfIntercept:
     def __init__(self, wm, ball_cache):
-        self._wm: WorldModel = wm
+        self._wm = wm
         self._ball_cache = ball_cache
 
     def predict(self, max_cycle, self_cache):
@@ -41,6 +41,12 @@ class SelfIntercept:
         if self.predict_no_dash(self_cache):
             return
         self.predict_one_dash(self_cache)
+
+    def predict_no_dash(self, self_cache):
+        pass
+
+    def predict_one_dash(self, self_cache):
+        pass
 
     def predict_short_step(self, max_cycle, save_recovery, self_cache):
         pass

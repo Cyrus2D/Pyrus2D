@@ -1,8 +1,8 @@
+from base.set_play.bhv_set_play_before_kick_off import Bhv_BeforeKickOff
 from base.strategy import Strategy
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.object_player import PlayerObject
-from lib.player.player_agent import PlayerAgent
 from lib.rcsc.server_param import ServerParam
 
 
@@ -11,7 +11,7 @@ class Bhv_SetPlay:
         # nothing to say :)
         pass
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent):
         dlog.add_text(Level.TEAM, "Bhv_SetPlay")
         wm = agent.world()
         mode_name = wm.game_mode().mode_name()
@@ -30,6 +30,9 @@ class Bhv_SetPlay:
                 pass
 
             return True
+
+        if mode_name == "before_kick_off":
+            return Bhv_BeforeKickOff().execute(agent)
 
         if mode_name == "kick_off":
             if game_side == wm.our_side():
@@ -74,7 +77,7 @@ class Bhv_SetPlay:
         return False
 
     @staticmethod
-    def is_kicker(agent: PlayerAgent):
+    def is_kicker(agent):
         wm = agent.world()
         if wm.game_mode().mode_name() == "goalie_catch" and \
                 wm.game_mode().side() == wm.our_side() and \
