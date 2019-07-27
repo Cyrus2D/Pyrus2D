@@ -36,7 +36,7 @@ class WorldModel:
         return self._our_players[unum - 1]
 
     def their_player(self, unum):
-        return self.their_player(unum - 1)
+        return self._their_players[unum - 1]
 
     def time(self):
         return self._time
