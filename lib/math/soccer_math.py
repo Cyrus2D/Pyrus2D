@@ -96,7 +96,7 @@ def can_over_speed_max(dash_power, dprate, effort, decay, speed_max):
 
 def inertia_n_step_travel(initial_vel, n_step, decay):
     tmp = Vector2D(initial_vel.x(), initial_vel.y())
-    tmp *= ((1.0 - math.pow( decay, n_step)) / (1.0 - decay))
+    tmp *= ((1.0 - math.pow(decay, n_step)) / (1.0 - decay))
     return tmp
 
 
@@ -142,7 +142,6 @@ def inertia_n_step_distance(initial_speed, n_step, decay):
 """
 
 
-
 def inertia_final_travel(initial_vel: Vector2D, decay):
     tmp = Vector2D(initial_vel.x, initial_vel.y)
     tmp /= (1.0 - decay)
@@ -181,6 +180,8 @@ def inertia_final_distance(initial_speed, decay):
     \ param f floating point value
     \ return If no errors occur, the nearest integer value to f, according to the current rounding mode, is returned.a
 """
+
+
 def rint(f):
     fi = int(f)
     fi_diff = math.fabs(fi - f)
@@ -196,17 +197,30 @@ def rint(f):
         return fi_right
 
 
-
 def calc_first_term_geom_series(sum, r, len):
     return sum * (1.0 - r) / (1.0 - math.pow(r, len))
 
 
 def bound(a, b, c):
-    if a < b < c:
-        return b
-    if b < a < c:
-        return a
-    return c
+    return min(max(a, b), c)
+
+
+def frange(start, stop=None, step=None):
+    # Use float number in range() function
+    # if stop and step argument is null set start=0.0 and step = 1.0
+    if stop is None:
+        stop = start + 0.0
+        start = 0.0
+    if step is None:
+        step = 1.0
+    while True:
+        if step > 0 and start >= stop:
+            break
+        elif step < 0 and start <= stop:
+            break
+        yield ("%g" % start)  # return float number
+        start = start + step
+
 
 SERVER_EPS = 1.0e-10
 
