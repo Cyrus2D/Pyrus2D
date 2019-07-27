@@ -1,11 +1,110 @@
 from lib.action.go_to_point import *
 from lib.debug.logger import *
+from lib.math.geom_2d import *
+from enum import Enum
+from lib.rcsc.server_param import ServerParam as SP
+
+
+class KickActionType(Enum):
+    No = 0
+    Pass = 1
+    Dribble = 2
+
+
+class KickAction:
+    def __init__(self):
+        self.target_ball_pos = Vector2D.invalid()
+        self.start_ball_pos = Vector2D.invalid()
+        self.target_unum = 0
+        self.start_unum = 0
+        self.start_ball_speed = 0
+        self.type = KickActionType.No
+        self.eval = 0
+
+    def __cmp__(self, other):
+        return self.eval > other.eval
+
+    def __gt__(self, other):
+        return self.eval > other.eval
+
+
+class BhvPassGen:
+    def __init__(self):
+        self.candidate = []
+        pass
+
+    def generator(self, wm: WorldModel):
+        for tm_unum in range(1, 12):
+            self.generate_direct_pass(wm, tm_unum)
+        return self.candidate
+
+    def generate_direct_pass(self, wm: WorldModel, unum):
+        simple_direct_pass = KickAction()
+        if wm.our_player(unum).unum() is 0:
+            return
+        tm = wm.our_player(unum)
+        if tm.unum() == wm.self().unum():
+            return
+        intercept_cycle = 0
+        if wm.self().is_kickable():
+            intercept_cycle = 0
+        simple_direct_pass.type = KickActionType.Pass
+        simple_direct_pass.start_ball_pos = wm.ball().pos()
+        simple_direct_pass.target_ball_pos = tm.pos()
+        simple_direct_pass.target_unum = unum
+        simple_direct_pass.start_ball_speed = 2.0
+
+        pass_dist = simple_direct_pass.start_ball_pos.dist(simple_direct_pass.target_ball_pos)
+        ball_speed = simple_direct_pass.start_ball_speed
+        ball_vel: Vector2D = Vector2D.polar2vector(ball_speed, (simple_direct_pass.target_ball_pos - simple_direct_pass.start_ball_pos).th())
+        print(type(ball_vel))
+        ball_pos: Vector2D = simple_direct_pass.start_ball_pos
+        travel_dist = 0
+        cycle = 0
+        print(ball_pos)
+        print(simple_direct_pass.target_ball_pos)
+        print(pass_dist)
+        while travel_dist < pass_dist and ball_speed >= 0.1:
+            cycle += 1
+            travel_dist += ball_speed
+            ball_speed *= SP.i().ball_decay()
+            ball_pos += ball_vel
+            ball_vel.set_length(ball_speed)
+            if self.can_opps_cut_ball(wm, ball_pos, cycle):
+                return
+        self.candidate.append(simple_direct_pass)
+
+    def can_opps_cut_ball(self, wm: WorldModel, ball_pos, cycle):
+        for unum in range(1,12):
+            opp: PlayerObject = wm.their_player(unum)
+            if opp.unum() is 0:
+                continue
+            opp_cycle = opp.pos().dist(ball_pos) - opp.player_type().kickable_area()
+            opp_cycle /= opp.player_type().real_speed_max()
+            if opp_cycle < cycle:
+                return True
+        return False
 
 
 class BhvKick:
     def __init__(self):
         pass
 
+    def evaluator(self, candid: KickAction):
+        return candid.target_ball_pos.dist(Vector2D(52,0))
+
     def execute(self, agent):
         wm: WorldModel = agent.world()
-        agent.do_kick(100,0)
+        pass_candidates = BhvPassGen().generator(wm)
+        for pass_candidate in pass_candidates:
+            self.evaluator(pass_candidate)
+
+        if len(pass_candidates) is 0:
+            return True
+        best_pass: KickAction = max(pass_candidates)
+
+        target = best_pass.target_ball_pos
+        angle: AngleDeg = (target - wm.self().pos()).th()
+        angle -= wm.self().body()
+        agent.do_kick(100, angle)
+
