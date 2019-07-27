@@ -389,6 +389,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     def polar2vector(__r, __d):
         new_vector = Vector2D()
         new_vector.set_polar(__r, __d)
+        return new_vector
 
     """
       \ brief get inner(dot) product for v1 and v2.
