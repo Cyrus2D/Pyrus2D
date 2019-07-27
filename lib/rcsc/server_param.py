@@ -1309,9 +1309,11 @@ class _ServerParam:  # TODO specific TYPES and change them
         return self._golden_goal
 
     def discretize_dash_angle(self, dir):
-        if self.dash_angle_step() < 1.0e-10:
-            return dir
-        return self.dash_angle_step() * smath.rint(dir / self.dash_angle_step())
+        return dir if self._dash_angle_step < 1e-10 else \
+            self.dash_angle_step() * round(dir/self._dash_angle_step) # TODO which one ?
+        # if self.dash_angle_step() < 1.0e-10:
+        #     return dir
+        # return self.dash_angle_step() * smath.rint(dir / self.dash_angle_step())
 
     def normalize_dash_angle(self, dir):
         if dir < self.min_dash_angle():
@@ -1382,7 +1384,6 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def effort_inc_thr_value(self):
         return self.effort_inc_thr() * self.stamina_max()
-
 
 # TODO we can use function instance class
 # like:
