@@ -66,6 +66,7 @@ class AngleDeg:
         else:
             self._degree += other
         self.normal()
+        return self
 
     def __isub__(self, other):
         if type(other) == AngleDeg:
@@ -73,14 +74,17 @@ class AngleDeg:
         else:
             self._degree -= other
         self.normal()
+        return self
 
     def __imul__(self, other):
         self._degree *= other
         self.normal()
+        return self
 
     def __idiv__(self, other):
         self._degree /= other
         self.normal()
+        return self
 
     def __add__(self, other):
         if type(other) == AngleDeg:
