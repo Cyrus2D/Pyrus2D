@@ -31,6 +31,11 @@ class InterceptInfo:
                 self._stamina == 0.0:
             self._valid = False
 
+    def init(self, mode: Mode = Mode.EXHAUST, turn_cycle: int = 10000, dash_cycle: int = 10000,
+             dash_power: float = 100000, dash_angle: float = 0,
+             self_pos: Vector2D = Vector2D(-10000, 0), ball_dist: float = 100000, stamina: float = 0):
+        self.__init__(mode, turn_cycle, dash_cycle, dash_power, dash_angle, self_pos, ball_dist, stamina)
+
     def is_valid(self):
         return self._valid
 

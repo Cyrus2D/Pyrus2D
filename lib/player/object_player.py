@@ -93,6 +93,9 @@ class PlayerObject(Object):
     def stamina_model(self) -> StaminaModel:
         return self._stamina_model.copy()
 
+    def stamina(self):
+        return self._stamina_model.stamina()
+
     def kick(self):
         return self._kick
 

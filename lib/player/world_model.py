@@ -143,5 +143,8 @@ class WorldModel:
 
         self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball())
 
+    def last_kicker_side(self):
+        return True # TODO its not right
+
 
 
