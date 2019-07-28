@@ -47,6 +47,14 @@ class StaminaModel:
             self._stamina += stamina_inc
         self._stamina = min(self._stamina, SP.stamina_max())  # kirm tu in mohasebat :|
 
+    def capacity_is_empty(self) -> bool:
+        return 0 <= self._capacity <= 1e-5
+
+    def simulate_dash(self, player_type: PlayerType, dash_power: float):
+        self._stamina -= dash_power if dash_power >= 0 else dash_power * -2
+        self._stamina = max(0, self._stamina)
+        self.simulate_wait(player_type)
+
     def copy(self):
         new = copy.deepcopy(self)
         return new
