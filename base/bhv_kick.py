@@ -21,24 +21,19 @@ class KickAction:
         self.type = KickActionType.No
         self.eval = 0
 
-    def __cmp__(self, other):
-        return self.eval > other.eval
-
     def __gt__(self, other):
         return self.eval > other.eval
 
 
 class BhvPassGen:
     def __init__(self):
-        self.candidate = []
         pass
 
-    def generator(self, wm: WorldModel):
+    def generator(self, wm: WorldModel, action_candidates):
         for tm_unum in range(1, 12):
-            self.generate_direct_pass(wm, tm_unum)
-        return self.candidate
+            self.generate_direct_pass(wm, tm_unum, action_candidates)
 
-    def generate_direct_pass(self, wm: WorldModel, unum):
+    def generate_direct_pass(self, wm: WorldModel, unum, action_candidates):
         simple_direct_pass = KickAction()
         if wm.our_player(unum).unum() is 0:
             return
@@ -65,6 +60,7 @@ class BhvPassGen:
         print(simple_direct_pass.target_ball_pos)
         print(pass_dist)
         while travel_dist < pass_dist and ball_speed >= 0.1:
+            dlog.add_circle(Level.PASS, Circle2D(ball_pos, 1))
             cycle += 1
             travel_dist += ball_speed
             ball_speed *= SP.i().ball_decay()
@@ -72,7 +68,7 @@ class BhvPassGen:
             ball_vel.set_length(ball_speed)
             if self.can_opps_cut_ball(wm, ball_pos, cycle):
                 return
-        self.candidate.append(simple_direct_pass)
+        action_candidates.append(simple_direct_pass)
 
     def can_opps_cut_ball(self, wm: WorldModel, ball_pos, cycle):
         for unum in range(1,12):
@@ -86,6 +82,17 @@ class BhvPassGen:
         return False
 
 
+class BhvDribbleGen:
+    def __init__(self):
+        pass
+
+    def generator(self, wm: WorldModel, action_candidates):
+        pass
+
+    def generate_direct_pass(self, wm: WorldModel, unum, action_candidates):
+        pass
+
+
 class BhvKick:
     def __init__(self):
         pass
@@ -95,15 +102,16 @@ class BhvKick:
 
     def execute(self, agent):
         wm: WorldModel = agent.world()
-        pass_candidates = BhvPassGen().generator(wm)
-        for pass_candidate in pass_candidates:
-            self.evaluator(pass_candidate)
-
-        if len(pass_candidates) is 0:
+        action_candidates = []
+        BhvPassGen().generator(wm, action_candidates)
+        if len(action_candidates) is 0:
             return True
-        best_pass: KickAction = max(pass_candidates)
+        for action_candidate in action_candidates:
+            self.evaluator(action_candidate)
 
-        target = best_pass.target_ball_pos
+        best_action: KickAction = max(action_candidates)
+
+        target = best_action.target_ball_pos
         angle: AngleDeg = (target - wm.self().pos()).th()
         angle -= wm.self().body()
         agent.do_kick(100, angle)

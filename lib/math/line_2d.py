@@ -155,7 +155,7 @@ class Line2D:
     """
 
     def perpendicular(self, point):
-        return Line2D(self._b, -self._a, self._a * point.y - self._b * point.x)
+        return Line2D(self._b, -self._a, self._a * point.y() - self._b * point.x())
 
     """
       \ brief calc projection point from p
