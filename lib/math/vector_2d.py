@@ -13,10 +13,22 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
        \ param __y assigned x value
     """
 
-    def __init__(self, __x=0, __y=0):
-        self._x = __x if math.fabs(__x) > EPSILON else 0  # TODO maybe need some change in EPSILON
-        self._y = __y if math.fabs(__y) > EPSILON else 0
+    def __init__(self, *args):
+        if len(args) == 1 and isinstance(args[0], Vector2D):
+            self._x = args[0].x()
+            self._y = args[0].y()
+        elif len(args) == 2:
+            self._x = args[0]
+            self._y = args[1]
+            if math.fabs(self._x) <= EPSILON:
+                self._x = 0
+            if math.fabs(self._y) <= EPSILON:
+                self._y = 0
+        else:
+            self._x = 0
+            self._y = 0
         self._is_valid = True
+
 
     """
         \ brief assign XY value directly.
