@@ -8,7 +8,7 @@ from lib.math.vector_2d import Vector2D
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.player.stamina_model import StaminaModel
-from lib.player.world_model import WorldModel
+from lib.player.templates import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 
