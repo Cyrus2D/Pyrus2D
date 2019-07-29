@@ -1,3 +1,5 @@
+from math import ceil
+
 from lib.action.intercept_info import InterceptInfo
 from lib.debug.level import Level
 from lib.debug.logger import dlog
@@ -17,8 +19,9 @@ class SelfIntercept:
     def __init__(self, wm, ball_cache):
         self._wm: WorldModel = wm
         self._ball_cache = ball_cache
+        self._max_short_step = 5
 
-    def predict(self, max_cycle, self_cache):
+    def predict(self, max_cycle, self_cache: list):
         if len(self._ball_cache) < 2:
             dlog.add_text(Level.INTERCEPT, "no ball position cache :(")
             return
@@ -28,6 +31,11 @@ class SelfIntercept:
         self.predict_one_step(self_cache)
         self.predict_short_step(max_cycle, save_recovery, self_cache)
         self.predict_long_step(max_cycle, save_recovery, self_cache)
+
+        self_cache.sort()  # TODO check this
+        dlog.add_text(Level.INTERCEPT, "self pred all sorted intercept")
+        for ii in self_cache:
+            dlog.add_text(Level.INTERCEPT, f"{ii}")
 
     def predict_one_step(self, self_cache):
         wm = self._wm
@@ -336,7 +344,27 @@ class SelfIntercept:
         return -1000
 
     def predict_short_step(self, max_cycle, save_recovery, self_cache):
-        pass
+        tmp_cache = []
+        max_loop = min(self._max_short_step, max_cycle)
+
+        SP = ServerParam.i()
+        wm = self._wm
+        ball = wm.ball()
+        me = wm.self()
+        ptype = me.player_type()
+
+        pen_area_x = SP.our_penalty_area_line_x() - 0.5
+        pen_area_y = SP.penalty_area_half_width() - 0.5
+
+        ball_to_self = (me.pos() - ball.pos()).rotated_vector(ball.vel().th())
+        min_cycle = int(ceil(ball_to_self.absY() - ptype.kickable_area()) / ptype.real_speed_max())
+
+        if min_cycle >= max_loop:
+            return
+        if min_cycle < 2:
+            min_cycle = 2
+
+        # ball_pos = ball.inertia
 
     def predict_long_step(self, max_cycle, save_recovery, self_cache):
         pass
