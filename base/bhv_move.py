@@ -1,13 +1,14 @@
 from lib.action.go_to_point import *
 from base.strategy_formation import *
 from lib.debug.logger import *
+from lib.player.templates import *
 
 
 class BhvMove:
     def __init__(self):
         pass
 
-    def execute(self, agent):
+    def execute(self, agent: PlayerAgent):
         st = StrategyFormation().i()
         wm: WorldModel = agent.world()
         dlog.add_line(Level.BLOCK, start=wm.self().pos(), end=wm.ball().pos(), color=Color(string="black"))
