@@ -98,6 +98,9 @@ class Formation:
     def get_pos(self, unum):
         return self._target_players[unum - 1]
 
+    def get_poses(self):
+        return self._target_players
+
     def __repr__(self):
         return self._path
 

@@ -63,26 +63,18 @@ class _StrategyFormation:
             else:
                 self.current_formation = self.setplay_opp_formation
 
-        if self.current_formation is self.defense_formation:
-            self.defense_formation.update(ball_pos)
-        if self.current_formation is self.offense_formation:
-            self.offense_formation.update(ball_pos)
+        self.current_formation.update(ball_pos)
+        self._poses = self.current_formation.get_poses()
         if self.current_formation is self.before_kick_off_formation:
-            self.before_kick_off_formation.update(ball_pos)
-        if self.current_formation is self.goalie_kick_opp_formation:
-            self.goalie_kick_opp_formation.update(ball_pos)
-        if self.current_formation is self.goalie_kick_our_formation:
-            self.goalie_kick_our_formation.update(ball_pos)
-        if self.current_formation is self.kickin_our_formation:
-            self.kickin_our_formation.update(ball_pos)
-        if self.current_formation is self.setplay_opp_formation:
-            self.setplay_opp_formation.update(ball_pos)
-        if self.current_formation is self.setplay_our_formation:
-            self.setplay_our_formation.update(ball_pos)
+            for pos in self._poses:
+                pos._x = min(pos.x(), -0.5)
+        else:
+            pass # Todo add offside line
+            # for pos in self._poses:
+            #     pos._x = math.min(pos.x(), )
 
     def get_pos(self, unum):
-        print(self.current_formation)
-        return self.current_formation.get_pos(unum)
+        return self._poses[unum - 1]
 
 
 class StrategyFormation:
