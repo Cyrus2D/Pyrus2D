@@ -1,5 +1,5 @@
 from base.set_play.bhv_set_play_before_kick_off import Bhv_BeforeKickOff
-from base.strategy_formation import StrategyFormation
+from base.strategy_formation import *
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.object_player import PlayerObject
@@ -37,8 +37,6 @@ class Bhv_SetPlay:
                         nearest_tm = i
             if nearest_tm is wm.self().unum():
                 target = wm.ball().pos()
-        print(type(target))
-        print(type(agent))
         GoToPoint(target, 0.5, 100).execute(agent)
 
     @staticmethod
