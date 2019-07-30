@@ -65,3 +65,24 @@ class InterceptInfo:
 
     def stamina(self):
         return self._stamina
+
+    @staticmethod
+    def compare(lhs, rhs):
+        return True if lhs.reach_cycle() < rhs.reach_cycle() else (
+                lhs.reach_cycle() == rhs.reach_cycle() and lhs.turn_cycle() < rhs.turn_cycle())
+
+    def __lt__(self, other):
+        if self.reach_cycle() < other.reach_cycle():
+            return True
+        return self.reach_cycle() == other.reach_cycle() and self.turn_cycle() < other.turn_cycle
+
+    def __repr__(self):
+        return (f"{self._mode},"
+                f"{self.reach_cycle()},"
+                f"{self._turn_cycle},"
+                f"{self._dash_cycle},"
+                f"{self._dash_power},"
+                f"{self._dash_angle.degree()},"
+                f"{self._self_pos},"
+                f"{self._ball_dist},"
+                f"{self._stamina};")

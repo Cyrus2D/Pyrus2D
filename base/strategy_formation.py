@@ -14,14 +14,17 @@ class Situation(Enum):
 
 class _StrategyFormation:
     def __init__(self):
-        self.before_kick_off_formation: Formation = Formation('formation_dt/before_kick_off.conf')
-        self.defense_formation: Formation = Formation('formation_dt/defense_formation.conf')
-        self.offense_formation: Formation = Formation('formation_dt/offense_formation.conf')
-        self.goalie_kick_opp_formation: Formation = Formation('formation_dt/goalie_kick_opp_formation.conf')
-        self.goalie_kick_our_formation: Formation = Formation('formation_dt/goalie_kick_our_formation.conf')
-        self.kickin_our_formation: Formation = Formation('formation_dt/kickin_our_formation.conf')
-        self.setplay_opp_formation: Formation = Formation('formation_dt/setplay_opp_formation.conf')
-        self.setplay_our_formation: Formation = Formation('formation_dt/setplay_our_formation.conf')
+        pwd = '.'
+        if "base" in os.listdir('.'):
+            pwd = 'base'
+        self.before_kick_off_formation: Formation = Formation(f'{pwd}/formation_dt/before_kick_off.conf')
+        self.defense_formation: Formation = Formation(f'{pwd}/formation_dt/defense_formation.conf')
+        self.offense_formation: Formation = Formation(f'{pwd}/formation_dt/offense_formation.conf')
+        self.goalie_kick_opp_formation: Formation = Formation(f'{pwd}/formation_dt/goalie_kick_opp_formation.conf')
+        self.goalie_kick_our_formation: Formation = Formation(f'{pwd}/formation_dt/goalie_kick_our_formation.conf')
+        self.kickin_our_formation: Formation = Formation(f'{pwd}/formation_dt/kickin_our_formation.conf')
+        self.setplay_opp_formation: Formation = Formation(f'{pwd}/formation_dt/setplay_opp_formation.conf')
+        self.setplay_our_formation: Formation = Formation(f'{pwd}/formation_dt/setplay_our_formation.conf')
         self._poses = [Vector2D(0, 0) for i in range(11)]
         self.current_situation = Situation.Offense_Situation
         self.current_formation = self.offense_formation

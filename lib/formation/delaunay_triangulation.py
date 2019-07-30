@@ -101,10 +101,10 @@ class Formation:
     def __repr__(self):
         return self._path
 
-f = Formation('/home/nader/workspace/robo/base/agent2d-3.1.1/src/formations-dt/before-kick-off.conf')
-print(len(f._balls))
-print(len(f._players))
-print(f._formation_type)
-f.update(Vector2D(20, 16))
-print(f._formation_type)
-print(f._target_players)
+# f = Formation('base/formations-dt/before-kick-off.conf')
+# print(len(f._balls))
+# print(len(f._players))
+# print(f._formation_type)
+# f.update(Vector2D(20, 16))
+# print(f._formation_type)
+# print(f._target_players)
