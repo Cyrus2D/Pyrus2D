@@ -114,13 +114,13 @@ class LineID(Enum):
 
 
 """
-  \ enum PlayMode
+  \ enum GameModeType
   \ brief play mode types defined in rcssserver/src/types.h
 """
 
 
 @unique
-class PlayMode(Enum):
+class GameModeType(Enum):
     Null = "null"
     BeforeKickOff = "before_kick_off"
     TimeOver = "time_over"
@@ -220,7 +220,7 @@ HETERO_UNKNOWN = -1
 HETERO_DEFAULT = 0
 
 # ! playmode string table defined in rcssserver.
-PLAYMODE_STRINGS = ["",  # TODO Value of PlayerMode enum be these strings....?
+GAMEMODETYPE_STRINGS = ["",  # TODO Value of PlayerMode enum be these strings....?
                     "before_kick_off",
                     "time_over",
                     "play_on",
