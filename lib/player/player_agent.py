@@ -1,8 +1,6 @@
-import logging
 import time
-import sys
-
-from base.decision import *
+from lib.math.geom_2d import *
+from base.decision import get_decision
 from lib.debug.logger import *
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
@@ -19,7 +17,7 @@ class PlayerAgent:
         self._socket = UDPSocket(IPAddress('localhost', 6000))
         self._world = WorldModel()
         self._full_world = WorldModel()
-        self._think_mode = True
+        self._think_mode = False
         self._is_synch_mode = True
         self._last_body_command = []
 

@@ -1,5 +1,5 @@
 from lib.formation.delaunay_triangulation import *
-from lib.player.world_model import *
+from lib.player.templates import *
 import os
 from enum import Enum
 

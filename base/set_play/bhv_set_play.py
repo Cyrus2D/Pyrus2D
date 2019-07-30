@@ -2,10 +2,6 @@ from base.set_play.bhv_set_play_before_kick_off import Bhv_BeforeKickOff
 from base.strategy_formation import *
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.player.object_player import PlayerObject
-from lib.rcsc.server_param import ServerParam
-from lib.player.templates import *
-from lib.rcsc.game_mode import *
 from lib.action.go_to_point import *
 
 

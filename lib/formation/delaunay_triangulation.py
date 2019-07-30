@@ -1,6 +1,6 @@
 from scipy.spatial import Delaunay
 from lib.math.geom_2d import *
-from enum import Enum, unique, auto
+from enum import Enum
 
 
 class FormationType(Enum):

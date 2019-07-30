@@ -3,8 +3,7 @@ from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import SideID
-
+from lib.rcsc.types import SideID, GameModeType
 
 class WorldModel:
     def ball(self) -> BallObject: ...

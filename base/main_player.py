@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-from lib.player.player_agent import *
+from lib.player.player_agent import PlayerAgent
+import sys
 
 
 def main(team_name="Pyrus", goalie=False):

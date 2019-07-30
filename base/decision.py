@@ -1,6 +1,6 @@
-from base.strategy_formation import *
-from lib.debug.logger import *
+from base.strategy_formation import StrategyFormation
 from base.set_play.bhv_set_play import Bhv_SetPlay
+from lib.player.templates import *
 from base.bhv_kick import BhvKick
 from base.bhv_move import BhvMove
 
