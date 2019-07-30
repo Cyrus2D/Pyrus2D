@@ -4,7 +4,7 @@ from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import PlayMode
+from lib.rcsc.types import GameModeType
 
 
 class WorldModel:
@@ -58,7 +58,7 @@ class WorldModel:
         parser = FullStateWorldMessageParser()
         parser.parse(message)
         self._time._cycle = int(parser.dic()['time'])
-        self._game_mode.set_game_mode(PlayMode(parser.dic()['pmode']))
+        self._game_mode.set_game_mode(GameModeType(parser.dic()['pmode']))
 
         # TODO vmode counters and arm
 
