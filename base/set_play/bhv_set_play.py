@@ -1,9 +1,12 @@
 from base.set_play.bhv_set_play_before_kick_off import Bhv_BeforeKickOff
-from base.strategy import Strategy
+from base.strategy_formation import StrategyFormation
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.object_player import PlayerObject
 from lib.rcsc.server_param import ServerParam
+from lib.player.templates import *
+from lib.rcsc.game_mode import *
+from lib.action.go_to_point import *
 
 
 class Bhv_SetPlay:
@@ -13,68 +16,30 @@ class Bhv_SetPlay:
 
     def execute(self, agent):
         dlog.add_text(Level.TEAM, "Bhv_SetPlay")
-        wm = agent.world()
-        mode_name = wm.game_mode().mode_name()
+        wm: WorldModel = agent.world()
+        game_mode = wm.game_mode().type()
         game_side = wm.game_mode().side()
 
-        if wm.self().goalie():  # and not startegy.isgoalforward
-            if mode_name == "goal_kick":
-                if game_side == wm.our_side():
-                    # return Bhv_SetPlayGoalKick().execute(agent)
-                    pass
-            if mode_name != "back_pass" and mode_name != "indirect_free_kick":
-                # Bhv_GoalieFreeKick().execute(agnet)
-                pass
-            else:
-                # Bhv_SetPlayIndirectFreeKick().execute(agent)
-                pass
-
-            return True
-
-        if mode_name == "before_kick_off":
+        if game_mode is GameModeType.BeforeKickOff:
             return Bhv_BeforeKickOff().execute(agent)
 
-        if mode_name == "kick_off":
-            if game_side == wm.our_side():
-                # return Bhv_SetPlayKickOff().execute(agent)
-                pass
-            else:
-                # doBasicTheirSetPlayMove(agent)
-                return True
-        elif mode_name == "kick_in" or mode_name == "corner_kick":
-            if game_side == wm.our_side():
-                # return Bhv_SetPlayKickIn().execute(agent)
-                pass
-            else:
-                # doBasicTheirSetPlayMove(agent)
-                return True
-        elif mode_name == "goal_kick":
-            if game_side == wm.our_side():
-                # return Bhv_SetPlayGoalKick().execute(agent)
-                pass
-            else:
-                # return Bhv_TheirGoalKickMove().execute(agent)
-                pass
-        elif mode_name == "back_pass" or mode_name == "indirect_free_kick":
-            # return Bhv_SetPlayIndirectFreeKick().execute(agent)
-            pass
-        elif mode_name == "foul_charge" or mode_name == "foul_push":
-            if wm.ball().pos().x() < ServerParam.i().penalty_area_half_width() + 1 and \
-                    wm.ball().pos().absY() < ServerParam.i().penalty_area_half_width() + 1:
-                # return Bhv_SetPlayIndirectFreeKick().execute(agent)
-                pass
-            elif wm.ball().pos().x() > ServerParam.i().their_penalty_area_line_x() - 1 and \
-                    wm.ball().pos().y() < ServerParam.i().penalty_area_half_width() + 1:
-                # return Bhv_SetPlayIndirectFreeKick().execute(agent)
-                pass
-
-        if wm.game_mode().is_our_set_play(wm.our_side()):
-            dlog.add_text(Level.TEAM, "SET PLAY our set play")
-            # return Bhv_SetPlayFreeKick().execute(agent)
-        else:
-            # doBasicTheirSetPlayMove(agent)
-            return True
-        return False
+        st = StrategyFormation.i()
+        target = st.get_pos(wm.self().unum())
+        if wm.game_mode().side() is wm.our_side():
+            nearest_tm_dist = 1000
+            nearest_tm = 0
+            for i in range(1, 12):
+                tm: PlayerObject = wm.our_player(i)
+                if tm.unum() is i:
+                    dist = tm.pos().dist(wm.ball().pos())
+                    if dist < nearest_tm_dist:
+                        nearest_tm_dist = dist
+                        nearest_tm = i
+            if nearest_tm is wm.self().unum():
+                target = wm.ball().pos()
+        print(type(target))
+        print(type(agent))
+        GoToPoint(target, 0.5, 100).execute(agent)
 
     @staticmethod
     def is_kicker(agent):

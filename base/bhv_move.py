@@ -14,7 +14,6 @@ class BhvMove:
         dlog.add_line(Level.BLOCK, start=wm.self().pos(), end=wm.ball().pos(), color=Color(string="black"))
         dlog.add_text(Level.BLOCK, f"Test {wm.self().pos()}")  # Aref come on :))) # HA HA HA HA :D
         dlog.add_circle(cicle=Circle2D(wm.self().pos(), 3), color=Color(string="blue"))
-        st.update(agent.world())
         target = st.get_pos(agent.world().self().unum())
         min_dist_ball = 1000
         nearest_tm = 0

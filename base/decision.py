@@ -1,5 +1,4 @@
-from lib.action.go_to_point import *
-from base.strategy import *
+from base.strategy_formation import *
 from lib.debug.logger import *
 from base.set_play.bhv_set_play import Bhv_SetPlay
 from base.bhv_kick import BhvKick
@@ -7,8 +6,9 @@ from base.bhv_move import BhvMove
 
 
 def get_decision(agent):
-    st = Strategy()
     wm: WorldModel = agent.world()
+    st = StrategyFormation().i()
+    st.update(wm)
 
     if wm.game_mode().type() != GameModeType.PlayOn:
         return Bhv_SetPlay().execute(agent)
