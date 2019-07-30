@@ -15,6 +15,7 @@ class Formation:
         self._triangles = []
         self._formation_type = FormationType.Static
         self._target_players = []
+        self._path = path
         self.read_file(path)
         self.calculate()
 
@@ -97,6 +98,8 @@ class Formation:
     def get_pos(self, unum):
         return self._target_players[unum - 1]
 
+    def __repr__(self):
+        return self._path
 
 f = Formation('/home/nader/workspace/robo/base/agent2d-3.1.1/src/formations-dt/before-kick-off.conf')
 print(len(f._balls))
