@@ -46,8 +46,8 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
-        # self._kickrate = # [ Soccer Math ] # aref kickrate fargh dare ba kick_power_rate
+        self._kickable: bool = False  # TODO does it change?
+        self._kickrate: float = 0.0
 
     # update other data
     def update_with_world(self, wm):
@@ -107,6 +107,9 @@ class PlayerObject(Object):
 
     def card(self):
         return self._card
+
+    def set_kickable(self, ika: bool):
+        self._kickable = ika
 
     def is_kickable(self):
         return self._kickable

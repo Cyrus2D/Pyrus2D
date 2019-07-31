@@ -1308,19 +1308,19 @@ class _ServerParam:  # TODO specific TYPES and change them
     def golden_goal(self):
         return self._golden_goal
 
-    def discretize_dash_angle(self, dir):
-        return dir if self._dash_angle_step < 1e-10 else \
-            self.dash_angle_step() * round(dir/self._dash_angle_step) # TODO which one ?
+    def discretize_dash_angle(self, direction):
+        return direction if self._dash_angle_step < 1e-10 else \
+            self.dash_angle_step() * round(direction / self._dash_angle_step)  # TODO which one ?
         # if self.dash_angle_step() < 1.0e-10:
         #     return dir
         # return self.dash_angle_step() * smath.rint(dir / self.dash_angle_step())
 
-    def normalize_dash_angle(self, dir):
-        if dir < self.min_dash_angle():
+    def normalize_dash_angle(self, direction):
+        if direction < self.min_dash_angle():
             return self.min_dash_angle()
-        elif dir > self.max_dash_angle():
+        elif direction > self.max_dash_angle():
             return self.max_dash_angle()
-        return dir
+        return direction
 
     def normalize_power(self, power):
         if power < self.min_dash_power():
@@ -1336,8 +1336,8 @@ class _ServerParam:  # TODO specific TYPES and change them
             return self.max_dash_power()
         return power
 
-    def dash_dir_rate(self, dir):
-        d = self.discretize_dash_angle(self.normalize_dash_angle(dir))
+    def dash_dir_rate(self, direction):
+        d = self.discretize_dash_angle(self.normalize_dash_angle(direction))
         if math.fabs(d) > 90.0:
             r = self.back_dash_rate() - (
                     (self.back_dash_rate() - self.side_dash_rate()) * (1.0 - (math.fabs(d) - 90.0) / 90.0))
@@ -1346,44 +1346,56 @@ class _ServerParam:  # TODO specific TYPES and change them
         return min(max(1.0e-5, r), 1.0)
 
     # default params
-    def pitch_length(self):
+    @staticmethod
+    def pitch_length():
         return DEFAULT_PITCH_LENGTH
 
-    def pitch_half_length(self):
-        return self.pitch_length() / 2
+    @staticmethod
+    def pitch_half_length():
+        return DEFAULT_PITCH_LENGTH / 2
 
-    def pitch_width(self):
+    @staticmethod
+    def pitch_width():
         return DEFAULT_PITCH_WIDTH
 
-    def pitch_half_width(self):
-        return self.pitch_width() / 2
+    @staticmethod
+    def pitch_half_width():
+        return DEFAULT_PITCH_WIDTH / 2
 
-    def goal_post_radius(self):
+    @staticmethod
+    def goal_post_radius():
         return DEFAULT_GOAL_POST_RADIUS
 
-    def goal_half_width(self):
-        return self.goal_width() / 2
+    @staticmethod
+    def goal_half_width():
+        return DEFAULT_GOAL_WIDTH / 2
 
-    def penalty_area_length(self):
+    @staticmethod
+    def penalty_area_length():
         return DEFAULT_PENALTY_AREA_LENGTH
 
-    def our_penalty_area_line_x(self):
-        return -self.pitch_half_length() + self.penalty_area_length()
+    @staticmethod
+    def our_penalty_area_line_x():
+        return -_ServerParam.pitch_half_length() + DEFAULT_PENALTY_AREA_LENGTH
 
-    def their_penalty_area_line_x(self):
-        return self.pitch_half_length() - self.penalty_area_length()
+    @staticmethod
+    def their_penalty_area_line_x():
+        return _ServerParam.pitch_half_length() - DEFAULT_PENALTY_AREA_LENGTH
 
-    def penalty_area_width(self):
+    @staticmethod
+    def penalty_area_width():
         return DEFAULT_PENALTY_AREA_WIDTH
 
-    def penalty_area_half_width(self):
-        return self.penalty_area_width() / 2
+    @staticmethod
+    def penalty_area_half_width():
+        return DEFAULT_PENALTY_AREA_WIDTH / 2
 
     def effort_dec_thr_value(self):
         return self.effort_inc_thr() * self.stamina_max()
 
     def effort_inc_thr_value(self):
         return self.effort_inc_thr() * self.stamina_max()
+
 
 # TODO we can use function, instance instance class
 # like:
