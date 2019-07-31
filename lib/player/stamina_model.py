@@ -47,6 +47,11 @@ class StaminaModel:
             self._stamina += stamina_inc
         self._stamina = min(self._stamina, SP.stamina_max())  # kirm tu in mohasebat :|
 
+    def simulate_waits(self, player_type: PlayerType, n_wait: int):
+        for i in range(n_wait):
+            self.simulate_wait(player_type)
+
+
     def capacity_is_empty(self) -> bool:
         return 0 <= self._capacity <= 1e-5
 

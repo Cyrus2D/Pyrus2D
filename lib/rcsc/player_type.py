@@ -187,8 +187,9 @@ class PlayerType:
         return (self.kick_power_rate() * (1.0 - 0.25 * math.fabs(dir_diff) / 180.0 - (
                 0.25 * (ball_dist - SP.i().ball_size() - self.player_size()) / self.kickable_margin())))
 
-    def dash_rate(self, effort, rel_dir):
-        return self.dash_rate(effort) * SP.i().dash_dir_rate(rel_dir)  # TODO bug :|
+    def dash_rate(self, effort):  # , rel_dir):
+        return effort * self.dash_power_rate()
+        # return self.dash_rate(effort) * SP.i().dash_dir_rate(rel_dir)  # TODO bug :|
 
     def effective_turn(self, command_moment, speed):
         return command_moment / (1.0 + self.inertia_moment() * speed)

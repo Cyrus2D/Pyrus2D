@@ -1,3 +1,4 @@
+from copy import deepcopy
 from math import ceil
 
 from lib.action.intercept_info import InterceptInfo
@@ -5,7 +6,7 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.segment_2d import Segment2D
-from lib.math.soccer_math import bound, frange
+from lib.math.soccer_math import bound, frange, calc_first_term_geom_series
 from lib.math.vector_2d import Vector2D
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
@@ -14,12 +15,17 @@ from lib.player.templates import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 
+control_area_buf = 0.15
+
 
 class SelfIntercept:
     def __init__(self, wm, ball_cache):
         self._wm: WorldModel = wm
         self._ball_cache = ball_cache
+
         self._max_short_step = 5
+
+        self._min_turn_thr = 12.5
 
     def predict(self, max_cycle, self_cache: list):
         if len(self._ball_cache) < 2:
@@ -110,12 +116,17 @@ class SelfIntercept:
         dlog.add_text(Level.INTERCEPT, "self pred no dash success")
         return True
 
-    def is_goalie_mode(self, ball_next) -> bool:
+    def is_goalie_mode(self, ball_next, x_limit=None, abs_y_limit=None) -> bool:
         wm = self._wm
-        return wm.self().goalie() and \
-               wm.last_kicker_side() != wm.our_side() and \
-               ball_next.x() < ServerParam.i().our_penalty_area_line_x() and \
-               ball_next.absY() < ServerParam.i().penalty_area_half_width()
+        if x_limit is None:
+            ServerParam.i().our_penalty_area_line_x()
+        if abs_y_limit is None:
+            ServerParam.i().penalty_area_half_width()
+
+        return (wm.self().goalie() and
+                wm.last_kicker_side() != wm.our_side() and
+                ball_next.x() < x_limit and
+                ball_next.absY() < abs_y_limit)
 
     def predict_one_dash(self, self_cache):
         tmp_cache = []
@@ -364,7 +375,187 @@ class SelfIntercept:
         if min_cycle < 2:
             min_cycle = 2
 
-        # ball_pos = ball.inertia
+        ball_pos = ball.inertia_point(min_cycle - 1)
+        ball_vel = ball.vel() * SP.ball_decay() ** min_cycle - 1
+
+        for cycle in range(min_cycle, max_loop):
+            tmp_cache = []
+            ball_pos += ball_vel
+            ball_vel *= SP.ball_decay()
+            dlog.add_text(Level.INTERCEPT, f"self pred short cycle {cycle}: bpos={ball_pos}, bvel={ball_vel}")
+
+            goalie_mode = self.is_goalie_mode(ball_pos, pen_area_x, pen_area_y)
+            control_area = (ptype.catchable_area()
+                            if goalie_mode
+                            else ptype.kickable_area())
+            if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos().dist(ball_pos):
+                dlog.add_text(Level.INTERCEPT, "self pred short too far")
+                continue
+
+            self.predict_turn_dash_short(cycle, ball_pos, control_area, save_recovery,  # forward dash
+                                         False,
+                                         max(0.1, control_area - 0.4),
+                                         tmp_cache)
+
+            self.predict_turn_dash_short(cycle, ball_pos, control_area, save_recovery,  # forward dash
+                                         False,
+                                         max(0.1, control_area - control_area_buf),
+                                         tmp_cache)
+
+            self.predict_turn_dash_short(cycle, ball_pos, control_area, save_recovery,  # back dash
+                                         True,
+                                         max(0.1, control_area - 0.4),
+                                         tmp_cache)
+
+            self.predict_turn_dash_short(cycle, ball_pos, control_area, save_recovery,  # back dash
+                                         True,
+                                         control_area - control_area_buf,
+                                         tmp_cache)
+
+    def predict_turn_dash_short(self,
+                                cycle: int,
+                                ball_pos: Vector2D,
+                                control_area: float,
+                                save_recovery: bool,
+                                back_dash: bool,
+                                turn_margin_control_area: float,
+                                self_cache: list):
+        dash_angle: AngleDeg = self._wm.self().body()
+        n_turn = self.predict_turn_cycle_short(cycle, ball_pos, control_area, back_dash,
+                                               turn_margin_control_area,
+                                               dash_angle)
+        if n_turn > cycle:
+            return
+
+        self.predict_dash_cycle_short(cycle, n_turn, ball_pos, dash_angle,
+                                      control_area, save_recovery, back_dash,
+                                      self_cache)
+
+    def predict_dash_cycle_short(self,
+                                 cycle: int,
+                                 n_turn: int,
+                                 ball_pos: Vector2D,
+                                 dash_angle: AngleDeg,
+                                 control_area: float,
+                                 save_recovery: bool,
+                                 back_dash: bool,
+                                 self_cache):
+        SP = ServerParam.i()
+        wm = self._wm
+
+        me = wm.self()
+        ptype = me.player_type()
+
+        recover_dec_thr = SP.recover_dec_thr_value() + 1
+        max_dash = cycle - n_turn
+
+        my_inertia = me.inertia_point(cycle)
+        my_pos = me.inertia_point(n_turn)
+        my_vel = me.vel() * ptype.player_decay() ** n_turn
+
+        stamina_model = me.stamina_model()
+        stamina_model.simulate_waits(ptype, n_turn)
+
+        if my_inertia.dist2(ball_pos) < (control_area - control_area_buf) ** 2:
+            my_final_pos = my_inertia
+            tmp_stamina = deepcopy(stamina_model)
+            tmp_stamina.simulate_waits(ptype, cycle - n_turn)
+            self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
+                                            n_turn, cycle - n_turn,
+                                            0, 0,
+                                            my_final_pos,
+                                            my_final_pos.dist2(ball_pos),
+                                            tmp_stamina.stamina()))
+
+        target_angle = (ball_pos - my_inertia).th()
+        if (target_angle - dash_angle).abs() > 90:
+            dlog.add_text(Level.INTERCEPT,
+                          "self pred short target_angle - dash_angle > 90")
+            return
+
+        accel_unit = Vector2D.polar2vector(1, dash_angle)
+        first_dash_power = 0
+        for n_dash in range(1, max_dash + 1):
+            dlog.add_text(Level.INTERCEPT,
+                          f"self pred short dash {n_dash}: max_dash={max_dash}")
+            ball_rel = (ball_pos - my_pos).rotated_vector(-dash_angle)
+            first_speed = calc_first_term_geom_series(ball_rel.x,
+                                                      ptype.player_decay(),
+                                                      max_dash - n_dash + 1)
+            rel_vel = my_vel.rotated_vector(-dash_angle)
+            required_accel = first_speed - rel_vel.x()
+            dash_power = required_accel / ptype.dash_rate(stamina_model.effort())
+            if back_dash:
+                dash_power = -dash_power
+
+            available_stamina = (max(0, stamina_model.stamina()) - recover_dec_thr
+                                 if save_recovery
+                                 else stamina_model.stamina() + ptype.extra_stamina())
+            if back_dash:
+                dash_power = bound(SP.min_dash_power(), dash_power, 0)
+                dash_power = max(dash_power, available_stamina * -0.5)
+            else:
+                dash_power = bound(0, dash_power, SP.max_dash_power())
+                dash_power = min(available_stamina, dash_power)
+
+            if n_dash == 1:
+                first_dash_power = dash_power
+
+            accel_mag = abs(dash_power * ptype.dash_rate(stamina_model.effort()))
+            accel = accel_unit * accel_mag
+
+
+    def predict_turn_cycle_short(self,
+                                 cycle: int,
+                                 ball_pos: Vector2D,
+                                 _: float,
+                                 back_dash: bool,
+                                 turn_margin_control_area: float,
+                                 result_dash_angle: AngleDeg) -> int:
+        SP = ServerParam.i()
+        wm = self._wm
+        max_moment = SP.max_moment()
+
+        me = wm.self()
+        ptype = me.player_type()
+
+        dist_thr = turn_margin_control_area
+        inertia_pos = me.inertia_point(cycle)
+        target_dist = (ball_pos - inertia_pos).r()
+        target_angle = (ball_pos - inertia_pos).th()
+
+        n_turn = 0
+        body_angle = me.body() + 180 if back_dash else me.body()
+        angle_diff = (target_angle - body_angle).abs()
+
+        turn_margin = 180
+        if dist_thr < target_dist:
+            turn_margin = max(self._min_turn_thr,
+                              AngleDeg.asin_deg(dist_thr / target_dist))
+        if angle_diff > turn_margin:
+            my_speed = me.vel().r()
+            while angle_diff > turn_margin:
+                angle_diff -= ptype.effective_turn(max_moment, my_speed)
+                my_speed *= ptype.player_decay()
+                n_turn += 1
+
+        result_dash_angle.set_degree(body_angle.degree())
+        if n_turn > 0:
+            angle_diff = max(0, angle_diff)
+            if (target_angle - body_angle).degree() > 0:
+                result_dash_angle.set_degree(target_angle - angle_diff)
+            else:
+                result_dash_angle.set_degree(target_angle + angle_diff)
+
+        dlog.add_text(Level.INTERCEPT,
+                      f"self pred short cycle {cycle}: "
+                      f"turn={n_turn}, "
+                      f"turn_margin={turn_margin}"
+                      f"turn_momment={result_dash_angle-body_angle}"
+                      f"first_angle_diff={target_angle-body_angle}"
+                      f"final_angle={angle_diff}"
+                      f"dash_angle={result_dash_angle}")
+        return n_turn
 
     def predict_long_step(self, max_cycle, save_recovery, self_cache):
         pass

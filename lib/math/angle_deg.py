@@ -47,6 +47,9 @@ class AngleDeg:
     def degree(self):
         return self._degree
 
+    def set_degree(self, degree: float):
+        self._degree = degree
+
     def abs(self):
         return math.fabs(self.degree())
 

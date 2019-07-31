@@ -1,4 +1,6 @@
+from lib.math.soccer_math import inertia_n_step_point
 from lib.player.object import *
+from lib.rcsc.server_param import ServerParam
 
 
 class BallObject(Object):
@@ -22,3 +24,9 @@ class BallObject(Object):
 
     def __repr__(self):
         return f"(pos: {self.pos()}) (vel:{self.vel()})"
+
+    def inertia_point(self, cycle: int) -> Vector2D:
+        return inertia_n_step_point(self._pos,
+                                    self._vel,
+                                    cycle,
+                                    ServerParam.i().ball_decay())

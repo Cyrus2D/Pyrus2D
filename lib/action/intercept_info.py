@@ -74,10 +74,10 @@ class InterceptInfo:
     def __lt__(self, other):
         if self.reach_cycle() < other.reach_cycle():
             return True
-        return self.reach_cycle() == other.reach_cycle() and self.turn_cycle() < other.turn_cycle
+        return self.reach_cycle() == other.reach_cycle() and self.turn_cycle() < other.turn_cycle()
 
     def __repr__(self):
-        return (f"{self._mode},"
+        return (f"({self._mode},"
                 f"{self.reach_cycle()},"
                 f"{self._turn_cycle},"
                 f"{self._dash_cycle},"
@@ -85,4 +85,4 @@ class InterceptInfo:
                 f"{self._dash_angle.degree()},"
                 f"{self._self_pos},"
                 f"{self._ball_dist},"
-                f"{self._stamina};")
+                f"{self._stamina})")
