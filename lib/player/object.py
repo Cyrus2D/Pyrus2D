@@ -7,10 +7,10 @@ class Object:
         self._vel = Vector2D.invalid()
 
     def pos(self) -> Vector2D:
-        return self._pos.copy() # TODO How it is?!?
+        return self._pos.copy()  # TODO How it is?!?
 
     def vel(self) -> Vector2D:
-        return self._vel.copy() # TODO How it is?!?
+        return self._vel.copy()  # TODO How it is?!?
 
     def reverse(self):
         self._pos.reverse()

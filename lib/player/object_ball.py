@@ -1,12 +1,18 @@
-from lib.math.soccer_math import inertia_n_step_point
+from lib.math.soccer_math import *
 from lib.player.object import *
 from lib.rcsc.server_param import ServerParam
+
+
+# from lib.player.templates import *
 
 
 class BallObject(Object):
     def __init__(self, string=None):
         super().__init__()
         self._dist_from_self: float = 10000
+        self._angle_from_self = AngleDeg(0.0)
+        self._pos = Vector2D.invalid()
+        self._vel = Vector2D.invalid()
         if string is None:
             return
         self.init_str(string)
@@ -18,9 +24,13 @@ class BallObject(Object):
 
     def update_with_world(self, wm):
         self._dist_from_self = wm.self().pos().dist(self._pos)
+        self._angle_from_self = (self._pos - wm.self().pos()).th()  # Todo : Need checkup
 
     def dist_from_self(self):
         return self._dist_from_self
+
+    def angle_from_self(self):
+        return self._angle_from_self
 
     def __repr__(self):
         return f"(pos: {self.pos()}) (vel:{self.vel()})"

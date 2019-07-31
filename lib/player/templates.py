@@ -5,6 +5,7 @@ from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import SideID, GameModeType
 
+
 class WorldModel:
     def ball(self) -> BallObject: ...
 

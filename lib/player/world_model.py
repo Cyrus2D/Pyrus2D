@@ -5,6 +5,7 @@ from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParse
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import GameModeType
+from lib.math.soccer_math import *
 
 
 class WorldModel:
@@ -144,7 +145,4 @@ class WorldModel:
         self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball())
 
     def last_kicker_side(self):
-        return True # TODO its not right
-
-
-
+        return True  # TODO its not right

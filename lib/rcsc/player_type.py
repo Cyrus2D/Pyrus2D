@@ -27,7 +27,7 @@ class PlayerType:
         self._reliable_catchable_dist = 1.0
         self._max_catchable_dist = 1.0
         self._real_speed_max = 1.0
-        self._cycles_to_reach_max_speed = -1;
+        self._cycles_to_reach_max_speed = -1
 
         self._dash_distance_table = []
         self.init_additional_params()

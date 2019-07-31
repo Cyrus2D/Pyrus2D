@@ -1,9 +1,12 @@
-from lib.player.object import *
 from lib.rcsc.player_type import PlayerType
-from lib.player.stamina_model import StaminaModel
-from lib.rcsc.types import SideID, Card
 from lib.player.object_ball import *
+from lib.player.stamina_model import StaminaModel
+from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam as SP
+from lib.rcsc.types import SideID, Card
+
+
+# from lib.player.templates import *
 
 
 class PlayerObject(Object):
@@ -24,7 +27,8 @@ class PlayerObject(Object):
         self._card: Card = Card.NO_CARD
         self._kickable: bool = False  # TODO does it change?
         self._kickrate: float = 0.0
-        self._dist_from_ball: float = 0
+        self._dist_from_ball: float = 0.0
+        self._angle_from_ball: float = 0.0
 
     # update with server data
     def init_dic(self, dic: dict):
@@ -46,20 +50,47 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        self._kickable: bool = False  # TODO does it change?
+        self._kickable: bool = False
         self._kickrate: float = 0.0
+        self._dist_from_ball: float = 0.0
+        self._angle_from_ball: float = 0.0
 
     # update other data
     def update_with_world(self, wm):
-        # kickable
-        if self.player_type() is not None:  # TODO its wrong
-            if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_area():
-                self._kickable = True
-            else:
-                self._kickable = False
+        ball = wm.ball()
+        self._kickable = False
+        self._kickrate = 0.0
 
-        # dist from ball
-        self._dist_from_ball = self.pos().dist(wm.ball().pos())
+        self._dist_from_ball = ball.dist_from_self()
+        self._angle_from_ball = ball.angle_from_self() + AngleDeg(180.0)
+
+        # -----------------------------------------------------
+        # check kickable
+
+        if ball.dist_from_self() <= self.player_type().kickable_area():
+            buf = 0.055
+            if ball.dist_from_self() <= self.player_type().kickable_area() - buf:
+                self._kickable = True
+
+            self._kickrate = kick_rate(ball.dist_from_self(),
+                                       (ball.angle_from_self() - self._body).degree(),
+                                       self.player_type().kick_power_rate(),
+                                       SP.i().ball_size(),
+                                       self.player_type().player_size(),
+                                       self.player_type().kickable_margin())
+
+        #
+        # # kickable
+        # if self.player_type() is not None:  # TODO its wrong
+        #     if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_area():
+        #         self._kickable = True
+        #     else:
+        #         self._kickable = False
+        #
+        # # dist from ball
+        # self._dist_from_ball = self.pos().dist(wm.ball().pos())
+
+        # def update_ball_info(self, wm):
 
     def reverse_more(self):
         self._body.reverse()
