@@ -465,7 +465,7 @@ class SelfIntercept:
                                                         control_area,
                                                         save_recovery,
                                                         back_dash,
-                                                        dir,
+                                                        dirr,
                                                         my_pos,
                                                         my_vel,
                                                         stamina_model,
@@ -517,7 +517,7 @@ class SelfIntercept:
                     my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).absX():
                 mode = (InterceptInfo.Mode.EXHAUST
                         if stamina_model.recovery() < me.stamina_model().recovery()
-                        and not stamina_model.capacity_is_empty()
+                           and not stamina_model.capacity_is_empty()
                         else InterceptInfo.Mode.NORMAL)
                 self_cache.append(InterceptInfo(mode,
                                                 0, cycle,
@@ -525,6 +525,19 @@ class SelfIntercept:
                                                 my_pos,
                                                 my_pos.dist(ball_pos),
                                                 stamina_model.stamina()))
+
+    def predict_adjust_omni_dash(self,
+                                 cycle: int,
+                                 ball_pos: Vector2D,
+                                 control_area: float,
+                                 save_recovery: bool,
+                                 back_dash: bool,
+                                 dash_rel_dir: float,
+                                 my_pos: Vector2D,
+                                 my_vel: Vector2D,
+                                 stamina_model: StaminaModel,
+                                 first_dash_power) -> int:
+        pass
 
     def predict_turn_dash_short(self,
                                 cycle: int,
