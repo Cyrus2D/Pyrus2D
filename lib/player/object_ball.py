@@ -24,13 +24,18 @@ class BallObject(Object):
 
     def update_with_world(self, wm):
         self._dist_from_self = wm.self().pos().dist(self._pos)
-        self._angle_from_self = (self._pos - wm.self().pos()).th()  # Todo : Need checkup
+        self._angle_from_self = (wm.self().pos() - self._pos).th()  # Todo : Need checkup
 
     def dist_from_self(self):
         return self._dist_from_self
 
     def angle_from_self(self):
         return self._angle_from_self
+
+    def velValid(self):  # ToDo : add count need fix
+        if self._vel < ServerParam.i().player_speed_max():
+            return True
+        return False
 
     def __repr__(self):
         return f"(pos: {self.pos()}) (vel:{self.vel()})"
