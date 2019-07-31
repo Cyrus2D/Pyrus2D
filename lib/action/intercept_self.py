@@ -5,6 +5,7 @@ from lib.action.intercept_info import InterceptInfo
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
+from lib.math.line_2d import Line2D
 from lib.math.segment_2d import Segment2D
 from lib.math.soccer_math import bound, frange, calc_first_term_geom_series
 from lib.math.vector_2d import Vector2D
@@ -143,10 +144,10 @@ class SelfIntercept:
             goalie_mode else \
             ptype.kickable_area()
         dash_angle_step: float = max(5, SP.dash_angle_step())
-        min_dash_angle = SP.min_dash_angle() if -180 < SP.max_dash_angle() < 180 else \
+        min_dash_angle = SP.min_dash_angle() if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180 else \
             dash_angle_step * int(-180 / dash_angle_step)
         max_dash_angle = SP.max_dash_angle() + dash_angle_step * 0.5 if \
-            -180 < SP.max_dash_angle() < 180 else \
+            -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180 else \
             dash_angle_step * int(180 / dash_angle_step) - 1
         dlog.add_text(Level.INTERCEPT, f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
 
@@ -412,6 +413,119 @@ class SelfIntercept:
                                          control_area - control_area_buf,
                                          tmp_cache)
 
+            if cycle <= 2:
+                self.predict_omni_dash_short(cycle, ball_pos, control_area, save_recovery,
+                                             False, tmp_cache)
+
+    def predict_omni_dash_short(self,
+                                cycle: int,
+                                ball_pos: Vector2D,
+                                control_area: float,
+                                save_recovery: bool,
+                                back_dash: bool,
+                                self_cache: list):
+        SP = ServerParam.i()
+        wm = self._wm
+
+        me = wm.self()
+        ptype = me.player_type()
+
+        body_angle = me.body() + 180 if back_dash else me.body()
+        my_inertia = me.inertia_point(cycle)
+        target_line = Line2D(ball_pos, body_angle)
+
+        if target_line.dist(my_inertia) < control_area - 0.4:
+            return
+
+        recover_dec_thr = SP.recover_dec_thr_value() + 1
+        dash_angle_step = max(15, SP.dash_angle_step())
+        min_dash_angle = (SP.min_dash_angle()
+                          if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
+                          else dash_angle_step * int(-180 / dash_angle_step))
+        max_dash_angle = (SP.max_dash_angle() + dash_angle_step * 0.5
+                          if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
+                          else dash_angle_step * int(180 / dash_angle_step))
+
+        target_angle = (ball_pos - my_inertia).th()
+        for dirr in frange(min_dash_angle, max_dash_angle, dash_angle_step):
+            if abs(dirr < 1):
+                continue
+
+            dash_angle = body_angle + SP.discretize_dash_angle(SP.normalize_dash_angle(dirr))
+            if (dash_angle - target_angle).abs() > 91:
+                continue
+
+            first_dash_power = 0
+            my_pos = me.pos()
+            my_vel = me.vel()
+            stamina_model = me.stamina_model()
+
+            n_omni_dash = self.predict_adjust_omni_dash(cycle,
+                                                        ball_pos,
+                                                        control_area,
+                                                        save_recovery,
+                                                        back_dash,
+                                                        dir,
+                                                        my_pos,
+                                                        my_vel,
+                                                        stamina_model,
+                                                        first_dash_power)
+            if n_omni_dash == 0:
+                continue
+
+            # check target point direction
+            inertia_pos = ptype.inertia_point(my_pos, my_vel, cycle - n_omni_dash)
+            target_rel = (ball_pos - inertia_pos).rotated_vector(-body_angle)
+
+            if ((back_dash and target_rel.x() > 0) or
+                    (not back_dash and target_rel.x() < 0)):
+                continue
+
+            # dash to the body direction
+            body_accel_unit = Vector2D.polar2vector(1, body_angle)
+            for n_dash in range(n_omni_dash + 1, cycle + 1):
+                first_speed = calc_first_term_geom_series((ball_pos - my_pos).rotated_vector(-body_angle).x,
+                                                          ptype.player_decay(),
+                                                          cycle - n_dash + 1)
+                rel_vel = my_vel.rotated_vector(-body_angle)
+                required_accel = first_speed - rel_vel.x()
+                dash_power = required_accel / (ptype.dash_rate(stamina_model.effort()))
+                if back_dash:
+                    dash_power = -dash_power
+
+                available_stamina = (max(0, stamina_model.stamina() - recover_dec_thr)
+                                     if save_recovery
+                                     else stamina_model.stamina() + ptype.extra_stamina())
+
+                if back_dash:
+                    dash_power = bound(SP.min_dash_power(), dash_power, 0)
+                    dash_power = max(dash_power, available_stamina * -0.5)
+                else:
+                    dash_power = bound(0, dash_power, SP.max_dash_power())
+                    dash_power = min(available_stamina, dash_power)
+
+                accel_mag = abs(dash_power) * ptype.dash_rate(stamina_model.effort())
+                accel = body_accel_unit * accel_mag
+
+                my_vel += accel
+                my_pos += my_vel
+                my_vel *= ptype.player_decay()
+                stamina_model.simulate_dash(ptype, dash_power)
+
+            my_move = my_pos - me.pos()
+            if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
+                    my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).absX():
+                mode = (InterceptInfo.Mode.EXHAUST
+                        if stamina_model.recovery() < me.stamina_model().recovery()
+                        and not stamina_model.capacity_is_empty()
+                        else InterceptInfo.Mode.NORMAL)
+                self_cache.append(InterceptInfo(mode,
+                                                0, cycle,
+                                                first_dash_power, dirr,
+                                                my_pos,
+                                                my_pos.dist(ball_pos),
+                                                stamina_model.stamina()))
+
     def predict_turn_dash_short(self,
                                 cycle: int,
                                 ball_pos: Vector2D,
@@ -502,8 +616,26 @@ class SelfIntercept:
                 first_dash_power = dash_power
 
             accel_mag = abs(dash_power * ptype.dash_rate(stamina_model.effort()))
-            accel = accel_unit * accel_mag
+            accel: Vector2D = accel_unit * accel_mag
 
+            my_vel += accel
+            my_pos += my_vel
+            my_vel *= ptype.player_decay()
+
+            stamina_model.simulate_dash(ptype, dash_power)
+
+        if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
+                me.pos().dist2(my_pos) > me.pos().dist2(ball_pos):
+            mode = (InterceptInfo.Mode.EXHAUST
+                    if stamina_model.stamina() < SP.recover_dec_thr_value()
+                       and not stamina_model.capacity_is_empty()
+                    else InterceptInfo.Mode.NORMAL)
+
+            self_cache.append(InterceptInfo(mode, n_turn, cycle - n_turn,
+                                            first_dash_power, 0,
+                                            my_pos,
+                                            my_pos.dist(ball_pos),
+                                            stamina_model.stamina()))
 
     def predict_turn_cycle_short(self,
                                  cycle: int,
