@@ -417,6 +417,28 @@ class SelfIntercept:
                 self.predict_omni_dash_short(cycle, ball_pos, control_area, save_recovery,
                                              False, tmp_cache)
 
+            if len(tmp_cache) == 0:
+                continue
+
+            safety_ball_dist = max(control_area - 0.2 - ball.pos().dist(ball_pos) * SP.ball_rand(),
+                                   ptype.player_size() + SP.ball_size() + ptype.kickable_margin() * 0.4)
+            best: InterceptInfo = tmp_cache[0]
+            for it in tmp_cache[1:]:
+                if best.ball_dist() < safety_ball_dist and \
+                        it.ball_dist() < safety_ball_dist:
+                    if best.turn_cycle() > it.turn_cycle():
+                        best = it
+                    elif best.turn_cycle() == it.turn_cycle() and \
+                            best.stamina() < it.stamina():
+                        best = it
+                else:
+                    if best.turn_cycle() > it.turn_cycle() and \
+                            (best.ball_dist() > ball_pos
+                             or (abs(safety_ball_dist - it.ball_dist()) < 0.001
+                                 and best.stamina() < it.stamina)):
+                        best = it
+            self_cache.append(best)
+
     def predict_omni_dash_short(self,
                                 cycle: int,
                                 ball_pos: Vector2D,
@@ -460,16 +482,16 @@ class SelfIntercept:
             my_vel = me.vel()
             stamina_model = me.stamina_model()
 
-            n_omni_dash = self.predict_adjust_omni_dash(cycle,
-                                                        ball_pos,
-                                                        control_area,
-                                                        save_recovery,
-                                                        back_dash,
-                                                        dirr,
-                                                        my_pos,
-                                                        my_vel,
-                                                        stamina_model,
-                                                        first_dash_power)
+            n_omni_dash, first_dash_power = self.predict_adjust_omni_dash(cycle,
+                                                                          ball_pos,
+                                                                          control_area,
+                                                                          save_recovery,
+                                                                          back_dash,
+                                                                          dirr,
+                                                                          my_pos,
+                                                                          my_vel,
+                                                                          stamina_model,
+                                                                          first_dash_power)
             if n_omni_dash == 0:
                 continue
 
@@ -536,8 +558,66 @@ class SelfIntercept:
                                  my_pos: Vector2D,
                                  my_vel: Vector2D,
                                  stamina_model: StaminaModel,
-                                 first_dash_power) -> int:
-        pass
+                                 first_dash_power) -> tuple:
+        SP = ServerParam.i()
+        wm = self._wm
+        me = wm.self()
+        ptype = me.player_type()
+
+        recover_dec_thr = SP.recover_dec_thr_value() + 1
+        max_omni_dash = min(2, cycle)
+        body_angle = me.body() + 180 if back_dash else me.body()
+        target_line = Line2D(ball_pos, body_angle)
+        my_inertia = me.inertia_point(cycle)
+
+        if target_line.dist(my_inertia) < control_area - 0.4:
+            first_dash_power = 0
+            return 0, 0
+
+        dash_angle = body_angle + SP.discretize_dash_angle(SP.normalize_dash_angle(dash_rel_dir))
+        accel_unit = Vector2D.polar2vector(1, dash_angle)
+        dash_dir_rate = SP.dash_dir_rate(dash_rel_dir)
+
+        # dash simulation
+        for n_omni_dash in range(1, max_omni_dash + 1):
+            first_speed = calc_first_term_geom_series(max(0, target_line.dist(my_pos)),
+                                                      ptype.player_decay(),
+                                                      cycle - n_omni_dash + 1)
+            rel_vel = my_vel.rotated_vector(-dash_angle)
+            required_accel = first_speed - rel_vel.x()
+
+            if abs(required_accel) < 0.01:
+                return n_omni_dash - 1, first_dash_power
+
+            dash_power = required_accel / (ptype.dash_rate(stamina_model.effort())
+                                           * dash_dir_rate)
+            available_stamina = (max(0, stamina_model.stamina() - recover_dec_thr)
+                                 if save_recovery
+                                 else stamina_model.stamina() + ptype.extra_stamina())
+            if back_dash:
+                dash_power = bound(SP.min_dash_power(), dash_power, 0)
+                dash_power = max(dash_power, available_stamina * -0.5)
+            else:
+                dash_power = bound(0, dash_power, SP.max_dash_power())
+                dash_power = min(available_stamina, dash_power)
+
+            if n_omni_dash == 1:
+                first_dash_power = 0
+
+            accel_mag = (abs(dash_power)
+                         * ptype.dash_rate(stamina_model.effort())
+                         * dash_dir_rate)
+            accel = accel_unit * accel_mag
+            my_vel += accel
+            my_pos += my_vel
+            my_vel *= ptype.player_decay()
+
+            stamina_model.simulate_dash(ptype, dash_power)
+            inertia_pos = ptype.inertia_point(my_pos, my_vel, cycle - n_omni_dash)
+
+            if target_line.dist(inertia_pos) < control_area - control_area_buf:
+                return n_omni_dash, first_dash_power
+        return -1, first_dash_power
 
     def predict_turn_dash_short(self,
                                 cycle: int,
@@ -702,5 +782,15 @@ class SelfIntercept:
                       f"dash_angle={result_dash_angle}")
         return n_turn
 
-    def predict_long_step(self, max_cycle, save_recovery, self_cache):
-        pass
+    def predict_long_step(self, max_cycle: int, save_recovery: bool, self_cache: list):
+        tmp_cache = []
+        SP = ServerParam.i()
+        wm = self._wm
+        ball = wm.ball()
+        me = wm.self()
+        ptype = me.player_type()
+
+        # calc y distance from ball line
+        ball_to_self = me.pos() - ball.pos()
+        ball_to_self.rotate(-ball.vel().th())
+        
