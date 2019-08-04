@@ -51,7 +51,6 @@ class StaminaModel:
         for i in range(n_wait):
             self.simulate_wait(player_type)
 
-
     def capacity_is_empty(self) -> bool:
         return 0 <= self._capacity <= 1e-5
 
@@ -61,8 +60,10 @@ class StaminaModel:
         self.simulate_wait(player_type)
 
     def copy(self):
-        new = copy.deepcopy(self)
-        return new
+        return StaminaModel(self._stamina,
+                            self._effort,
+                            self._recovery,
+                            self._capacity)
 
     def stamina(self):
         return self._stamina
