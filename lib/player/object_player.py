@@ -127,6 +127,9 @@ class PlayerObject(Object):
     def stamina(self):
         return self._stamina_model.stamina()
 
+    def recovery(self):
+        return self._stamina_model.recovery()
+
     def kick(self):
         return self._kick
 
