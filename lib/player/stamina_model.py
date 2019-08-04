@@ -59,6 +59,18 @@ class StaminaModel:
         self._stamina = max(0, self._stamina)
         self.simulate_wait(player_type)
 
+    def simulate_dashes(self,
+                        player_type: PlayerType,
+                        n_dash: int,
+                        dash_power: float):
+        consumption = dash_power if dash_power >= 0 else dash_power * -2
+
+        for i in range(n_dash):
+            self._stamina -= consumption
+            self._stamina = max(0, self._stamina)
+
+            self.simulate_wait(player_type)
+
     def copy(self):
         return StaminaModel(self._stamina,
                             self._effort,
