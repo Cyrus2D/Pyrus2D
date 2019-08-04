@@ -25,8 +25,8 @@ class SelfIntercept:
         self._ball_cache = ball_cache
 
         self._max_short_step = 5
-
         self._min_turn_thr = 12.5
+        self._back_dash_thr_angle = 100
 
     def predict(self, max_cycle, self_cache: list):
         if len(self._ball_cache) < 2:
@@ -914,8 +914,42 @@ class SelfIntercept:
 
         return n_turn, dash_angle, back_dash
 
-    def can_back_dash_chase(self, cycle, target_dist, angle_diff):
-        
+    def can_back_dash_chase(self, cycle: int,
+                            target_dist: Vector2D,
+                            angle_diff: float):
+        wm = self._wm
+
+        if angle_diff < self._back_dash_thr_angle:
+            return False
+
+        if (not wm.self().goalie()
+            or wm.last_kicker_side() == wm.our_side()) and cycle >= 5:
+            return False
+
+        if (wm.self().goalie()
+                and wm.last_kicker_side() != wm.our_side()
+                and cycle >= 5):
+            if cycle >= 15:
+                return False
+
+            goal = Vector2D(-ServerParam.i().pitch_half_length(), 0)
+            bpos = wm.ball().inertia_point(cycle)
+            if goal.dist(bpos) > 21:
+                return False
+
+        # check stamina consumed by one step
+        total_consume = -ServerParam.i().max_dash_power() * 2 * cycle
+        total_recover = (wm.self().player_type().stamina_inc_max()
+                         * wm.self().recovery()
+                         * (cycle - 1))
+        result_stamina = (wm.self().stamina()
+                          - total_consume
+                          + total_recover)
+
+        if result_stamina < ServerParam.i().recover_dec_thr_value() + 205
+            return False
+
+        return True
 
     def predict_final(self, max_cycle, self_cache):
         pass
