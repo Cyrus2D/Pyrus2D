@@ -793,4 +793,48 @@ class SelfIntercept:
         # calc y distance from ball line
         ball_to_self = me.pos() - ball.pos()
         ball_to_self.rotate(-ball.vel().th())
-        
+        start_cycle = int(ceil((ball_to_self.absY()
+                                - ptype.kickable_area()
+                                - 0.2)
+                               / ptype.real_speed_max()))
+        if start_cycle <= self._max_short_step:
+            start_cycle = self._max_short_step + 1
+
+        ball_pos = ball.inertia_point(start_cycle - 1)
+        ball_vel = ball.vel() * SP.ball_decay() ** (start_cycle - 1)
+        found = False
+
+        max_loop = max_cycle
+        tmp_cache = []
+        for cycle in range(start_cycle, max_loop):
+            ball_pos += ball_vel
+            ball_vel *= SP.ball_decay()
+
+            if ball_pos.absX() > SP.pitch_half_length() + 10 or \
+                    ball_pos.absY() > SP.pitch_half_width() + 10:
+                break
+
+            goalie_mode = self.is_goalie_mode(ball_pos)
+            control_area = ptype.catchable_area() if goalie_mode else ptype.kickable_area()
+
+            # reach point is to far never reach
+            if control_area + ptype.real_speed_max() * cycle < me.pos().dist(ball_pos):
+                continue
+
+            back_dash = False
+            n_turn = 0
+            result_recovery = 0
+            if self.can_reach_after_turn_dash(cycle,
+                                              ball_pos,
+                                              control_area,
+                                              save_recovery,
+                                              self_cache):
+                if not found:
+                    max_loop = min(max_cycle, cycle + 10)
+                found = True
+
+        # not registered any intercept
+        if not found and save_recovery:
+            self.predict_final(max_cycle, self_cache)
+        if len(self_cache) == 0:
+            self.predict_final(max_cycle, self_cache)
