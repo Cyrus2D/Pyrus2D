@@ -217,3 +217,7 @@ class PlayerType:
             accel.set_length(max_dash_x - rel_vel.x())
             return True
         return False
+
+    def can_over_speed_max(self, dash_power: float, effort: float):
+        return (abs(dash_power) * self.dash_power_rate() * effort
+                > self.player_speed_max() * (1 - self.player_decay()))
