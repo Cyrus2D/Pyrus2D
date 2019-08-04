@@ -7,7 +7,7 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.line_2d import Line2D
 from lib.math.segment_2d import Segment2D
-from lib.math.soccer_math import bound, frange, calc_first_term_geom_series
+from lib.math.soccer_math import bound, frange, calc_first_term_geom_series, min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
@@ -946,10 +946,143 @@ class SelfIntercept:
                           - total_consume
                           + total_recover)
 
-        if result_stamina < ServerParam.i().recover_dec_thr_value() + 205
+        if result_stamina < ServerParam.i().recover_dec_thr_value() + 205:
             return False
 
         return True
+
+    def can_reach_after_dash(self,
+                             n_turn: int,
+                             n_dash: int,
+                             ball_pos: Vector2D,
+                             control_area: float,
+                             save_recovery: bool,
+                             dash_angle: AngleDeg,
+                             back_dash: bool,
+                             result_recovery,
+                             self_cache: list):
+        PLAYER_NOISE_RATE = (1 - ServerParam.i().player_rand() * 0.01)
+        MAX_POWER = ServerParam.i().max_dash_power()
+
+        SP = ServerParam.i()
+        wm = self._wm
+        ptype = wm.self().player_type()
+
+        my_inertia = wm.self().inertia_point(n_turn + n_dash)
+        recover_dec_thr = SP.recover_dec_thr() * SP.stamina_max()
+
+        dash_angle_minus = -dash_angle
+        ball_rel = (ball_pos - wm.self().pos()).rotated_vector(dash_angle_minus)
+        ball_noise = (wm.ball().pos().dist(ball_pos)
+                      * SP.ball_rand()
+                      * 0.5)
+        noised_ball_x = ball_rel.x + ball_noise
+
+        # prepare loop variables
+        # ORIGIN: first player pos.
+        # X - axis: dash angle
+        tmp_pos = ptype.inertia_travel(wm.self().vel(), n_turn)
+        tmp_pos.rotate(dash_angle_minus)
+
+        tmp_vel = wm.self().vel()
+        tmp_vel *= ptype.player_decay() ** n_turn
+        tmp_vel.rotate(dash_angle_minus)
+
+        stamina_model = wm.self().stamina_model()
+        stamina_model.simulate_waits(ptype, n_turn)
+
+        prev_effort = stamina_model.effort()
+        dash_power_abs = MAX_POWER
+        # only consider about x of dash accel vector,
+        # because current orientation is player's dash angle (included back dash case)
+        # NOTE: dash_accel_x must be positive value.
+        dash_accel_x = dash_power_abs * ptype.dash_rate(stamina_model.effort())
+
+        can_over_speed_max = ptype.can_over_speed_max(dash_power_abs,
+                                                      stamina_model.effort())
+        first_dash_power = dash_power_abs * (-1 if back_dash else 1)
+        for i in range(n_dash):
+            # update dash power and accel
+            available_power = (max(0, stamina_model.stamina() - recover_dec_thr)
+                               if save_recovery
+                               else stamina_model.stamina() + ptype.extra_stamina())
+            if back_dash:
+                available_power *= 0.5
+            available_power = min_max(0, available_power, MAX_POWER)
+
+            must_update_power = False
+            if (available_power < dash_power_abs
+                    or stamina_model.effort() < prev_effort
+                    or (not can_over_speed_max
+                        and dash_power_abs < available_power)):
+                must_update_power = True
+
+            if must_update_power:
+                dash_power_abs = available_power
+                dash_accel_x = dash_power_abs * ptype.dash_rate(stamina_model.effort())
+                can_over_speed_max = ptype.can_over_speed_max(dash_power_abs,
+                                                              stamina_model.effort())
+                if i == 0:
+                    first_dash_power = dash_power_abs * (-1 if back_dash else 1)
+
+            # update vel
+            tmp_vel += Vector2D(dash_accel_x, 0)
+            # power conservation, update accel magnitude and dashpower
+            if can_over_speed_max and tmp_vel.r2() > ptype.player_speed_max2():
+                tmp_vel -= Vector2D(dash_accel_x, 0)
+                max_dash_x = (ptype.player_speed_max2() - tmp_vel.y() ** 2) ** 0.5
+
+                dash_accel_x = max_dash_x - tmp_vel.x()
+                dash_power_abs = abs(dash_accel_x / ptype.dash_rate(stamina_model.effort()))
+                tmp_vel += Vector2D(dash_accel_x, 0)
+                can_over_speed_max = ptype.can_over_speed_max(dash_power_abs,
+                                                              stamina_model.effort())
+
+            tmp_pos += tmp_vel
+            tmp_vel *= ptype.player_decay()
+            stamina_model.simulate_dash(ptype, dash_power_abs * (-1 if back_dash else 1))
+
+            if tmp_pos.x() * PLAYER_NOISE_RATE + 0.1 > noised_ball_x:
+                result_recovery = stamina_model.recovery()
+                inertia_pos = ptype.inertia_point(tmp_pos, tmp_vel, n_dash - (i + 1))
+                my_final_pos = wm.self().pos() + tmp_pos.rotate(dash_angle)
+                if my_inertia.dist2(my_final_pos) > 0.01:
+                    my_final_pos = Line2D(my_inertia, my_final_pos).projection(ball_pos)
+                stamina_model.simulate_waits(ptype, n_dash - (i + 1))
+                mode = (InterceptInfo.Mode.EXHAUST
+                        if stamina_model.recovery() < wm.self().recovery()
+                           and not stamina_model.capacity_is_empty()
+                        else InterceptInfo.Mode.NORMAL)
+                self_cache.append(InterceptInfo(mode,
+                                                n_turn, n_dash,
+                                                first_dash_power, 0,
+                                                my_final_pos,
+                                                my_final_pos.dist(ball_pos),
+                                                stamina_model.stamina()))
+                return True
+
+        player_travel = tmp_pos.r()
+        player_noise = player_travel * SP.player_rand() * 0.5
+        last_ball_dist = ball_rel.dist(tmp_pos)
+        buf = 0.2
+
+        buf += player_noise
+        buf += ball_noise
+
+        if last_ball_dist < max(control_area - 0.225, control_area - buf):
+            my_final_pos = wm.self().pos() + tmp_pos.rotate(dash_angle)
+            result_recovery = stamina_model.recovery()
+            mode = (InterceptInfo.Mode.EXHAUST
+                    if stamina_model.recovery() < wm.self().recovery()
+                       and not stamina_model.capacity_is_empty()
+                    else InterceptInfo.Mode.NORMAL)
+            self_cache.append(InterceptInfo(mode,
+                                            n_turn, n_dash,
+                                            first_dash_power, 0,
+                                            my_final_pos, my_final_pos.dist2(ball_pos),
+                                            stamina_model.stamina()))
+            return True
+        return False
 
     def predict_final(self, max_cycle, self_cache):
         pass
