@@ -824,11 +824,13 @@ class SelfIntercept:
             back_dash = False
             n_turn = 0
             result_recovery = 0
-            if self.can_reach_after_turn_dash(cycle,
-                                              ball_pos,
-                                              control_area,
-                                              save_recovery,
-                                              self_cache):
+
+            res, n_turn, back_dash, result_recovery = self.can_reach_after_turn_dash(cycle,
+                                                                                     ball_pos,
+                                                                                     control_area,
+                                                                                     save_recovery,
+                                                                                     self_cache)
+            if res:
                 if not found:
                     max_loop = min(max_cycle, cycle + 10)
                 found = True
@@ -838,3 +840,28 @@ class SelfIntercept:
             self.predict_final(max_cycle, self_cache)
         if len(self_cache) == 0:
             self.predict_final(max_cycle, self_cache)
+
+    def can_reach_after_turn_dash(self,
+                                  cycle,
+                                  ball_pos,
+                                  control_area,
+                                  save_recovery,
+                                  self_cache) -> tuple:
+        dash_angle = self._wm.self().body()
+        result_recovery = 0
+        n_turn, dash_angle, back_dash = self.predict_turn_cycle(cycle,
+                                                                ball_pos,
+                                                                control_area)
+        if n_turn > cycle:
+            return False, n_turn, back_dash, result_recovery
+
+        res, result_recovery = self.can_reach_after_dash(n_turn, max(0, cycle - n_turn),
+                                                         ball_pos, control_area,
+                                                         save_recovery,
+                                                         dash_angle, back_dash,
+                                                         result_recovery,
+                                                         self_cache)
+        return res, n_turn, back_dash, result_recovery
+
+    def predict_final(self, max_cycle, self_cache):
+        pass
