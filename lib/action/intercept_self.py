@@ -1084,5 +1084,34 @@ class SelfIntercept:
             return True
         return False
 
-    def predict_final(self, max_cycle, self_cache):
-        pass
+    def predict_final(self, max_cycle: int, self_cache: list):
+        wm = self._wm
+        me = wm.self()
+        ptype = me.player_type()
+
+        my_final_pos = me.inertia_point(100)
+        ball_final_pos = wm.ball().inertia_point(100)
+        goalie_mode = self.is_goalie_mode(ball_final_pos)
+        control_area = ptype.catchable_area() - 0.15 if goalie_mode else ptype.kickable_area()
+        dash_angle = me.body()
+        back_dash = False  # dummy
+        n_turn, dash_angle, back_dash = self.predict_turn_cycle(100,
+                                                                ball_final_pos,
+                                                                control_area,
+                                                                dash_angle)
+        dash_dist = my_final_pos.dist(ball_final_pos)
+        dash_dist -= control_area
+        n_dash = ptype.cycles_to_reach_distance(dash_dist)
+
+        if max_cycle > n_turn + n_dash:
+            n_dash = max_cycle - n_turn
+
+        stamina_model = me.stamina_model()
+        stamina_model.simulate_waits(ptype, n_turn)
+        stamina_model.simulate_dashes(ptype, n_dash, ServerParam.i().max_dash_power())
+        self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
+                                        n_turn, n_dash,
+                                        ServerParam.i().max_dash_power(), 0,
+                                        ball_final_pos,
+                                        0,
+                                        stamina_model.stamina()))
