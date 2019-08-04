@@ -851,7 +851,8 @@ class SelfIntercept:
         result_recovery = 0
         n_turn, dash_angle, back_dash = self.predict_turn_cycle(cycle,
                                                                 ball_pos,
-                                                                control_area)
+                                                                control_area,
+                                                                dash_angle)
         if n_turn > cycle:
             return False, n_turn, back_dash, result_recovery
 
@@ -862,6 +863,59 @@ class SelfIntercept:
                                                          result_recovery,
                                                          self_cache)
         return res, n_turn, back_dash, result_recovery
+
+    def predict_turn_cycle(self, cycle: int,
+                           ball_pos: Vector2D,
+                           control_area: float,
+                           dash_angle: AngleDeg) -> tuple:
+        wm = self._wm
+        ptype = wm.self().player_type()
+
+        back_dash = False
+        n_turn = 0
+
+        inertia_pos = wm.self().inertia_point(cycle)
+        target_rel = ball_pos - inertia_pos
+        target_angle = target_rel.th()
+
+        angle_diff = (target_angle - dash_angle).degree()
+        diff_is_positive = True if angle_diff > 0 else False
+        angle_diff = abs(angle_diff)
+
+        target_dist = target_rel.r()
+        turn_margin = 180
+        control_buf = control_area - 0.25
+        control_buf = max(0.5, control_buf)
+        if control_buf < target_dist:
+            turn_margin = AngleDeg.asin_deg(control_buf / target_dist)
+        turn_margin = max(turn_margin, self._min_turn_thr)
+
+        # check back dash possibility
+        if self.can_back_dash_chase(cycle, target_dist, angle_diff):
+            back_dash = True
+            dash_angle += 180
+            angle_diff = 180 - angle_diff
+
+        # predict turn cycles
+        max_moment = ServerParam.i().max_moment() * (1 - ServerParam.i().player_rand())
+        player_speed = wm.self().vel().r()
+        while angle_diff > turn_margin:
+            max_turnable = ptype.effective_turn(max_moment, player_speed)
+            angle_diff -= max_turnable
+            player_speed *= ptype.player_decay()
+            n_turn += 1
+
+        # update dash angle
+        if n_turn > 0:
+            angle_diff = max(0, angle_diff)
+            dash_angle = target_angle + (angle_diff
+                                         if diff_is_positive
+                                         else -angle_diff)
+
+        return n_turn, dash_angle, back_dash
+
+    def can_back_dash_chase(self, cycle, target_dist, angle_diff):
+        
 
     def predict_final(self, max_cycle, self_cache):
         pass
