@@ -205,6 +205,10 @@ def bound(a, b, c):
     return min(max(a, b), c)
 
 
+def min_max(low, x, high):
+    return min(max(low, x), high)
+
+
 def frange(start, stop=None, step=None):
     # Use float number in range() function
     # if stop and step argument is null set start=0.0 and step = 1.0
