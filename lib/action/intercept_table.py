@@ -5,6 +5,7 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
+from lib.player.templates import WorldModel
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
@@ -147,3 +148,53 @@ class InterceptTable:
                       f"Intercept self, solution size={len(self._self_cache)}")
         self._self_reach_cycle = min_cycle
         self._self_exhaust_reach_cycle = exhaust_min_cycle
+
+    def predict_opponent(self, wm: WorldModel):
+        opponents = wm.opponents_from_ball()
+
+        if wm.exit_kickable_opponents():
+            dlog.add_text(Level.INTERCEPT,
+                          "Intercept Opponent. exits kickable opponent")
+            self._opponent_reach_cycle = 0
+            for o in opponents:
+                # if o.is_ghost() or o.pos_count > wm.ball().pos_count +1 :
+                #     continue # TODO NOT full state
+                self._fastest_opponent = o
+                dlog.add_text(Level.INTERCEPT,
+                              f"fastest opp {self._fastest_opponent}")
+                break
+            return
+
+        min_cycle = 1000
+        second_min_cycle = 1000
+
+        predictor = PlayeIntercept(wm, self._ball_cache)
+        it: PlayerObject = None
+        for it in opponents:
+            # if it.pos_count >= 15:
+            #     continue # TODO NOT full state
+
+            player_type = it.player_type()
+            if player_type is None:
+                dlog.add_text(Level.INTERCEPT,
+                              f"intercept opponents faild to get player{it.unum()} type")
+                continue
+            cycle = predictor.predict(it, player_type, second_min_cycle)
+            dlog.add_text(Level.INTERCEPT,
+                          f"opp{it.unum()} {it.pos()} type={player_type.id()} cycle={cycle}")
+
+            if cycle < second_min_cycle:
+                second_min_cycle = cycle
+                self._second_opponent = it
+
+                if second_min_cycle < min_cycle:
+                    # swap :)
+                    min_cycle, second_min_cycle = second_min_cycle, min_cycle
+                    self._fastest_opponent, self._second_opponent = self._second_opponent, self._fastest_opponent
+
+        if self._second_opponent is not None and second_min_cycle < 1000:
+            self._second_opponent_reach_cycle = second_min_cycle
+
+        if self._fastest_opponent is not None and min_cycle < 1000:
+            self._opponent_reach_cycle = min_cycle
+
