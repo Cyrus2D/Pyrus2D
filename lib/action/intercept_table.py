@@ -48,7 +48,7 @@ class InterceptTable:
         self.create_ball_cache(wm)
         self.predict_self(wm)
         self.predict_opponent(wm)
-        self.predict_teammate()
+        self.predict_teammate(wm)
 
         if self._fastest_teammate is not None:
             dlog.add_text(Level.INTERCEPT,
@@ -152,7 +152,7 @@ class InterceptTable:
     def predict_opponent(self, wm: WorldModel):
         opponents = wm.opponents_from_ball()
 
-        if wm.exit_kickable_opponents():
+        if wm.exist_kickable_opponents():
             dlog.add_text(Level.INTERCEPT,
                           "Intercept Opponent. exits kickable opponent")
             self._opponent_reach_cycle = 0
@@ -169,7 +169,6 @@ class InterceptTable:
         second_min_cycle = 1000
 
         predictor = PlayeIntercept(wm, self._ball_cache)
-        it: PlayerObject = None
         for it in opponents:
             # if it.pos_count >= 15:
             #     continue # TODO NOT full state
@@ -179,9 +178,11 @@ class InterceptTable:
                 dlog.add_text(Level.INTERCEPT,
                               f"intercept opponents faild to get player{it.unum()} type")
                 continue
-            cycle = predictor.predict(it, player_type, second_min_cycle)
+            cycle, second_min_cycle = predictor.predict(it, player_type,
+                                                        second_min_cycle)
             dlog.add_text(Level.INTERCEPT,
-                          f"opp{it.unum()} {it.pos()} type={player_type.id()} cycle={cycle}")
+                          f"opp{it.unum()} {it.pos()} "
+                          f"type={player_type.id()} cycle={cycle}")
 
             if cycle < second_min_cycle:
                 second_min_cycle = cycle
@@ -198,3 +199,56 @@ class InterceptTable:
         if self._fastest_opponent is not None and min_cycle < 1000:
             self._opponent_reach_cycle = min_cycle
 
+    def predict_teammate(self, wm: WorldModel):
+        teammates = wm.teammates_from_ball()
+
+        if wm.exist_kickable_teammates():
+            dlog.add_text(Level.INTERCEPT,
+                          "Intercept Teammates. exits kickable teammate")
+            self._teammate_reach_cycle = 0
+            for t in teammates:
+                # if t.is_ghost() or t.pos_count > wm.ball().pos_count +1
+                #     continue # TODO NOT full state
+                self._fastest_teammate = t
+                dlog.add_text(Level.INTERCEPT,
+                              f"fastest tm {self._fastest_teammate}")
+                break
+            return
+
+        min_cycle = 1000
+        second_min_cycle = 1000
+
+        predictor = PlayerIntercept(wm, self._ball_cache)
+        it: PlayerObject = None
+        for it in teammates:
+            # if it.pos_count() >= 10:
+            #     continue # TODO NOT full state
+
+            player_type = it.player_type()
+            if player_type is None:
+                dlog.add_text(Level.INTERCEPT,
+                              f"intercept teammate faild to get player{it.unum()} type")
+                continue
+
+            cycle, second_min_cycle = predictor.predict(it, player_type,
+                                                        second_min_cycle)
+            dlog.add_text(Level.INTERCEPT,
+                          f"tm{it.unum()} {it.pos()} "
+                          f"type={player_type.id()} cycle={cycle}")
+
+            if it.goalie():
+                self._goalie_reach_cycle = cycle
+            elif cycle < second_min_cycle:
+                second_min_cycle = cycle
+                self._second_teammate = it
+
+                if second_min_cycle < min_cycle:
+                    # swap :)
+                    min_cycle, second_min_cycle = second_min_cycle, min_cycle
+                    self._fastest_teammate, self._second_teammate = self._second_teammate, self._fastest_teammate
+
+        if self._second_teammate is not None and second_min_cycle < 1000:
+            self._second_teammate_reach_cycle = second_min_cycle
+
+        if self._fastest_teammate is not None and min_cycle < 1000:
+            self._teammate_reach_cycle = min_cycle

@@ -151,8 +151,11 @@ class WorldModel:
     def last_kicker_side(self):
         return True  # TODO its not right
 
-    def exit_kickable_opponents(self):
-        return False # TODO its not right
+    def exist_kickable_opponents(self):
+        return False  # TODO its not right
+
+    def exist_kickable_teammates(self):
+        return False  # TODO its not right
 
     def _set_players_from_ball(self):
         self._set_teammates_from_ball()
@@ -168,4 +171,3 @@ class WorldModel:
             self._opponents_from_ball.append(opp)
 
         self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball())
-
