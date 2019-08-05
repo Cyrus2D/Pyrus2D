@@ -16,6 +16,7 @@ class WorldModel:
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for _ in range(11)]
         self._teammates_from_ball = []
+        self._opponents_from_ball = []
         self._their_players = [PlayerObject() for _ in range(11)]
         self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
@@ -111,7 +112,7 @@ class WorldModel:
         self.ball().update_with_world(self)
 
         self._set_our_goalie_unum()  # TODO should it call here?!
-        self._set_teammates_from_ball()
+        self._set_players_from_ball()
 
         self._intercept_table.update(self)
 
@@ -133,6 +134,9 @@ class WorldModel:
     def teammates_from_ball(self):
         return self._teammates_from_ball
 
+    def opponents_from_ball(self):
+        return self._opponents_from_ball
+
     def _set_teammates_from_ball(self):
         self._teammates_from_ball = []
         for i in range(1, 12):
@@ -146,3 +150,22 @@ class WorldModel:
 
     def last_kicker_side(self):
         return True  # TODO its not right
+
+    def exit_kickable_opponents(self):
+        return False # TODO its not right
+
+    def _set_players_from_ball(self):
+        self._set_teammates_from_ball()
+        self._set_opponents_from_ball()
+
+    def _set_opponents_from_ball(self):
+        self._opponents_from_ball = []
+        for i in range(1, 12):
+            opp = self.their_player(i)
+            if opp is None:
+                continue
+
+            self._opponents_from_ball.append(opp)
+
+        self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball())
+
