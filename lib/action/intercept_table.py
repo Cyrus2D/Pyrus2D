@@ -49,6 +49,23 @@ class InterceptTable:
         self.predict_opponent(wm)
         self.predict_teammate()
 
+        if self._fastest_teammate is not None:
+            dlog.add_text(Level.INTERCEPT,
+                          f"Intercept Teammate, fastest reach step={self._teammate_reach_cycle}"
+                          f"teammate {self._fastest_teammate.unum()} {self._fastest_teammate.pos()}")
+        if self._second_teammate is not None:
+            dlog.add_text(Level.INTERCEPT,
+                          f"Intercept Teammate2nd, fastest reach step={self._second_teammate_reach_cycle}"
+                          f"teammate {self._second_teammate.unum()} {self._second_teammate.pos()}")
+        if self._fastest_opponent is not None:
+            dlog.add_text(Level.INTERCEPT,
+                          f"Intercept Opponent, fastest reach step={self._opponent_reach_cycle}"
+                          f"teammate {self._fastest_opponent.unum()} {self._fastest_opponent.pos()}")
+        if self._second_opponent is not None:
+            dlog.add_text(Level.INTERCEPT,
+                          f"Intercept Opponent2nd, fastest reach step={self._second_opponent_reach_cycle}"
+                          f"teammate {self._second_opponent.unum()} {self._second_opponent.pos()}")
+
     def clear(self):
         self._ball_cache = []
 
