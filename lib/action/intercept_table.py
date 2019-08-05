@@ -1,8 +1,10 @@
+from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_self import SelfIntercept
 from lib.debug.color import Color
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
+from lib.player.object_player import PlayerObject
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
@@ -14,6 +16,19 @@ class InterceptTable:
 
         self._ball_cache = []
         self._self_cache = []
+
+        self._self_reach_cycle = 1000
+        self._self_exhaust_reach_cycle = 1000
+        self._teammate_reach_cycle = 1000
+        self._second_teammate_reach_cycle = 1000
+        self._goalie_reach_cycle = 1000
+        self._opponent_reach_cycle = 1000
+        self._second_opponent_reach_cycle = 1000
+
+        self._fastest_teammate: PlayerObject = None
+        self._second_teammate: PlayerObject = None
+        self._fastest_opponent: PlayerObject = None
+        self._second_opponent: PlayerObject = None
 
     def update(self, wm):
         # if self._last_update_time == wm.time():
@@ -30,9 +45,27 @@ class InterceptTable:
             return
 
         self.create_ball_cache(wm)
+        self.predict_self(wm)
+        self.predict_opponent(wm)
+        self.predict_teammate()
 
     def clear(self):
         self._ball_cache = []
+
+        self._self_reach_cycle = 1000
+        self._self_exhaust_reach_cycle = 1000
+        self._teammate_reach_cycle = 1000
+        self._second_teammate_reach_cycle = 1000
+        self._goalie_reach_cycle = 1000
+        self._opponent_reach_cycle = 1000
+        self._second_opponent_reach_cycle = 1000
+
+        self._fastest_teammate = None
+        self._second_teammate = None
+        self._fastest_opponent = None
+        self._second_opponent = None
+
+        self._self_cache = []
 
     def create_ball_cache(self, wm):
         SP = ServerParam.i()
@@ -73,3 +106,27 @@ class InterceptTable:
         max_cycle = min(self._max_cycle, len(self._ball_cache))
         predictor = SelfIntercept(wm, self._ball_cache)
         predictor.predict(max_cycle, self._self_cache)
+
+        if len(self._self_cache) == 0:
+            dlog.add_text(Level.INTERCEPT,
+                          "Intercept self, self cache is empty")
+            return
+
+        min_cycle = self._self_reach_cycle
+        exhaust_min_cycle = self._self_exhaust_reach_cycle
+
+        it: InterceptInfo = None
+        for it in self._self_cache:
+            if it.mode() == InterceptInfo.Mode.NORMAL:
+                if it.reach_cycle() < min_cycle:
+                    min_cycle = it.reach_cycle()
+                    break
+            elif it.mode() == InterceptInfo.Mode.EXHAUST:
+                if it.reach_cycle() < exhaust_min_cycle:
+                    exhaust_min_cycle = it.reach_cycle()
+                    break
+
+        dlog.add_text(Level.INTERCEPT,
+                      f"Intercept self, solution size={len(self._self_cache)}")
+        self._self_reach_cycle = min_cycle
+        self._self_exhaust_reach_cycle = exhaust_min_cycle
