@@ -1,5 +1,6 @@
 from lib.math.geom_2d import *
 
+
 class Object:
     def __init__(self):
         self._pos = Vector2D.invalid()
@@ -7,9 +8,12 @@ class Object:
 
         self._rpos = Vector2D.invalid()
 
-        self._pos_count = 0 # TODO maybe 10000
-        self._seen_pos_count = 0 # TODO maybe 10000
+        self._pos_count = 0  # TODO maybe 10000
+        self._seen_pos_count = 0  # TODO maybe 10000
         self._seen_pos = Vector2D.invalid()
+        self._vel_count = 0  # TODO maybe 10000
+        self._seen_vel_count = 0  # TODO maybe 10000
+        self._seen_vel = Vector2D.invalid()
 
     def pos(self) -> Vector2D:
         return self._pos.copy()  # TODO How it is?!?
@@ -27,10 +31,19 @@ class Object:
         return self.seen_pos_count()
 
     def is_ghost(self):
-        return True # TODO should be written again
+        return False  # TODO should be written again
 
     def seen_pos(self):
-        return self._pos # TODO should be written again
+        return self._pos  # TODO should be written again
+
+    def vel_count(self):
+        return self._vel_count
+
+    def seen_vel_count(self):
+        return self._seen_vel_count
+
+    def seen_vel(self):
+        return self._vel  # TODO should be written again
 
     def reverse(self):
         self._pos.reverse()
