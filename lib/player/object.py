@@ -4,7 +4,12 @@ class Object:
     def __init__(self):
         self._pos = Vector2D.invalid()
         self._vel = Vector2D.invalid()
+
         self._rpos = Vector2D.invalid()
+
+        self._pos_count = 0 # TODO maybe 10000
+        self._seen_pos_count = 0 # TODO maybe 10000
+        self._seen_pos = Vector2D.invalid()
 
     def pos(self) -> Vector2D:
         return self._pos.copy()  # TODO How it is?!?
@@ -14,6 +19,18 @@ class Object:
 
     def rpos(self):
         return self._rpos
+
+    def pos_count(self):
+        return self._pos_count
+
+    def seen_pos_count(self):
+        return self.seen_pos_count()
+
+    def is_ghost(self):
+        return True # TODO should be written again
+
+    def seen_pos(self):
+        return self._pos # TODO should be written again
 
     def reverse(self):
         self._pos.reverse()
