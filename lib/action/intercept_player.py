@@ -1,7 +1,7 @@
 from math import floor
 
 from lib.math.angle_deg import AngleDeg
-from lib.math.soccer_math import bound
+from lib.math.soccer_math import bound, inertia_n_step_point
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.player.templates import WorldModel
@@ -170,18 +170,53 @@ class PlayerIntercept:
             return False
 
         return self.can_reach_after_dash(n_turn,
-                                    n_dash,
-                                    player,
-                                    player_type,
-                                    control_area,
-                                    ball_pos)
+                                         n_dash,
+                                         player,
+                                         player_type,
+                                         control_area,
+                                         ball_pos)
 
     def can_reach_after_dash(self,
-                             n_turn:int,
-                             n_dash:int,
+                             n_turn: int,
+                             max_dash: int,
                              player: PlayerObject,
                              player_type: PlayerType,
                              control_area: float,
                              ball_pos: Vector2D):
+        wm = self._wm
+        pos_count = min(player.seen_pos_count(), player.pos_count())
+        ppos = (player.seen_pos()
+                if player.seen_pos_count() <= player.pos_count()
+                else player.pos())
+        pvel = (player.seen_vel
+                if player.seen_vel_count <= player.vel_count()
+                else player.vel())
 
+        player_pos = inertia_n_step_point(ppos, pvel,
+                                          n_turn + max_dash,
+                                          player_type.player_decay())
 
+        player_to_ball = ball_pos - player_pos
+        player_to_ball_dist = player_to_ball.r()
+        player_to_ball_dist -= control_area
+
+        if player_to_ball_dist < 0:
+            return True
+
+        estimate_dash = player_type.cycles_to_reach_distance(player_to_ball_dist)
+        n_dash = estimate_dash
+        if player.side != wm.our_side():
+            n_dash -= bound(0,
+                            pos_count - n_turn,
+                            min(6, wm.ball().seen_pos_count() + 1))
+        else:
+            n_dash -= bound(0,
+                            pos_count - n_turn,
+                            min(1, wm.ball().seen_pos_count()))
+
+        if player.is_tackling():
+            n_dash += max(0, ServerParam.i().tackle_cycles() - player.tackle_count() - 2)
+
+        if n_dash <= max_dash:
+            return True
+        return False
