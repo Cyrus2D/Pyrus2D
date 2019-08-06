@@ -7,6 +7,7 @@ class Object:
         self._vel = Vector2D.invalid()
 
         self._rpos = Vector2D.invalid()
+        self._dist_from_self = 100000
 
         self._pos_count = 0  # TODO maybe 10000
         self._seen_pos_count = 0  # TODO maybe 10000
@@ -29,9 +30,6 @@ class Object:
 
     def seen_pos_count(self):
         return self.seen_pos_count()
-
-    def is_ghost(self):
-        return False  # TODO should be written again
 
     def seen_pos(self):
         return self._pos  # TODO should be written again
@@ -60,6 +58,7 @@ class Object:
 
     def update_with_world(self, wm):
         self._update_rpos(wm)
+        self._update_dist_from_self(wm)
         self._update_more_with_full_state(wm)
 
     def _update_more_with_full_state(self, wm):
@@ -67,3 +66,6 @@ class Object:
 
     def _update_rpos(self, wm):
         self._rpos = self._pos - wm.self().pos()
+
+    def _update_dist_from_self(self, wm):
+        self._dist_from_self = self._rpos.r()

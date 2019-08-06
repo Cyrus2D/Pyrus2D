@@ -176,3 +176,6 @@ class PlayerObject(Object):
 
     def tackle_count(self):
         return 0  # TODO WHAT the fuck again :/
+
+    def is_ghost(self):
+        return False  # TODO should be written again
