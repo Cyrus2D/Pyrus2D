@@ -79,6 +79,10 @@ class PlayerObject(Object):
                                        self.player_type().player_size(),
                                        self.player_type().kickable_margin())
 
+            # relative pos
+
+
+
         #
         # # kickable
         # if self.player_type() is not None:  # TODO its wrong
