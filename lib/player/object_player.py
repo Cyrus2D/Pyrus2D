@@ -81,8 +81,6 @@ class PlayerObject(Object):
 
             # relative pos
 
-
-
         #
         # # kickable
         # if self.player_type() is not None:  # TODO its wrong
@@ -172,3 +170,9 @@ class PlayerObject(Object):
 
     def dist_from_ball(self):
         return self._dist_from_ball
+
+    def is_tackling(self):
+        return False  # TODO WHAT the fuck :/
+
+    def tackle_count(self):
+        return 0  # TODO WHAT the fuck again :/
