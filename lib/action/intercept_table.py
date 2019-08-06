@@ -1,4 +1,5 @@
 from lib.action.intercept_info import InterceptInfo
+from lib.action.intercept_player import PlayerIntercept
 from lib.action.intercept_self import SelfIntercept
 from lib.debug.color import Color
 from lib.debug.level import Level
@@ -157,8 +158,8 @@ class InterceptTable:
                           "Intercept Opponent. exits kickable opponent")
             self._opponent_reach_cycle = 0
             for o in opponents:
-                # if o.is_ghost() or o.pos_count > wm.ball().pos_count +1 :
-                #     continue # TODO NOT full state
+                if o.is_ghost() or o.pos_count > wm.ball().pos_count + 1:
+                    continue
                 self._fastest_opponent = o
                 dlog.add_text(Level.INTERCEPT,
                               f"fastest opp {self._fastest_opponent}")
@@ -168,10 +169,10 @@ class InterceptTable:
         min_cycle = 1000
         second_min_cycle = 1000
 
-        predictor = PlayeIntercept(wm, self._ball_cache)
+        predictor = PlayerIntercept(wm, self._ball_cache)
         for it in opponents:
-            # if it.pos_count >= 15:
-            #     continue # TODO NOT full state
+            if it.pos_count >= 15:
+                continue
 
             player_type = it.player_type()
             if player_type is None:
@@ -207,8 +208,8 @@ class InterceptTable:
                           "Intercept Teammates. exits kickable teammate")
             self._teammate_reach_cycle = 0
             for t in teammates:
-                # if t.is_ghost() or t.pos_count > wm.ball().pos_count +1
-                #     continue # TODO NOT full state
+                if t.is_ghost() or t.pos_count > wm.ball().pos_count() + 1:
+                    continue
                 self._fastest_teammate = t
                 dlog.add_text(Level.INTERCEPT,
                               f"fastest tm {self._fastest_teammate}")
@@ -219,10 +220,9 @@ class InterceptTable:
         second_min_cycle = 1000
 
         predictor = PlayerIntercept(wm, self._ball_cache)
-        it: PlayerObject = None
         for it in teammates:
-            # if it.pos_count() >= 10:
-            #     continue # TODO NOT full state
+            if it.pos_count() >= 10:
+                continue
 
             player_type = it.player_type()
             if player_type is None:
