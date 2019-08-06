@@ -22,7 +22,7 @@ class BallObject(Object):
         self._pos = Vector2D(float(data[0]), float(data[1]))
         self._vel = Vector2D(float(data[2]), float(data[3]))
 
-    def update_with_world(self, wm):
+    def _update_more_with_full_state(self, wm):
         self._dist_from_self = wm.self().pos().dist(self._pos)
         self._angle_from_self = (wm.self().pos() - self._pos).th()  # Todo : Need checkup
 

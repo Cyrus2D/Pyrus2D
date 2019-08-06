@@ -56,7 +56,7 @@ class PlayerObject(Object):
         self._angle_from_ball: float = 0.0
 
     # update other data
-    def update_with_world(self, wm):
+    def _update_more_with_full_state(self, wm):
         ball = wm.ball()
         self._kickable = False
         self._kickrate = 0.0
