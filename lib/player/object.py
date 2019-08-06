@@ -69,3 +69,6 @@ class Object:
 
     def _update_dist_from_self(self, wm):
         self._dist_from_self = self._rpos.r()
+
+    def dist_from_self(self):
+        return self._dist_from_self

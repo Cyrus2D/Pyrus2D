@@ -1,5 +1,6 @@
 from math import floor
 
+from lib.math.angle_deg import AngleDeg
 from lib.math.soccer_math import bound
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
@@ -97,7 +98,7 @@ class PlayerIntercept:
         dash_dist -= control_area
 
         if player.side() != wm.our_side():
-            dash_dist -= player.dist_from_self * 0.03
+            dash_dist -= player.dist_from_self() * 0.03
 
         if dash_dist < 0:
             return ball_step
@@ -112,4 +113,75 @@ class PlayerIntercept:
         n_dash = max(1, n_dash)
 
         return max(ball_step, n_turn + n_dash)
+
+    def predict_turn_cycle(self,
+                           cycle: int,
+                           player: PlayerObject,
+                           player_type: PlayerType,
+                           control_area: float,
+                           ball_pos: Vector2D):
+        ppos = (player.seen_pos()
+                if player.seen_pos_count() <= player.pos_count()
+                else player.pos())
+        pvel = (player.seen_vel
+                if player.seen_vel_count <= player.vel_count()
+                else player.vel())
+
+        inertia_pos = player_type.inertia_point(ppos, pvel, cycle)
+        target_rel = ball_pos - inertia_pos
+        target_dist = target_rel.r()
+        turn_margin = 180
+        if control_area < target_dist:
+            turn_margin = AngleDeg.asin_deg(control_area / target_dist)
+        turn_margin = max(turn_margin, 12)
+
+        angle_diff = (target_rel.th() - player.body()).abs()
+
+        if (target_dist < 5  # XXX MAGIC NUMBER XXX :|
+                and angle_diff > 90):
+            # assume back dash
+            angle_diff = 180 - angle_diff
+
+        n_turn = 0
+        speed = player.vel().r()
+        if angle_diff > turn_margin:
+            max_turn = player_type.effective_turn(ServerParam.i().max_moment(),
+                                                  speed)
+            angle_diff -= max_turn
+            speed *= player_type.player_decay()
+            n_turn += 1  # TODO shouldn't be while insted of if :|||||
+
+        return n_turn
+
+    def can_reach_after_turn_dash(self,
+                                  cycle: int,
+                                  player: PlayerObject,
+                                  player_type: PlayerType,
+                                  control_area: float,
+                                  ball_pos: Vector2D):
+        n_turn = self.predict_turn_cycle(cycle,
+                                         player,
+                                         player_type,
+                                         control_area,
+                                         ball_pos)
+
+        n_dash = cycle - n_turn
+        if n_dash < 0:
+            return False
+
+        return self.can_reach_after_dash(n_turn,
+                                    n_dash,
+                                    player,
+                                    player_type,
+                                    control_area,
+                                    ball_pos)
+
+    def can_reach_after_dash(self,
+                             n_turn:int,
+                             n_dash:int,
+                             player: PlayerObject,
+                             player_type: PlayerType,
+                             control_area: float,
+                             ball_pos: Vector2D):
+
 
