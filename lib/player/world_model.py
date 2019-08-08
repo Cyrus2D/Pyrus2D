@@ -24,6 +24,9 @@ class WorldModel:
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode()
         self._our_goalie_unum: int = 0
+        self._last_kicker_side: SideID = SideID.NEUTRAL
+        self._exist_kickable_teammates: bool = False
+        self._exist_kickable_opponents: bool = False
 
     def ball(self) -> BallObject:
         return self._ball
@@ -107,8 +110,15 @@ class WorldModel:
     def update(self):
         for i in range(len(self._our_players)):
             self._our_players[i].update_with_world(self)
+            if self._our_players[i].is_kickable():
+                self._last_kicker_side = self.our_side()
+                self._exist_kickable_teammates = True
         for i in range(len(self._their_players)):
             self._their_players[i].update_with_world(self)
+            if self._our_players[i].is_kickable():
+                self._last_kicker_side = self._their_players[i].side()
+                self._exist_kickable_opponents = True
+
         self.ball().update_with_world(self)
 
         self._set_our_goalie_unum()  # TODO should it call here?!
@@ -148,14 +158,14 @@ class WorldModel:
 
         self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball())
 
-    def last_kicker_side(self):
-        return True  # TODO its not right
+    def last_kicker_side(self) -> SideID:
+        return self._last_kicker_side
 
     def exist_kickable_opponents(self):
-        return False  # TODO its not right
+        return self._exist_kickable_opponents
 
     def exist_kickable_teammates(self):
-        return False  # TODO its not right
+        return self._exist_kickable_teammates
 
     def _set_players_from_ball(self):
         self._set_teammates_from_ball()
