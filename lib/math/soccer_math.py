@@ -3,8 +3,9 @@
   \ brief math utility depending on RCSSServer2D
 
 """
-
 from lib.math.geom_2d import *
+
+EPS = 1.0e-10
 
 """
   \ brief calculate kick rate
@@ -197,8 +198,8 @@ def rint(f):
         return fi_right
 
 
-def calc_first_term_geom_series(sum, r, len):
-    return sum * (1.0 - r) / (1.0 - math.pow(r, len))
+def calc_first_term_geom_series(sums, r, length):
+    return sums * (1.0 - r) / (1.0 - math.pow(r, length))
 
 
 def bound(a, b, c):

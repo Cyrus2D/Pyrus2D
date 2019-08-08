@@ -148,7 +148,7 @@ class PlayerObject(Object):
     def is_kickable(self):
         return self._kickable
 
-    def kickrate(self):
+    def kick_rate(self):
         return self._kickrate
 
     def player_type_id(self):
