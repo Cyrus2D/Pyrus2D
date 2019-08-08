@@ -479,9 +479,9 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].push_back(State(index, near_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i].back())
+                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i].back().flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
 
                 index += 1
 
@@ -494,9 +494,9 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].push_back(State(index, mid_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i].back())
+                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i].back().flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
 
                 index += 1
 
@@ -509,9 +509,9 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].push_back(State(index, far_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i].back())
+                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i].back().flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
 
                 index += 1
 
@@ -751,13 +751,50 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    #
-    # def simulateOneStep(self, world: WorldModel,
-    #                     target_point:‌
-    #
-    #
-    # Vector2D,
-    # first_speed ):
+    def simulateOneStep(self, world: WorldModel, target_point: Vector2D, first_speed):
+        if self._current_state.flag_ & Flag.SELF_COLLISION:
+            return False
+
+        if self._current_state.flag_ & Flag.RELEASE_INTERFERE:
+            return False
+
+        current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
+                                ServerParam.i().ball_accel_max())
+        target_vel = (target_point - world.ball().pos())
+        target_vel.setLength(first_speed)
+
+        accel = target_vel - world.ball().vel()
+        accel_r = accel.r()
+        if accel_r > current_max_accel:
+            max_vel = calc_max_velocity(target_vel.th(),
+                                        self._current_state.kick_rate_,
+                                        world.ball().vel())
+            accel = max_vel - world.ball().vel()
+            self._candidates.push_back(Sequence())
+            self._candidates[-1].flag_ = self._current_state.flag_
+            self._candidates[-1].pos_list_.push_back(world.ball().pos() + max_vel)
+            self._candidates[-1].speed_ = max_vel.r()
+            self._candidates[-1].power_ = accel.r() / self._current_state.kick_rate_
+            return False
+
+        self._candidates.push_back(Sequence())
+        self._candidates[-1].flag_ = self._current_state.flag_
+        self._candidates[-1].pos_list_.push_back(world.ball().pos() + target_vel)
+        self._candidates[-1].speed_ = first_speed
+        self._candidates[-1].power_ = accel_r / self._current_state.kick_rate_
+
+        """
+            dlog.addText( Logger.KICK,
+                          "ok__ 1 step: target_vel=(%.2f %.2f)%.3f required_accel=%.3f < max_accel=%.3f"
+                          " kick_rate=%f power=%.1f",
+                          target_vel.x, target_vel.y,
+                          first_speed,
+                          accel_r,
+                          current_max_accel,
+                          self._current_state.kick_rate_,
+                          self._candidates[-1].power_ )
+        """
+        return True
 
     """
       \ brief simulate two step kicks
@@ -766,11 +803,98 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    # def simulateTwoStep(self, world‌
-    #
-    # :‌WorldModel,
-    #   target_point:‌Vector2D,
-    #                 first_speed ):
+    def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
+        max_power = ServerParam.i().max_power()
+        accel_max = ServerParam.i().ball_accel_max()
+        ball_decay = ServerParam.i().ball_decay()
+
+        self_type = world.self().player_type()
+        current_max_accel = min(self._current_state.kick_rate_ * max_power, accel_max)
+
+        param = ServerParam.i()
+        my_kickable_area = self_type.kickable_area()
+
+        my_noise = world.self().vel().r() * param.player_rand()
+        current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
+
+        current_dist_rate = ((world.ball().dist_from_self()
+                              - self_type.player_size()
+                              - param.ball_size())
+                             / self_type.kickable_margin())
+        current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
+        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
+                                          / (param.ball_speed_max() * param.player_decay()))
+        # my_final_pos = world.self().pos() + world.self().vel() + world.self().vel() * self_type.player_decay()
+
+        success_count = 0
+        max_speed2 = 0.0
+        for i in range(NUM_STATE):
+            state = self._state_cache[0][i]
+
+            if state.flag_ & Flag.OUT_OF_PITCH:
+                continue
+
+            if state.flag_ & Flag.KICKABLE:
+                continue
+
+            if state.flag_ & Flag.SELF_COLLISION:
+                continue
+
+            if state.flag_ & Flag.RELEASE_INTERFERE:
+                return False
+
+            kick_miss_flag = Flag.SAFETY
+            target_vel = (target_point - state.pos_).set_length_vector(first_speed)
+
+            vel = state.pos_ - world.ball().pos()
+            accel = vel - world.ball().vel()
+            accel_r = accel.r()
+
+            if accel_r > current_max_accel:
+                continue
+            kick_power = accel_r / world.self().kick_rate()
+            ball_noise = vel.r() * param.ball_rand()
+            max_kick_rand = self_type.kickRand() * (kick_power / param.max_power()) * (
+                    current_pos_rate + current_speed_rate)
+            if ((my_noise + ball_noise + max_kick_rand)  # * 0.9
+                    > my_kickable_area - state.dist_ - 0.05):  # 0.1 )
+                kick_miss_flag |= Flag.KICK_MISS_POSSIBILITY
+
+            vel *= ball_decay
+            accel = target_vel - vel
+            accel_r = accel.r()
+
+            if accel_r > min(state.kick_rate_ * max_power, accel_max):
+
+                if success_count == 0:
+                    max_vel = calc_max_velocity(target_vel.th(),
+                                                state.kick_rate_,
+                                                vel)
+                    d2 = max_vel.r2()
+                    if max_speed2 < d2:
+                        if max_speed2 == 0.0:
+                            self._candidates.push_back(Sequence())
+
+                        max_speed2 = d2
+                        accel = max_vel - vel
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+                                                      | state.flag_)
+                        self._candidates[-1].pos_list_.clear()
+                        self._candidates[-1].pos_list_.push_back(state.pos_)
+                        self._candidates[-1].pos_list_.push_back(state.pos_ + max_vel)
+                        self._candidates[-1].speed_ = math.sqrt(max_speed2)
+                        self._candidates[-1].power_ = accel.r() / state.kick_rate_
+                continue
+            self._candidates.push_back(Sequence())
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+                                          | state.flag_
+                                          | kick_miss_flag)
+            self._candidates[-1].pos_list_.push_back(state.pos_)
+            self._candidates[-1].pos_list_.push_back(state.pos_ + target_vel)
+            self._candidates[-1].speed_ = first_speed
+            self._candidates[-1].power_ = accel_r / state.kick_rate_
+        return False
+        # TODO : no True?
 
     """
       \ brief simulate three step kicks
@@ -779,10 +903,139 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    #
-    # def simulateThreeStep(self, world: WorldModel,
-    #                       target_point: Vector2D,
-    #                       first_speed):
+    def simulateThreeStep(self, world: WorldModel,
+                          target_point: Vector2D,
+                          first_speed):
+        max_power = ServerParam.i().max_power()
+        accel_max = ServerParam.i().ball_accel_max()
+        ball_decay = ServerParam.i().ball_decay()
+
+        current_max_accel = min(self._current_state.kick_rate_ * max_power,
+                                accel_max)
+        current_max_accel2 = current_max_accel * current_max_accel
+
+        param = ServerParam.i()
+
+        self_type = world.self().player_type()
+
+        my_kickable_area = self_type.kickable_area()
+
+        my_noise1 = world.self().vel().r() * param.player_rand()
+        current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
+        current_dist_rate = ((world.ball().dist_from_self()
+                              - self_type.player_size()
+                              - param.ball_size())
+                             / self_type.kickable_margin())
+        current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
+        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
+                                          / (param.ball_speed_max() * param.ball_decay()))
+
+        target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
+        angle_deg = target_rel_angle.degree() + 180.0
+        target_angle_index = rint(DEST_DIR_DIVS * (angle_deg / 360.0))
+        if target_angle_index >= DEST_DIR_DIVS:
+            target_angle_index = 0
+
+        table = self._tables[target_angle_index]
+
+        success_count = 0
+        max_speed2 = 0.0
+
+        count = 0
+
+        for it in table:
+            if count > MAX_TABLE_SIZE:
+                break
+            if success_count > 10:
+                break
+            state_1st = self._state_cache[0][it.origin_]
+            state_2nd = self._state_cache[1][it.dest_]
+
+            if state_1st.flag_ & Flag.OUT_OF_PITCH:
+                continue
+
+            if state_2nd.flag_ & Flag.OUT_OF_PITCH:
+                continue
+
+            if state_1st.flag_ & Flag.KICKABLE:
+                continue
+
+            if state_2nd.flag_ & Flag.KICKABLE:
+                continue
+
+            if state_2nd.flag_ & Flag.SELF_COLLISION:
+                continue
+
+            if state_2nd.flag_ & Flag.RELEASE_INTERFERE:
+                return False
+
+            target_vel = (target_point - state_2nd.pos_).setLengthVector(first_speed)
+
+            kick_miss_flag = Flag.SAFETY
+
+            vel1 = state_1st.pos_ - world.ball().pos()
+            accel = vel1 - world.ball().vel()
+            accel_r2 = accel.r2()
+
+            if accel_r2 > current_max_accel2:
+                continue
+
+            kick_power = math.sqrt(accel_r2) / world.self().kick_rate()
+            ball_noise = vel1.r() * param.ball_rand()
+            max_kick_rand = self_type.kickRand() * (kick_power / param.max_power()) * (
+                    current_pos_rate + current_speed_rate)
+
+            if ((my_noise1 + ball_noise + max_kick_rand)  # * 0.95
+                    > my_kickable_area - state_1st.dist_ - 0.05):  # 0.1 )
+                kick_miss_flag |= Flag.KICK_MISS_POSSIBILITY
+
+            vel1 *= ball_decay
+            vel2 = state_2nd.pos_ - state_1st.pos_
+            accel = vel2 - vel1
+            accel_r2 = accel.r2()
+
+            if accel_r2 > pow(min(state_1st.kick_rate_ * max_power, accel_max), 2):
+                continue
+
+            vel2 *= ball_decay
+
+            accel = target_vel - vel2
+            accel_r2 = accel.r2()
+            if accel_r2 > pow(min(state_2nd.kick_rate_ * max_power, accel_max), 2):
+                if success_count == 0:
+                    max_vel = calc_max_velocity(target_vel.th(),
+                                                state_2nd.kick_rate_,
+                                                vel2)
+                    d2 = max_vel.r2()
+                    if max_speed2 < d2:
+                        if max_speed2 == 0.0:
+                            self._candidates.push_back(Sequence())
+
+                        max_speed2 = d2
+                        accel = max_vel - vel2
+
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+                                                      | (state_1st.flag_ & ~Flag.RELEASE_INTERFERE)
+                                                      | state_2nd.flag_)
+                        self._candidates[-1].pos_list_.clear()
+                        self._candidates[-1].pos_list_.push_back(state_1st.pos_)
+                        self._candidates[-1].pos_list_.push_back(state_2nd.pos_)
+                        self._candidates[-1].pos_list_.push_back(state_2nd.pos_ + max_vel)
+                        self._candidates[-1].speed_ = math.sqrt(max_speed2)
+                        self._candidates[-1].power_ = accel.r() / state_2nd.kick_rate_
+                continue
+            self._candidates.push_back(Sequence())
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+                                          | (state_1st.flag_ & ~Flag.RELEASE_INTERFERE)
+                                          | state_2nd.flag_
+                                          | kick_miss_flag)
+            self._candidates[-1].pos_list_.push_back(state_1st.pos_)
+            self._candidates[-1].pos_list_.push_back(state_2nd.pos_)
+            self._candidates[-1].pos_list_.push_back(state_2nd.pos_ + target_vel)
+            self._candidates[-1].speed_ = first_speed
+            self._candidates[-1].power_ = math.sqrt(accel_r2) / state_2nd.kick_rate_
+            success_count += 1
+        return success_count > 0
 
     """
       \ brief evaluate candidate kick sequences
@@ -898,12 +1151,12 @@ class _KickTable:
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
 
         """
-            dlog.addText( Logger.KICK,
+            dlog.addText( Level.KICK,
                           __FILE__": simulate() result next_pos=(%.2f %.2f)  flag=%x n_kick=%d speed=%.2f power=%.2f score=%.2f",
                           sequence.pos_list_.front().x,
                           sequence.pos_list_.front().y,
                           sequence.flag_,
-                          (int)sequence.pos_list_.size(),
+                          len(sequence.pos_list_),
                           sequence.speed_,
                           sequence.power_,
                           sequence.score_ )
