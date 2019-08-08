@@ -56,7 +56,7 @@ class PlayerObject(Object):
         self._angle_from_ball: float = 0.0
 
     # update other data
-    def update_with_world(self, wm):
+    def _update_more_with_full_state(self, wm):
         ball = wm.ball()
         self._kickable = False
         self._kickrate = 0.0
@@ -78,6 +78,8 @@ class PlayerObject(Object):
                                        SP.i().ball_size(),
                                        self.player_type().player_size(),
                                        self.player_type().kickable_margin())
+
+            # relative pos
 
         #
         # # kickable
@@ -168,3 +170,12 @@ class PlayerObject(Object):
 
     def dist_from_ball(self):
         return self._dist_from_ball
+
+    def is_tackling(self):
+        return False  # TODO WHAT the fuck :/
+
+    def tackle_count(self):
+        return 0  # TODO WHAT the fuck again :/
+
+    def is_ghost(self):
+        return False  # TODO should be written again
