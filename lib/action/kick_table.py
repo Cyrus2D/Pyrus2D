@@ -799,8 +799,7 @@ class _KickTable:
             it.score_ = 1000.0
 
             if it.speed_ < first_speed:
-                if (n_kick > 1
-                        or it.speed_ < allowable_speed)
+                if n_kick > 1 or it.speed_ < allowable_speed:
                     it.score_ = -10000.0
                     it.score_ -= (first_speed - it.speed_) * 100000.0
 
@@ -895,7 +894,7 @@ class _KickTable:
 
         if self._candidates.empty():
             return False
-
+        # sequence = self._candidates[0]
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
 
         """
