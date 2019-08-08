@@ -108,12 +108,16 @@ class WorldModel:
         return self._team_name
 
     def update(self):
+        if self.time().cycle() < 1:
+            return  # TODO check
         for i in range(len(self._our_players)):
+            if self._our_players[i].player_type() is None: continue
             self._our_players[i].update_with_world(self)
             if self._our_players[i].is_kickable():
                 self._last_kicker_side = self.our_side()
                 self._exist_kickable_teammates = True
         for i in range(len(self._their_players)):
+            if self._their_players[i].player_type() is None: continue
             self._their_players[i].update_with_world(self)
             if self._our_players[i].is_kickable():
                 self._last_kicker_side = self._their_players[i].side()

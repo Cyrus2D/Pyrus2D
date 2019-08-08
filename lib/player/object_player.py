@@ -67,7 +67,7 @@ class PlayerObject(Object):
         # -----------------------------------------------------
         # check kickable
 
-        if ball.dist_from_self() <= self.player_type().kickable_area():
+        if ball.dist_from_self() <= self._player_type.kickable_area():
             buf = 0.055
             if ball.dist_from_self() <= self.player_type().kickable_area() - buf:
                 self._kickable = True
