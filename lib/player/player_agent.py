@@ -50,7 +50,7 @@ class PlayerAgent:
                 break
 
     def connect(self, team_name, goalie, version=15):
-        self._socket.send_msg(PlayerInitCommand(team_name, 15, goalie).str())
+        self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
         print(message)

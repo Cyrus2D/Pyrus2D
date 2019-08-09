@@ -120,9 +120,9 @@ class SelfIntercept:
     def is_goalie_mode(self, ball_next, x_limit=None, abs_y_limit=None) -> bool:
         wm = self._wm
         if x_limit is None:
-            ServerParam.i().our_penalty_area_line_x()
+            x_limit = ServerParam.i().our_penalty_area_line_x()
         if abs_y_limit is None:
-            ServerParam.i().penalty_area_half_width()
+            abs_y_limit = ServerParam.i().penalty_area_half_width()
 
         return (wm.self().goalie() and
                 wm.last_kicker_side() != wm.our_side() and
