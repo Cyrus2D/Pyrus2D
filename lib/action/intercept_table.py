@@ -9,6 +9,7 @@ from lib.player.object_player import PlayerObject
 from lib.player.templates import WorldModel
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
+from lib.rcsc.types import GameModeType
 
 
 class InterceptTable:
@@ -53,14 +54,15 @@ class InterceptTable:
     def second_opponent_reach_cycle(self):
         return self._second_opponent_reach_cycle
 
-    def update(self, wm):
-        # if self._last_update_time == wm.time():
+    def update(self, wm: WorldModel):
+        # if self._last_update_time == wm.time(): # TODO uncomment it
         #     dlog.add_text(Level.INTERCEPT, "intercept updated befor :| it called agein")
         #
         self._last_update_time = wm.time()
         self.clear()
 
-        if wm.time().cycle() < 1:  # TODO check game mode here
+        if wm.game_mode().type() == GameModeType.TimeOver or \
+                wm.game_mode().type() == GameModeType.BeforeKickOff:
             return
 
         if not wm.self().pos().is_valid() or not wm.ball().pos().is_valid():
@@ -118,13 +120,13 @@ class InterceptTable:
 
         self._ball_cache.append(ball_pos)
 
+        if wm.self().is_kickable():
+            return
+
         for cycle in range(1, self._max_cycle + 1):
-            # dlog.add_point(Level.INTERCEPT, pos=ball_pos, color=Color(string='blue'))
-            dlog.add_circle(Level.INTERCEPT, r=0.1, center=ball_pos, fill=True, color=Color(string="blue"))
-            dlog.add_text(Level.INTERCEPT, f"ballpos: {ball_pos}")
             ball_pos += ball_vel
             ball_vel *= ball_decay
-            self._ball_cache.append(ball_pos)
+            self._ball_cache.append(ball_pos.copy())
 
             if cycle >= 5 and ball_vel.r() < 0.01 ** 2:
                 # ball stopped
@@ -137,6 +139,9 @@ class InterceptTable:
         # TODO if len == 1 push ball pos again :| why??
         if len(self._ball_cache) == 1:
             self._ball_cache.append(ball_pos)
+
+        for b in self._ball_cache:
+            dlog.add_circle(Level.INTERCEPT, r=0.1, center=b, fill=True, color=Color(string="blue"))
 
     def predict_self(self, wm):
         if wm.self().is_kickable():

@@ -53,7 +53,7 @@ class PlayerAgent:
         self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
-        print(message)
+        # print(message)
         self._think_mode = False
         if message.find("(init") is not -1:
             self.init_dlog(message)
@@ -105,4 +105,3 @@ class PlayerAgent:
         side = message[1]
         # sys.stdout = open(f"debug/{side}{unum}.log", 'w')
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
-        print("INIT")
