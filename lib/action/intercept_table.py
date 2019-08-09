@@ -128,7 +128,7 @@ class InterceptTable:
             ball_vel *= ball_decay
             self._ball_cache.append(ball_pos.copy())
 
-            if cycle >= 5 and ball_vel.r() < 0.01 ** 2:
+            if cycle >= 5 and ball_vel.r2() < 0.01 ** 2:
                 # ball stopped
                 break
 
@@ -136,9 +136,8 @@ class InterceptTable:
                 # out of pitch
                 break
 
-        # TODO if len == 1 push ball pos again :| why??
         if len(self._ball_cache) == 1:
-            self._ball_cache.append(ball_pos)
+            self._ball_cache.append(ball_pos.copy())
 
         for b in self._ball_cache:
             dlog.add_circle(Level.INTERCEPT, r=0.1, center=b, fill=True, color=Color(string="blue"))
@@ -160,7 +159,6 @@ class InterceptTable:
         min_cycle = self._self_reach_cycle
         exhaust_min_cycle = self._self_exhaust_reach_cycle
 
-        it: InterceptInfo = None
         for it in self._self_cache:
             if it.mode() == InterceptInfo.Mode.NORMAL:
                 if it.reach_cycle() < min_cycle:
