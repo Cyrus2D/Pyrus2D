@@ -45,3 +45,8 @@ class BallObject(Object):
                                     self._vel,
                                     cycle,
                                     ServerParam.i().ball_decay())
+
+    def inertia_final_point(self):
+        return inertia_final_point(self.pos(),
+                                   self.vel(),
+                                   ServerParam.i().ball_decay())
