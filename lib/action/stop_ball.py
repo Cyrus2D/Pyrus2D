@@ -33,7 +33,7 @@ class StopBall(BodyAction):
             return False
         if not wm.ball().velValid():  # Always true until NFS nice :)
             required_accel = wm.self().vel() - (wm.self().pos() - wm.ball())
-            kick_power = required_accel.r() / wm.self().kickrate()
+            kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),
                           required_accel.th() - wm.self().body())
@@ -82,7 +82,7 @@ class StopBall(BodyAction):
 
             # check max accel with player's kick rate
 
-        max_accel = ServerParam.i().max_power() * wm.self().kickrate()
+        max_accel = ServerParam.i().max_power() * wm.self().kick_rate()
         if max_accel > self._accel_radius:
             # can accelerate -. can stop ball successfully
             self._accel_angle = required_accel.th()
