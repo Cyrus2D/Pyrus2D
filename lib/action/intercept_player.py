@@ -74,8 +74,8 @@ class PlayerIntercept:
         ppos = (player.seen_pos()
                 if player.seen_pos_count() <= player.pos_count()
                 else player.pos())
-        pvel = (player.seen_vel
-                if player.seen_vel_count <= player.vel_count()
+        pvel = (player.seen_vel()
+                if player.seen_vel_count() <= player.vel_count()
                 else player.vel())
 
         ball_pos = self._ball_cache[-1]
@@ -123,8 +123,8 @@ class PlayerIntercept:
         ppos = (player.seen_pos()
                 if player.seen_pos_count() <= player.pos_count()
                 else player.pos())
-        pvel = (player.seen_vel
-                if player.seen_vel_count <= player.vel_count()
+        pvel = (player.seen_vel()
+                if player.seen_vel_count() <= player.vel_count()
                 else player.vel())
 
         inertia_pos = player_type.inertia_point(ppos, pvel, cycle)
@@ -188,8 +188,8 @@ class PlayerIntercept:
         ppos = (player.seen_pos()
                 if player.seen_pos_count() <= player.pos_count()
                 else player.pos())
-        pvel = (player.seen_vel
-                if player.seen_vel_count <= player.vel_count()
+        pvel = (player.seen_vel()
+                if player.seen_vel_count() <= player.vel_count()
                 else player.vel())
 
         player_pos = inertia_n_step_point(ppos, pvel,

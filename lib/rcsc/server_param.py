@@ -564,9 +564,9 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._back_passes = dic["back_passes"]
         self._ball_accel_max = dic["ball_accel_max"]
         self._ball_decay = float(dic["ball_decay"])
-        self._ball_rand = dic["ball_rand"]
+        self._ball_rand = float(dic["ball_rand"])
         self._ball_size = float(dic["ball_size"])
-        self._ball_speed_max = dic["ball_speed_max"]
+        self._ball_speed_max = float(dic["ball_speed_max"])
         self._ball_weight = dic["ball_weight"]
         self._catch_ban_cycle = dic["catch_ban_cycle"]
         self._catch_probability = dic["catch_probability"]
@@ -588,10 +588,10 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._control_radius = dic["control_radius"]
         self._dash_power_rate = dic["dash_power_rate"]
         self._drop_ball_time = dic["drop_ball_time"]
-        self._effort_dec = dic["effort_dec"]
-        self._effort_dec_thr = dic["effort_dec_thr"]
-        self._effort_inc = dic["effort_inc"]
-        self._effort_inc_thr = dic["effort_inc_thr"]
+        self._effort_dec = float(dic["effort_dec"])
+        self._effort_dec_thr = float(dic["effort_dec_thr"])
+        self._effort_inc = float(dic["effort_inc"])
+        self._effort_inc_thr = float(dic["effort_inc_thr"])
         self._effort_init = float(dic["effort_init"])
         self._effort_min = dic["effort_min"]
         self._kickoff_offside = dic["forbid_kick_off_offside"]
@@ -626,7 +626,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._max_moment = float(dic["maxmoment"])
         self._max_neck_angle = dic["maxneckang"]
         self._max_neck_moment = dic["maxneckmoment"]
-        self._max_power = dic["maxpower"]
+        self._max_power = float(dic["maxpower"])
         self._min_moment = dic["minmoment"]
         self._min_neck_angle = dic["minneckang"]
         self._min_neck_moment = dic["minneckmoment"]
@@ -637,7 +637,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._use_old_coach_hear = dic["old_coach_hear"]
         self._player_accel_max = dic["player_accel_max"]
         self._player_decay = dic["player_decay"]
-        self._player_rand = dic["player_rand"]
+        self._player_rand = float(dic["player_rand"])
         self._player_size = dic["player_size"]
         self._player_speed_max = dic["player_speed_max"]
         self._player_weight = dic["player_weight"]
@@ -651,9 +651,9 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._dist_quantize_step = dic["quantize_step"]
         self._dist_quantize_step_l = dic["quantize_step_l"]
         self._record_message = dic["record_messages"]
-        self._recover_dec = dic["recover_dec"]
+        self._recover_dec = float(dic["recover_dec"])
         self._recover_dec_thr = float(dic["recover_dec_thr"])
-        self._recover_min = dic["recover_min"]
+        self._recover_min = float(dic["recover_min"])
         self._recv_step = dic["recv_step"]
         self._coach_say_count_max = dic["say_coach_cnt_max"]
         self._coach_say_msg_size = dic["say_coach_msg_size"]

@@ -222,7 +222,7 @@ def frange(start, stop=None, step=None):
             break
         elif step < 0 and start <= stop:
             break
-        yield ("%g" % start)  # return float number
+        yield start  # return float number
         start = start + step
 
 

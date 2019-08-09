@@ -244,8 +244,8 @@ class SelfIntercept:
         dlog.add_text(Level.INTERCEPT,
                       f"_____ max_back_accel={max_back_accel} rel={back_accel_rel}")
 
-        if ball_rel.absY() > control_buf or \
-                Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
+        if ball_rel.absY() > control_buf or False:  # TODO CHANGE THIS SOOOOON
+            # Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
             return False
 
         dash_power = -1000
@@ -262,7 +262,7 @@ class SelfIntercept:
 
         # big x difference x (>0)
         if dash_power < -999 and \
-                forward_accel_rel.x() < ball_rel.x:
+                forward_accel_rel.x() < ball_rel.x():
             enable_ball_dist = ball_rel.dist(forward_accel_rel)
             if enable_ball_dist < control_buf:
                 dash_power = forward_accel_rel.x() / dash_rate
@@ -377,7 +377,7 @@ class SelfIntercept:
             min_cycle = 2
 
         ball_pos = ball.inertia_point(min_cycle - 1)
-        ball_vel = ball.vel() * SP.ball_decay() ** min_cycle - 1
+        ball_vel = ball.vel() * SP.ball_decay() ** (min_cycle - 1)
 
         for cycle in range(min_cycle, max_loop):
             tmp_cache = []
@@ -432,8 +432,8 @@ class SelfIntercept:
                             best.stamina() < it.stamina():
                         best = it
                 else:
-                    if best.turn_cycle() > it.turn_cycle() and \
-                            (best.ball_dist() > ball_pos
+                    if best.turn_cycle() >= it.turn_cycle() and \
+                            (best.ball_dist() > it.ball_dist()
                              or (abs(safety_ball_dist - it.ball_dist()) < 0.001
                                  and best.stamina() < it.stamina)):
                         best = it
@@ -627,7 +627,7 @@ class SelfIntercept:
                                 back_dash: bool,
                                 turn_margin_control_area: float,
                                 self_cache: list):
-        dash_angle: AngleDeg = self._wm.self().body()
+        dash_angle = self._wm.self().body()
         n_turn = self.predict_turn_cycle_short(cycle, ball_pos, control_area, back_dash,
                                                turn_margin_control_area,
                                                dash_angle)
@@ -674,7 +674,7 @@ class SelfIntercept:
                                             my_final_pos.dist2(ball_pos),
                                             tmp_stamina.stamina()))
 
-        target_angle = (ball_pos - my_inertia).th()
+        target_angle: AngleDeg = (ball_pos - my_inertia).th()
         if (target_angle - dash_angle).abs() > 90:
             dlog.add_text(Level.INTERCEPT,
                           "self pred short target_angle - dash_angle > 90")
@@ -686,7 +686,7 @@ class SelfIntercept:
             dlog.add_text(Level.INTERCEPT,
                           f"self pred short dash {n_dash}: max_dash={max_dash}")
             ball_rel = (ball_pos - my_pos).rotated_vector(-dash_angle)
-            first_speed = calc_first_term_geom_series(ball_rel.x,
+            first_speed = calc_first_term_geom_series(ball_rel.x(),
                                                       ptype.player_decay(),
                                                       max_dash - n_dash + 1)
             rel_vel = my_vel.rotated_vector(-dash_angle)
@@ -776,8 +776,8 @@ class SelfIntercept:
                       f"self pred short cycle {cycle}: "
                       f"turn={n_turn}, "
                       f"turn_margin={turn_margin}"
-                      f"turn_momment={result_dash_angle-body_angle}"
-                      f"first_angle_diff={target_angle-body_angle}"
+                      f"turn_momment={result_dash_angle.degree()-body_angle.degree()}"
+                      f"first_angle_diff={target_angle.degree()-body_angle.degree()}"
                       f"final_angle={angle_diff}"
                       f"dash_angle={result_dash_angle}")
         return n_turn
@@ -976,7 +976,7 @@ class SelfIntercept:
         ball_noise = (wm.ball().pos().dist(ball_pos)
                       * SP.ball_rand()
                       * 0.5)
-        noised_ball_x = ball_rel.x + ball_noise
+        noised_ball_x = ball_rel.x() + ball_noise
 
         # prepare loop variables
         # ORIGIN: first player pos.
@@ -1059,7 +1059,7 @@ class SelfIntercept:
                                                 my_final_pos,
                                                 my_final_pos.dist(ball_pos),
                                                 stamina_model.stamina()))
-                return True
+                return True, result_recovery
 
         player_travel = tmp_pos.r()
         player_noise = player_travel * SP.player_rand() * 0.5
@@ -1081,8 +1081,8 @@ class SelfIntercept:
                                             first_dash_power, 0,
                                             my_final_pos, my_final_pos.dist2(ball_pos),
                                             stamina_model.stamina()))
-            return True
-        return False
+            return True, result_recovery
+        return False, result_recovery
 
     def predict_final(self, max_cycle: int, self_cache: list):
         wm = self._wm

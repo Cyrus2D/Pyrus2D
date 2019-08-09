@@ -11,6 +11,8 @@ class AngleDeg:
     PI = 3.14159265358979323846
 
     def __init__(self, __degree=0.0):
+        if isinstance(__degree,  AngleDeg):
+            __degree = __degree.degree()
         self._degree = __degree
         self.normal()
 
@@ -48,7 +50,7 @@ class AngleDeg:
         return self._degree
 
     def set_degree(self, degree: float):
-        self._degree = degree
+        self.__init__(degree)
 
     def abs(self):
         return math.fabs(self.degree())
@@ -97,7 +99,7 @@ class AngleDeg:
         return new_angle_deg
 
     def __sub__(self, other):
-        if type(other) == AngleDeg:
+        if isinstance(other, AngleDeg):
             new_angle_deg = AngleDeg(self._degree - other.degree())
         else:
             new_angle_deg = AngleDeg(self._degree - other)
@@ -112,7 +114,7 @@ class AngleDeg:
         return new_angle_deg
 
     def __repr__(self):
-        return str(self.degree())
+        return str(f"D: {self.degree()}")
 
     def __float__(self):
         return self.degree()

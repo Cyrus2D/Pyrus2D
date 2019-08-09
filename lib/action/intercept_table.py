@@ -158,7 +158,7 @@ class InterceptTable:
                           "Intercept Opponent. exits kickable opponent")
             self._opponent_reach_cycle = 0
             for o in opponents:
-                if o.is_ghost() or o.pos_count > wm.ball().pos_count + 1:
+                if o.is_ghost() or o.pos_count() > wm.ball().pos_count() + 1:
                     continue
                 self._fastest_opponent = o
                 dlog.add_text(Level.INTERCEPT,
@@ -171,7 +171,7 @@ class InterceptTable:
 
         predictor = PlayerIntercept(wm, self._ball_cache)
         for it in opponents:
-            if it.pos_count >= 15:
+            if it.pos_count() >= 15:
                 continue
 
             player_type = it.player_type()
@@ -179,8 +179,8 @@ class InterceptTable:
                 dlog.add_text(Level.INTERCEPT,
                               f"intercept opponents faild to get player{it.unum()} type")
                 continue
-            cycle, second_min_cycle = predictor.predict(it, player_type,
-                                                        second_min_cycle)
+            cycle = predictor.predict(it, player_type,
+                                      second_min_cycle)
             dlog.add_text(Level.INTERCEPT,
                           f"opp{it.unum()} {it.pos()} "
                           f"type={player_type.id()} cycle={cycle}")
@@ -208,7 +208,7 @@ class InterceptTable:
                           "Intercept Teammates. exits kickable teammate")
             self._teammate_reach_cycle = 0
             for t in teammates:
-                if t.is_ghost() or t.pos_count > wm.ball().pos_count() + 1:
+                if t.is_ghost() or t.pos_count() > wm.ball().pos_count() + 1:
                     continue
                 self._fastest_teammate = t
                 dlog.add_text(Level.INTERCEPT,
@@ -230,8 +230,8 @@ class InterceptTable:
                               f"intercept teammate faild to get player{it.unum()} type")
                 continue
 
-            cycle, second_min_cycle = predictor.predict(it, player_type,
-                                                        second_min_cycle)
+            cycle = predictor.predict(it, player_type,
+                                      second_min_cycle)
             dlog.add_text(Level.INTERCEPT,
                           f"tm{it.unum()} {it.pos()} "
                           f"type={player_type.id()} cycle={cycle}")

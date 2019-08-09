@@ -29,7 +29,7 @@ class Object:
         return self._pos_count
 
     def seen_pos_count(self):
-        return self.seen_pos_count()
+        return self._seen_pos_count
 
     def seen_pos(self):
         return self._pos  # TODO should be written again
