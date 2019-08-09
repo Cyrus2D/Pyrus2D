@@ -1,5 +1,6 @@
 from lib.action.go_to_point import *
 from base.strategy_formation import *
+from lib.action.intercept import Intercept
 from lib.debug.logger import *
 from lib.player.templates import *
 
@@ -26,7 +27,7 @@ class BhvMove:
                      or (self_min <= tm_min
                          and self_min < opp_min + 5))):
             dlog.add_text(Level.BLOCK, "INTERCEPTINNNNNNG")
-            GoToPoint(wm.ball().pos(), 1, 100).execute(agent)
+            Intercept().execute(agent)
             return True
 
         st = StrategyFormation().i()
