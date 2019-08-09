@@ -32,6 +32,27 @@ class InterceptTable:
         self._fastest_opponent: PlayerObject = None
         self._second_opponent: PlayerObject = None
 
+    def self_reach_cycle(self):
+        return self._self_reach_cycle
+
+    def self_exhaust_reach_cycle(self):
+        return self._self_exhaust_reach_cycle
+
+    def teammate_reach_cycle(self):
+        return self._teammate_reach_cycle
+
+    def second_teammate_reach_cycle(self):
+        return self._second_teammate_reach_cycle
+
+    def goalie_reach_cycle(self):
+        return self._goalie_reach_cycle
+
+    def opponent_reach_cycle(self):
+        return self._opponent_reach_cycle
+
+    def second_opponent_reach_cycle(self):
+        return self._second_opponent_reach_cycle
+
     def update(self, wm):
         # if self._last_update_time == wm.time():
         #     dlog.add_text(Level.INTERCEPT, "intercept updated befor :| it called agein")
