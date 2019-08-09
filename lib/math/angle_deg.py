@@ -114,7 +114,7 @@ class AngleDeg:
         return new_angle_deg
 
     def __repr__(self):
-        return str(f"D: {self.degree()}")
+        return str(self.degree())
 
     def __float__(self):
         return self.degree()
