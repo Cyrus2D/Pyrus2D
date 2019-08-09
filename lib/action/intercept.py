@@ -1,6 +1,9 @@
+from lib.action.basic_actions import TurnToPoint
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept_info import InterceptInfo
+from lib.action.intercept_table import InterceptTable
 from lib.math.vector_2d import Vector2D
+from lib.player.object_player import PlayerObject
 from lib.player.templates import PlayerAgent, WorldModel
 from lib.rcsc.server_param import ServerParam
 
@@ -32,7 +35,7 @@ class Intercept:
             if not face_point.is_valid():
                 face_point.assign(50.5, wm.self().pos().y() * 0.75)
 
-            TurntoPoint(face_point,
+            TurnToPoint(face_point,
                         best_intercept.reach_cycle()).execute(agent)
             return True
 
@@ -60,3 +63,23 @@ class Intercept:
         return self.do_inertia_dash(agent,
                                     target_point,
                                     best_intercept)
+
+    def do_kickable_opponent_check(self, agent: PlayerAgent):
+        wm = agent.world()
+        if wm.ball().dist_from_self() < 2 and wm.exist_kickable_opponents():
+            opp: PlayerObject = wm.opponents_from_ball()[0]
+            if opp is not None:
+                goal_pos = Vector2D(-ServerParam.i().pitch_half_length(), 0)
+                my_next = wm.self().pos() + wm.self().vel()
+                attack_pos = opp.pos() + opp.vel()
+
+                if attack_pos.dist2(goal_pos) > my_next.dist2(goal_pos):
+                    GoToPoint(attack_pos,
+                              0.1,
+                              ServerParam.i().max_dash_power(),
+                              -1,
+                              1,
+                              True,
+                              15).execute(agent)
+                    return True
+        return False
