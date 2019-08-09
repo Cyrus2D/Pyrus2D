@@ -130,6 +130,9 @@ class WorldModel:
 
         self._intercept_table.update(self)
 
+    def intercept_table(self):
+        return self._intercept_table
+
     def game_mode(self):
         return self._game_mode
 
