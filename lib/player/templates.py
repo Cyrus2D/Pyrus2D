@@ -1,3 +1,4 @@
+from lib.action.intercept_table import InterceptTable
 from lib.math.angle_deg import AngleDeg
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
@@ -38,6 +39,8 @@ class WorldModel:
     def exist_kickable_opponents(self): ...
 
     def exist_kickable_teammates(self): ...
+
+    def intercept_table(self) -> InterceptTable: ...
 
 
 class PlayerAgent:
