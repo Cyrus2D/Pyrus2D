@@ -624,7 +624,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._log_times = dic["log_times"]
         self._max_goal_kicks = dic["max_goal_kicks"]
         self._max_moment = float(dic["maxmoment"])
-        self._max_neck_angle = dic["maxneckang"]
+        self._max_neck_angle = float(dic["maxneckang"])
         self._max_neck_moment = dic["maxneckmoment"]
         self._max_power = float(dic["maxpower"])
         self._min_moment = dic["minmoment"]
@@ -689,7 +689,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._text_logging = dic["text_logging"]
         self._use_offside = bool(int(dic["use_offside"]))
         self._verbose_mode = dic["verbose"]
-        self._visible_angle = dic["visible_angle"]
+        self._visible_angle = float(dic["visible_angle"])
         self._visible_distance = dic["visible_distance"]
         self._wind_angle = dic["wind_ang"]
         self._wind_dir = dic["wind_dir"]

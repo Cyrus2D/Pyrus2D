@@ -4,7 +4,7 @@ from lib.action.basic_actions import TurnToPoint
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_table import InterceptTable
-from lib.math.soccer_math import inertia_n_step_distance, bound
+from lib.math.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.player.templates import PlayerAgent, WorldModel
@@ -332,7 +332,7 @@ class Intercept:
             if face_point.x < my_inertia.x:
                 face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(-90)
 
-        if not face_point.is_valid()
+        if not face_point.is_valid():
             face_point.assign(50.5, wm.self().pos().y() * 0.9)
 
         face_rel = face_point - my_inertia
@@ -350,4 +350,98 @@ class Intercept:
                         agent: PlayerAgent,
                         target_point: Vector2D,
                         info: InterceptInfo):
-        
+        wm = agent.world()
+        ptype = wm.self().player_type()
+
+        if info.reach_cycle() == 1:
+            agent.do_dash(info.dash_power(), info.dash_angle())
+            return True
+
+        target_rel = target_point - wm.self().pos()
+        target_rel.rotate(-wm.self().body())
+
+        accel_angle = wm.self().body()
+        if info.dash_power() < 0:
+            accel_angle += 180
+
+        ball_vel = wm.ball().vel() * ServerParam.i().ball_decay() ** info.reach_cycle()
+        if ((not wm.self().goalie()
+             or wm.last_kicker_side() == wm.our_side())
+                and wm.self().body().abs() < 50):
+            buf = 0.3
+            if info.reach_cycle() >= 8:
+                buf = 0
+            elif target_rel.absY() > ptype.kickable_area() - 0.25:
+                buf = 0
+            elif target_rel.x() < 0:
+                if info.reach_cycle() >= 3:
+                    buf = 0.5
+            elif target_rel.x() < 0.3:
+                if info.reach_cycle() >= 3:
+                    buf = 0.5
+            elif target_rel.absY() < 0.5:
+                if info.reach_cycle() >= 3:
+                    buf = 0.5
+                if info.reach_cycle() == 2:
+                    buf = min(target_rel.x(), 0.5)
+            elif ball_vel.r() < 1.6:
+                buf = 0.4
+            else:
+                if info.reach_cycle() >= 4:
+                    buf = 0.3
+                elif info.reach_cycle() == 3:
+                    buf = 0.3
+                elif info.reach_cycle() == 2:
+                    buf = min(target_rel.x(), 0.3)
+
+            target_rel -= Vector2D(buf, 0)
+
+        used_power = info.dash_power()
+        if (wm.ball().seen_pos_count() <= 2
+                and wm.ball().vel().r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
+                and info.dash_angle().abs() < 5
+                and target_rel.absX() < (ptype.kickable_area()
+                                         + ptype.dash_rate(wm.self().effort())
+                                         * ServerParam.i().max_dash_power()
+                                         * 0.8)):
+            first_speed = calc_first_term_geom_series(target_rel.x(),
+                                                      ptype.player_decay(),
+                                                      info.reach_cycle())
+            first_speed = min_max(-ptype.player_speed_max(),
+                                  first_speed,
+                                  ptype.player_speed_max())
+            rel_vel = wm.self().vel().rotated_vector(-wm.self().body())
+            required_accel = first_speed - rel_vel.x()
+            used_power = required_accel / wm.self().dash_rate()
+            used_power /= ServerParam.i().dash_dir_rate(info.dash_angle().degree())
+
+            used_power = ServerParam.i().normalize_dash_power(used_power)
+            if self._save_recovery:
+                used_power = wm.self().get_safety_dash_power(used_power)
+
+        if (info.reach_cycle() >= 4
+                and (target_rel.absX() < 0.5
+                     or abs(used_power) < 5)):
+            my_inertia = wm.self().inertia_point(info.reach_cycle())
+            face_point = self._face_point
+            if not face_point.is_valid():
+                face_point.assign(50.5, wm.self().pos().y() * 0.75)
+            face_angle = (face_point - my_inertia).th()
+
+            ball_next = wm.ball().pos() + wm.ball().vel()
+            ball_angle = (ball_next - my_inertia).th()
+            # normal_half_width = ViewWidth.width(ViewWidth.Mode.NORMAL) # TODO FIX THIS after view mode
+            normal_half_width = ServerParam.i().visible_angle()
+            if ((ball_angle - face_angle).abs()
+                    > (ServerParam.i().max_neck_angle()
+                       + normal_half_width
+                       - 10)):
+                face_point = Vector2D(my_inertia.x(), face_point.y())
+                if ball_next.y() > my_inertia.y() + 1:
+                    face_point = Vector2D(face_point.x(), 50)
+                elif ball_next.y() < my_inertia.y() - 1:
+                    face_point = Vector2D(face_point.x(), -50)
+            TurnToPoint(face_point).execute(agent)
+
+        agent.do_dash(used_power, info.dash_angle())
+        return True
