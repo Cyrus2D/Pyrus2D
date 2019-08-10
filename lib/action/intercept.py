@@ -442,6 +442,7 @@ class Intercept:
                 elif ball_next.y() < my_inertia.y() - 1:
                     face_point = Vector2D(face_point.x(), -50)
             TurnToPoint(face_point).execute(agent)
-
+        print(info.dash_angle())
+        print("f", float(info.dash_angle()))
         agent.do_dash(used_power, info.dash_angle())
         return True

@@ -244,8 +244,8 @@ class SelfIntercept:
         dlog.add_text(Level.INTERCEPT,
                       f"_____ max_back_accel={max_back_accel} rel={back_accel_rel}")
 
-        if ball_rel.absY() > control_buf or False:  # TODO CHANGE THIS SOOOOON
-            # Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
+        if ball_rel.absY() > control_buf or \
+                Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
             return False
 
         dash_power = -1000

@@ -117,7 +117,7 @@ class AngleDeg:
         return str(self.degree())
 
     def __float__(self):
-        return self.degree()
+        return float(self.degree())
 
     def __neg__(self):
         new_angle_deg = AngleDeg(-self._degree)
