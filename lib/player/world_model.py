@@ -27,6 +27,8 @@ class WorldModel:
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._exist_kickable_teammates: bool = False
         self._exist_kickable_opponents: bool = False
+        self._offside_line_x: float = 0
+        self._offside_line_count = 0
 
     def ball(self) -> BallObject:
         return self._ball
@@ -107,9 +109,7 @@ class WorldModel:
     def team_name(self):
         return self._team_name
 
-    def update(self):
-        if self.time().cycle() < 1:
-            return  # TODO check
+    def _update_players(self):
         for i in range(len(self._our_players)):
             if self._our_players[i].player_type() is None: continue
             self._our_players[i].update_with_world(self)
@@ -123,7 +123,41 @@ class WorldModel:
                 self._last_kicker_side = self._their_players[i].side()
                 self._exist_kickable_opponents = True
 
+    def _update_offside_line(self):
+        if not ServerParam.i().use_offside():
+            self._offside_line_count = 0
+            self._offside_line_x = ServerParam.i().pitch_half_length()
+            return
+
+        if (self._game_mode.mode_name() == "kick_in"
+                or self._game_mode.mode_name() == "corner_kick"
+                or (self._game_mode.mode_name() == "goal_kick"
+                    and self._game_mode.side() == self._our_side)):
+            self._offside_line_count = 0
+            self._offside_line_x = ServerParam.i().pitch_half_length()
+            return
+
+        if (self._game_mode.side() != self._our_side
+                and (self._game_mode.mode_name() == "goalie_catch"
+                     or self._game_mode.mode_name() == "goal_kick")):
+            self._offside_line_count = 0
+            self._offside_line_x = ServerParam.i().their_penalty_area_line_x()
+            return
+
+        new_line = self._their_defense_line_x
+        count = self._their_defense_count
+
+        # TODO check audio memory
+
+        self._offside_line_x = new_line
+        self._offside_line_count = count
+
+    def update(self):
+        if self.time().cycle() < 1:
+            return  # TODO check
+        self._update_players()
         self.ball().update_with_world(self)
+        self._update_offside_line()
 
         self._set_our_goalie_unum()  # TODO should it call here?!
         self._set_players_from_ball()
@@ -188,3 +222,6 @@ class WorldModel:
             self._opponents_from_ball.append(opp)
 
         self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball())
+
+    # def offside_line_x(self) -> float:
+    #     return self._offside_line_x

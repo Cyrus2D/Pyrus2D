@@ -687,7 +687,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._use_text_log_fixed = dic["text_log_fixed"]
         self._text_log_fixed_name = dic["text_log_fixed_name"]
         self._text_logging = dic["text_logging"]
-        self._use_offside = dic["use_offside"]
+        self._use_offside = bool(int(dic["use_offside"]))
         self._verbose_mode = dic["verbose"]
         self._visible_angle = dic["visible_angle"]
         self._visible_distance = dic["visible_distance"]
