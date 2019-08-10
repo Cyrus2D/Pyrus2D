@@ -105,9 +105,9 @@ class PlayerMessageParser:
         PlayerMessageParser._parser(self._dic, message)
         return self._dic
 
-message = '(fullstate 109 (pmode play_on) (vmode high normal) (count 0 25 82 0 79 0 0 0) (arm (movable 0) (expires 0) (target 0 0) (count 0)) (score 0 0) ((b) 0 0 0 0) ((p r 10 9) 0.00733964 -23.0363 -0.399337 -0.0830174 -164.67 -90 44.2236 1.38729 (stamina 7539.49 0.935966 1 129861)) ((p r 11 10) 3.75961 -2.09864 -0.327071 0.126905 153.836 13 (stamina 7615.44 0.854839 1 129617))) '
-msg = message[message.find("((p"):]
-a =PlayerMessageParser()
-d = a.parse(msg)
-for p in d['players']:
-    print(p['unum'], p['stamina'])
+# message = '(fullstate 109 (pmode play_on) (vmode high normal) (count 0 25 82 0 79 0 0 0) (arm (movable 0) (expires 0) (target 0 0) (count 0)) (score 0 0) ((b) 0 0 0 0) ((p r 10 9) 0.00733964 -23.0363 -0.399337 -0.0830174 -164.67 -90 44.2236 1.38729 (stamina 7539.49 0.935966 1 129861)) ((p r 11 10) 3.75961 -2.09864 -0.327071 0.126905 153.836 13 (stamina 7615.44 0.854839 1 129617))) '
+# msg = message[message.find("((p"):]
+# a =PlayerMessageParser()
+# d = a.parse(msg)
+# for p in d['players']:
+#     print(p['unum'], p['stamina'])
