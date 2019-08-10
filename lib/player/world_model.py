@@ -17,6 +17,8 @@ class WorldModel:
         self._our_players = [PlayerObject() for _ in range(11)]
         self._teammates_from_ball = []
         self._opponents_from_ball = []
+        self._teammates_from_self = []
+        self._opponents_from_self = []
         self._their_players = [PlayerObject() for _ in range(11)]
         self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
@@ -162,7 +164,7 @@ class WorldModel:
         self.ball().update_with_world(self)
 
         self._set_goalies_unum()  # TODO should it call here?!
-        self._set_players_from_ball()
+        self._set_players_from_ball_and_self()
 
         self._update_their_defense_line()
         self._update_offside_line()
@@ -260,8 +262,7 @@ class WorldModel:
 
     def _set_teammates_from_ball(self):
         self._teammates_from_ball = []
-        for i in range(1, 12):
-            tm = self.our_player(i)
+        for tm in self._our_players:
             if tm is None:
                 continue
 
@@ -278,14 +279,35 @@ class WorldModel:
     def exist_kickable_teammates(self):
         return self._exist_kickable_teammates
 
-    def _set_players_from_ball(self):
+    def _set_players_from_ball_and_self(self):
         self._set_teammates_from_ball()
         self._set_opponents_from_ball()
+        self._set_teammates_from_self()
+        self._set_opponents_from_self()
+
+    def _set_teammates_from_self(self):
+        self._teammates_from_self = []
+        for tm in self._our_players:
+            if tm is None:
+                continue
+
+            self._teammates_from_self.append(tm)
+
+        self._teammates_from_self.sort(key=lambda player: player.dist_from_self())
+
+    def _set_opponents_from_self(self):
+        self._opponents_from_self = []
+        for opp in self._their_players:
+            if opp is None:
+                continue
+
+            self._opponents_from_self.append(opp)
+
+        self._opponents_from_self.sort(key=lambda player: player.dist_from_self())
 
     def _set_opponents_from_ball(self):
         self._opponents_from_ball = []
-        for i in range(1, 12):
-            opp = self.their_player(i)
+        for opp in self._their_players:
             if opp is None:
                 continue
 
