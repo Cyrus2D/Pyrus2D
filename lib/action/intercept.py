@@ -4,6 +4,7 @@ from lib.action.basic_actions import TurnToPoint
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_table import InterceptTable
+from lib.math.soccer_math import inertia_n_step_distance, bound
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.player.templates import PlayerAgent, WorldModel
@@ -282,5 +283,71 @@ class Intercept:
 
             if chance_best is not None:
                 return chance_best
-            
+
         return cache[0]
+
+    def do_wait_turn(self,
+                     agent: PlayerAgent,
+                     target_point: Vector2D,
+                     info: InterceptInfo):
+        wm = agent.world()
+        opp: PlayerObject = wm.get_opponent_nearest_to_self(5)
+        if opp is not None and opp.dist_from_self() < 3:
+            return False
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+        if info.reach_cycle() > opp_min - 5:
+            return False
+
+        my_inertia = wm.self().inertia_point(info.reach_cycle())
+        target_rel = (target_point - my_inertia).rotated_vector(-wm.self().body())
+        target_dist = target_rel.r()
+
+        ball_travel = inertia_n_step_distance(wm.ball().vel().r(),
+                                              info.reach_cycle(),
+                                              ServerParam.i().ball_decay())
+        ball_noise = ball_travel * ServerParam.i().ball_rand()
+
+        if info.reach_cycle() == 1 and info.turn_cycle() == 1:
+            face_point = self._face_point
+            if not face_point.is_valid():
+                face_point.assign(50.5, wm.self().pos().y() * 0.9)
+
+            TurnToPoint(face_point).execute(agent)
+            return True
+
+        extra_buf = 0.1 * bound(0, info.reach_cycle() - 1, 4)
+        angle_diff = (wm.ball().vel().th() - wm.self().body()).abs()
+        if angle_diff < 10 or 170 < angle_diff:
+            extra_buf = 0
+
+        dist_buf = wm.self().player_type().kickable_area() - 0.3 + extra_buf
+        dist_buf -= 0.1 * wm.ball().seen_pos_count()
+
+        if target_dist > dist_buf:
+            return False
+
+        face_point = self._face_point
+        if info.reach_cycle() > 2:
+            face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(90)
+            if face_point.x < my_inertia.x:
+                face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(-90)
+
+        if not face_point.is_valid()
+            face_point.assign(50.5, wm.self().pos().y() * 0.9)
+
+        face_rel = face_point - my_inertia
+        face_angle = face_rel.th()
+
+        faced_rel = target_point - my_inertia
+        faced_rel.rotate(face_angle)
+        if faced_rel.absY() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
+            return False
+
+        TurnToPoint(face_point).execute(agent)
+        return True
+
+    def do_inertia_dash(self,
+                        agent: PlayerAgent,
+                        target_point: Vector2D,
+                        info: InterceptInfo):
+        
