@@ -1,10 +1,29 @@
-from lib.action.intercept_table import InterceptTable
 from lib.math.angle_deg import AngleDeg
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import SideID, GameModeType
+
+
+class InterceptTable:
+    def self_reach_cycle(self) -> int: ...
+
+    def self_exhaust_reach_cycle(self) -> int: ...
+
+    def teammate_reach_cycle(self) -> int: ...
+
+    def second_teammate_reach_cycle(self) -> int: ...
+
+    def goalie_reach_cycle(self) -> int: ...
+
+    def opponent_reach_cycle(self) -> int: ...
+
+    def second_opponent_reach_cycle(self) -> int: ...
+
+    def self_cache(self) -> list: ...
+
+    def update(self, wm): ...
 
 
 class WorldModel:
@@ -47,6 +66,8 @@ class WorldModel:
     def their_goalie_unum(self): ...
 
     def get_opponent_goalie(self): ...
+
+    def get_opponent_nearest_to_self(self, count_thr: int, with_goalie: bool = True) -> PlayerObject: ...
 
 
 class PlayerAgent:
