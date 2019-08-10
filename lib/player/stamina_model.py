@@ -88,3 +88,6 @@ class StaminaModel:
 
     def capacity(self):
         return self._capacity
+
+    def get_safety_dash_power(self, param, dash_power):
+        

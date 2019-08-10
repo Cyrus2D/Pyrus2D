@@ -315,5 +315,25 @@ class WorldModel:
 
         self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball())
 
-    # def offside_line_x(self) -> float:
-    #     return self._offside_line_x
+    def offside_line_x(self) -> float:
+        return self._offside_line_x
+
+    def get_opponent_nearest_to_self(self,
+                                     count_thr: int,
+                                     with_goalie: bool = True) -> PlayerObject:
+        return self.get_first_player(self._opponents_from_self,
+                                     count_thr,
+                                     with_goalie)
+
+    def get_first_player(self,
+                         players: list,
+                         count_thr: int,
+                         with_goalie: bool) -> PlayerObject:
+        for p in players:
+            if not with_goalie and p.goalie():
+                continue
+
+            if not p.is_ghost() and p.pos_count() <= count_thr:
+                return p
+
+        return None

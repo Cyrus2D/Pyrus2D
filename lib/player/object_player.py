@@ -183,3 +183,7 @@ class PlayerObject(Object):
 
     def body_count(self):
         return self._body_count
+
+    def get_safety_dash_power(self, dash_power):
+        return self.stamina_model().get_safety_dash_power(self.player_type(),
+                                                          dash_power)
