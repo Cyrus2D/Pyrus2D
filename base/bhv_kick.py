@@ -3,7 +3,7 @@ from lib.debug.logger import *
 from lib.math.geom_2d import *
 from enum import Enum
 from lib.rcsc.server_param import ServerParam as SP
-
+# from lib.action.smart_kick import SmartKick
 
 class KickActionType(Enum):
     No = 0
@@ -112,6 +112,7 @@ class BhvKick:
         best_action: KickAction = max(action_candidates)
 
         target = best_action.target_ball_pos
+        # SmartKick(target, 2.5, 2.4, 3).execute(agent)
         angle: AngleDeg = (target - wm.self().pos()).th()
         angle -= wm.self().body()
         agent.do_kick(100, angle)
