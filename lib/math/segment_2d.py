@@ -377,7 +377,7 @@ class Segment2D:
     """
 
     def dist(self, *args):  # **kwargs):
-        if len(args) == 1 and isinstance(args[0], Line2D):
+        if len(args) == 1 and isinstance(args[0], Vector2D):
             vec = args[0]
             length = self.length()
             if length == 0.0:

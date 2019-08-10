@@ -435,7 +435,7 @@ class SelfIntercept:
                     if best.turn_cycle() >= it.turn_cycle() and \
                             (best.ball_dist() > it.ball_dist()
                              or (abs(safety_ball_dist - it.ball_dist()) < 0.001
-                                 and best.stamina() < it.stamina)):
+                                 and best.stamina() < it.stamina())):
                         best = it
             self_cache.append(best)
 
