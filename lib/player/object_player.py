@@ -29,6 +29,7 @@ class PlayerObject(Object):
         self._kickrate: float = 0.0
         self._dist_from_ball: float = 0.0
         self._angle_from_ball: float = 0.0
+        self._body_count: int = 0
 
     # update with server data
     def init_dic(self, dic: dict):
@@ -179,3 +180,6 @@ class PlayerObject(Object):
 
     def is_ghost(self):
         return False  # TODO should be written again
+
+    def body_count(self):
+        return self._body_count
