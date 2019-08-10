@@ -42,7 +42,7 @@ class PlayerObject(Object):
         self._player_type_id = int(dic["player_type"])
         self._pointto = Vector2D.invalid()
         if "pointto_dist" in dic:
-            self._pointto = Vector2D.polar2vector(dic["pointto_dist"], dic["pointto_dir"])
+            self._pointto = Vector2D.polar2vector(float(dic["pointto_dist"]), float(dic["pointto_dir"]))
         self._stamina_model = StaminaModel(**dic["stamina"])
         self._kick = True if "kick" in dic else False
         self._tackle = True if "tackle" in dic else False
