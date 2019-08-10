@@ -1396,6 +1396,9 @@ class _ServerParam:  # TODO specific TYPES and change them
     def effort_inc_thr_value(self):
         return self.effort_inc_thr() * self.stamina_max()
 
+    def default_player_speed_max(self):
+        return self._player_speed_max
+
 
 # TODO we can use function, instance instance class
 # like:

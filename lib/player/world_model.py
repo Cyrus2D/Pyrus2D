@@ -24,11 +24,14 @@ class WorldModel:
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode()
         self._our_goalie_unum: int = 0
+        self._their_goalie_unum: int = 0
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._exist_kickable_teammates: bool = False
         self._exist_kickable_opponents: bool = False
         self._offside_line_x: float = 0
         self._offside_line_count = 0
+        self._their_defense_line_x: float = 0
+        self._their_defense_line_count = 0
 
     def ball(self) -> BallObject:
         return self._ball
@@ -145,7 +148,7 @@ class WorldModel:
             return
 
         new_line = self._their_defense_line_x
-        count = self._their_defense_count
+        count = self._their_defense_line_count
 
         # TODO check audio memory
 
@@ -157,12 +160,67 @@ class WorldModel:
             return  # TODO check
         self._update_players()
         self.ball().update_with_world(self)
-        self._update_offside_line()
 
-        self._set_our_goalie_unum()  # TODO should it call here?!
+        self._set_goalies_unum()  # TODO should it call here?!
         self._set_players_from_ball()
 
+        self._update_their_defense_line()
+        self._update_offside_line()
+
         self._intercept_table.update(self)
+
+    def _update_their_defense_line(self):
+        speed_rate = ServerParam.i().default_player_speed_max() * (0.8
+                                                                   if self.ball().vel().x() < -1
+                                                                   else 0.25)
+        first, second = 0, 0
+        first_count, second_count = 1000, 1000
+
+        for it in self._opponents_from_ball:
+            x = it.pos().x()
+            if it.vel_count() <= 1 and it.vel().x() > 0:
+                x += min(0.8, it.vel().x() / it.player_type().player_decay())
+            elif it.body_count() <= 3 and it.body().abs() < 100:
+                x -= speed_rate * min(10, it.pos_count() - 1.5)
+            else:
+                x -= speed_rate * min(10, it.pos_count())
+
+            if x > second:
+                second = x
+                second_count = it.pos_count()
+                if second > first:
+                    # swap
+                    first, second = second, first
+                    first_count, second_count = second_count, first_count
+        new_line = second
+        count = second_count
+
+        goalie = self.get_opponent_goalie()
+        if goalie is None:
+            if 20 < self.ball().pos().x() < ServerParam.i().their_penalty_area_line_x():
+                if first < ServerParam.i().their_penalty_area_line_x():
+                    new_line = first
+                    count = 30
+
+        if len(self._opponents_from_self) >= 11:
+            pass
+        elif new_line < self._their_defense_line_x - 13:
+            pass
+        elif new_line < self._their_defense_line_x - 5:
+            new_line = self._their_defense_line_x - 1
+
+        if new_line < 0:
+            new_line = 0
+
+        if (self._game_mode.mode_name() != "before_kick_off"
+                and self._game_mode.mode_name() != "after_goal"
+                and self.ball().pos_count() <= 3):
+            ball_next = self.ball().pos() + self.ball().vel()
+            if ball_next.x() > new_line:
+                new_line = ball_next.x()
+                count = self.ball().pos_count()
+        self._their_defense_line_x = new_line
+        self._their_defense_line_count = count
 
     def intercept_table(self):
         return self._intercept_table
@@ -173,14 +231,26 @@ class WorldModel:
     def our_goalie_unum(self):
         return self._our_goalie_unum
 
-    def _set_our_goalie_unum(self):
-        for i in range(1, 12):
-            tm = self.our_player(i)
+    def their_goalie_unum(self):
+        return self._their_goalie_unum
+
+    def get_opponent_goalie(self):
+        return self.their_player(self._their_goalie_unum)
+
+    def _set_goalies_unum(self):
+        for tm in self._our_players:
             if tm is None:
                 continue
             if tm.goalie():
-                self._our_goalie_unum = i
-                return
+                self._our_goalie_unum = tm.unum()
+                break
+
+        for opp in self._their_players:
+            if opp is None:
+                continue
+            if opp.goalie():
+                self._their_goalie_unum = opp.unum()
+                break
 
     def teammates_from_ball(self):
         return self._teammates_from_ball
