@@ -89,5 +89,21 @@ class StaminaModel:
     def capacity(self):
         return self._capacity
 
-    def get_safety_dash_power(self, param, dash_power):
-        
+    def get_safety_dash_power(self, player_type: PlayerType, dash_power):
+        normalized_power = ServerParam.i().normalize_dash_power(dash_power)
+        required_stamina = (normalized_power
+                            if normalized_power > 0
+                            else normalized_power * -2)
+
+        threshold = (-player_type.extra_stamina()
+                     if self.capacity_is_empty()
+                     else ServerParam.i().recover_dec_thr_value() + 1)
+        safety_stamina = self._stamina - threshold
+        available_stamina = max(0, safety_stamina)
+        result_power = min(required_stamina, available_stamina)
+        if normalized_power < 0:
+            result_power *= -0.5
+        if abs(result_power) > abs(normalized_power):
+            return normalized_power
+
+        return result_power
