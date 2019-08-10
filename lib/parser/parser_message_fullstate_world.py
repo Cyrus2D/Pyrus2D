@@ -54,16 +54,17 @@ class PlayerMessageParser:
         while seek < len(message):
             seek = message.find("((p", seek)
             next_seek = message.find("((p", seek + 1)
+
             if next_seek == -1:
                 next_seek = len(message)
-
             msg = message[seek: next_seek].strip(" ()").split(" ")
             k = 0
             kk = 0
+            use_point_to = 0
             if msg[3] == "g":
                 k = 1
-            if PlayerMessageParser.n_inner_dict(message[seek: next_seek]) > 2:
-                kk = 2
+            if msg[12].find('stamina') > 0:
+                use_point_to = 2
             player_dic = {
                 "side_id": msg[1],
                 "unum": msg[2],
@@ -75,13 +76,13 @@ class PlayerMessageParser:
                 "body": msg[8 + k],
                 "neck": msg[9 + k],
                 "stamina": {
-                    "stamina": msg[11 + k + kk],
-                    "effort": msg[12 + k + kk],
-                    "recovery": msg[13 + k + kk],
-                    "capacity": msg[14 + k + kk].strip("()")
+                    "stamina": msg[11 + k + kk + use_point_to],
+                    "effort": msg[12 + k + kk + use_point_to],
+                    "recovery": msg[13 + k + kk + use_point_to],
+                    "capacity": msg[14 + k + kk + use_point_to].strip("()")
                 }
             }
-            if kk == 2:
+            if use_point_to == 2:
                 player_dic["pointto_dist"] = msg[10 + k].strip("()")
                 player_dic["pointto_dir"] = msg[11 + k].strip("()")
             if k == 1:
@@ -103,3 +104,10 @@ class PlayerMessageParser:
     def parse(self, message):
         PlayerMessageParser._parser(self._dic, message)
         return self._dic
+
+message = '(fullstate 109 (pmode play_on) (vmode high normal) (count 0 25 82 0 79 0 0 0) (arm (movable 0) (expires 0) (target 0 0) (count 0)) (score 0 0) ((b) 0 0 0 0) ((p r 10 9) 0.00733964 -23.0363 -0.399337 -0.0830174 -164.67 -90 44.2236 1.38729 (stamina 7539.49 0.935966 1 129861)) ((p r 11 10) 3.75961 -2.09864 -0.327071 0.126905 153.836 13 (stamina 7615.44 0.854839 1 129617))) '
+msg = message[message.find("((p"):]
+a =PlayerMessageParser()
+d = a.parse(msg)
+for p in d['players']:
+    print(p['unum'], p['stamina'])
