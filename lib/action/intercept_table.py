@@ -276,3 +276,6 @@ class InterceptTable:
 
         if self._fastest_teammate is not None and min_cycle < 1000:
             self._teammate_reach_cycle = min_cycle
+
+    def self_cache(self):
+        return self._self_cache
