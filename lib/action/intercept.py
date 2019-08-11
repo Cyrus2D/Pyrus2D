@@ -155,7 +155,7 @@ class Intercept:
             attacker = False
             if (ball_vel.x() > 0.5
                     and ball_vel.r2() > speed_max ** 2
-                    and cache[i].dash_power >= 0
+                    and cache[i].dash_power() >= 0
                     and ball_pos.x() < 47
                     and (ball_pos.x() > 35
                          or ball_pos.x() > wm.offside_line_x())):
