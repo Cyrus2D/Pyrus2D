@@ -11,7 +11,7 @@ from lib.math.soccer_math import *
 class WorldModel:
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
-        self._self_unum: int = 0
+        self._self_unum: int = None
         self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for _ in range(11)]
@@ -337,3 +337,6 @@ class WorldModel:
                 return p
 
         return None
+
+    def self_unum(self):
+        return self._self_unum

@@ -89,6 +89,9 @@ class PlayerAgent:
         return self._full_world
 
     def action(self):
+        if (self.world().self_unum() is None
+                or self.world().self().unum() != self.world().self_unum()):
+            return
         get_decision(self)
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
