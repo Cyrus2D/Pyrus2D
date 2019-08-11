@@ -4,7 +4,7 @@
 """
 import functools
 
-# from typing import List, Any, Union
+from typing import List
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.world_model import *
@@ -296,8 +296,8 @@ class _KickTable:
             for j in range(NUM_STATE):
                 self._state_cache[i].append(0.0)
         # not  static state list
-        self._state_list = list[State]
-        self._tables = list[Path]
+        self._state_list = List[State]
+        self._tables = List[Path]
 
         for i in range(DEST_DIR_DIVS):
             self._tables.append([])
@@ -675,7 +675,7 @@ class _KickTable:
             world: WorldModel = args[0]
             target_point: Vector2D = args[1]
             first_speed: float = args[2]
-            cycle: int = args[3],
+            cycle: int = args[3]
             state: State = args[4]
 
             penalty_area = Rect2D(Vector2D(ServerParam.i().their_penalty_area_line_x(),
