@@ -144,12 +144,12 @@ class PlayerIntercept:
 
         n_turn = 0
         speed = player.vel().r()
-        if angle_diff > turn_margin:
+        while angle_diff > turn_margin:
             max_turn = player_type.effective_turn(ServerParam.i().max_moment(),
                                                   speed)
             angle_diff -= max_turn
             speed *= player_type.player_decay()
-            n_turn += 1  # TODO shouldn't be while insted of if :|||||
+            n_turn += 1
 
         return n_turn
 
