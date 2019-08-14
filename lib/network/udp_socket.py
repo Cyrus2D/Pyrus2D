@@ -28,7 +28,7 @@ class UDPSocket:
     def __init__(self, ip_address: IPAddress):
         self._ip: IPAddress = ip_address
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.settimeout(0.01) # TODO isn't this risky?!?!?
+        self._sock.settimeout(0.001) # TODO isn't this risky?!?!?
 
     def send_msg(self, msg: str):
         if msg[-1] != '\0':

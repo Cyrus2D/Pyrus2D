@@ -31,37 +31,39 @@ class PlayerAgent:
         while True:
             message_and_address = []
             message_count = 0
+            cycle_start = time.time()
             while self._socket.recieve_msg(message_and_address) > 0:
                 message = message_and_address[0]
                 server_address = message_and_address[1]
                 self.parse_message(message.decode())
                 message_count += 1
                 last_time_rec = time.time()
+                if self._think_mode:
+                    break
+            cycle_end = time.time()
+            print(f"run-time: {cycle_end-cycle_start}s")
 
             if message_count > 0:
                 self.action()
             elif self._think_mode:
-                cycle_start = time.time()
 
                 self.action()
-                self._think_mode = False
 
-                cycle_end = time.time()
                 # if self.world().game_mode().mode_name() == "play_on":
                 #     n_think += 1
                 #     sum_think_time += cycle_end - cycle_start
                 #     print(f"avg_think_time={sum_think_time/n_think}s")
-                print(f"run-time: {cycle_end-cycle_start}s")
             elif time.time() - last_time_rec > 3:
                 print("srever down")
                 break
+            self._think_mode = False
 
     def connect(self, team_name, goalie, version=15):
         self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
         # print(message)
-        self._think_mode = False
+        # self._think_mode = False
         if message.find("(init") is not -1:
             self.init_dlog(message)
         if message.find("server_param") is not -1:
