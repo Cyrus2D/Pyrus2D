@@ -25,6 +25,9 @@ class PlayerAgent:
         self.connect(team_name, goalie)
         self._full_world._team_name = team_name
         last_time_rec = time.time()
+
+        sum_think_time = 0
+        n_think = 0
         while True:
             message_and_address = []
             message_count = 0
@@ -44,7 +47,11 @@ class PlayerAgent:
                 self._think_mode = False
 
                 cycle_end = time.time()
-                # print(f"run-time: {cycle_end-cycle_start}s")
+                # if self.world().game_mode().mode_name() == "play_on":
+                #     n_think += 1
+                #     sum_think_time += cycle_end - cycle_start
+                #     print(f"avg_think_time={sum_think_time/n_think}s")
+                print(f"run-time: {cycle_end-cycle_start}s")
             elif time.time() - last_time_rec > 3:
                 print("srever down")
                 break
