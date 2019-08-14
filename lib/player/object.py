@@ -23,7 +23,7 @@ class Object:
         return self._vel.copy()  # TODO How it is?!?
 
     def rpos(self):
-        return self._rpos
+        return self._rpos.copy()
 
     def pos_count(self):
         return self._pos_count
@@ -32,7 +32,7 @@ class Object:
         return self._seen_pos_count
 
     def seen_pos(self):
-        return self._pos  # TODO should be written again
+        return self._pos.copy()  # TODO should be written again
 
     def vel_count(self):
         return self._vel_count
@@ -41,7 +41,7 @@ class Object:
         return self._seen_vel_count
 
     def seen_vel(self):
-        return self._vel  # TODO should be written again
+        return self._vel.copy()  # TODO should be written again
 
     def reverse(self):
         self._pos.reverse()

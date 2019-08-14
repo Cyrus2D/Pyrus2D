@@ -29,7 +29,6 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
             self._y = 0
         self._is_valid = True
 
-
     """
         \ brief assign XY value directly.
         \ param __x assigned x value
@@ -217,6 +216,18 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
         self._x /= other
         self._y /= other
         return self
+
+    def add_x(self, x: float):
+        self._x += x
+
+    def add_y(self, y: float):
+        self._y += y
+
+    def sub_x(self, x: float):
+        self._x -= x
+
+    def sub_y(self, y: float):
+        self._y -= y
 
     """
       \ brief get the squared distance from this to 'other'.
