@@ -57,7 +57,7 @@ class InterceptTable:
     def update(self, wm: WorldModel):
         # if self._last_update_time == wm.time(): # TODO uncomment it
         #     dlog.add_text(Level.INTERCEPT, "intercept updated befor :| it called agein")
-        #
+
         self._last_update_time = wm.time()
         self.clear()
 

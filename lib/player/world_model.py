@@ -263,7 +263,7 @@ class WorldModel:
     def _set_teammates_from_ball(self):
         self._teammates_from_ball = []
         for tm in self._our_players:
-            if tm is None:
+            if tm is None or tm.unum() == self._self_unum:
                 continue
 
             self._teammates_from_ball.append(tm)
@@ -288,7 +288,7 @@ class WorldModel:
     def _set_teammates_from_self(self):
         self._teammates_from_self = []
         for tm in self._our_players:
-            if tm is None:
+            if tm is None or tm.unum() == self._self_unum:
                 continue
 
             self._teammates_from_self.append(tm)
