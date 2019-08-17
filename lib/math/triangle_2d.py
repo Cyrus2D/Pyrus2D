@@ -64,7 +64,8 @@ class Triangle2D(Region2D):
     """
 
     def isValid(self):
-        return self._a.is_valid() and self._b.is_valid() and self._c.is_valid() and self._a != self._b and self._b != self._c and self._a != self._a
+        return (self._a.is_valid() and self._b.is_valid() and self._c.is_valid() and
+                self._a != self._b and self._b != self._c and self._a != self._a)
 
     """
       \ brief get 1st point
@@ -212,8 +213,8 @@ class Triangle2D(Region2D):
             if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
-            if n_sol == 2 and math.fabs(t_sol[0]._x - t_sol[1]._x) < EPSILON and math.fabs(
-                    t_sol[0]._y - t_sol[1]._y) < EPSILON:
+            if n_sol == 2 and math.fabs(t_sol[0].x() - t_sol[1].x()) < EPSILON and math.fabs(
+                    t_sol[0].y() - t_sol[1].y()) < EPSILON:
                 n_sol = 1
             sol_list = [n_sol, t_sol[0], t_sol[1]]
 
@@ -266,8 +267,8 @@ class Triangle2D(Region2D):
 
     @staticmethod
     def double_signed_area(a: Vector2D, b: Vector2D, c: Vector2D):
-        return ((a._x - c._x) * (b._y - c._y)
-                + (b._x - c._x) * (c._y - a._y))
+        return ((a.x() - c.x()) * (b.y() - c.y())
+                + (b.x() - c.x()) * (c.y() - a.y()))
 
     """
       \ brief get a signed area value
@@ -372,7 +373,7 @@ class Triangle2D(Region2D):
         xcc = inv * (ab_len2 * ca.y - ca_len2 * ab.y)
         ycc = inv * (ab.x * ca_len2 - ca.x * ab_len2)
 
-        return Vector2D(a._x + xcc, a._y + ycc)
+        return Vector2D(a.x() + xcc, a.y() + ycc)
 
     """
       \ brief get the orthocenter point
