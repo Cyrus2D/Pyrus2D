@@ -28,7 +28,7 @@ class UDPSocket:
     def __init__(self, ip_address: IPAddress):
         self._ip: IPAddress = ip_address
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.settimeout(0.001) # TODO isn't this risky?!?!?
+        # self._sock.settimeout(0.001)  # TODO isn't this risky?!?!?
 
     def send_msg(self, msg: str):
         if msg[-1] != '\0':
@@ -36,14 +36,9 @@ class UDPSocket:
         self._sock.sendto(msg.encode(), self._ip.tuple())
 
     def recieve_msg(self, message_and_address):
-        try:
-            message, server_address = self._sock.recvfrom(MAX_BUFF_SIZE)
-        except:
-            message = ""
-            server_address = 0
+        message, server_address = self._sock.recvfrom(MAX_BUFF_SIZE)
         message_and_address.clear()
         message_and_address.append(message)
         message_and_address.append(server_address)
 
         return len(message)
-

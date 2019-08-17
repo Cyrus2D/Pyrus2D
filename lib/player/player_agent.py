@@ -32,7 +32,8 @@ class PlayerAgent:
             message_and_address = []
             message_count = 0
             cycle_start = time.time()
-            while self._socket.recieve_msg(message_and_address) > 0:
+            while True:
+                self._socket.recieve_msg(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
                 self.parse_message(message.decode())
