@@ -42,7 +42,7 @@ class PlayerAgent:
                 if self._think_mode:
                     break
             cycle_end = time.time()
-            print(f"run-time: {cycle_end-cycle_start}s")
+            # print(f"run-time: {cycle_end-cycle_start}s")
 
             if message_count > 0:
                 self.action()
