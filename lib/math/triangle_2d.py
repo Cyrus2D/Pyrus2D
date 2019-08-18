@@ -420,7 +420,7 @@ class Triangle2D(Region2D):
     """
 
     def __repr__(self):
-        return "{[],[],[]}".format(self._a, self._b, self._c)
+        return "[{},{},{}]".format(self._a, self._b, self._c)
 
 
 def test():

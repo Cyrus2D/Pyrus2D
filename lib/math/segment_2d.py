@@ -3,7 +3,7 @@
   \ brief 2D segment line File.
 """
 
-from lib.math.triangle_2d import *
+import lib.math.triangle_2d as tri2d
 from lib.math.line_2d import *
 
 CALC_ERROR = 1.0e-9
@@ -254,13 +254,13 @@ class Segment2D:
       \ return checked result
     """
 
-    def existIntersection(self, *args):  # **kwargs):
+    def existIntersection(self, *args):  # **kwarg):
         if len(args) == 1 and isinstance(args[0], Segment2D):
             other = args[0]
-            a0 = Triangle2D.double_signed_area(self._origin, self._terminal, other.origin())
-            a1 = Triangle2D.double_signed_area(self._origin, self._terminal, other.terminal())
-            b0 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self._origin)
-            b1 = Triangle2D.double_signed_area(other.origin(), other.terminal(), self._terminal)
+            a0 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, other.origin())
+            a1 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, other.terminal())
+            b0 = tri2d.Triangle2D.double_signed_area(other.origin(), other.terminal(), self._origin)
+            b1 = tri2d.Triangle2D.double_signed_area(other.origin(), other.terminal(), self._terminal)
 
             if a0 * a1 < 0.0 and b0 * b1 < 0.0:
                 return True
@@ -321,17 +321,17 @@ class Segment2D:
     """
 
     def existIntersectionExceptEndpoint(self, other):
-        return (Triangle2D.double_signed_area(self._origin,
-                                              self._terminal,
-                                              other.origin(
-                                              )) * Triangle2D.double_signed_area(self._origin,
-                                                                                 self._terminal,
-                                                                                 other.terminal() < 0.0) and (
-                        Triangle2D.double_signed_area(other.self.origin, other.terminal(),
-                                                      self._origin
-                                                      ) * Triangle2D.double_signed_area(other.origin(),
-                                                                                        other.terminal(),
-                                                                                        self._terminal) < 0.0))
+        return (tri2d.Triangle2D.double_signed_area(self._origin,
+                                                    self._terminal,
+                                                    other.origin(
+                                                    )) * tri2d.Triangle2D.double_signed_area(self._origin,
+                                                                                             self._terminal,
+                                                                                             other.terminal() < 0.0) and (
+                        tri2d.Triangle2D.double_signed_area(other.self.origin, other.terminal(),
+                                                            self._origin
+                                                            ) * tri2d.Triangle2D.double_signed_area(other.origin(),
+                                                                                                    other.terminal(),
+                                                                                                    self._terminal) < 0.0))
 
     """
       \ brief check if segments intersect each other on non terminal point. This method is equivalent to 
@@ -390,7 +390,7 @@ class Segment2D:
             tmp_vec = self._terminal - self._origin
             prod = tmp_vec.innerProduct(vec - self._origin)
             if 0.0 <= prod <= length * length:
-                return math.fabs(Triangle2D.double_signed_area(self._origin, self._terminal, vec) / length)
+                return math.fabs(tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, vec) / length)
             return math.sqrt(min(self._origin.dist2(vec),
                                  self._terminal.dist2(vec)))
 
@@ -417,7 +417,8 @@ class Segment2D:
     """
 
     def onSegment(self, p: Vector2D):
-        return Triangle2D.double_signed_area(self._origin, self._terminal, p) == 0.0 and self.checkIntersectsOnLine(p)
+        return tri2d.Triangle2D.double_signed_area(self._origin, self._terminal,
+                                                   p) == 0.0 and self.checkIntersectsOnLine(p)
 
     """
       \ brief weakly check if point is on segment or not
