@@ -675,7 +675,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._synch_mode = dic["synch_mode"]
         self._synch_offset = dic["synch_offset"]
         self._tackle_back_dist = dic["tackle_back_dist"]
-        self._tackle_cycles = dic["tackle_cycles"]
+        self._tackle_cycles = int(dic["tackle_cycles"])
         self._tackle_dist = dic["tackle_dist"]
         self._tackle_exponent = dic["tackle_exponent"]
         self._tackle_power_rate = dic["tackle_power_rate"]

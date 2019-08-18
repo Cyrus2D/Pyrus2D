@@ -38,7 +38,8 @@ class StaminaModel:
                 self._effort += SP.effort_inc()
                 self._effort = min(self._effort, player_type.effort_max())
 
-        stamina_inc = min(player_type.stamina_inc_max() * self._recovery, SP.stamina_max() - self._stamina)
+        stamina_inc = min(player_type.stamina_inc_max() * self._recovery,
+                          SP.stamina_max() - self._stamina)
         if SP.stamina_capacity() >= 0:
             self._stamina += min(stamina_inc, self._capacity)
             self._capacity -= stamina_inc

@@ -18,7 +18,7 @@ class InterceptInfo:
         self._dash_cycle: int = dash_cycle
         self._dash_power: float = dash_power
         self._dash_angle: AngleDeg = AngleDeg(dash_angle)
-        self._self_pos: Vector2D = self_pos
+        self._self_pos: Vector2D = self_pos.copy()  # object in object then copy
         self._ball_dist: float = ball_dist
         self._stamina: float = stamina
         if self._mode == InterceptInfo.Mode.EXHAUST and \

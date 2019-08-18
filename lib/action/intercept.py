@@ -4,6 +4,9 @@ from lib.action.basic_actions import TurnToPoint
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_table import InterceptTable
+from lib.debug.color import Color
+from lib.debug.level import Level
+from lib.debug.logger import dlog
 from lib.math.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
@@ -26,6 +29,12 @@ class Intercept:
         table = wm.intercept_table()
         if table.self_reach_cycle() > 100:
             final_point = wm.ball().inertia_final_point()
+            dlog.add_text(Level.INTERCEPT,
+                          f"table.self_reach_cycle() > 100 (GoToPoint)")
+            dlog.add_circle(Level.INTERCEPT,
+                            center=final_point,
+                            r=0.5,
+                            color=Color(string='red'))
             GoToPoint(final_point,
                       2,
                       ServerParam.i().max_dash_power()).execute(agent)
@@ -38,6 +47,12 @@ class Intercept:
             if not face_point.is_valid():
                 face_point.assign(50.5, wm.self().pos().y() * 0.75)
 
+            dlog.add_text(Level.INTERCEPT,
+                          f"best_intercept.dash_cycle() == 0 (TurnToPoint)")
+            dlog.add_circle(Level.INTERCEPT,
+                            center=face_point,
+                            r=0.5,
+                            color=Color(string='red'))
             TurnToPoint(face_point,
                         best_intercept.reach_cycle()).execute(agent)
             return True
@@ -48,6 +63,8 @@ class Intercept:
             if best_intercept.dash_power() < 0:
                 target_angle -= 180
 
+            dlog.add_text(Level.INTERCEPT,
+                          f"best_intercept.turn_cycle() > 0 (do_turn)")
             return agent.do_turn(target_angle - wm.self().body())
 
         if self.do_wait_turn(agent, target_point, best_intercept):
@@ -60,9 +77,17 @@ class Intercept:
 
             if (wm.self().stamina() - consumed_stamina
                     < ServerParam.i().recover_dec_thr_value() + 1):
+                dlog.add_text(Level.INTERCEPT,
+                              f"last if (do turn)")
                 agent.do_turn(0)
                 return False
 
+        dlog.add_text(Level.INTERCEPT,
+                      f"do inertia dash (do dash)")
+        dlog.add_circle(Level.INTERCEPT,
+                        center=target_point,
+                        r=0.5,
+                        color=Color(string='red'))
         return self.do_inertia_dash(agent,
                                     target_point,
                                     best_intercept)
@@ -78,6 +103,12 @@ class Intercept:
                 attack_pos = opp.pos() + opp.vel()
 
                 if attack_pos.dist2(goal_pos) > my_next.dist2(goal_pos):
+                    dlog.add_text(Level.INTERCEPT,
+                                  f"do_kickable_opp_check (GoToPoint)")
+                    dlog.add_circle(Level.INTERCEPT,
+                                    center=attack_pos,
+                                    r=0.5,
+                                    color=Color(string='red'))
                     GoToPoint(attack_pos,
                               0.1,
                               ServerParam.i().max_dash_power(),
@@ -312,6 +343,12 @@ class Intercept:
             if not face_point.is_valid():
                 face_point.assign(50.5, wm.self().pos().y() * 0.9)
 
+            dlog.add_text(Level.INTERCEPT,
+                          f"do wait turn (1) (TurnToPoint)")
+            dlog.add_circle(Level.INTERCEPT,
+                            center=face_point,
+                            r=0.5,
+                            color=Color(string='red'))
             TurnToPoint(face_point).execute(agent)
             return True
 
@@ -343,6 +380,12 @@ class Intercept:
         if faced_rel.absY() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
             return False
 
+        dlog.add_text(Level.INTERCEPT,
+                      f"do wait turn (2)(TurnToPoint)")
+        dlog.add_circle(Level.INTERCEPT,
+                        center=face_point,
+                        r=0.5,
+                        color=Color(string='red'))
         TurnToPoint(face_point).execute(agent)
         return True
 
@@ -442,7 +485,5 @@ class Intercept:
                 elif ball_next.y() < my_inertia.y() - 1:
                     face_point = Vector2D(face_point.x(), -50)
             TurnToPoint(face_point).execute(agent)
-        print(info.dash_angle())
-        print("f", float(info.dash_angle()))
         agent.do_dash(used_power, info.dash_angle())
         return True

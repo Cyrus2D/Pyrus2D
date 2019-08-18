@@ -144,11 +144,12 @@ class SelfIntercept:
             goalie_mode else \
             ptype.kickable_area()
         dash_angle_step: float = max(5, SP.dash_angle_step())
-        min_dash_angle = SP.min_dash_angle() if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180 else \
-            dash_angle_step * int(-180 / dash_angle_step)
-        max_dash_angle = SP.max_dash_angle() + dash_angle_step * 0.5 if \
-            -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180 else \
-            dash_angle_step * int(180 / dash_angle_step) - 1
+        min_dash_angle = (SP.min_dash_angle()
+                          if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
+                          else dash_angle_step * int(-180 / dash_angle_step))
+        max_dash_angle = (SP.max_dash_angle() + dash_angle_step * 0.5
+                          if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
+                          else dash_angle_step * int(180 / dash_angle_step) - 1)
         dlog.add_text(Level.INTERCEPT, f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
 
         for dirr in frange(min_dash_angle, max_dash_angle, dash_angle_step):
@@ -193,6 +194,7 @@ class SelfIntercept:
             ptype.normalize_accel(me.vel(), max_forward_accel)
             ptype.normalize_accel(me.vel(), max_back_accel)
 
+            info: InterceptInfo = InterceptInfo()
             if self.predict_one_dash_adjust(dash_angle,
                                             max_forward_accel,
                                             max_back_accel,
@@ -273,7 +275,7 @@ class SelfIntercept:
         # big x difference (<0)
         if dash_power < -999 and \
                 ball_rel.x() < back_accel_rel.x():
-            enable_ball_dist = ball_rel.dist(ball_rel)
+            enable_ball_dist = ball_rel.dist(back_accel_rel)
             if enable_ball_dist < control_buf:
                 dash_power = back_accel_rel.x() / dash_rate
                 dlog.add_text(Level.INTERCEPT,
@@ -328,22 +330,30 @@ class SelfIntercept:
 
         dash_rate = wm.self().dash_rate() * ServerParam.i().dash_dir_rate(dash_angle.degree())
         ptype = wm.self().player_type()
-        best_ctrl_dist_forward = ptype.player_size() + ptype.kickable_margin() / 2 + ServerParam.i().ball_size()
-        best_ctrl_dist_backward = ptype.player_size() + 0.3 * ptype.kickable_margin() + ServerParam.i().ball_size()
+        best_ctrl_dist_forward = (ptype.player_size()
+                                  + ptype.kickable_margin() / 2
+                                  + ServerParam.i().ball_size())
+        best_ctrl_dist_backward = (ptype.player_size()
+                                   + 0.3 * ptype.kickable_margin()
+                                   + ServerParam.i().ball_size())
 
         # y diff is longer than best dist.
         # just put the ball on player's side
         if next_ball_rel.absY() > best_ctrl_dist_forward:
             return next_ball_rel.x() / dash_rate
 
-        forward_trap_accel_x = next_ball_rel.x() - (best_ctrl_dist_forward ** 2 - next_ball_rel.y() ** 2) ** 0.5
-        backward_trap_accel_x = next_ball_rel.x() + (best_ctrl_dist_backward ** 2 - next_ball_rel.y() ** 2) ** 0.5
+        forward_trap_accel_x = (next_ball_rel.x()
+                                - (best_ctrl_dist_forward ** 2
+                                   - next_ball_rel.y() ** 2) ** 0.5)
+        backward_trap_accel_x = (next_ball_rel.x()
+                                 + (best_ctrl_dist_backward ** 2
+                                    - next_ball_rel.y() ** 2) ** 0.5)
 
         best_accel_x = 10000
         min_power = 10000
 
         x_step = (backward_trap_accel_x - forward_trap_accel_x) / 5
-        for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x, x_step):
+        for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x + 0.01, x_step):
             if (0 <= accel_x < max_forward_accel_x) or \
                     (max_back_accel_x < accel_x < 0):
                 power = accel_x / dash_rate
@@ -368,8 +378,9 @@ class SelfIntercept:
         pen_area_x = SP.our_penalty_area_line_x() - 0.5
         pen_area_y = SP.penalty_area_half_width() - 0.5
 
-        ball_to_self = (me.pos() - ball.pos()).rotated_vector(ball.vel().th())
-        min_cycle = int(ceil(ball_to_self.absY() - ptype.kickable_area()) / ptype.real_speed_max())
+        ball_to_self = (me.pos() - ball.pos()).rotated_vector(-ball.vel().th())
+        min_cycle = int(ceil((ball_to_self.absY() - ptype.kickable_area())
+                             / ptype.real_speed_max()))
 
         if min_cycle >= max_loop:
             return
@@ -379,7 +390,7 @@ class SelfIntercept:
         ball_pos = ball.inertia_point(min_cycle - 1)
         ball_vel = ball.vel() * SP.ball_decay() ** (min_cycle - 1)
 
-        for cycle in range(min_cycle, max_loop):
+        for cycle in range(min_cycle, max_loop + 1):
             tmp_cache = []
             ball_pos += ball_vel
             ball_vel *= SP.ball_decay()
@@ -389,7 +400,7 @@ class SelfIntercept:
             control_area = (ptype.catchable_area()
                             if goalie_mode
                             else ptype.kickable_area())
-            if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos().dist(ball_pos):
+            if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos().dist2(ball_pos):
                 dlog.add_text(Level.INTERCEPT, "self pred short too far")
                 continue
 
@@ -434,7 +445,7 @@ class SelfIntercept:
                 else:
                     if best.turn_cycle() >= it.turn_cycle() and \
                             (best.ball_dist() > it.ball_dist()
-                             or (abs(safety_ball_dist - it.ball_dist()) < 0.001
+                             or (abs(best.ball_dist() - it.ball_dist()) < 0.001
                                  and best.stamina() < it.stamina())):
                         best = it
             self_cache.append(best)
@@ -466,11 +477,11 @@ class SelfIntercept:
                           else dash_angle_step * int(-180 / dash_angle_step))
         max_dash_angle = (SP.max_dash_angle() + dash_angle_step * 0.5
                           if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
-                          else dash_angle_step * int(180 / dash_angle_step))
+                          else dash_angle_step * int(180 / dash_angle_step) - 1)
 
         target_angle = (ball_pos - my_inertia).th()
         for dirr in frange(min_dash_angle, max_dash_angle, dash_angle_step):
-            if abs(dirr < 1):
+            if abs(dirr) < 1:
                 continue
 
             dash_angle = body_angle + SP.discretize_dash_angle(SP.normalize_dash_angle(dirr))
@@ -492,6 +503,8 @@ class SelfIntercept:
                                                                           my_vel,
                                                                           stamina_model,
                                                                           first_dash_power)
+            if n_omni_dash < 0:
+                continue
             if n_omni_dash == 0:
                 continue
 
@@ -506,7 +519,7 @@ class SelfIntercept:
             # dash to the body direction
             body_accel_unit = Vector2D.polar2vector(1, body_angle)
             for n_dash in range(n_omni_dash + 1, cycle + 1):
-                first_speed = calc_first_term_geom_series((ball_pos - my_pos).rotated_vector(-body_angle).x,
+                first_speed = calc_first_term_geom_series((ball_pos - my_pos).rotated_vector(-body_angle).x(),
                                                           ptype.player_decay(),
                                                           cycle - n_dash + 1)
                 rel_vel = my_vel.rotated_vector(-body_angle)
@@ -566,13 +579,14 @@ class SelfIntercept:
 
         recover_dec_thr = SP.recover_dec_thr_value() + 1
         max_omni_dash = min(2, cycle)
+
         body_angle = me.body() + 180 if back_dash else me.body()
         target_line = Line2D(ball_pos, body_angle)
         my_inertia = me.inertia_point(cycle)
 
         if target_line.dist(my_inertia) < control_area - 0.4:
             first_dash_power = 0
-            return 0, 0
+            return 0, first_dash_power
 
         dash_angle = body_angle + SP.discretize_dash_angle(SP.normalize_dash_angle(dash_rel_dir))
         accel_unit = Vector2D.polar2vector(1, dash_angle)
@@ -602,7 +616,7 @@ class SelfIntercept:
                 dash_power = min(available_stamina, dash_power)
 
             if n_omni_dash == 1:
-                first_dash_power = 0
+                first_dash_power = dash_power
 
             accel_mag = (abs(dash_power)
                          * ptype.dash_rate(stamina_model.effort())
@@ -664,14 +678,14 @@ class SelfIntercept:
         stamina_model.simulate_waits(ptype, n_turn)
 
         if my_inertia.dist2(ball_pos) < (control_area - control_area_buf) ** 2:
-            my_final_pos = my_inertia
-            tmp_stamina = deepcopy(stamina_model)
+            my_final_pos = my_inertia.copy()
+            tmp_stamina = stamina_model.copy()
             tmp_stamina.simulate_waits(ptype, cycle - n_turn)
             self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
                                             n_turn, cycle - n_turn,
                                             0, 0,
                                             my_final_pos,
-                                            my_final_pos.dist2(ball_pos),
+                                            my_final_pos.dist(ball_pos),
                                             tmp_stamina.stamina()))
 
         target_angle: AngleDeg = (ball_pos - my_inertia).th()
@@ -695,7 +709,7 @@ class SelfIntercept:
             if back_dash:
                 dash_power = -dash_power
 
-            available_stamina = (max(0, stamina_model.stamina()) - recover_dec_thr
+            available_stamina = (max(0, stamina_model.stamina() - recover_dec_thr)
                                  if save_recovery
                                  else stamina_model.stamina() + ptype.extra_stamina())
             if back_dash:
@@ -768,9 +782,9 @@ class SelfIntercept:
         if n_turn > 0:
             angle_diff = max(0, angle_diff)
             if (target_angle - body_angle).degree() > 0:
-                result_dash_angle.set_degree(target_angle - angle_diff)
+                result_dash_angle.set_degree((target_angle - angle_diff).degree())
             else:
-                result_dash_angle.set_degree(target_angle + angle_diff)
+                result_dash_angle.set_degree((target_angle + angle_diff).degree())
 
         dlog.add_text(Level.INTERCEPT,
                       f"self pred short cycle {cycle}: "
@@ -938,7 +952,7 @@ class SelfIntercept:
                 return False
 
         # check stamina consumed by one step
-        total_consume = -ServerParam.i().max_dash_power() * 2 * cycle
+        total_consume = -ServerParam.i().min_dash_power() * 2 * cycle
         total_recover = (wm.self().player_type().stamina_inc_max()
                          * wm.self().recovery()
                          * (cycle - 1))
@@ -961,7 +975,7 @@ class SelfIntercept:
                              back_dash: bool,
                              result_recovery,
                              self_cache: list):
-        PLAYER_NOISE_RATE = (1 - ServerParam.i().player_rand() * 0.01)
+        PLAYER_NOISE_RATE = 1 - ServerParam.i().player_rand() * 0.01
         MAX_POWER = ServerParam.i().max_dash_power()
 
         SP = ServerParam.i()
@@ -1026,15 +1040,15 @@ class SelfIntercept:
                     first_dash_power = dash_power_abs * (-1 if back_dash else 1)
 
             # update vel
-            tmp_vel += Vector2D(dash_accel_x, 0)
+            tmp_vel.add_x(dash_accel_x)
             # power conservation, update accel magnitude and dashpower
             if can_over_speed_max and tmp_vel.r2() > ptype.player_speed_max2():
-                tmp_vel -= Vector2D(dash_accel_x, 0)
+                tmp_vel.sub_x(dash_accel_x)
                 max_dash_x = (ptype.player_speed_max2() - tmp_vel.y() ** 2) ** 0.5
 
                 dash_accel_x = max_dash_x - tmp_vel.x()
                 dash_power_abs = abs(dash_accel_x / ptype.dash_rate(stamina_model.effort()))
-                tmp_vel += Vector2D(dash_accel_x, 0)
+                tmp_vel.add_x(dash_accel_x)
                 can_over_speed_max = ptype.can_over_speed_max(dash_power_abs,
                                                               stamina_model.effort())
 
@@ -1079,7 +1093,7 @@ class SelfIntercept:
             self_cache.append(InterceptInfo(mode,
                                             n_turn, n_dash,
                                             first_dash_power, 0,
-                                            my_final_pos, my_final_pos.dist2(ball_pos),
+                                            my_final_pos, my_final_pos.dist(ball_pos),
                                             stamina_model.stamina()))
             return True, result_recovery
         return False, result_recovery
