@@ -366,7 +366,7 @@ class Intercept:
         face_point = self._face_point
         if info.reach_cycle() > 2:
             face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(90)
-            if face_point.x < my_inertia.x:
+            if face_point.x() < my_inertia.x():
                 face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(-90)
 
         if not face_point.is_valid():
