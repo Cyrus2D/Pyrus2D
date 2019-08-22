@@ -33,7 +33,7 @@ class BallObject(Object):
         return self._angle_from_self
 
     def velValid(self):  # ToDo : add count need fix
-        if self._vel < ServerParam.i().player_speed_max():
+        if self._vel.r() < ServerParam.i().player_speed_max():
             return True
         return False
 

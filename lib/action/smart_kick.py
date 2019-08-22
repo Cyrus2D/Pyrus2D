@@ -4,10 +4,10 @@
 """
 
 # from lib.math.soccer_math import *
-# from lib.player.soccer_action import *
-
+from lib.player.soccer_action import *
+#  from lib.player.player_agent import *
 from lib.action.kick_table import *
-from lib.action.stop_ball import *
+from lib.action.stop_ball import StopBall
 
 
 class SmartKick(BodyAction):
@@ -44,6 +44,7 @@ class SmartKick(BodyAction):
                                           max_step,
                                           self._sequence)
                 or self._sequence.speed_ >= first_speed_thr):
+            print("kick table set")
             vel = self._sequence.pos_list_.front() - wm.ball().pos()
             kick_accel = vel - wm.ball().vel()
             agent.do_kick(kick_accel.r() / wm.self().kick_rate(),

@@ -60,9 +60,9 @@ class Formation:
             return
         self._tri = Delaunay(self._balls).simplices
         for tri in self._tri:
-            tmp = [Triangle2D(Vector2D(self._balls[tri[0]][0], self._balls[tri[0]][1]),
-                              Vector2D(self._balls[tri[1]][0], self._balls[tri[1]][1]),
-                              Vector2D(self._balls[tri[2]][0], self._balls[tri[2]][1])), tri[0], tri[1], tri[2]]
+            tmp = [tri2d.Triangle2D(Vector2D(self._balls[tri[0]][0], self._balls[tri[0]][1]),
+                                    Vector2D(self._balls[tri[1]][0], self._balls[tri[1]][1]),
+                                    Vector2D(self._balls[tri[2]][0], self._balls[tri[2]][1])), tri[0], tri[1], tri[2]]
             self._triangles.append(tmp)
 
     def update(self, B):
@@ -76,11 +76,11 @@ class Formation:
         Pa = Vector2D(self._balls[ids[0]][0], self._balls[ids[0]][1])
         Pb = Vector2D(self._balls[ids[1]][0], self._balls[ids[1]][1])
         Pc = Vector2D(self._balls[ids[2]][0], self._balls[ids[2]][1])
-        I = Line2D(Pb, Pc).projection(B)
-        m1 = Pb.dist(I)
-        n1 = Pc.dist(I)
+        lineProj = Line2D(Pb, Pc).projection(B)
+        m1 = Pb.dist(lineProj)
+        n1 = Pc.dist(lineProj)
         m2 = Pa.dist(B)
-        n2 = I.dist(B)
+        n2 = lineProj.dist(B)
 
         self._target_players.clear()
         for p in range(11):

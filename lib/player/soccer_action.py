@@ -3,7 +3,8 @@
   \ brief abstract player actions class File
 """
 
-from lib.player.player_agent import *
+# from lib.player.player_agent import *
+from lib.player.templates import *
 from lib.rcsc.server_param import *
 
 """

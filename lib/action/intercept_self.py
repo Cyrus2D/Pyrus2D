@@ -352,6 +352,7 @@ class SelfIntercept:
         best_accel_x = 10000
         min_power = 10000
 
+        print("ftax & btax:", forward_trap_accel_x, backward_trap_accel_x)
         x_step = (backward_trap_accel_x - forward_trap_accel_x) / 5
         for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x + 0.01, x_step):
             if (0 <= accel_x < max_forward_accel_x) or \
