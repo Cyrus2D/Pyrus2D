@@ -38,28 +38,27 @@ def SequenceCmp(item1, item2) -> bool:
     return item1.score_ < item2.score_
 
 
-class Flag(Enum):
-    SAFETY = 0x0000
-    NEXT_TACKLEABLE = 0x0001
-    NEXT_KICKABLE = 0x0002
-    TACKLEABLE = 0x0004
-    KICKABLE = 0x0008
-    SELF_COLLISION = 0x0010
-    RELEASE_INTERFERE = 0x0020
-    MAYBE_RELEASE_INTERFERE = 0x0040
-    OUT_OF_PITCH = 0x0080
-    KICK_MISS_POSSIBILITY = 0x0100
-    NOT_SAFETY = 0xffff
-    NOT_NEXT_TACKLEABLE = 0xfffe
-    NOT_NEXT_KICKABLE = 0xfffd
-    NOT_TACKLEABLE = 0xfffb
-    NOT_KICKABLE = 0xfff7
-    NOT_SELF_COLLISION = 0xffef
-    NOT_RELEASE_INTERFERE = 0xffdf
-    NOT_MAYBE_RELEASE_INTERFERE = 0xffbf
-    NOT_OUT_OF_PITCH = 0xff7f
-    NOT_KICK_MISS_POSSIBILITY = 0xfeff
-
+# class Flag(Enum):
+SAFETY: hex = 0x0000
+NEXT_TACKLEABLE: hex = 0x0001
+NEXT_KICKABLE: hex = 0x0002
+TACKLEABLE: hex = 0x0004
+KICKABLE: hex = 0x0008
+SELF_COLLISION: hex = 0x0010
+RELEASE_INTERFERE: hex = 0x0020
+MAYBE_RELEASE_INTERFERE: hex = 0x0040
+OUT_OF_PITCH: hex = 0x0080
+KICK_MISS_POSSIBILITY: hex = 0x0100
+NOT_SAFETY: hex = 0xffff
+NOT_NEXT_TACKLEABLE: hex = 0xfffe
+NOT_NEXT_KICKABLE: hex = 0xfffd
+NOT_TACKLEABLE: hex = 0xfffb
+NOT_KICKABLE: hex = 0xfff7
+NOT_SELF_COLLISION: hex = 0xffef
+NOT_RELEASE_INTERFERE: hex = 0xffdf
+NOT_MAYBE_RELEASE_INTERFERE: hex = 0xffbf
+NOT_OUT_OF_PITCH: hex = 0xff7f
+NOT_KICK_MISS_POSSIBILITY: hex = 0xfeff
 
 NEAR_SIDE_RATE = 0.3  # < kickable margin rate for the near side sub-target
 MID_RATE = 0.5  # < kickable margin rate for the middle distance sub-target
@@ -103,13 +102,13 @@ class State:
             self.dist_ = 0.0
             self.pos_ = Vector2D(0, 0)
             self.kick_rate_ = 0.0
-            self.flag_ = Flag.NOT_SAFETY
+            self.flag_ = NOT_SAFETY
         else:
             self.index_ = args[0]
             self.dist_ = args[1]
             self.pos_ = args[2]
             self.kick_rate_ = args[3]
-            self.flag_ = Flag.SAFETY
+            self.flag_ = SAFETY
 
 
 """
@@ -487,7 +486,7 @@ class _KickTable:
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
                 self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
                 index += 1
 
@@ -502,7 +501,7 @@ class _KickTable:
                 self._state_cache[i].append(State(index, mid_dist, pos, krate))
                 self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
                 index += 1
 
@@ -517,7 +516,7 @@ class _KickTable:
                 self._state_cache[i].append(State(index, far_dist, pos, krate))
                 self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
                 if not pitch.contains(pos):
-                    self._state_cache[i][-1].flag_ |= Flag.OUT_OF_PITCH
+                    self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
                 index += 1
 
@@ -547,11 +546,12 @@ class _KickTable:
 
         if self_pos.dist2(release_pos) < collide_dist2:
 
-            self._current_state.flag_ |= Flag.SELF_COLLISION
+            self._current_state.flag_ |= SELF_COLLISION
 
         else:
-
-            self._current_state.flag_ &= Flag.NOT_SELF_COLLISION
+            print(self._current_state.flag_)
+            self._current_state.flag_ &=  NOT_SELF_COLLISION
+            print(self._current_state.flag_)
 
         # check the release kick from future state
 
@@ -565,12 +565,12 @@ class _KickTable:
 
                 if self_pos.dist2(release_pos) < collide_dist2:
 
-                    it.flag_ |= Flag.SELF_COLLISION
+                    it.flag_ |= SELF_COLLISION
                 else:
-                    it.flag_ &=  Flag.NOT_SELF_COLLISION
+                    it.flag_ &= NOT_SELF_COLLISION
 
     """
-      \ brief update interfere level at state
+      \ brief update interfere level at state   
       \ param world  reference to the WorldModel
       \ param cycle the cycle delay for state
       \ param state reference to the State variable to be updated
@@ -585,10 +585,10 @@ class _KickTable:
                                        - ServerParam.i().penalty_area_half_width()),
                               Size2D(ServerParam.i().penalty_area_length(),
                                      ServerParam.i().penalty_area_width()))
-        flag = Flag.SAFETY
+        flag = SAFETY
         OFB = world.opponents_from_ball()
         if len(OFB) == 0:
-            state.flag_ = Flag.SAFETY
+            state.flag_ = SAFETY
             return
         for o in OFB:
             if o is None or o.player_type() is None:
@@ -606,7 +606,7 @@ class _KickTable:
             if o.is_tackling():
                 if opp_dist < (o.playerTypePtr().player_size()
                                + ServerParam.i().ball_size()):
-                    flag |= Flag.KICKABLE
+                    flag |= KICKABLE
                     break
 
                 continue
@@ -619,7 +619,7 @@ class _KickTable:
             # check kick possibility
             #
             if not o.isGhost() and o.posCount() <= 2 and opp_dist < control_area + 0.15:
-                flag |= Flag.KICKABLE
+                flag |= KICKABLE
                 break
 
             opp_body = o.body() if o.bodyCount() <= 1 else (state.pos_ - opp_next).th()
@@ -635,7 +635,7 @@ class _KickTable:
                     player_2_pos.absY() / ServerParam.i().tackle_width(),
                     ServerParam.i().tackle_exponent()))
                 if tackle_prob < 1.0 and 1.0 - tackle_prob > 0.7:  # success probability
-                    flag |= Flag.TACKLABLE
+                    flag |= TACKLEABLE
 
                     # check kick or tackle possibility after dash
 
@@ -647,11 +647,11 @@ class _KickTable:
             if player_2_pos.absY() < control_area and (
                     player_2_pos.absX() < max_accel or (player_2_pos + Vector2D(max_accel, 0.0)).r() < control_area or (
                     player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area):
-                flag |= Flag.NEXT_KICKABLE
+                flag |= NEXT_KICKABLE
             elif (player_2_pos.absY() < ServerParam.i().tackle_width() * 0.7
                   and player_2_pos.x() > 0.0
                   and player_2_pos.x() - max_accel < ServerParam.i().tackle_dist() - 0.3):
-                flag |= Flag.NEXT_TACKLABLE
+                flag |= NEXT_TACKLEABLE
 
         state.flag_ = flag
 
@@ -677,9 +677,9 @@ class _KickTable:
 
             for i in range(MAX_DEPTH):
                 for state in self._state_cache[i]:
-                    # print(state.flag_, "  ", int(Flag.NOT_RELEASE_INTERFERE, 0))
-                    state.flag_ &= Flag.NOT_RELEASE_INTERFERE
-                    state.flag_ &= Flag.NOT_MAYBE_RELEASE_INTERFERE
+                    # print(state.flag_, "  ", int(NOT_RELEASE_INTERFERE, 0))
+                    state.flag_ &= NOT_RELEASE_INTERFERE
+                    state.flag_ &= NOT_MAYBE_RELEASE_INTERFERE
 
                     self.checkInterfereAfterRelease(world, target_point, first_speed, i + 2, state)
         elif len(args) == 5:
@@ -700,7 +700,7 @@ class _KickTable:
 
             OFB = world.opponents_from_ball()
             if len(OFB) == 0:
-                state.flag_ = Flag.SAFETY
+                state.flag_ = SAFETY
                 return
             for o in OFB:
                 if o is None or o.player_type() is None:
@@ -717,7 +717,7 @@ class _KickTable:
 
                 if o.isTackling():
                     if opp_pos.dist(ball_pos) < (o.player_type().player_size() + ServerParam.i().ball_size()):
-                        state.flag_ |= Flag.RELEASE_INTERFERE
+                        state.flag_ |= RELEASE_INTERFERE
                     continue
                 control_area = o.player_type.catch_able_area() if (
                         o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
@@ -728,10 +728,10 @@ class _KickTable:
 
                 if ball_pos.dist2(opp_pos) < control_area2:
                     if cycle <= 1:
-                        state.flag_ |= Flag.RELEASE_INTERFERE
+                        state.flag_ |= RELEASE_INTERFERE
 
                     else:
-                        state.flag_ |= Flag.RELEASE_INTERFERE
+                        state.flag_ |= RELEASE_INTERFERE
                 else:  # if  cycle <= 1 :
                     opp_body = o.body() if o.body_count() <= 1 else (ball_pos - opp_pos).th()
                     player_2_pos = ball_pos - opp_pos
@@ -744,7 +744,7 @@ class _KickTable:
                             player_2_pos.absY() / ServerParam.i().tackle_width(),
                             ServerParam.i().tackle_exponent()))
                         if tackle_prob < 1.0 and 1.0 - tackle_prob > 0.8:  # success probability
-                            state.flag_ |= Flag.MAYBE_RELEASE_INTERFERE
+                            state.flag_ |= MAYBE_RELEASE_INTERFERE
                     player_type = o.player_type()
                     max_accel = (ServerParam.i().max_dash_power()
                                  * player_type.dash_power_rate()
@@ -753,11 +753,11 @@ class _KickTable:
                             and (player_2_pos.absX() < max_accel
                                  or (player_2_pos + Vector2D(max_accel, 0.0)).r() < control_area - 0.25
                                  or (player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area - 0.25)):
-                        state.flag_ |= Flag.MAYBE_RELEASE_INTERFERE
+                        state.flag_ |= MAYBE_RELEASE_INTERFERE
 
                     elif (player_2_pos.absY() < ServerParam.i().tackle_width() * 0.7
                           and player_2_pos.x - max_accel < ServerParam.i().tackle_dist() - 0.5):
-                        state.flag_ |= Flag.MAYBE_RELEASE_INTERFERE
+                        state.flag_ |= MAYBE_RELEASE_INTERFERE
 
     """
       \ brief simulate one step kick
@@ -769,10 +769,10 @@ class _KickTable:
     def simulateOneStep(self, world: WorldModel, target_point: Vector2D, first_speed):
         print("kick simulate 1h")
 
-        if self._current_state.flag_ & Flag.SELF_COLLISION:
+        if self._current_state.flag_ & SELF_COLLISION:
             return False
 
-        if self._current_state.flag_ & Flag.RELEASE_INTERFERE:
+        if self._current_state.flag_ & RELEASE_INTERFERE:
             return False
 
         current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
@@ -850,19 +850,19 @@ class _KickTable:
         for i in range(NUM_STATE):
             state = self._state_cache[0][i]
 
-            if state.flag_ & Flag.OUT_OF_PITCH:
+            if state.flag_ & OUT_OF_PITCH:
                 continue
 
-            if state.flag_ & Flag.KICKABLE:
+            if state.flag_ & KICKABLE:
                 continue
 
-            if state.flag_ & Flag.SELF_COLLISION:
+            if state.flag_ & SELF_COLLISION:
                 continue
 
-            if state.flag_ & Flag.RELEASE_INTERFERE:
+            if state.flag_ & RELEASE_INTERFERE:
                 return False
 
-            kick_miss_flag = Flag.SAFETY
+            kick_miss_flag = SAFETY
             target_vel = (target_point - state.pos_).set_length_vector(first_speed)
 
             vel = state.pos_ - world.ball().pos()
@@ -877,7 +877,7 @@ class _KickTable:
                     current_pos_rate + current_speed_rate)
             if ((my_noise + ball_noise + max_kick_rand)  # * 0.9
                     > my_kickable_area - state.dist_ - 0.05):  # 0.1 )
-                kick_miss_flag |= Flag.KICK_MISS_POSSIBILITY
+                kick_miss_flag |= KICK_MISS_POSSIBILITY
 
             vel *= ball_decay
             accel = target_vel - vel
@@ -896,7 +896,7 @@ class _KickTable:
 
                         max_speed2 = d2
                         accel = max_vel - vel
-                        self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
                                                       | state.flag_)
                         self._candidates[-1].pos_list_.clear()
                         self._candidates[-1].pos_list_.append(state.pos_)
@@ -905,7 +905,7 @@ class _KickTable:
                         self._candidates[-1].power_ = accel.r() / state.kick_rate_
                 continue
             self._candidates.append(Sequence())
-            self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
                                           | state.flag_
                                           | kick_miss_flag)
             self._candidates[-1].pos_list_.append(state.pos_)
@@ -972,27 +972,27 @@ class _KickTable:
             state_1st = self._state_cache[0][it.origin_]
             state_2nd = self._state_cache[1][it.dest_]
 
-            if state_1st.flag_ & Flag.OUT_OF_PITCH:
+            if state_1st.flag_ & OUT_OF_PITCH:
                 continue
 
-            if state_2nd.flag_ & Flag.OUT_OF_PITCH:
+            if state_2nd.flag_ & OUT_OF_PITCH:
                 continue
 
-            if state_1st.flag_ & Flag.KICKABLE:
+            if state_1st.flag_ & KICKABLE:
                 continue
 
-            if state_2nd.flag_ & Flag.KICKABLE:
+            if state_2nd.flag_ & KICKABLE:
                 continue
 
-            if state_2nd.flag_ & Flag.SELF_COLLISION:
+            if state_2nd.flag_ & SELF_COLLISION:
                 continue
 
-            if state_2nd.flag_ & Flag.RELEASE_INTERFERE:
+            if state_2nd.flag_ & RELEASE_INTERFERE:
                 return False
 
             target_vel = (target_point - state_2nd.pos_).set_lengthVector(first_speed)
 
-            kick_miss_flag = Flag.SAFETY
+            kick_miss_flag = SAFETY
 
             vel1 = state_1st.pos_ - world.ball().pos()
             accel = vel1 - world.ball().vel()
@@ -1008,7 +1008,7 @@ class _KickTable:
 
             if ((my_noise1 + ball_noise + max_kick_rand)  # * 0.95
                     > my_kickable_area - state_1st.dist_ - 0.05):  # 0.1 )
-                kick_miss_flag |= Flag.KICK_MISS_POSSIBILITY
+                kick_miss_flag |= KICK_MISS_POSSIBILITY
 
             vel1 *= ball_decay
             vel2 = state_2nd.pos_ - state_1st.pos_
@@ -1035,8 +1035,8 @@ class _KickTable:
                         max_speed2 = d2
                         accel = max_vel - vel2
 
-                        self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
-                                                      | (state_1st.flag_ & Flag.NOT_RELEASE_INTERFERE)
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
+                                                      | (state_1st.flag_ & NOT_RELEASE_INTERFERE)
                                                       | state_2nd.flag_)
                         self._candidates[-1].pos_list_.clear()
                         self._candidates[-1].pos_list_.append(state_1st.pos_)
@@ -1046,8 +1046,8 @@ class _KickTable:
                         self._candidates[-1].power_ = accel.r() / state_2nd.kick_rate_
                 continue
             self._candidates.append(Sequence())
-            self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
-                                          | (state_1st.flag_ & Flag.NOT_RELEASE_INTERFERE)
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
+                                          | (state_1st.flag_ & NOT_RELEASE_INTERFERE)
                                           | state_2nd.flag_
                                           | kick_miss_flag)
             self._candidates[-1].pos_list_.append(state_1st.pos_)
@@ -1080,16 +1080,16 @@ class _KickTable:
                 else:
                     it.score_ -= 50.0
 
-            if it.flag_ & Flag.TACKLABLE:
+            if it.flag_ & TACKLEABLE:
                 it.score_ -= 500.0
 
-            if it.flag_ & Flag.NEXT_TACKLABLE:
+            if it.flag_ & NEXT_TACKLEABLE:
                 it.score_ -= 300.0
 
-            if it.flag_ & Flag.NEXT_KICKABLE:
+            if it.flag_ & NEXT_KICKABLE:
                 it.score_ -= 600.0
 
-            if it.flag_ & Flag.MAYBE_RELEASE_INTERFERE:
+            if it.flag_ & MAYBE_RELEASE_INTERFERE:
                 if n_kick == 1:
                     it.score_ -= 250.0
 
@@ -1111,7 +1111,7 @@ class _KickTable:
 
             it.score_ -= it.power_ * 0.5
 
-            if it.flag_ & Flag.KICK_MISS_POSSIBILITY:
+            if it.flag_ & KICK_MISS_POSSIBILITY:
                 it.score_ -= 30.0
 
     """
