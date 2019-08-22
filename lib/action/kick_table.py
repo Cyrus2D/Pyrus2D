@@ -104,10 +104,10 @@ class State:
             self.kick_rate_ = 0.0
             self.flag_ = NOT_SAFETY
         else:
-            self.index_ = args[0]
-            self.dist_ = args[1]
-            self.pos_ = args[2]
-            self.kick_rate_ = args[3]
+            self.index_: int = args[0]
+            self.dist_: float = args[1]
+            self.pos_: Vector2D = args[2]
+            self.kick_rate_: float = args[3]
             self.flag_ = SAFETY
 
 
@@ -248,7 +248,7 @@ def calc_max_velocity(target_angle: AngleDeg,
                       ball_vel: Vector2D):
     ball_speed_max2 = pow(ServerParam.i().ball_speed_max(), 2)
     max_accel = min(ServerParam.i().max_power() * krate,
-                    ServerParam.i().ball_accel_max())
+                    float(ServerParam.i().ball_accel_max()))
 
     desired_ray = Ray2D(Vector2D(0.0, 0.0), target_angle)
     next_reachable_circle = Circle2D(ball_vel, max_accel)
@@ -549,9 +549,7 @@ class _KickTable:
             self._current_state.flag_ |= SELF_COLLISION
 
         else:
-            print(self._current_state.flag_)
-            self._current_state.flag_ &=  NOT_SELF_COLLISION
-            print(self._current_state.flag_)
+            self._current_state.flag_ &= NOT_SELF_COLLISION
 
         # check the release kick from future state
 
@@ -677,7 +675,6 @@ class _KickTable:
 
             for i in range(MAX_DEPTH):
                 for state in self._state_cache[i]:
-                    # print(state.flag_, "  ", int(NOT_RELEASE_INTERFERE, 0))
                     state.flag_ &= NOT_RELEASE_INTERFERE
                     state.flag_ &= NOT_MAYBE_RELEASE_INTERFERE
 
@@ -776,7 +773,7 @@ class _KickTable:
             return False
 
         current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
-                                ServerParam.i().ball_accel_max())
+                                float(ServerParam.i().ball_accel_max()))
         target_vel = (target_point - world.ball().pos())
         target_vel.set_length(first_speed)
 
@@ -824,10 +821,11 @@ class _KickTable:
         print("kick simulate 2th")
 
         max_power = ServerParam.i().max_power()
-        accel_max = ServerParam.i().ball_accel_max()
+        accel_max = float(ServerParam.i().ball_accel_max())
         ball_decay = ServerParam.i().ball_decay()
 
         self_type = world.self().player_type()
+
         current_max_accel = min(self._current_state.kick_rate_ * max_power, accel_max)
 
         param = ServerParam.i()
@@ -841,8 +839,9 @@ class _KickTable:
                               - param.ball_size())
                              / self_type.kickable_margin())
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
-        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
-                                          / (param.ball_speed_max() * param.player_decay()))
+
+        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r() / (
+                param.ball_speed_max() * float(param.player_decay())))
         # my_final_pos = world.self().pos() + world.self().vel() + world.self().vel() * self_type.player_decay()
 
         success_count = 0
@@ -873,7 +872,7 @@ class _KickTable:
                 continue
             kick_power = accel_r / world.self().kick_rate()
             ball_noise = vel.r() * param.ball_rand()
-            max_kick_rand = self_type.kickRand() * (kick_power / param.max_power()) * (
+            max_kick_rand = self_type.kick_rand() * (kick_power / param.max_power()) * (
                     current_pos_rate + current_speed_rate)
             if ((my_noise + ball_noise + max_kick_rand)  # * 0.9
                     > my_kickable_area - state.dist_ - 0.05):  # 0.1 )
@@ -928,7 +927,7 @@ class _KickTable:
         print("kick simulate 3")
 
         max_power = ServerParam.i().max_power()
-        accel_max = ServerParam.i().ball_accel_max()
+        accel_max = float(ServerParam.i().ball_accel_max())
         ball_decay = ServerParam.i().ball_decay()
 
         current_max_accel = min(self._current_state.kick_rate_ * max_power,
@@ -949,7 +948,7 @@ class _KickTable:
                              / self_type.kickable_margin())
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
-                                          / (param.ball_speed_max() * param.ball_decay()))
+                                          / (param.ball_speed_max() * float(param.ball_decay())))
 
         target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
         angle_deg = target_rel_angle.degree() + 180.0
@@ -990,7 +989,7 @@ class _KickTable:
             if state_2nd.flag_ & RELEASE_INTERFERE:
                 return False
 
-            target_vel = (target_point - state_2nd.pos_).set_lengthVector(first_speed)
+            target_vel = (target_point - state_2nd.pos_).set_length_vector(first_speed)
 
             kick_miss_flag = SAFETY
 
@@ -1003,7 +1002,7 @@ class _KickTable:
 
             kick_power = math.sqrt(accel_r2) / world.self().kick_rate()
             ball_noise = vel1.r() * param.ball_rand()
-            max_kick_rand = self_type.kickRand() * (kick_power / param.max_power()) * (
+            max_kick_rand = self_type.kick_rand() * (kick_power / param.max_power()) * (
                     current_pos_rate + current_speed_rate)
 
             if ((my_noise1 + ball_noise + max_kick_rand)  # * 0.95
@@ -1140,15 +1139,12 @@ class _KickTable:
 
         self.updateState(world)
 
-        print("before check Collision and Interfere AfterRelease")
-
         self.checkCollisionAfterRelease(world,
                                         target_point,
                                         target_speed)
         self.checkInterfereAfterRelease(world,
                                         target_point,
                                         target_speed)
-        print("after check Collision and Interfere AfterRelease")
 
         if (max_step >= 1
                 and self.simulateOneStep(world,
