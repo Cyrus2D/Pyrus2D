@@ -49,6 +49,16 @@ class Flag(Enum):
     MAYBE_RELEASE_INTERFERE = 0x0040
     OUT_OF_PITCH = 0x0080
     KICK_MISS_POSSIBILITY = 0x0100
+    NOT_SAFETY = 0xffff
+    NOT_NEXT_TACKLEABLE = 0xfffe
+    NOT_NEXT_KICKABLE = 0xfffd
+    NOT_TACKLEABLE = 0xfffb
+    NOT_KICKABLE = 0xfff7
+    NOT_SELF_COLLISION = 0xffef
+    NOT_RELEASE_INTERFERE = 0xffdf
+    NOT_MAYBE_RELEASE_INTERFERE = 0xffbf
+    NOT_OUT_OF_PITCH = 0xff7f
+    NOT_KICK_MISS_POSSIBILITY = 0xfeff
 
 
 NEAR_SIDE_RATE = 0.3  # < kickable margin rate for the near side sub-target
@@ -91,8 +101,9 @@ class State:
         if len(args) == 0:
             self.index_ = -1
             self.dist_ = 0.0
+            self.pos_ = Vector2D(0, 0)
             self.kick_rate_ = 0.0
-            self.flag_ = 0xFFFF
+            self.flag_ = Flag.NOT_SAFETY
         else:
             self.index_ = args[0]
             self.dist_ = args[1]
@@ -254,7 +265,7 @@ def calc_max_velocity(target_angle: AngleDeg,
             # next inertia ball point is within reachable circle.
             if next_reachable_circle.contains(Vector2D(0.0, 0.0)):
                 # can adjust angle at least
-                vel1.setLength(ServerParam.i().ball_speed_max())
+                vel1.set_length(ServerParam.i().ball_speed_max())
 
             else:
                 # failed
@@ -279,7 +290,7 @@ def calc_max_velocity(target_angle: AngleDeg,
             vel1.assign(0.0, 0.0)
 
         else:
-            vel1.setLength(ServerParam.i().ball_speed_max())
+            vel1.set_length(ServerParam.i().ball_speed_max())
 
     return vel1
 
@@ -296,12 +307,12 @@ class _KickTable:
             for j in range(NUM_STATE):
                 self._state_cache[i].append(0.0)
         # not  static state list
-        self._state_list = []  # : List[State] = []
+        self._state_list = [State()] * NUM_STATE  # : List[State] = []
         self._tables = [[Path()] * 256 for i in range(DEST_DIR_DIVS)]
 
         self._current_state = State()
 
-        self._state_cache = [[State()] * DEST_DIR_DIVS]
+        self._state_cache = [[State()]] * DEST_DIR_DIVS
 
         self._candidates = []  # :  list[Sequence] = []
 
@@ -379,7 +390,7 @@ class _KickTable:
 
     def createTable(self, angle: AngleDeg, table):
 
-        max_combination = NUM_STATE * NUM_STATE
+        # max_combination = NUM_STATE * NUM_STATE
         max_state = len(self._state_list)
 
         table.clear()
@@ -468,10 +479,10 @@ class _KickTable:
             index = 0
             for near in range(STATE_DIVS_NEAR):
                 pos = self._state_list[index].pos_
-                krate = self_type.kickRate(near_dist, pos.th().degree())
+                krate = self_type.kick_rate(near_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
-                pos.setLength(near_dist)
+                pos.set_length(near_dist)
                 pos += self_pos
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
                 self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
@@ -482,10 +493,10 @@ class _KickTable:
 
             for mid in range(STATE_DIVS_MID):
                 pos = self._state_list[index].pos_
-                krate = self_type.kickRate(mid_dist, pos.th().degree())
+                krate = self_type.kick_rate(mid_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
-                pos.setLength(mid_dist)
+                pos.set_length(mid_dist)
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, mid_dist, pos, krate))
@@ -497,10 +508,10 @@ class _KickTable:
 
             for far in range(STATE_DIVS_FAR):
                 pos = self._state_list[index].pos_
-                krate = self_type.kickRate(far_dist, pos.th().degree())
+                krate = self_type.kick_rate(far_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
-                pos.setLength(far_dist)
+                pos.set_length(far_dist)
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, far_dist, pos, krate))
@@ -532,7 +543,7 @@ class _KickTable:
         self_vel *= self_type.player_decay()
 
         release_pos = (target_point - self._current_state.pos_)
-        release_pos.setLength(first_speed)
+        release_pos.set_length(first_speed)
 
         if self_pos.dist2(release_pos) < collide_dist2:
 
@@ -540,7 +551,7 @@ class _KickTable:
 
         else:
 
-            self._current_state.flag_ &= ~Flag.SELF_COLLISION
+            self._current_state.flag_ &= Flag.NOT_SELF_COLLISION
 
         # check the release kick from future state
 
@@ -550,13 +561,13 @@ class _KickTable:
 
             for it in self._state_cache[i]:
                 release_pos = (target_point - it.pos_)
-                release_pos.setLength(first_speed)
+                release_pos.set_length(first_speed)
 
                 if self_pos.dist2(release_pos) < collide_dist2:
 
                     it.flag_ |= Flag.SELF_COLLISION
                 else:
-                    it.flag_ &= ~Flag.SELF_COLLISION
+                    it.flag_ &=  Flag.NOT_SELF_COLLISION
 
     """
       \ brief update interfere level at state
@@ -574,10 +585,10 @@ class _KickTable:
                                        - ServerParam.i().penalty_area_half_width()),
                               Size2D(ServerParam.i().penalty_area_length(),
                                      ServerParam.i().penalty_area_width()))
-        flag = 0x0000
+        flag = Flag.SAFETY
         OFB = world.opponents_from_ball()
         if len(OFB) == 0:
-            flag = Flag.SAFETY
+            state.flag_ = Flag.SAFETY
             return
         for o in OFB:
             if o is None or o.player_type() is None:
@@ -666,8 +677,9 @@ class _KickTable:
 
             for i in range(MAX_DEPTH):
                 for state in self._state_cache[i]:
-                    state.flag_ &= ~Flag.RELEASE_INTERFERE
-                    state.flag_ &= ~Flag.MAYBE_RELEASE_INTERFERE
+                    # print(state.flag_, "  ", int(Flag.NOT_RELEASE_INTERFERE, 0))
+                    state.flag_ &= Flag.NOT_RELEASE_INTERFERE
+                    state.flag_ &= Flag.NOT_MAYBE_RELEASE_INTERFERE
 
                     self.checkInterfereAfterRelease(world, target_point, first_speed, i + 2, state)
         elif len(args) == 5:
@@ -683,12 +695,16 @@ class _KickTable:
                                          ServerParam.i().penalty_area_width()))
 
             ball_pos = target_point - state.pos_
-            ball_pos.setLength(first_speed)
+            ball_pos.set_length(first_speed)
             ball_pos += state.pos_
 
             OFB = world.opponents_from_ball()
-
+            if len(OFB) == 0:
+                state.flag_ = Flag.SAFETY
+                return
             for o in OFB:
+                if o is None or o.player_type() is None:
+                    continue
                 if o.pos_count() >= 8:
                     continue
                 if o.is_ghost():
@@ -762,7 +778,7 @@ class _KickTable:
         current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
                                 ServerParam.i().ball_accel_max())
         target_vel = (target_point - world.ball().pos())
-        target_vel.setLength(first_speed)
+        target_vel.set_length(first_speed)
 
         accel = target_vel - world.ball().vel()
         accel_r = accel.r()
@@ -880,7 +896,7 @@ class _KickTable:
 
                         max_speed2 = d2
                         accel = max_vel - vel
-                        self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
                                                       | state.flag_)
                         self._candidates[-1].pos_list_.clear()
                         self._candidates[-1].pos_list_.append(state.pos_)
@@ -889,7 +905,7 @@ class _KickTable:
                         self._candidates[-1].power_ = accel.r() / state.kick_rate_
                 continue
             self._candidates.append(Sequence())
-            self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
                                           | state.flag_
                                           | kick_miss_flag)
             self._candidates[-1].pos_list_.append(state.pos_)
@@ -974,7 +990,7 @@ class _KickTable:
             if state_2nd.flag_ & Flag.RELEASE_INTERFERE:
                 return False
 
-            target_vel = (target_point - state_2nd.pos_).setLengthVector(first_speed)
+            target_vel = (target_point - state_2nd.pos_).set_lengthVector(first_speed)
 
             kick_miss_flag = Flag.SAFETY
 
@@ -1019,8 +1035,8 @@ class _KickTable:
                         max_speed2 = d2
                         accel = max_vel - vel2
 
-                        self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
-                                                      | (state_1st.flag_ & ~Flag.RELEASE_INTERFERE)
+                        self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
+                                                      | (state_1st.flag_ & Flag.NOT_RELEASE_INTERFERE)
                                                       | state_2nd.flag_)
                         self._candidates[-1].pos_list_.clear()
                         self._candidates[-1].pos_list_.append(state_1st.pos_)
@@ -1030,8 +1046,8 @@ class _KickTable:
                         self._candidates[-1].power_ = accel.r() / state_2nd.kick_rate_
                 continue
             self._candidates.append(Sequence())
-            self._candidates[-1].flag_ = ((self._current_state.flag_ & ~Flag.RELEASE_INTERFERE)
-                                          | (state_1st.flag_ & ~Flag.RELEASE_INTERFERE)
+            self._candidates[-1].flag_ = ((self._current_state.flag_ & Flag.NOT_RELEASE_INTERFERE)
+                                          | (state_1st.flag_ & Flag.NOT_RELEASE_INTERFERE)
                                           | state_2nd.flag_
                                           | kick_miss_flag)
             self._candidates[-1].pos_list_.append(state_1st.pos_)
@@ -1110,8 +1126,7 @@ class _KickTable:
     """
 
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
-        if len(self._state_list) != 0:
-            print("INJA")
+        if len(self._state_list) == 0:
             return False
 
         target_speed = bound(0.0,
@@ -1123,10 +1138,9 @@ class _KickTable:
 
         self._candidates.clear()
 
-        print("before update checks")
-
         self.updateState(world)
-        print("after update checks")
+
+        print("before check Collision and Interfere AfterRelease")
 
         self.checkCollisionAfterRelease(world,
                                         target_point,
@@ -1134,7 +1148,7 @@ class _KickTable:
         self.checkInterfereAfterRelease(world,
                                         target_point,
                                         target_speed)
-        print("after update checks")
+        print("after check Collision and Interfere AfterRelease")
 
         if (max_step >= 1
                 and self.simulateOneStep(world,
