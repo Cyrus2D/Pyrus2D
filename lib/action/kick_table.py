@@ -5,6 +5,7 @@
 import functools
 
 # from typing import List
+# from enum import Enum
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.world_model import *
@@ -12,7 +13,6 @@ from lib.rcsc.player_type import *
 from lib.rcsc.server_param import *
 from lib.math.soccer_math import *
 from lib.rcsc.game_time import *
-from enum import Enum
 
 """
   \ enum Flag
@@ -143,7 +143,7 @@ class Path:
 
 class Sequence:
     # < safety level flags. usually the combination of State flags
-    # not < ball positions
+    # < ball positions
     # < released ball speed
     # < estimated last kick power
     # < evaluated score of self sequence
@@ -158,7 +158,7 @@ class Sequence:
     def __init__(self, *args):
         if len(args) == 0:
             self.flag_ = 0x0000
-            self.pos_list_ = []
+            self.pos_list_ = [Vector2D()]
             self.speed_ = 0.0
             self.power_ = 10000.0
             self.score_ = 0.0
@@ -313,7 +313,7 @@ class _KickTable:
 
         self._state_cache = [[State()]] * DEST_DIR_DIVS
 
-        self._candidates = []  # :  list[Sequence] = []
+        self._candidates = [Sequence()]  # :  list[Sequence] = []
 
     """
     \ brief create heuristic table
@@ -764,8 +764,7 @@ class _KickTable:
      """
 
     def simulateOneStep(self, world: WorldModel, target_point: Vector2D, first_speed):
-        print("kick simulate 1h")
-
+        print("one Step")
         if self._current_state.flag_ & SELF_COLLISION:
             return False
 
@@ -789,6 +788,8 @@ class _KickTable:
             self._candidates[-1].pos_list_.append(world.ball().pos() + max_vel)
             self._candidates[-1].speed_ = max_vel.r()
             self._candidates[-1].power_ = accel.r() / self._current_state.kick_rate_
+            print(self._candidates[-1].flag_, " ", self._candidates[-1].pos_list_[-1], " ", self._candidates[-1].speed_,
+                  " ", accel_r, " ", current_max_accel)
             return False
 
         self._candidates.append(Sequence())
@@ -796,7 +797,8 @@ class _KickTable:
         self._candidates[-1].pos_list_.append(world.ball().pos() + target_vel)
         self._candidates[-1].speed_ = first_speed
         self._candidates[-1].power_ = accel_r / self._current_state.kick_rate_
-
+        print(self._candidates[-1].flag_, " ", self._candidates[-1].pos_list_[-1], " ", self._candidates[-1].speed_,
+              " ", accel_r, " ", current_max_accel)
         """
             dlog.addText( Logger.KICK,
                           "ok__ 1 step: target_vel=(%.2f %.2f)%.3f required_accel=%.3f < max_accel=%.3f"
@@ -818,7 +820,6 @@ class _KickTable:
      """
 
     def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
-        print("kick simulate 2th")
 
         max_power = ServerParam.i().max_power()
         accel_max = float(ServerParam.i().ball_accel_max())
@@ -924,7 +925,6 @@ class _KickTable:
     def simulateThreeStep(self, world: WorldModel,
                           target_point: Vector2D,
                           first_speed):
-        print("kick simulate 3")
 
         max_power = ServerParam.i().max_power()
         accel_max = float(ServerParam.i().ball_accel_max())
@@ -1150,7 +1150,7 @@ class _KickTable:
                 and self.simulateOneStep(world,
                                          target_point,
                                          target_speed)):
-            dlog.add_text(Level.KICK, "simulate() found 1 step")
+            dlog.add_text(Level.KICK, "simulate() found 1fdh step")
         if (max_step >= 2
                 and self.simulateTwoStep(world,
                                          target_point,
@@ -1161,14 +1161,15 @@ class _KickTable:
                                            target_point,
                                            target_speed)):
             dlog.add_text(Level.KICK, "simulate() found 3 step")
+        print(sequence.pos_list_[0])
 
         self.evaluate(target_speed, speed_thr)
+        print(sequence.pos_list_[0])
 
         if not self._candidates:
             return False
         # sequence = self._candidates[0]
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
-
         """
             dlog.addText( Level.KICK,
                           __FILE__": simulate() result next_pos=(%.2f %.2f)  flag=%x n_kick=%d speed=%.2f power=%.2f score=%.2f",
@@ -1180,6 +1181,7 @@ class _KickTable:
                           sequence.power_,
                           sequence.score_ )
         """
+        # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
         return sequence.speed_ >= target_speed - EPS
 
     """
@@ -1205,3 +1207,4 @@ class KickTable:
     @staticmethod
     def instance() -> _KickTable:
         return KickTable._instance
+# TODO FIX CAST
