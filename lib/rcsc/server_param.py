@@ -562,7 +562,7 @@ class _ServerParam:  # TODO specific TYPES and change them
     def set_data(self, dic):
         self._audio_cut_dist = dic["audio_cut_dist"]
         self._back_passes = dic["back_passes"]
-        self._ball_accel_max = dic["ball_accel_max"]
+        self._ball_accel_max = float(dic["ball_accel_max"])
         self._ball_decay = float(dic["ball_decay"])
         self._ball_rand = float(dic["ball_rand"])
         self._ball_size = float(dic["ball_size"])
