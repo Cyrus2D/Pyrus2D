@@ -3,7 +3,6 @@
   \ brief 2D circle region File.
 """
 
-from lib.math.triangle_2d import *
 from lib.math.segment_2d import *
 
 """
@@ -158,7 +157,7 @@ class Circle2D:
             y2 = n_sol[2]
             sol_list = [n_sol[0], Vector2D(line.getX(y1), y1), Vector2D(line.getX(y2), y2)]
             return sol_list
-        elif len(args) == 1 and isinstance(args[0], Ray2D):
+        elif len(args) == 1 and isinstance(args[0], tri2d.Ray2D):
             ray = args[0]
             line_tmp = Line2D(ray.origin(), ray.dir())
 
@@ -224,7 +223,7 @@ class Circle2D:
 
     @staticmethod
     def circumcircle(p0, p1, p2):
-        center = Triangle2D.tri_circumcenter(p0, p1, p2)
+        center = tri2d.Triangle2D.tri_circumcenter(p0, p1, p2)
 
         if not center.is_valid():
             return Circle2D()

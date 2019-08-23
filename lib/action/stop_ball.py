@@ -2,9 +2,8 @@
   \ file body_stop_ball.py
   \ brief kick the ball to keep a current positional relation.
 """
-from lib.player.soccer_action import *
-from lib.math.geom_2d import *
 
+from lib.player.soccer_action import *
 """
   \ class Body_StopBall
   \ brief stop the ball, possible as.
@@ -32,7 +31,7 @@ class StopBall(BodyAction):
         if not wm.self().is_kickable():
             return False
         if not wm.ball().velValid():  # Always true until NFS nice :)
-            required_accel = wm.self().vel() - (wm.self().pos() - wm.ball())
+            required_accel = wm.self().vel() - (wm.self().pos() - wm.ball().pos())
             kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),
