@@ -820,7 +820,7 @@ class _KickTable:
      """
 
     def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
-
+        success_count = 0
         max_power = ServerParam.i().max_power()
         accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
@@ -903,6 +903,7 @@ class _KickTable:
                         self._candidates[-1].pos_list_.append(state.pos_ + max_vel)
                         self._candidates[-1].speed_ = math.sqrt(max_speed2)
                         self._candidates[-1].power_ = accel.r() / state.kick_rate_
+                        success_count += 1
                 continue
             self._candidates.append(Sequence())
             self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
@@ -912,8 +913,8 @@ class _KickTable:
             self._candidates[-1].pos_list_.append(state.pos_ + target_vel)
             self._candidates[-1].speed_ = first_speed
             self._candidates[-1].power_ = accel_r / state.kick_rate_
-        return False
-        # TODO : no True?
+            success_count += 1
+        return success_count > 0
 
     """
       \ brief simulate three step kicks
@@ -1164,15 +1165,28 @@ class _KickTable:
                                            target_speed)):
             print("simulate() found 3 step")
             dlog.add_text(Level.KICK, "simulate() found 3 step")
-        print(sequence.pos_list_[0])
 
         self.evaluate(target_speed, speed_thr)
-        print(sequence.pos_list_[0])
 
         if not self._candidates:
             return False
         # sequence = self._candidates[0]
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
+
+        print("_______________________candidates_________________________")
+        for tmp in self._candidates:
+            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
+                  tmp.speed_, " power : ", tmp.power_,
+                  " score : ", tmp.score_, "  flag : ",
+                  tmp.flag_)
+        print("################################################")
+        tmp = sequence
+        print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
+              tmp.speed_, " power : ", tmp.power_,
+              " score : ", tmp.score_, "  flag : ",
+              tmp.flag_)
+        print("################################################")
+
         """
             dlog.addText( Level.KICK,
                           __FILE__": simulate() result next_pos=(%.2f %.2f)  flag=%x n_kick=%d speed=%.2f power=%.2f score=%.2f",
