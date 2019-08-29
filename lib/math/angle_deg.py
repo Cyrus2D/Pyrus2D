@@ -140,6 +140,9 @@ class AngleDeg:
         diff = self.degree() - angle.degree()
         return (0.0 < diff and diff < 180.0) or diff < -180.0
 
+    def copy(self):
+        return AngleDeg(self._degree)
+
     @staticmethod
     def rad2deg(rad):
         return rad * RAD2DEG

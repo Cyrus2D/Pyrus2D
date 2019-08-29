@@ -20,3 +20,6 @@ class GameTime:
 
     def __eq__(self, other):
         return self.cycle() == other.cycle()
+
+    def copy(self):
+        return GameTime(self._cycle, self._stopped_cycle)

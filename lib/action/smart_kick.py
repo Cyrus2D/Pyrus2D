@@ -47,8 +47,11 @@ class SmartKick(BodyAction):
             print("kick table true")
             vel = self._sequence.pos_list_[0] - wm.ball().pos()
             kick_accel = vel - wm.ball().vel()
+            print(kick_accel.r() / wm.self().kick_rate(),
+                  kick_accel.th() - wm.self().body())
             agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                           kick_accel.th() - wm.self().body())
+            print("inaro")
             return True
         """
         for p in = self._sequence.pos_list_ :

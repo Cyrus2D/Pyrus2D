@@ -110,7 +110,7 @@ class PlayerObject(Object):
         return self._side
 
     def body(self) -> AngleDeg:
-        return self._body
+        return self._body.copy()
 
     def neck(self):
         return self._neck

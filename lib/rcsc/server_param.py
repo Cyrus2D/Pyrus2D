@@ -636,7 +636,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._online_coach_port = dic["olcoach_port"]
         self._use_old_coach_hear = dic["old_coach_hear"]
         self._player_accel_max = dic["player_accel_max"]
-        self._player_decay = dic["player_decay"]
+        self._player_decay = float(dic["player_decay"])
         self._player_rand = float(dic["player_rand"])
         self._player_size = dic["player_size"]
         self._player_speed_max = float(dic["player_speed_max"])

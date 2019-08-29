@@ -24,7 +24,7 @@ class BallObject(Object):
 
     def _update_more_with_full_state(self, wm):
         self._dist_from_self = wm.self().pos().dist(self._pos)
-        self._angle_from_self = (wm.self().pos() - self._pos).th()  # Todo : Need checkup
+        self._angle_from_self = (wm.self().pos() - self._pos).th()
 
     def dist_from_self(self):
         return self._dist_from_self

@@ -51,7 +51,7 @@ class WorldModel:
         return self._their_players[unum - 1]
 
     def time(self):
-        return self._time
+        return self._time.copy()
 
     def parse(self, message):
         if message.find("fullstate") is not -1:

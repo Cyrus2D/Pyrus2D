@@ -106,7 +106,7 @@ class State:
         else:
             self.index_: int = args[0]
             self.dist_: float = args[1]
-            self.pos_: Vector2D = args[2]
+            self.pos_: Vector2D = args[2].copy()
             self.kick_rate_: float = args[3]
             self.flag_ = SAFETY
 
@@ -165,8 +165,8 @@ class Sequence:
         if len(args) == 1:
             self.flag_ = args[0].flag_
             self.pos_list_ = args[0].pos_list_
-            self.speed_ = args[0].speed_
-            self.power_ = args[0].power_
+            self.speed_ = args[0].speed_.copy()
+            self.power_ = args[0].power_.copy()
             self.score_ = args[0].score_
 
 
@@ -248,7 +248,7 @@ def calc_max_velocity(target_angle: AngleDeg,
                       ball_vel: Vector2D):
     ball_speed_max2 = pow(ServerParam.i().ball_speed_max(), 2)
     max_accel = min(ServerParam.i().max_power() * krate,
-                    float(ServerParam.i().ball_accel_max()))
+                    ServerParam.i().ball_accel_max())
 
     desired_ray = Ray2D(Vector2D(0.0, 0.0), target_angle)
     next_reachable_circle = Circle2D(ball_vel, max_accel)
@@ -452,7 +452,7 @@ class _KickTable:
         else:
             dir_div = STATE_DIVS_FAR
 
-        self._current_state.index_ = (rint(dir_div * rint(angle.degree() + 180.0) / 360.0))  # TODO : STATIC CAST
+        self._current_state.index_ = (rint(dir_div * rint(angle.degree() + 180.0) / 360.0))
         if self._current_state.index_ >= dir_div:
             self._current_state.index_ = 0
 
@@ -477,7 +477,7 @@ class _KickTable:
 
             index = 0
             for near in range(STATE_DIVS_NEAR):
-                pos = self._state_list[index].pos_
+                pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(near_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
@@ -491,7 +491,7 @@ class _KickTable:
                 index += 1
 
             for mid in range(STATE_DIVS_MID):
-                pos = self._state_list[index].pos_
+                pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(mid_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
@@ -506,7 +506,7 @@ class _KickTable:
                 index += 1
 
             for far in range(STATE_DIVS_FAR):
-                pos = self._state_list[index].pos_
+                pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(far_dist, pos.th().degree())
 
                 pos.rotate(world.self().body())
@@ -578,7 +578,7 @@ class _KickTable:
     def checkInterfereAt(world: WorldModel,
                          cycle,  # not needed
                          state: State):
-        cycle += 0  # TODO : Check need
+        # cycle += 0  Check need
         penalty_area = Rect2D(Vector2D(ServerParam.i().their_penalty_area_line_x(),
                                        - ServerParam.i().penalty_area_half_width()),
                               Size2D(ServerParam.i().penalty_area_length(),
@@ -772,7 +772,7 @@ class _KickTable:
             return False
 
         current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
-                                float(ServerParam.i().ball_accel_max()))
+                                ServerParam.i().ball_accel_max())
         target_vel = (target_point - world.ball().pos())
         target_vel.set_length(first_speed)
 
@@ -822,7 +822,7 @@ class _KickTable:
     def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
 
         max_power = ServerParam.i().max_power()
-        accel_max = float(ServerParam.i().ball_accel_max())
+        accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
 
         self_type = world.self().player_type()
@@ -842,7 +842,7 @@ class _KickTable:
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
 
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r() / (
-                param.ball_speed_max() * float(param.player_decay())))
+                param.ball_speed_max() * param.player_decay()))
         # my_final_pos = world.self().pos() + world.self().vel() + world.self().vel() * self_type.player_decay()
 
         success_count = 0
@@ -899,7 +899,7 @@ class _KickTable:
                         self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
                                                       | state.flag_)
                         self._candidates[-1].pos_list_.clear()
-                        self._candidates[-1].pos_list_.append(state.pos_)
+                        self._candidates[-1].pos_list_.append(state.pos_.copy())
                         self._candidates[-1].pos_list_.append(state.pos_ + max_vel)
                         self._candidates[-1].speed_ = math.sqrt(max_speed2)
                         self._candidates[-1].power_ = accel.r() / state.kick_rate_
@@ -908,7 +908,7 @@ class _KickTable:
             self._candidates[-1].flag_ = ((self._current_state.flag_ & NOT_RELEASE_INTERFERE)
                                           | state.flag_
                                           | kick_miss_flag)
-            self._candidates[-1].pos_list_.append(state.pos_)
+            self._candidates[-1].pos_list_.append(state.pos_.copy())
             self._candidates[-1].pos_list_.append(state.pos_ + target_vel)
             self._candidates[-1].speed_ = first_speed
             self._candidates[-1].power_ = accel_r / state.kick_rate_
@@ -927,7 +927,7 @@ class _KickTable:
                           first_speed):
 
         max_power = ServerParam.i().max_power()
-        accel_max = float(ServerParam.i().ball_accel_max())
+        accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
 
         current_max_accel = min(self._current_state.kick_rate_ * max_power,
@@ -948,7 +948,7 @@ class _KickTable:
                              / self_type.kickable_margin())
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
-                                          / (param.ball_speed_max() * float(param.ball_decay())))
+                                          / (param.ball_speed_max() * param.ball_decay()))
 
         target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
         angle_deg = target_rel_angle.degree() + 180.0
@@ -1038,8 +1038,8 @@ class _KickTable:
                                                       | (state_1st.flag_ & NOT_RELEASE_INTERFERE)
                                                       | state_2nd.flag_)
                         self._candidates[-1].pos_list_.clear()
-                        self._candidates[-1].pos_list_.append(state_1st.pos_)
-                        self._candidates[-1].pos_list_.append(state_2nd.pos_)
+                        self._candidates[-1].pos_list_.append(state_1st.pos_.copy())
+                        self._candidates[-1].pos_list_.append(state_2nd.pos_.copy())
                         self._candidates[-1].pos_list_.append(state_2nd.pos_ + max_vel)
                         self._candidates[-1].speed_ = math.sqrt(max_speed2)
                         self._candidates[-1].power_ = accel.r() / state_2nd.kick_rate_
@@ -1049,8 +1049,8 @@ class _KickTable:
                                           | (state_1st.flag_ & NOT_RELEASE_INTERFERE)
                                           | state_2nd.flag_
                                           | kick_miss_flag)
-            self._candidates[-1].pos_list_.append(state_1st.pos_)
-            self._candidates[-1].pos_list_.append(state_2nd.pos_)
+            self._candidates[-1].pos_list_.append(state_1st.pos_.copy())
+            self._candidates[-1].pos_list_.append(state_2nd.pos_.copy())
             self._candidates[-1].pos_list_.append(state_2nd.pos_ + target_vel)
             self._candidates[-1].speed_ = first_speed
             self._candidates[-1].power_ = math.sqrt(accel_r2) / state_2nd.kick_rate_
@@ -1150,16 +1150,19 @@ class _KickTable:
                 and self.simulateOneStep(world,
                                          target_point,
                                          target_speed)):
-            dlog.add_text(Level.KICK, "simulate() found 1fdh step")
+            print("simulate() found 1 step")
+            dlog.add_text(Level.KICK, "simulate() found 1 step")
         if (max_step >= 2
                 and self.simulateTwoStep(world,
                                          target_point,
                                          target_speed)):
+            print("simulate() found 2 step")
             dlog.add_text(Level.KICK, "simulate() found 2 step")
         if (max_step >= 3
                 and self.simulateThreeStep(world,
                                            target_point,
                                            target_speed)):
+            print("simulate() found 3 step")
             dlog.add_text(Level.KICK, "simulate() found 3 step")
         print(sequence.pos_list_[0])
 
@@ -1207,4 +1210,3 @@ class KickTable:
     @staticmethod
     def instance() -> _KickTable:
         return KickTable._instance
-# TODO FIX CAST
