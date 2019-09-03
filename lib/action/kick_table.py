@@ -158,7 +158,7 @@ class Sequence:
     def __init__(self, *args):
         if len(args) == 0:
             self.flag_ = 0x0000
-            self.pos_list_ = [Vector2D()]
+            self.pos_list_ = []
             self.speed_ = 0.0
             self.power_ = 10000.0
             self.score_ = 0.0
@@ -313,7 +313,7 @@ class _KickTable:
 
         self._state_cache = [[State()]] * DEST_DIR_DIVS
 
-        self._candidates = [Sequence()]  # :  list[Sequence] = []
+        self._candidates = []  # :  list[Sequence] = []
 
     """
     \ brief create heuristic table
@@ -764,7 +764,6 @@ class _KickTable:
      """
 
     def simulateOneStep(self, world: WorldModel, target_point: Vector2D, first_speed):
-        print("one Step")
         if self._current_state.flag_ & SELF_COLLISION:
             return False
 
