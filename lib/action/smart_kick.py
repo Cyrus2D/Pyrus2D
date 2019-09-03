@@ -45,6 +45,13 @@ class SmartKick(BodyAction):
                                           self._sequence)
                 or self._sequence.speed_ >= first_speed_thr):
             print("kick table true")
+            tmp = self._sequence
+            print(" speed : ",
+                  tmp.speed_, " power : ", tmp.power_,
+                  " score : ", tmp.score_, "  flag : ",
+                  tmp.flag_)
+            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_)
+            print("################################################")
             vel = self._sequence.pos_list_[0] - wm.ball().pos()
             kick_accel = vel - wm.ball().vel()
             print(kick_accel.r() / wm.self().kick_rate(),

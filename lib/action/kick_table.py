@@ -1125,6 +1125,7 @@ class _KickTable:
     """
 
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
+
         if len(self._state_list) == 0:
             return False
 
@@ -1170,7 +1171,8 @@ class _KickTable:
         if not self._candidates:
             return False
         # sequence = self._candidates[0]
-        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
+
+        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
 
         print("_______________________candidates_________________________")
         for tmp in self._candidates:
@@ -1178,13 +1180,13 @@ class _KickTable:
                   tmp.speed_, " power : ", tmp.power_,
                   " score : ", tmp.score_, "  flag : ",
                   tmp.flag_)
-        print("################################################")
+        print("################### Sorted top ###################")
         tmp = sequence
         print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
               tmp.speed_, " power : ", tmp.power_,
               " score : ", tmp.score_, "  flag : ",
               tmp.flag_)
-        print("################################################")
+        print("##################################################")
 
         """
             dlog.addText( Level.KICK,
