@@ -307,7 +307,9 @@ class _KickTable:
                 self._state_cache[i].append(0.0)
         # not  static state list
         self._state_list = [State()] * NUM_STATE  # : List[State] = []
-        self._tables = [[Path()] * 256 for i in range(DEST_DIR_DIVS)]
+        self._tables = []
+        for i in range(DEST_DIR_DIVS):
+            self._tables.append([Path()] * 256)
 
         self._current_state = State()
 
@@ -1169,7 +1171,8 @@ class _KickTable:
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
-            return list[False, sequence]
+            tmp_list = [False, sequence]
+            return tmp_list
         # sequence = self._candidates[0]
 
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
