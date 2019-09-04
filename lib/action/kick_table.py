@@ -1169,7 +1169,7 @@ class _KickTable:
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
-            return False
+            return list[False, sequence]
         # sequence = self._candidates[0]
 
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
@@ -1200,7 +1200,8 @@ class _KickTable:
                           sequence.score_ )
         """
         # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
-        return sequence.speed_ >= target_speed - EPS
+        tmp_list = [sequence.speed_ >= target_speed - EPS, sequence]
+        return tmp_list
 
     """
     \ brief get the candidate kick sequences

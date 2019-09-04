@@ -37,28 +37,31 @@ class SmartKick(BodyAction):
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
         max_step = max(1, self._max_step)
-        if (KickTable.instance().simulate(wm,
-                                          self._target_point,
-                                          first_speed,
-                                          first_speed_thr,
-                                          max_step,
-                                          self._sequence)
-                or self._sequence.speed_ >= first_speed_thr):
-            print("kick table true")
-            tmp = self._sequence
-            print(" speed : ",
-                  tmp.speed_, " power : ", tmp.power_,
-                  " score : ", tmp.score_, "  flag : ",
-                  tmp.flag_)
-            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_)
-            print("################################################")
-            vel = self._sequence.pos_list_[0] - wm.ball().pos()
-            kick_accel = vel - wm.ball().vel()
-            print(kick_accel.r() / wm.self().kick_rate(),
-                  kick_accel.th() - wm.self().body())
-            agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
-                          kick_accel.th() - wm.self().body())
-            return True
+        ans = KickTable.instance().simulate(wm,
+                                            self._target_point,
+                                            first_speed,
+                                            first_speed_thr,
+                                            max_step,
+                                            self._sequence)
+        if ans[0]:
+            print("kick table true - change seq test")
+            self._sequence = ans[1]
+            if self._sequence.speed_ >= first_speed_thr:
+                print("check speed of seq")
+                tmp = self._sequence
+                print(" speed : ",
+                      tmp.speed_, " power : ", tmp.power_,
+                      " score : ", tmp.score_, "  flag : ",
+                      tmp.flag_)
+                print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_)
+                print("################################################")
+                vel = self._sequence.pos_list_[0] - wm.ball().pos()
+                kick_accel = vel - wm.ball().vel()
+                print(kick_accel.r() / wm.self().kick_rate(),
+                      kick_accel.th() - wm.self().body())
+                agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
+                              kick_accel.th() - wm.self().body())
+                return True
         """
         for p in = self._sequence.pos_list_ :
             dlog.addCircle(p, 0.05)  # how? 
