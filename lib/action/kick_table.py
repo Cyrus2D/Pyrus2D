@@ -1171,8 +1171,9 @@ class _KickTable:
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
-            tmp_list = [False, sequence]
-            return tmp_list
+            print("False -> candidates len == ", len(self._candidates))
+            rtn_list = [False, sequence]
+            return rtn_list
         # sequence = self._candidates[0]
 
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
@@ -1183,14 +1184,6 @@ class _KickTable:
                   tmp.speed_, " power : ", tmp.power_,
                   " score : ", tmp.score_, "  flag : ",
                   tmp.flag_)
-        print("################### Sorted top ###################")
-        tmp = sequence
-        print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
-              tmp.speed_, " power : ", tmp.power_,
-              " score : ", tmp.score_, "  flag : ",
-              tmp.flag_)
-        print("##################################################")
-
         """
             dlog.addText( Level.KICK,
                           __FILE__": simulate() result next_pos=(%.2f %.2f)  flag=%x n_kick=%d speed=%.2f power=%.2f score=%.2f",
@@ -1203,8 +1196,10 @@ class _KickTable:
                           sequence.score_ )
         """
         # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
-        tmp_list = [sequence.speed_ >= target_speed - EPS, sequence]
-        return tmp_list
+        print(sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_, " & tar speed eps is",
+              target_speed - EPS)
+        rtn_list = [sequence.speed_ >= target_speed - EPS, sequence]
+        return rtn_list
 
     """
     \ brief get the candidate kick sequences

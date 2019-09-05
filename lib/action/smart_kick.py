@@ -27,10 +27,11 @@ class SmartKick(BodyAction):
     def execute(self, agent: PlayerAgent):
         dlog.add_text(Level.KICK, "Body_SmartKick")
         wm = agent.world()
+        print("Kick Able -> ", wm.self().is_kickable())
         if not wm.self().is_kickable():
             dlog.add_text(Level.KICK, "not kickable")
             return False
-
+        print("Vel Valid -> ", wm.ball().velValid())
         if not wm.ball().velValid():
             dlog.add_text(Level.KICK, "unknown ball vel")
             return StopBall().execute(agent)
@@ -43,22 +44,20 @@ class SmartKick(BodyAction):
                                             first_speed_thr,
                                             max_step,
                                             self._sequence)
+        print("*******************####################********************")
+        print("Smart kick : ", ans[0], " seq -> speed : ",
+              ans[1].speed_, " power : ", ans[1].power_,
+              " score : ", ans[1].score_, "  flag : ",
+              ans[1].flag_)
         if ans[0]:
-            print("kick table true - change seq test")
             self._sequence = ans[1]
             if self._sequence.speed_ >= first_speed_thr:
-                print("check speed of seq")
-                tmp = self._sequence
-                print(" speed : ",
-                      tmp.speed_, " power : ", tmp.power_,
-                      " score : ", tmp.score_, "  flag : ",
-                      tmp.flag_)
-                print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_)
-                print("################################################")
+                print("next_pos : ", self._sequence.pos_list_[0], " ", len(self._sequence.pos_list_), " step ", self._sequence.pos_list_)
+                print("###################********************####################")
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
                 kick_accel = vel - wm.ball().vel()
-                print(kick_accel.r() / wm.self().kick_rate(),
-                      kick_accel.th() - wm.self().body())
+                print("Kick Vel : ", vel, " ,  Kick Power : ", kick_accel.r() / wm.self().kick_rate(),
+                      " ,Kick Angle : ", kick_accel.th() - wm.self().body())
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
                 return True
