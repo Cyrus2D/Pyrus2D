@@ -116,6 +116,6 @@ class BhvKick:
         target = best_action.target_ball_pos
         # angle: AngleDeg = (target - wm.self().pos()).th()
         # angle -= wm.self().body()
-        SmartKick(target, best_action.start_ball_speed, 0.0, 3).execute(agent)
+        SmartKick(target, 3, 0.7, 3).execute(agent)  # best_action.start_ball_speed, 0.7, 3).execute(agent)
 
         # agent.do_kick(100, angle)

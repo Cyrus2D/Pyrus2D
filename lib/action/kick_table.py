@@ -736,7 +736,7 @@ class _KickTable:
                     player_2_pos = ball_pos - opp_pos
                     player_2_pos.rotate(- opp_body)
 
-                    tackle_dist = ServerParam.i().tackle_dist() if player_2_pos.x > 0.0 else ServerParam.i().tackle_back_dist()
+                    tackle_dist = ServerParam.i().tackle_dist() if player_2_pos.x() > 0.0 else ServerParam.i().tackle_back_dist()
                     if tackle_dist > EPSILON:
                         tackle_prob = (pow(player_2_pos.absX() / tackle_dist,
                                            ServerParam.i().tackle_exponent()) + pow(
@@ -755,7 +755,7 @@ class _KickTable:
                         state.flag_ |= MAYBE_RELEASE_INTERFERE
 
                     elif (player_2_pos.absY() < ServerParam.i().tackle_width() * 0.7
-                          and player_2_pos.x - max_accel < ServerParam.i().tackle_dist() - 0.5):
+                          and player_2_pos.x() - max_accel < ServerParam.i().tackle_dist() - 0.5):
                         state.flag_ |= MAYBE_RELEASE_INTERFERE
 
     """
