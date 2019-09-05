@@ -35,7 +35,7 @@ def TableCmp(item1, item2) -> bool:
 
 
 def SequenceCmp(item1, item2) -> bool:
-    return item1.score_ < item2.score_
+    return item1.score_ > item2.score_
 
 
 # class Flag(Enum):
@@ -613,16 +613,16 @@ class _KickTable:
 
             control_area = o.player_type.catch_able_area() if (
                     o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(state.pos_
-                                                                                            )) else o.player_type().kick_able_area()
+                                                                                            )) else o.player_type().kickable_area()
 
             #
             # check kick possibility
             #
-            if not o.isGhost() and o.posCount() <= 2 and opp_dist < control_area + 0.15:
+            if not o.is_ghost() and o.pos_count() <= 2 and opp_dist < control_area + 0.15:
                 flag |= KICKABLE
                 break
 
-            opp_body = o.body() if o.bodyCount() <= 1 else (state.pos_ - opp_next).th()
+            opp_body = o.body() if o.body_count() <= 1 else (state.pos_ - opp_next).th()
             player_2_pos = Vector2D(state.pos_ - opp_next)
             player_2_pos.rotate(- opp_body)
             #
@@ -714,13 +714,13 @@ class _KickTable:
                 if not opp_pos.is_valid():
                     opp_pos = o.pos() + o.vel()
 
-                if o.isTackling():
+                if o.is_tackling():
                     if opp_pos.dist(ball_pos) < (o.player_type().player_size() + ServerParam.i().ball_size()):
                         state.flag_ |= RELEASE_INTERFERE
                     continue
                 control_area = o.player_type.catch_able_area() if (
                         o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
-                    state.pos_)) else o.player_type().kick_able_area()
+                    state.pos_)) else o.player_type().kickable_area()
 
                 control_area += 0.1
                 control_area2 = pow(control_area, 2)
@@ -798,8 +798,6 @@ class _KickTable:
         self._candidates[-1].pos_list_.append(world.ball().pos() + target_vel)
         self._candidates[-1].speed_ = first_speed
         self._candidates[-1].power_ = accel_r / self._current_state.kick_rate_
-        print(self._candidates[-1].flag_, " ", self._candidates[-1].pos_list_[-1], " ", self._candidates[-1].speed_,
-              " ", accel_r, " ", current_max_accel)
         """
             dlog.addText( Logger.KICK,
                           "ok__ 1 step: target_vel=(%.2f %.2f)%.3f required_accel=%.3f < max_accel=%.3f"
@@ -1168,6 +1166,13 @@ class _KickTable:
             print("simulate() found 3 step")
             dlog.add_text(Level.KICK, "simulate() found 3 step")
 
+        print("_______________________candidates_BE_________________________")
+        for tmp in self._candidates:
+            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
+                  tmp.speed_, " power : ", tmp.power_,
+                  " score : ", tmp.score_, "  flag : ",
+                  tmp.flag_)
+
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
@@ -1178,7 +1183,7 @@ class _KickTable:
 
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
 
-        print("_______________________candidates_________________________")
+        print("_______________________candidates_AE_________________________")
         for tmp in self._candidates:
             print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
                   tmp.speed_, " power : ", tmp.power_,

@@ -1,6 +1,6 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
-import lib.math.soccer_math as smath
+# import lib.math.soccer_math as smath
 
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
@@ -630,12 +630,12 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._min_moment = dic["minmoment"]
         self._min_neck_angle = dic["minneckang"]
         self._min_neck_moment = dic["minneckmoment"]
-        self._min_power = dic["minpower"]
+        self._min_power = float(dic["minpower"])
         self._offside_active_area_size = dic["offside_active_area_size"]
         self._offside_kick_margin = dic["offside_kick_margin"]
         self._online_coach_port = dic["olcoach_port"]
         self._use_old_coach_hear = dic["old_coach_hear"]
-        self._player_accel_max = dic["player_accel_max"]
+        self._player_accel_max = float(dic["player_accel_max"])
         self._player_decay = float(dic["player_decay"])
         self._player_rand = float(dic["player_rand"])
         self._player_size = dic["player_size"]
@@ -674,12 +674,12 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._synch_micro_sleep = dic["synch_micro_sleep"]
         self._synch_mode = dic["synch_mode"]
         self._synch_offset = dic["synch_offset"]
-        self._tackle_back_dist = dic["tackle_back_dist"]
+        self._tackle_back_dist = float(dic["tackle_back_dist"])
         self._tackle_cycles = int(dic["tackle_cycles"])
-        self._tackle_dist = dic["tackle_dist"]
-        self._tackle_exponent = dic["tackle_exponent"]
-        self._tackle_power_rate = dic["tackle_power_rate"]
-        self._tackle_width = dic["tackle_width"]
+        self._tackle_dist = float(dic["tackle_dist"])
+        self._tackle_exponent = float(dic["tackle_exponent"])
+        self._tackle_power_rate = float(dic["tackle_power_rate"])
+        self._tackle_width = float(dic["tackle_width"])
         self._team_actuator_noise = dic["team_actuator_noise"]
         self._text_log_compression = dic["text_log_compression"]
         self._use_text_log_dated = dic["text_log_dated"]

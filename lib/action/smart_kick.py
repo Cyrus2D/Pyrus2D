@@ -37,6 +37,7 @@ class SmartKick(BodyAction):
             return StopBall().execute(agent)
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
+        print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
         max_step = max(1, self._max_step)
         ans = KickTable.instance().simulate(wm,
                                             self._target_point,
@@ -52,7 +53,8 @@ class SmartKick(BodyAction):
         if ans[0]:
             self._sequence = ans[1]
             if self._sequence.speed_ >= first_speed_thr:
-                print("next_pos : ", self._sequence.pos_list_[0], " ", len(self._sequence.pos_list_), " step ", self._sequence.pos_list_)
+                print("next_pos : ", self._sequence.pos_list_[0], " ", len(self._sequence.pos_list_), " step ",
+                      self._sequence.pos_list_)
                 print("###################********************####################")
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
                 kick_accel = vel - wm.ball().vel()
