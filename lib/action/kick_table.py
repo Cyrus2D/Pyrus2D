@@ -789,8 +789,6 @@ class _KickTable:
             self._candidates[-1].pos_list_.append(world.ball().pos() + max_vel)
             self._candidates[-1].speed_ = max_vel.r()
             self._candidates[-1].power_ = accel.r() / self._current_state.kick_rate_
-            print(self._candidates[-1].flag_, " ", self._candidates[-1].pos_list_[-1], " ", self._candidates[-1].speed_,
-                  " ", accel_r, " ", current_max_accel)
             return False
 
         self._candidates.append(Sequence())
@@ -819,7 +817,6 @@ class _KickTable:
      """
 
     def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
-        success_count = 0
         max_power = ServerParam.i().max_power()
         accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
@@ -1127,6 +1124,7 @@ class _KickTable:
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
 
         if len(self._state_list) == 0:
+            print("False , Len  == 0")
             return False
 
         target_speed = bound(0.0,
@@ -1166,13 +1164,6 @@ class _KickTable:
             print("simulate() found 3 step")
             dlog.add_text(Level.KICK, "simulate() found 3 step")
 
-        print("_______________________candidates_BE_________________________")
-        for tmp in self._candidates:
-            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
-                  tmp.speed_, " power : ", tmp.power_,
-                  " score : ", tmp.score_, "  flag : ",
-                  tmp.flag_)
-
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
@@ -1181,7 +1172,7 @@ class _KickTable:
             return rtn_list
         # sequence = self._candidates[0]
 
-        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : Sequence do not change ?!?!
+        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
 
         print("_______________________candidates_AE_________________________")
         for tmp in self._candidates:
@@ -1189,19 +1180,14 @@ class _KickTable:
                   tmp.speed_, " power : ", tmp.power_,
                   " score : ", tmp.score_, "  flag : ",
                   tmp.flag_)
-        """
-            dlog.addText( Level.KICK,
-                          __FILE__": simulate() result next_pos=(%.2f %.2f)  flag=%x n_kick=%d speed=%.2f power=%.2f score=%.2f",
-                          sequence.pos_list_.front().x,
-                          sequence.pos_list_.front().y,
-                          sequence.flag_,
-                          len(sequence.pos_list_),
-                          sequence.speed_,
-                          sequence.power_,
-                          sequence.score_ )
-        """
+            # """
+        dlog.add_text(Level.KICK,
+                      f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_ )}")
+
+        # """
         # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
-        print(sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_, " & tar speed eps is",
+        print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
+              " & tar speed eps is",
               target_speed - EPS)
         rtn_list = [sequence.speed_ >= target_speed - EPS, sequence]
         return rtn_list
