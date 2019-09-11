@@ -26,7 +26,7 @@ class BhvMove:
         #         and (self_min <= 5
         #              or (self_min <= tm_min
         #                  and self_min < opp_min + 5))):
-        #     dlog.add_text(Level.BLOCK, "INTERCEPTINNNNNNG")
+        #     dlog.add_text(Level.BLOCK, "INTERCEPTING")
         #     Intercept().execute(agent)
         #     return True
 

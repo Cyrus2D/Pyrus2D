@@ -342,7 +342,7 @@ class _KickTable:
 
         for i in range(DEST_DIR_DIVS):
             angle += angle_step
-            self.createTable(angle, self._tables[i])
+            self.createTable(AngleDeg(angle), self._tables[i])
 
         return True
 
@@ -462,7 +462,7 @@ class _KickTable:
         self._current_state.pos_ = world.ball().pos()
         self._current_state.kick_rate_ = world.self().kick_rate()
 
-        self.checkInterfereAt(world, 0, self._current_state)
+        self.checkInterfereAt(world, self._current_state)   # 0
 
         #
         # create future state
@@ -486,7 +486,7 @@ class _KickTable:
                 pos.set_length(near_dist)
                 pos += self_pos
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
+                self.checkInterfereAt(world, self._state_cache[i][-1])   # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -501,7 +501,7 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, mid_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
+                self.checkInterfereAt(world, self._state_cache[i][-1])   # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -516,7 +516,7 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, far_dist, pos, krate))
-                self.checkInterfereAt(world, i + 1, self._state_cache[i][-1])
+                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -578,7 +578,7 @@ class _KickTable:
 
     @staticmethod
     def checkInterfereAt(world: WorldModel,
-                         cycle,  # not needed
+                         # cycle,  # not needed
                          state: State):
         # cycle += 0  Check need
         penalty_area = Rect2D(Vector2D(ServerParam.i().their_penalty_area_line_x(),
@@ -1182,7 +1182,7 @@ class _KickTable:
                   tmp.flag_)
             # """
         dlog.add_text(Level.KICK,
-                      f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_ )}")
+                      f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
 
         # """
         # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
