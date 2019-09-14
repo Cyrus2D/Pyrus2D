@@ -1,6 +1,6 @@
 from distutils.core import setup
 from distutils.extension import Extension
-from os import listdir
+from os import listdir, makedirs
 from os.path import isdir
 from shutil import move
 
@@ -32,6 +32,9 @@ class Src:
             return True
         return False
 
+    def binary_dir(self):
+        return f"./binary/{self.dir}"
+
 
 def make_file_list(dir='.'):
     lst = []
@@ -52,18 +55,14 @@ def make_file_list(dir='.'):
 
 def move_files(files):
     for file in files:
-        print(file.so(), file.dir)
-        move(file.so(), file.dir)
+        makedirs(file.binary_dir(), exist_ok=True)
+        move(file.so(), file.binary_dir())
 
 
 def main():
     files = make_file_list()
 
-    # ext_modules = []
-    # for file in files:
-    #     print(file,'\t',file[:-3].split('/')[-1])
-    #     ext_modules.append(Extension(file[:-3], [file]))
-    ext_modules = [Extension(file.name, [file.full_path()]) for file in files]
+    ext_modules = [Extension(file.name, [file.full_path()]) for file in files[:4]]
 
     setup(
         name='My Program Name',

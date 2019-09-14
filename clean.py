@@ -30,6 +30,10 @@ def main():
         rmtree("./build")
     except:
         print("build directory not found")
+    try:
+        rmtree("./binary")
+    except:
+        print("binary directory not found")
     finally:
         print("All binarys deleted :)")
 
