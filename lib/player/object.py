@@ -17,10 +17,10 @@ class Object:
         self._seen_vel = Vector2D.invalid()
 
     def pos(self) -> Vector2D:
-        return self._pos.copy()  # TODO How it is?!?
+        return self._pos.copy()
 
     def vel(self) -> Vector2D:
-        return self._vel.copy()  # TODO How it is?!?
+        return self._vel.copy()
 
     def rpos(self):
         return self._rpos.copy()

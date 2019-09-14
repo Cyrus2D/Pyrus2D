@@ -5,7 +5,7 @@
 """
 from lib.math.geom_2d import *
 
-EPS = 1.0e-10
+EPS = 1.0e-8
 
 """
   \ brief calculate kick rate

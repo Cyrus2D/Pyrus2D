@@ -22,27 +22,27 @@ class BhvMove:
                       f"tm_min={tm_min}")
         dlog.add_text(Level.BLOCK,
                       f"opp_min={opp_min}")
-        if (not wm.exist_kickable_teammates()
-                and (self_min <= 5
-                     or (self_min <= tm_min
-                         and self_min < opp_min + 5))):
-            dlog.add_text(Level.BLOCK, "INTERCEPTINNNNNNG")
-            Intercept().execute(agent)
-            return True
+        # if (not wm.exist_kickable_teammates()
+        #         and (self_min <= 5
+        #              or (self_min <= tm_min
+        #                  and self_min < opp_min + 5))):
+        #     dlog.add_text(Level.BLOCK, "INTERCEPTING")
+        #     Intercept().execute(agent)
+        #     return True
 
         st = StrategyFormation().i()
         target = st.get_pos(agent.world().self().unum())
-        # min_dist_ball = 1000
-        # nearest_tm = 0
-        # for u in range(1, 12):
-        #     tm = wm.our_player(u)
-        #     if tm.unum() is not 0:
-        #         dist = tm.pos().dist(wm.ball().pos())
-        #         if dist < min_dist_ball:
-        #             min_dist_ball = dist
-        #             nearest_tm = u
-        # if nearest_tm == wm.self().unum():
-        #     target = wm.ball().pos()
+        min_dist_ball = 1000
+        nearest_tm = 0
+        for u in range(1, 12):
+            tm = wm.our_player(u)
+            if tm.unum() is not 0:
+                dist = tm.pos().dist(wm.ball().pos())
+                if dist < min_dist_ball:
+                    min_dist_ball = dist
+                    nearest_tm = u
+        if nearest_tm == wm.self().unum():
+            target = wm.ball().pos()
 
         GoToPoint(target, 1, 100).execute(agent)
         return True

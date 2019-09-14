@@ -3,7 +3,8 @@ from lib.debug.logger import *
 from lib.math.geom_2d import *
 from enum import Enum
 from lib.rcsc.server_param import ServerParam as SP
-# from lib.action.smart_kick import SmartKick
+from lib.action.smart_kick import SmartKick
+
 
 class KickActionType(Enum):
     No = 0
@@ -51,16 +52,17 @@ class BhvPassGen:
 
         pass_dist = simple_direct_pass.start_ball_pos.dist(simple_direct_pass.target_ball_pos)
         ball_speed = simple_direct_pass.start_ball_speed
-        ball_vel: Vector2D = Vector2D.polar2vector(ball_speed, (simple_direct_pass.target_ball_pos - simple_direct_pass.start_ball_pos).th())
-        print(type(ball_vel))
+        ball_vel: Vector2D = Vector2D.polar2vector(ball_speed, (
+                simple_direct_pass.target_ball_pos - simple_direct_pass.start_ball_pos).th())
+        # print(type(ball_vel))
         ball_pos: Vector2D = simple_direct_pass.start_ball_pos
         travel_dist = 0
         cycle = 0
-        print(ball_pos)
-        print(simple_direct_pass.target_ball_pos)
-        print(pass_dist)
+        # print(ball_pos)
+        # print(simple_direct_pass.target_ball_pos)
+        # print(pass_dist)
         while travel_dist < pass_dist and ball_speed >= 0.1:
-            dlog.add_circle(Level.PASS, Circle2D(ball_pos, 1))
+            dlog.add_circle(Level.PASS, Circle2D(ball_pos, 1.0))
             cycle += 1
             travel_dist += ball_speed
             ball_speed *= SP.i().ball_decay()
@@ -71,7 +73,7 @@ class BhvPassGen:
         action_candidates.append(simple_direct_pass)
 
     def can_opps_cut_ball(self, wm: WorldModel, ball_pos, cycle):
-        for unum in range(1,12):
+        for unum in range(1, 12):
             opp: PlayerObject = wm.their_player(unum)
             if opp.unum() is 0:
                 continue
@@ -98,7 +100,7 @@ class BhvKick:
         pass
 
     def evaluator(self, candid: KickAction):
-        return candid.target_ball_pos.dist(Vector2D(52,0))
+        return candid.target_ball_pos.dist(Vector2D(52, 0))
 
     def execute(self, agent):
         wm: WorldModel = agent.world()
@@ -112,8 +114,9 @@ class BhvKick:
         best_action: KickAction = max(action_candidates)
 
         target = best_action.target_ball_pos
-        # SmartKick(target, 2.5, 2.4, 3).execute(agent)
-        angle: AngleDeg = (target - wm.self().pos()).th()
-        angle -= wm.self().body()
-        agent.do_kick(100, angle)
+        # angle: AngleDeg = (target - wm.self().pos()).th()
+        # angle -= wm.self().body()
+        print("Target :", target)
+        SmartKick(target, 2, 0.7, 3).execute(agent)  # best_action.start_ball_speed, 0.7, 3).execute(agent)
 
+        # agent.do_kick(100, angle)
