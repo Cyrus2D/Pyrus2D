@@ -8,8 +8,8 @@ from Cython.Distutils import build_ext
 
 
 class Src:
-    def __init__(self, dir=None, name=None, ext=None):
-        self.dir = dir
+    def __init__(self, _dir=None, name=None, ext=None):
+        self.dir = _dir
         self.name = name
         self.ext = ext
 
@@ -34,6 +34,11 @@ class Src:
 
     def binary_dir(self):
         return f"./binary/{self.dir}"
+
+    def is_cfile(self):
+        if self.ext == "c":
+            return True
+        return False
 
 
 def make_file_list(dir='.'):
@@ -62,7 +67,7 @@ def move_files(files):
 def main():
     files = make_file_list()
 
-    ext_modules = [Extension(file.name, [file.full_path()]) for file in files[:4]]
+    ext_modules = [Extension(file.name, [file.full_path()]) for file in files]
 
     setup(
         name='My Program Name',

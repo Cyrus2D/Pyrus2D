@@ -11,4 +11,8 @@ accessors
 *.log
 main_test.py
 todos.py
-t
+*.so
+*.c
+build/
+binary/
+
