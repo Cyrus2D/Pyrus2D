@@ -69,6 +69,7 @@ class PlayerAgent:
         self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
+        # print("#" * 20)
         # print(message)
         # self._think_mode = False
         if message.find("(init") is not -1:
@@ -118,9 +119,8 @@ class PlayerAgent:
         dlog.flush()
         self._last_body_command = []
 
-    def init_dlog(self, message: str):
+    def init_dlog(self, message):
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
-        # sys.stdout = open(f"debug/{side}{unum}.log", 'w')
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)

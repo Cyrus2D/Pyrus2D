@@ -96,7 +96,7 @@ class WorldModel:
         return "(time: {})(ball: {})(tm: {})(opp: {})".format(self._time, self.ball(), self._our_players,
                                                               self._their_players)
 
-    def self_parser(self, message: str):
+    def self_parser(self, message):
         message = message.split(" ")
         self._self_unum = int(message[2])
         self._our_side = message[1]
