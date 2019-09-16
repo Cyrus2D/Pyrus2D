@@ -210,8 +210,16 @@ def min_max(low, x, high):
     return min(max(low, x), high)
 
 
+"""
+     \ brief  Use float number in range() function
+     \ param start the start number
+     \ param stop the end number
+     \ param step start += step until end
+     \ return float number
+"""
+
+
 def frange(start, stop=None, step=None):
-    # Use float number in range() function
     # if stop and step argument is null set start=0.0 and step = 1.0
     if stop is None:
         stop = start + 0.0
@@ -223,7 +231,7 @@ def frange(start, stop=None, step=None):
             break
         elif step < 0 and start <= stop:
             break
-        yield start  # return float number
+        yield start
         start = start + step
 
 
