@@ -20,6 +20,7 @@ class PlayerAgent:
         self._think_mode = False
         self._is_synch_mode = True
         self._last_body_command = []
+        self.is_run = True
 
     def run(self, team_name, goalie):
         self.connect(team_name, goalie)
@@ -36,13 +37,21 @@ class PlayerAgent:
                 self._socket.recieve_msg(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
-                self.parse_message(message.decode())
+                if len(message) != 0:
+                    self.parse_message(message.decode())
+                elif time.time() - last_time_rec > 3:
+                    self.is_run = False
+                    break
                 message_count += 1
-                last_time_rec = time.time()
                 if self._think_mode:
+                    last_time_rec = time.time()
                     break
             cycle_end = time.time()
             # print(f"run-time: {cycle_end-cycle_start}s")
+
+            if not self.is_run:
+                print("srever down")
+                break
 
             if message_count > 0:
                 self.action()
@@ -54,15 +63,13 @@ class PlayerAgent:
                 #     n_think += 1
                 #     sum_think_time += cycle_end - cycle_start
                 #     print(f"avg_think_time={sum_think_time/n_think}s")
-            elif time.time() - last_time_rec > 3:
-                print("srever down")
-                break
             self._think_mode = False
 
     def connect(self, team_name, goalie, version=15):
         self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
+        # print("#" * 20)
         # print(message)
         # self._think_mode = False
         if message.find("(init") is not -1:
@@ -112,9 +119,8 @@ class PlayerAgent:
         dlog.flush()
         self._last_body_command = []
 
-    def init_dlog(self, message: str):
+    def init_dlog(self, message):
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
-        # sys.stdout = open(f"debug/{side}{unum}.log", 'w')
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
