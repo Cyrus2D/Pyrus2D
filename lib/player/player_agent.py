@@ -56,7 +56,6 @@ class PlayerAgent:
             if message_count > 0:
                 self.action()
             elif self._think_mode:
-
                 self.action()
 
                 # if self.world().game_mode().mode_name() == "play_on":
