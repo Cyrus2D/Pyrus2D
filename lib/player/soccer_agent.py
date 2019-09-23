@@ -18,4 +18,8 @@ class SoccerAgent:
         pass
 
     def handle_message(self):
+        pass
+
+    def handle_exit(self):
+        pass
 
