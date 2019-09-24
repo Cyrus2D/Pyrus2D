@@ -1,5 +1,6 @@
 from enum import Enum, unique, auto
 
+
 @unique
 class CommandType(Enum):
     # connection commands
@@ -14,6 +15,7 @@ class CommandType(Enum):
     KICK = auto()
     CATCH = auto()
     TACKLE = auto()
+    NECK = auto()
 
     # support commands
     TURN_NECK = auto()
@@ -62,6 +64,7 @@ class PlayerInitCommand(PlayerCommand):
 
     def type(self):
         return CommandType.INIT
+
 
 class PlayerReconnectCommand(PlayerCommand):
     def __init__(self, team_name: str, unum: int):

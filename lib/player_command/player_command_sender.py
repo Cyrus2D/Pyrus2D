@@ -27,9 +27,9 @@ class PlayerCommandReverser(PlayerCommand):
                 commands[i]._moment = PlayerCommandReverser.reverse_deg(commands[i]._moment)
 
     @staticmethod
-    def reverse_deg(dir):
-        if dir > 0:
-            dir = 180 - dir
-        elif dir < 0:
-            dir = 180 + dir
-        return dir
+    def reverse_deg(direction):
+        if direction > 0:
+            direction = 180 - direction
+        elif direction < 0:
+            direction = 180 + direction
+        return direction

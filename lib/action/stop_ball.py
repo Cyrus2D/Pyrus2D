@@ -22,7 +22,7 @@ class StopBall(BodyAction):
 
     """
       \ brief execute action
-      \ param agent pointer to the agent itself
+      \ param agent the agent itself
       \ return True if action is performed
     """
 

@@ -179,11 +179,10 @@ class Circle2D:
         elif len(args) == 1 and (args[0], Segment2D):
             seg = args[0]
             line = seg.line()
-            t_sol1 = Vector2D()
-            t_sol2 = Vector2D()
 
             n_sol = Circle2D.intersection(line)
-
+            t_sol1 = n_sol[1]
+            t_sol2 = n_sol[2]
             if n_sol[0] > 1 and not seg.contains(t_sol2):
                 n_sol[0] -= 1
 

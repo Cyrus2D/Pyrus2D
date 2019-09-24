@@ -7,8 +7,8 @@ from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand, \
-    PlayerKickCommand
-from lib.player_command.player_command_support import PlayerDoneCommand
+    PlayerKickCommand, PlayerTackleCommand
+from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
 
@@ -91,7 +91,7 @@ class PlayerAgent(SoccerAgent):
                     break
 
             if not self.is_run:
-                print("srever down")
+                print("server down")
                 break
 
             if self._impl._think_received:
@@ -128,6 +128,16 @@ class PlayerAgent(SoccerAgent):
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
         self._last_body_command.append(PlayerKickCommand(power, rel_dir))
+        return True
+
+    def do_tackle(self, power_or_dir: float, foul: bool):  # TODO : tons of work
+        if self.world().self().is_frozen():
+            return False
+        self._last_body_command.append(PlayerTackleCommand(power_or_dir, foul))
+        return True
+
+    def do_turn_neck(self, moment: AngleDeg) -> bool:
+        self._last_body_command.append(PlayerTurnNeckCommand(moment))
         return True
 
     def world(self) -> WorldModel:

@@ -37,6 +37,9 @@ class BallObject(Object):
             return True
         return False
 
+    def posValid(self):  # TODO : add Count need fix
+        return True
+
     def __repr__(self):
         return f"(pos: {self.pos()}) (vel:{self.vel()})"
 

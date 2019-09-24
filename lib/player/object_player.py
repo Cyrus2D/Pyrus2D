@@ -19,7 +19,7 @@ class PlayerObject(Object):
         self._goalie: bool = False
         self._player_type: PlayerType = None
         self._player_type_id: int = None
-        self._pointto: Vector2D = Vector2D.invalid()
+        self._point_to: Vector2D = Vector2D.invalid()
         self._stamina_model: StaminaModel = StaminaModel()  # TODO change to STAMINA MODEL
         self._kick: bool = False
         self._tackle: bool = False
@@ -41,9 +41,9 @@ class PlayerObject(Object):
         self._neck = AngleDeg(float(dic["neck"]))
         self._goalie = True if "goalie" in dic else False
         self._player_type_id = int(dic["player_type"])
-        self._pointto = Vector2D.invalid()
+        self._point_to = Vector2D.invalid()
         if "pointto_dist" in dic:
-            self._pointto = Vector2D.polar2vector(float(dic["pointto_dist"]), float(dic["pointto_dir"]))
+            self._point_to = Vector2D.polar2vector(float(dic["pointto_dist"]), float(dic["pointto_dir"]))
         self._stamina_model = StaminaModel(**dic["stamina"])
         self._kick = True if "kick" in dic else False
         self._tackle = True if "tackle" in dic else False
@@ -122,7 +122,7 @@ class PlayerObject(Object):
         return self._player_type
 
     def pointto(self):
-        return self._pointto
+        return self._point_to
 
     def stamina_model(self) -> StaminaModel:
         return self._stamina_model.copy()
@@ -160,6 +160,11 @@ class PlayerObject(Object):
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
 
+    def inertia_final_point(self):
+        return inertia_final_point(self.pos(),
+                                   self.vel(),
+                                   ServerParam.i().player_decay())
+
     def unum(self):
         return self._unum
 
@@ -172,11 +177,17 @@ class PlayerObject(Object):
     def dist_from_ball(self):
         return self._dist_from_ball
 
+    def tackle_probability(self):  # TODO should be written again
+        return 0.25
+
     def is_tackling(self):
         return False  # TODO WHAT the fuck :/
 
     def tackle_count(self):
         return 0  # TODO WHAT the fuck again :/
+
+    def is_frozen(self):
+        return False  # TODO yep aref WHAT the fuck rasman
 
     def is_ghost(self):
         return False  # TODO should be written again
