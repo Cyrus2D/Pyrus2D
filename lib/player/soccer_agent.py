@@ -1,3 +1,4 @@
+from lib.parser.cmd_line_parser import CmdLineParser
 from lib.player.templates import BasicClient
 
 

@@ -38,7 +38,7 @@ class PlayerAgent(SoccerAgent):
 
     def __init__(self):
         super().__init__()
-        self._impl: PlayerAgent.Impl = PlayerAgent.Impl()
+        self._impl: PlayerAgent.Impl = PlayerAgent.Impl(self)
         self._socket = UDPSocket(IPAddress('localhost', 6000))
         self._world = WorldModel()
         self._full_world = WorldModel()

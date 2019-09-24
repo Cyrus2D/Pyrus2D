@@ -1,6 +1,7 @@
 from enum import Enum
 
 from lib.math.angle_deg import AngleDeg
+from lib.parser.cmd_line_parser import CmdLineParser
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.rcsc.game_mode import GameMode
