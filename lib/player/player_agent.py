@@ -15,12 +15,20 @@ from lib.rcsc.server_param import ServerParam
 
 class PlayerAgent(SoccerAgent):
     class Impl:
-        def __init__(self):
+        def __init__(self, agent):
             # TODO so many things....
+            self._agent: PlayerAgent = agent
             pass
 
         def send_init_command(self):
-            pass
+            # TODO check reconnections
+
+            # TODO make config class for these datas
+            com = PlayerInitCommand("Pyrus", 15, False)
+
+            if self._agent._client.send_message() <= 0:
+                print("ERROR faild to connect to server")
+                self._agent._client.set_server_alive(False)
 
     def __init__(self):
         super().__init__()
