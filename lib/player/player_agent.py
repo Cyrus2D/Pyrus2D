@@ -50,7 +50,7 @@ class PlayerAgent:
             # print(f"run-time: {cycle_end-cycle_start}s")
 
             if not self.is_run:
-                print("srever down")
+                print("server down")
                 break
 
             if message_count > 0:
