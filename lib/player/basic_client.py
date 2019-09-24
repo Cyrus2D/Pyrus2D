@@ -11,6 +11,9 @@ class ClientMode(Enum):
 class BasicClient:
     def __init__(self):
         self._client_mode = ClientMode.Online
+        self._server_alive = False
+        # self._interval_ms = 10
+        # self._compression_lvl = 0
 
     def connect_to(self,
                    host_port: tuple,
@@ -21,19 +24,19 @@ class BasicClient:
         if self._client_mode == ClientMode.Online:
             self.run_online(agent)
 
+        agent.handle_exit()
+
     def run_online(self, agent: SoccerAgent):
         if not agent.handle_start() or not self.is_server_alive():
             agent.handle_exit()
             return
 
         while self.is_server_alive():
-            # TODO handle selects and rets and fds and timeout ... (I dont know what the hell are them)
+            # TODO handle selects and rets and fds and timeout ... (I dont know what the hell are these)
             agent.handle_message()
 
-
-
-    def run_online(self, agent):
-        pass
+    def set_server_alive(self, mode: bool):
+        self._server_alive = mode
 
     def send_message(self, msg):
         pass

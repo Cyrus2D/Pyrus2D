@@ -2,6 +2,7 @@ import time
 from lib.math.geom_2d import *
 from base.decision import get_decision
 from lib.debug.logger import *
+from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
 from lib.player_command.player_command import PlayerInitCommand
@@ -10,6 +11,34 @@ from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDash
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
+
+
+class PlayerAgent(SoccerAgent):
+    class Impl:
+        def __init__(self):
+            # TODO so many things....
+            pass
+
+        def send_init_command(self):
+            pass
+
+    def __init__(self):
+        super().__init__()
+        self._impl: PlayerAgent.Impl = PlayerAgent.Impl()
+
+    def handle_start(self):
+        if self._client is None:
+            return False
+
+        # TODO check for config.host not empty
+
+        if not self._client.connect_to(IPAddress('localhost', 6000))
+            print("ERROR faild to connect to server")
+            self._client.set_server_alive(False)
+            return False
+
+        self._impl.send_init_command()
+        return True
 
 
 class PlayerAgent:

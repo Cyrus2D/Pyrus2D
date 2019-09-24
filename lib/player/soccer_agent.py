@@ -3,7 +3,7 @@ from lib.player.basic_client import BasicClient
 
 class SoccerAgent:
     def __init__(self):
-        pass
+        self._client = BasicClient()
 
     def init(self,
              client: BasicClient,
