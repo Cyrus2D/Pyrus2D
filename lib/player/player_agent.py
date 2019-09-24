@@ -34,10 +34,18 @@ class PlayerAgent(SoccerAgent):
             com = PlayerByeCommand()
             self._agent._client.send_message(com.str())
             self._agent._client.set_server_alive(False)
+            ''
 
     def __init__(self):
         super().__init__()
         self._impl: PlayerAgent.Impl = PlayerAgent.Impl()
+        self._socket = UDPSocket(IPAddress('localhost', 6000))
+        self._world = WorldModel()
+        self._full_world = WorldModel()
+        self._think_mode = False
+        self._is_synch_mode = True
+        self._last_body_command = []
+        self.is_run = True
 
     def handle_start(self):
         if self._client is None:
@@ -58,16 +66,8 @@ class PlayerAgent(SoccerAgent):
             self._impl.send_bye_command()
         print(f"player({self._unum}: finished")
 
-
-class PlayerAgent:
-    def __init__(self):
-        self._socket = UDPSocket(IPAddress('localhost', 6000))
-        self._world = WorldModel()
-        self._full_world = WorldModel()
-        self._think_mode = False
-        self._is_synch_mode = True
-        self._last_body_command = []
-        self.is_run = True
+    def handle_message(self):
+        self.run()
 
     def run(self, team_name, goalie):
         self.connect(team_name, goalie)
