@@ -160,6 +160,11 @@ class PlayerObject(Object):
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
 
+    def inertia_final_point(self):
+        return inertia_final_point(self.pos(),
+                                   self.vel(),
+                                   ServerParam.i().player_decay())
+
     def unum(self):
         return self._unum
 

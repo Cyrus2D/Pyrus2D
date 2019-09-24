@@ -8,8 +8,8 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.soccer_math import *
 from lib.action.stop_ball import *
-from lib.player.soccer_action import *
 from lib.action.basic_actions import *
+from lib.player.soccer_action import *
 
 """
   \ struct KeepPoint
@@ -391,8 +391,7 @@ class HoldBall(BodyAction):
 
         if self._do_turn:
             face_point = self._turn_target_point
-
-        my_inertia = 0.0  # TODO : AREF # wm.self().inertia_final_point()
+        my_inertia = wm.self().inertia_final_point()
         target_angle = (face_point - my_inertia).th()
 
         if (wm.self().body() - target_angle).abs() < 5.0:
