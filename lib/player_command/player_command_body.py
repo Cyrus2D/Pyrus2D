@@ -30,9 +30,9 @@ class PlayerMoveCommand(PlayerBodyCommand):
 
 
 class PlayerDashCommand(PlayerBodyCommand):
-    def __init__(self, power, dir):
+    def __init__(self, power, direction):
         self._power = power
-        self._dir = dir
+        self._dir = direction
 
     def str(self):
         return f"(dash {self._power}" + (f" {self._dir})" if self._dir != 0 else ")")
@@ -80,8 +80,8 @@ class PlayerKickCommand(PlayerBodyCommand):
 
 
 class PlayerCatchCommand(PlayerBodyCommand):
-    def __init__(self, dir):
-        self._dir = dir
+    def __init__(self, direction):
+        self._dir = direction
 
     def str(self):
         return f"(catch {self._dir})"
@@ -93,7 +93,7 @@ class PlayerCatchCommand(PlayerBodyCommand):
         return CommandType.CATCH
 
 
-class PlayerTackleCommand(PlayerBodyCommand):
+class PlayerTackleCommand(PlayerBodyCommand):  # TODO Foul ...
     def __init__(self, power_or_dir, foul: bool = False):
         self._power_or_dir = power_or_dir
         self._foul = foul

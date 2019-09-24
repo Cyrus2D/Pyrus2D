@@ -66,7 +66,9 @@ class PlayerPointtoCommand(PlayerSupportCommand):
 
     def type(self):
         return CommandType.POINTTO
-#TODO Write other commands ...
+
+
+# TODO Write other commands ...
 
 class PlayerDoneCommand(PlayerSupportCommand):
     def __init__(self):
