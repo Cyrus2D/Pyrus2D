@@ -1,6 +1,6 @@
 from enum import Enum
 
-from lib.player.soccer_agent import SoccerAgent
+from lib.player.templates import SoccerAgent
 
 
 class ClientMode(Enum):
