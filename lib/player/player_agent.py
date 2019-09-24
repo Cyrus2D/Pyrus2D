@@ -5,7 +5,7 @@ from lib.debug.logger import *
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
-from lib.player_command.player_command import PlayerInitCommand
+from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand, \
     PlayerKickCommand
 from lib.player_command.player_command_support import PlayerDoneCommand
@@ -26,9 +26,14 @@ class PlayerAgent(SoccerAgent):
             # TODO make config class for these datas
             com = PlayerInitCommand("Pyrus", 15, False)
 
-            if self._agent._client.send_message() <= 0:
+            if self._agent._client.send_message(com.str()) <= 0:
                 print("ERROR faild to connect to server")
                 self._agent._client.set_server_alive(False)
+
+        def send_bye_command(self):
+            com = PlayerByeCommand()
+            self._agent._client.send_message(com.str())
+            self._agent._client.set_server_alive(False)
 
     def __init__(self):
         super().__init__()
@@ -40,13 +45,18 @@ class PlayerAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6000))
+        if not self._client.connect_to(IPAddress('localhost', 6000)):
             print("ERROR faild to connect to server")
             self._client.set_server_alive(False)
             return False
 
         self._impl.send_init_command()
         return True
+
+    def handle_exit(self):
+        if self._client.is_server_alive():
+            self._impl.send_bye_command()
+        print(f"player({self._unum}: finished")
 
 
 class PlayerAgent:
