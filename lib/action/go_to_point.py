@@ -55,7 +55,7 @@ class GoToPoint:
         if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model().stamina() > SP.i().recover_dec_thr_value() + 500.0:
             effective_power = SP.i().max_dash_power() * wm.self().dash_rate()
             effective_back_power = SP.i().min_dash_power() * wm.self().dash_rate()
-            if math.fabs( effective_back_power) > math.fabs(effective_power) * 0.75:
+            if math.fabs(effective_back_power) > math.fabs(effective_power) * 0.75:
                 self._back_mode = True
                 turn_moment += 180.0
 
@@ -79,7 +79,8 @@ class GoToPoint:
             accel_angle += 180.0
 
         target_rel.rotate(-accel_angle)
-        first_speed = smath.calc_first_term_geom_series(target_rel.x(), wm.self().player_type().player_decay(), self._cycle)
+        first_speed = smath.calc_first_term_geom_series(target_rel.x(), wm.self().player_type().player_decay(),
+                                                        self._cycle)
         first_speed = smath.bound(- wm.self().player_type().player_speed_max(), first_speed,
                                   wm.self().player_type().player_speed_max())
         if self._dash_speed > 0.0:
@@ -105,8 +106,10 @@ class GoToPoint:
 
         collision_dist = wm.self().player_type().player_size() + SP.i().goal_post_radius() + 0.2
 
-        goal_post_l = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(), -SP.i().goal_half_width() - SP.i().goal_post_radius())
-        goal_post_r = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(), +SP.i().goal_half_width() + SP.i().goal_post_radius())
+        goal_post_l = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(),
+                               -SP.i().goal_half_width() - SP.i().goal_post_radius())
+        goal_post_r = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(),
+                               +SP.i().goal_half_width() + SP.i().goal_post_radius())
 
         dist_post_l = wm.self().pos().dist2(goal_post_l)
         dist_post_r = wm.self().pos().dist2(goal_post_r)
@@ -121,7 +124,7 @@ class GoToPoint:
 
         post_circle = Circle2D(nearest_post, collision_dist)
         move_line = Segment2D(wm.self().pos(), self._target)
-        if post_circle.intersection(move_line)[0] == 0:
+        if (post_circle.intersection(move_line))[0] == 0:
             return
 
         post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos()).th())
