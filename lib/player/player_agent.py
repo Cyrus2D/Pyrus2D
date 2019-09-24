@@ -18,7 +18,7 @@ class PlayerAgent(SoccerAgent):
         def __init__(self, agent):
             # TODO so many things....
             self._agent: PlayerAgent = agent
-            pass
+            self._think_received = False
 
         def send_init_command(self):
             # TODO check reconnections
@@ -42,7 +42,6 @@ class PlayerAgent(SoccerAgent):
         self._socket = UDPSocket(IPAddress('localhost', 6000))
         self._world = WorldModel()
         self._full_world = WorldModel()
-        self._think_mode = False
         self._is_synch_mode = True
         self._last_body_command = []
         self.is_run = True
@@ -74,12 +73,9 @@ class PlayerAgent(SoccerAgent):
         self._full_world._team_name = team_name
         last_time_rec = time.time()
 
-        sum_think_time = 0
-        n_think = 0
         while True:
             message_and_address = []
             message_count = 0
-            cycle_start = time.time()
             while True:
                 self._socket.recieve_msg(message_and_address)
                 message = message_and_address[0]
@@ -90,34 +86,23 @@ class PlayerAgent(SoccerAgent):
                     self.is_run = False
                     break
                 message_count += 1
-                if self._think_mode:
+                if self._impl._think_received:
                     last_time_rec = time.time()
                     break
-            cycle_end = time.time()
-            # print(f"run-time: {cycle_end-cycle_start}s")
 
             if not self.is_run:
                 print("srever down")
                 break
 
-            if message_count > 0:
+            if self._impl._think_received:
                 self.action()
-            elif self._think_mode:
-                self.action()
-
-                # if self.world().game_mode().mode_name() == "play_on":
-                #     n_think += 1
-                #     sum_think_time += cycle_end - cycle_start
-                #     print(f"avg_think_time={sum_think_time/n_think}s")
-            self._think_mode = False
+                self._impl._think_received = False
+            # TODO elif for not sync mode
 
     def connect(self, team_name, goalie, version=15):
         self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
-        # print("#" * 20)
-        # print(message)
-        # self._think_mode = False
         if message.find("(init") is not -1:
             self.init_dlog(message)
         if message.find("server_param") is not -1:
@@ -127,7 +112,7 @@ class PlayerAgent(SoccerAgent):
             self._full_world.parse(message)
             dlog._time = self.world().time()
         elif message.find("think") is not -1:
-            self._think_mode = True
+            self._impl._think_received = True
 
     def do_dash(self, power, angle=0):
         self._last_body_command.append(PlayerDashCommand(power, float(angle)))
