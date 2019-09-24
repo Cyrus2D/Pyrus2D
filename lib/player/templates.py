@@ -1,3 +1,5 @@
+from enum import Enum
+
 from lib.math.angle_deg import AngleDeg
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
@@ -70,6 +72,35 @@ class WorldModel:
     def get_opponent_nearest_to_self(self, count_thr: int, with_goalie: bool = True) -> PlayerObject: ...
 
     def self_unum(self): ...
+
+
+class ClientMode(Enum):
+    offline = 0
+    Online = 1
+
+
+class BasicClient:
+    def __init__(self): ...
+
+    def connect_to(self,
+                   host_port: tuple,
+                   interval_ms): ...
+
+    def run(self, agent): ...
+
+    def run_online(self, agent): ...
+
+    def set_server_alive(self, mode: bool): ...
+
+    def send_message(self, msg): ...
+
+    def recv_message(self): ...
+
+    def message(self): ...
+
+    def client_mode(self): ...
+
+    def is_server_alive(self): ...
 
 
 class SoccerAgent:
