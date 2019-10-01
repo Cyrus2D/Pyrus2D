@@ -128,7 +128,7 @@ class Circle2D:
             line = args[0]
             if math.fabs(line.a()) < EPSILON:
                 if math.fabs(line.b()) < EPSILON:
-                    return 0
+                    return [0, 0.0, 0.0]
 
                 n_sol = QUADRATIC_F(1.0,
                                     -2.0 * self._center._x,
@@ -161,18 +161,13 @@ class Circle2D:
             ray = args[0]
             line_tmp = Line2D(ray.origin(), ray.dir())
 
-            n_sol = self.intersection(line_tmp)
-            t_sol1 = n_sol[1]
-            t_sol2 = n_sol[2]
+            sol_list = self.intersection(line_tmp)
+            if sol_list[0] > 1 and not ray.inRightDir(sol_list[2], 1.0):
+                sol_list[0] -= 1
 
-            if n_sol[0] > 1 and not ray.inRightDir(t_sol2, 1.0):
-                n_sol[0] -= 1
-
-            if n_sol[0] > 0 and not ray.inRightDir(t_sol1, 1.0):
-                t_sol1 = t_sol2
-                n_sol[0] -= 1
-
-            sol_list = [n_sol[0], t_sol1, t_sol2]
+            if sol_list[0] > 0 and not ray.inRightDir(sol_list[1], 1.0):
+                sol_list[1] = sol_list[2]
+                sol_list[0] -= 1
 
             return sol_list
 
@@ -180,16 +175,13 @@ class Circle2D:
             seg = args[0]
             line = seg.line()
 
-            n_sol = Circle2D.intersection(line)
-            t_sol1 = n_sol[1]
-            t_sol2 = n_sol[2]
-            if n_sol[0] > 1 and not seg.contains(t_sol2):
-                n_sol[0] -= 1
+            sol_list = Circle2D.intersection(line)
+            print(sol_list)
+            if sol_list[0] > 1 and not seg.contains(sol_list[1]):
+                sol_list[0] -= 1
 
-            if n_sol > 0 and not seg.contains(t_sol1):
-                n_sol[0] -= 1
-
-            sol_list = [n_sol[0], t_sol1, t_sol2]
+            if sol_list[0] > 0 and not seg.contains(sol_list[2]):
+                sol_list[0] -= 1
 
             return sol_list
 
