@@ -159,7 +159,7 @@ def inertia_final_travel(initial_vel: Vector2D, decay):
 
 
 def inertia_final_point(initial_pos: Vector2D, initial_vel: Vector2D, decay):
-    tmp = Vector2D(initial_pos.x, initial_pos.y)
+    tmp = Vector2D(initial_pos.x(), initial_pos.y())
     tmp += inertia_final_travel(initial_vel, decay)
     return tmp
 
