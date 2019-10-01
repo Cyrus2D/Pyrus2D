@@ -1178,7 +1178,7 @@ class _KickTable:
             return rtn_list
         # sequence = self._candidates[0]
 
-        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
+        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : CMP Check
         if _KickTable.PRINT_DEBUG:
             print("_______________________candidates_AE_________________________")
         for tmp in self._candidates:

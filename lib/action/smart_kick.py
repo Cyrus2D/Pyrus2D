@@ -60,7 +60,7 @@ class SmartKick(BodyAction):
                   ans[1].pos_list_)
         if ans[0]:
             self._sequence = ans[1]
-            if self._sequence.speed_ >= first_speed_thr:
+            if self._sequence.speed_ >= first_speed_thr:  # double check
                 if SmartKick.PRINT_DEBUG:
                     print("###################********True********####################")
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
@@ -73,21 +73,6 @@ class SmartKick(BodyAction):
                 return True
         if SmartKick.PRINT_DEBUG:
             print("###################********False*******####################")
-        """
-        for p in = self._sequence.pos_list_ :
-            dlog.addCircle(p, 0.05)  # how? 
-        dlog.addText(Level.KICK," Success!  target=(%.2f %.2f)"
-                " speed=%.3f first_speed_thr=%.3f"
-                " max_step=%d . achieved_speed=%.3f power=%.2f step=%d",
-                self._target_point.x, self._target_point.y,
-                first_speed,
-                first_speed_thr,
-                max_step,
-                self._sequence.speed_,
-                self._sequence.power_,
-                (int)self._sequence.pos_list_.size() )                                                                             
-                    
-        """
 
         # failed to search the kick sequence
 

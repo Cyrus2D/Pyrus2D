@@ -21,13 +21,13 @@ class PlayerAgent(SoccerAgent):
             self._think_received = False
 
         def send_init_command(self):
-            # TODO check reconnections
+            # TODO check reconnection
 
-            # TODO make config class for these datas
+            # TODO make config class for these data
             com = PlayerInitCommand("Pyrus", 15, False)
 
             if self._agent._client.send_message(com.str()) <= 0:
-                print("ERROR faild to connect to server")
+                print("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
@@ -35,6 +35,10 @@ class PlayerAgent(SoccerAgent):
             self._agent._client.send_message(com.str())
             self._agent._client.set_server_alive(False)
             ''
+
+        @property
+        def think_received(self):
+            return self._think_received
 
     def __init__(self):
         super().__init__()
@@ -53,7 +57,7 @@ class PlayerAgent(SoccerAgent):
         # TODO check for config.host not empty
 
         if not self._client.connect_to(IPAddress('localhost', 6000)):
-            print("ERROR faild to connect to server")
+            print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
 
@@ -86,15 +90,16 @@ class PlayerAgent(SoccerAgent):
                     self.is_run = False
                     break
                 message_count += 1
-                if self._impl._think_received:
+                if self._impl.think_received:
                     last_time_rec = time.time()
                     break
 
             if not self.is_run:
-                print("server down")
+                print("Pyrus Agent : Server Down")
+                # print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
 
-            if self._impl._think_received:
+            if self._impl.think_received:
                 self.action()
                 self._impl._think_received = False
             # TODO elif for not sync mode
