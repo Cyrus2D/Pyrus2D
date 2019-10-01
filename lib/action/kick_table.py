@@ -15,11 +15,6 @@ from lib.math.soccer_math import *
 from lib.rcsc.game_time import *
 
 """
-  \ enum Flag
-  \ brief status bit flags
-"""
-
-"""
       \ brief compare operation function
       \ param item1 left hand side variable
       \ param item2 right hand side variable
@@ -37,6 +32,11 @@ def TableCmp(item1, item2) -> bool:
 def SequenceCmp(item1, item2) -> bool:
     return item1.score_ > item2.score_
 
+
+"""
+  \ enum Flag
+  \ brief status bit flags
+"""
 
 # class Flag(Enum):
 SAFETY: hex = 0x0000
@@ -295,6 +295,7 @@ def calc_max_velocity(target_angle: AngleDeg,
 
 
 class _KickTable:
+    PRINT_DEBUG: bool = True
 
     def __init__(self):
         self._player_size = 0.0
@@ -462,7 +463,7 @@ class _KickTable:
         self._current_state.pos_ = world.ball().pos()
         self._current_state.kick_rate_ = world.self().kick_rate()
 
-        self.checkInterfereAt(world, self._current_state)   # 0
+        self.checkInterfereAt(world, self._current_state)  # 0
 
         #
         # create future state
@@ -486,7 +487,7 @@ class _KickTable:
                 pos.set_length(near_dist)
                 pos += self_pos
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
-                self.checkInterfereAt(world, self._state_cache[i][-1])   # i + 1
+                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -501,7 +502,7 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, mid_dist, pos, krate))
-                self.checkInterfereAt(world, self._state_cache[i][-1])   # i + 1
+                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -1124,7 +1125,8 @@ class _KickTable:
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
 
         if len(self._state_list) == 0:
-            print("False , Len  == 0")
+            if _KickTable.PRINT_DEBUG:
+                print("False , Len  == 0")
             return False
 
         target_speed = bound(0.0,
@@ -1149,46 +1151,52 @@ class _KickTable:
                 and self.simulateOneStep(world,
                                          target_point,
                                          target_speed)):
-            print("simulate() found 1 step")
+            if _KickTable.PRINT_DEBUG:
+                print("simulate() found 1 step")
             dlog.add_text(Level.KICK, "simulate() found 1 step")
         if (max_step >= 2
                 and self.simulateTwoStep(world,
                                          target_point,
                                          target_speed)):
-            print("simulate() found 2 step")
+            if _KickTable.PRINT_DEBUG:
+                print("simulate() found 2 step")
             dlog.add_text(Level.KICK, "simulate() found 2 step")
         if (max_step >= 3
                 and self.simulateThreeStep(world,
                                            target_point,
                                            target_speed)):
-            print("simulate() found 3 step")
+            if _KickTable.PRINT_DEBUG:
+                print("simulate() found 3 step")
             dlog.add_text(Level.KICK, "simulate() found 3 step")
 
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
-            print("False -> candidates len == ", len(self._candidates))
+            if _KickTable.PRINT_DEBUG:
+                print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
         # sequence = self._candidates[0]
 
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))
-
-        print("_______________________candidates_AE_________________________")
+        if _KickTable.PRINT_DEBUG:
+            print("_______________________candidates_AE_________________________")
         for tmp in self._candidates:
-            print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
-                  tmp.speed_, " power : ", tmp.power_,
-                  " score : ", tmp.score_, "  flag : ",
-                  tmp.flag_)
+            if _KickTable.PRINT_DEBUG:
+                print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
+                      tmp.speed_, " power : ", tmp.power_,
+                      " score : ", tmp.score_, "  flag : ",
+                      tmp.flag_)
             # """
         dlog.add_text(Level.KICK,
                       f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
 
         # """
         # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
-        print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
-              " & tar speed eps is",
-              target_speed - EPS)
+        if _KickTable.PRINT_DEBUG:
+            print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
+                  " & tar speed eps is",
+                  target_speed - EPS)
         rtn_list = [sequence.speed_ >= target_speed - EPS, sequence]
         return rtn_list
 

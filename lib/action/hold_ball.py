@@ -97,7 +97,7 @@ class HoldBall(BodyAction):
     def avoidOpponent(self, agent: PlayerAgent):
         wm: WorldModel = agent.world()
         point = self.searchKeepPoint(wm)
-        if not point.isValid():
+        if not point.is_valid():
             dlog.add_text(Level.KICK, "avoidOpponent() no candidate point")
             return False
         ball_move = point - wm.ball().pos()
@@ -449,7 +449,7 @@ class HoldBall(BodyAction):
     """
 
     def keepReverse(self, agent: PlayerAgent):
-        if not self._kick_target_point.isValid():
+        if not self._kick_target_point.is_valid():
             return False
 
         param = ServerParam.i()
