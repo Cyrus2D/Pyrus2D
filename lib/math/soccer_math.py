@@ -144,7 +144,7 @@ def inertia_n_step_distance(initial_speed, n_step, decay):
 
 
 def inertia_final_travel(initial_vel: Vector2D, decay):
-    tmp = Vector2D(initial_vel.x, initial_vel.y)
+    tmp = Vector2D(initial_vel.x(), initial_vel.y())
     tmp /= (1.0 - decay)
     return tmp
 
