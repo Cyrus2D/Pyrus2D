@@ -169,6 +169,10 @@ class Sequence:
             self.power_ = args[0].power_.copy()
             self.score_ = args[0].score_
 
+    def __repr__(self):
+        return "[{} Step, next_pos = {}, speed = {}, pos_list = {}, flag = {}, score [{}]]".format(
+            len(self.pos_list_), self.pos_list_[0], self.speed_, self.pos_list_, self.flag_, self.score_)
+
 
 """
  \ brief calculate the distance of near side sub-target
@@ -1153,21 +1157,21 @@ class _KickTable:
                                          target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 1 step")
-            dlog.add_text(Level.KICK, "simulate() found 1 step")
+                dlog.add_text(Level.KICK, "simulate() found 1 step")
         if (max_step >= 2
                 and self.simulateTwoStep(world,
                                          target_point,
                                          target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 2 step")
-            dlog.add_text(Level.KICK, "simulate() found 2 step")
+                dlog.add_text(Level.KICK, "simulate() found 2 step")
         if (max_step >= 3
                 and self.simulateThreeStep(world,
                                            target_point,
                                            target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 3 step")
-            dlog.add_text(Level.KICK, "simulate() found 3 step")
+                dlog.add_text(Level.KICK, "simulate() found 3 step")
 
         self.evaluate(target_speed, speed_thr)
 
@@ -1176,24 +1180,13 @@ class _KickTable:
                 print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
-        # sequence = self._candidates[0]
-
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : CMP Check
         if _KickTable.PRINT_DEBUG:
             print("_______________________candidates_AE_________________________")
-        for tmp in self._candidates:
-            if _KickTable.PRINT_DEBUG:
-                print("next_pos : ", tmp.pos_list_[0], " ", len(tmp.pos_list_), " step ", tmp.pos_list_, " speed : ",
-                      tmp.speed_, " power : ", tmp.power_,
-                      " score : ", tmp.score_, "  flag : ",
-                      tmp.flag_)
-            # """
-        dlog.add_text(Level.KICK,
-                      f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
-
-        # """
-        # print(sequence.speed_, "  >= ", target_speed, " - ", EPS, " = ", sequence.speed_ >= target_speed - EPS)
-        if _KickTable.PRINT_DEBUG:
+            for tmp in self._candidates:
+                print(tmp)
+                dlog.add_text(Level.KICK,
+                              f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
             print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
                   " & tar speed eps is",
                   target_speed - EPS)
