@@ -121,7 +121,7 @@ class HoldBall(BodyAction):
             s_best_keep_point.reset()
             s_keep_points = self.createKeepPoints(wm, s_keep_points)
             self.evaluateKeepPoints(wm, s_keep_points)
-            if not s_keep_points:
+            if s_keep_points:
                 s_best_keep_point = max(s_keep_points, key=functools.cmp_to_key(KeepPointCmp))
         return s_best_keep_point.pos_
 
@@ -156,7 +156,7 @@ class HoldBall(BodyAction):
         current_speed_rate = 0.5 + 0.5 * (wm.ball().vel().r() / (param.ball_speed_max() * param.ball_decay()))
 
         for d in frange(-180.0, 180.0, dir_step):
-            angle = d
+            angle = AngleDeg(d)
             dir_diff = (angle - wm.self().body()).abs()
             unit_pos = Vector2D.polar2vector(1.0, angle)
 
@@ -202,7 +202,7 @@ class HoldBall(BodyAction):
                                                         DEFAULT_SCORE))
 
             # far side point
-            far_pos = my_next + unit_pos.setLengthVector(far_dist)
+            far_pos = my_next + unit_pos.set_length_vector(far_dist)
             if (far_pos.absX() < max_pitch_x
                     and far_pos.absY() < max_pitch_y):
                 ball_move = far_pos - wm.ball().pos()
@@ -265,13 +265,13 @@ class HoldBall(BodyAction):
         for o in wm.opponents_from_ball():
             if o is None or o.player_type() is None:
                 continue
-            if o.distFromBall() > consider_dist:
+            if o.dist_from_ball() > consider_dist:
                 break
-            if o.posCount() > 10:
+            if o.pos_count() > 10:
                 continue
-            if o.isGhost():
+            if o.is_ghost():
                 continue
-            if o.isTackling():
+            if o.is_tackling():
                 continue
 
             player_type = o.player_type()
@@ -293,7 +293,7 @@ class HoldBall(BodyAction):
 
                 score -= 25.0
 
-            if o.bodyCount() == 0:
+            if o.body_count() == 0:
                 opp_body = o.body()
 
             elif o.vel().r() > 0.2:  # o.velCount() <= 1 #and
@@ -321,7 +321,7 @@ class HoldBall(BodyAction):
             #
             # check tackle probability
             #
-            tackle_dist = param.tackle_dist() if (player_2_pos.x > 0.0) else param.tackle_back_dist()
+            tackle_dist = param.tackle_dist() if (player_2_pos.x() > 0.0) else param.tackle_back_dist()
             if tackle_dist > 1.0e-5:
                 tackle_prob = (pow(player_2_pos.absX() / tackle_dist,
                                    param.tackle_exponent())
@@ -339,14 +339,14 @@ class HoldBall(BodyAction):
                          * player_type.effort_max())
 
             if (player_2_pos.absY() < control_area
-                    and player_2_pos.x > 0.0
+                    and player_2_pos.x() > 0.0
                     and (player_2_pos.absX() < max_accel
                          or (player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area + 0.1)):
                 # next kickable
                 score -= 20.0
             elif (player_2_pos.absY() < param.tackle_width() * 0.7
-                  and player_2_pos.x > 0.0
-                  and player_2_pos.x - max_accel < param.tackle_dist() - 0.25):
+                  and player_2_pos.x() > 0.0
+                  and player_2_pos.x() - max_accel < param.tackle_dist() - 0.25):
                 score -= 10.0
 
         ball_move_dist = (keep_point - wm.ball().pos()).r()
