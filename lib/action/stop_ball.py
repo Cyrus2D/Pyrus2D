@@ -57,7 +57,7 @@ class StopBall(BodyAction):
 
         wm: WorldModel = agent.world()
 
-        safety_dist = wm.self().player_type().playerSize() + ServerParam.i().ball_size() + 0.1
+        safety_dist = wm.self().player_type().player_size() + ServerParam.i().ball_size() + 0.1
 
         target_dist = wm.ball().dist_from_self()
         if target_dist < safety_dist:
@@ -67,7 +67,7 @@ class StopBall(BodyAction):
             target_dist = wm.self().player_type().kickable_area() - 0.1
 
         target_rel = wm.self().pos() - wm.ball().pos()
-        target_rel.setLength(target_dist)
+        target_rel.set_length(target_dist)
 
         required_accel = wm.self().vel()
         required_accel += target_rel  # target relative to current

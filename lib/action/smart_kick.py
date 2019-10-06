@@ -3,14 +3,17 @@
     \ brief smart kick action class file.
 """
 
-# from lib.math.soccer_math import *
 from lib.player.soccer_action import *
-#  from lib.player.player_agent import *
 from lib.action.kick_table import *
 from lib.action.stop_ball import StopBall
+from lib.action.hold_ball import HoldBall
+#  from lib.player.player_agent import *
+# from lib.math.soccer_math import *
 
 
 class SmartKick(BodyAction):
+    PRINT_DEBUG: bool = True
+
     def __init__(self, target_point: Vector2D, first_speed, first_speed_thr, max_step):
         super().__init__()
         # target point where the ball should move to
@@ -37,8 +40,9 @@ class SmartKick(BodyAction):
             return StopBall().execute(agent)
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
-        print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
-        print("*******************########KTS########********************")
+        if SmartKick.PRINT_DEBUG:
+            print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
+            print("*******************########KTS########********************")
         max_step = max(1, self._max_step)
         ans = KickTable.instance().simulate(wm,
                                             self._target_point,
@@ -46,45 +50,33 @@ class SmartKick(BodyAction):
                                             first_speed_thr,
                                             max_step,
                                             self._sequence)
-        print("Smart kick : ", ans[0], " seq -> speed : ",
-              ans[1].speed_, " power : ", ans[1].power_,
-              " score : ", ans[1].score_, "  flag : ",
-              ans[1].flag_, "next_pos : ",
-              ans[1].pos_list_[0], " ",
-              len(ans[1].pos_list_), " step ",
-              ans[1].pos_list_)
+        if SmartKick.PRINT_DEBUG:
+            print("Smart kick : ", ans[0], " seq -> speed : ",
+                  ans[1].speed_, " power : ", ans[1].power_,
+                  " score : ", ans[1].score_, "  flag : ",
+                  ans[1].flag_, "next_pos : ",
+                  ans[1].pos_list_[0], " ",
+                  len(ans[1].pos_list_), " step ",
+                  ans[1].pos_list_)
         if ans[0]:
             self._sequence = ans[1]
-            if self._sequence.speed_ >= first_speed_thr:
-                print("###################********True********####################")
+            if self._sequence.speed_ >= first_speed_thr:  # double check
+                if SmartKick.PRINT_DEBUG:
+                    print("###################********True********####################")
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
                 kick_accel = vel - wm.ball().vel()
-                print("Kick Vel : ", vel, " ,  Kick Power : ", kick_accel.r() / wm.self().kick_rate(),
-                      " ,Kick Angle : ", kick_accel.th() - wm.self().body())
+                if SmartKick.PRINT_DEBUG:
+                    print("Kick Vel : ", vel, " ,  Kick Power : ", kick_accel.r() / wm.self().kick_rate(),
+                          " ,Kick Angle : ", kick_accel.th() - wm.self().body())
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
                 return True
-        print("###################********False*******####################")
-        """
-        for p in = self._sequence.pos_list_ :
-            dlog.addCircle(p, 0.05)  # how? 
-        dlog.addText(Level.KICK," Success!  target=(%.2f %.2f)"
-                " speed=%.3f first_speed_thr=%.3f"
-                " max_step=%d . achieved_speed=%.3f power=%.2f step=%d",
-                self._target_point.x, self._target_point.y,
-                first_speed,
-                first_speed_thr,
-                max_step,
-                self._sequence.speed_,
-                self._sequence.power_,
-                (int)self._sequence.pos_list_.size() )                                                                             
-                    
-        """
-        # TODO: hold_ball mode
+        if SmartKick.PRINT_DEBUG:
+            print("###################********False*******####################")
 
         # failed to search the kick sequence
 
-        # Body_HoldBall2008(False, self._target_point, self._target_point).execute(agent)
+        HoldBall(False, self._target_point, self._target_point).execute(agent)
         return False
 
     def sequence(self):
