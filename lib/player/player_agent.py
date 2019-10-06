@@ -26,6 +26,8 @@ class PlayerAgent(SoccerAgent):
 
             # TODO make config class for these data
             com = PlayerInitCommand("Pyrus", 15, False)
+            # TODO set team name from config
+            self._agent._full_world._team_name = "Pyrus"
 
             if self._agent._client.send_message(com.str()) <= 0:
                 print("ERROR failed to connect to server")
@@ -44,12 +46,10 @@ class PlayerAgent(SoccerAgent):
     def __init__(self):
         super().__init__()
         self._impl: PlayerAgent.Impl = PlayerAgent.Impl(self)
-        self._socket = UDPSocket(IPAddress('localhost', 6000))
         self._world = WorldModel()
         self._full_world = WorldModel()
         self._is_synch_mode = True
         self._last_body_command = []
-        self.is_run = True
 
     def handle_start(self):
         if self._client is None:
@@ -68,41 +68,33 @@ class PlayerAgent(SoccerAgent):
     def handle_exit(self):
         if self._client.is_server_alive():
             self._impl.send_bye_command()
-        print(f"player({self._unum}: finished")
+        print(f"player({self._world.self_unum()}: finished")
 
     def handle_message(self):
         self.run()
 
-    def run(self, team_name, goalie):
-        self.connect(team_name, goalie)
-        self._full_world._team_name = team_name
+    def run(self):
         last_time_rec = time.time()
-        first_time = True
         while True:
             message_and_address = []
             message_count = 0
             while True:
-                self._socket.recieve_msg(message_and_address)
+                self._client.recv_message(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
                 print(server_address)
                 print(message)
-                if first_time:
-                    # self._socket._sock.close()
-                    # self._socket._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    # self._socket._sock.bind((server_address[0], server_address[1] + 1))
-                    first_time = False
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
-                    self.is_run = False
+                    self._client.set_server_alive(False)
                     break
                 message_count += 1
                 if self._impl.think_received:
                     last_time_rec = time.time()
                     break
 
-            if not self.is_run:
+            if not self._client.is_server_alive():
                 print("Pyrus Agent : Server Down")
                 # print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
@@ -112,8 +104,6 @@ class PlayerAgent(SoccerAgent):
                 self._impl._think_received = False
             # TODO elif for not sync mode
 
-    def connect(self, team_name, goalie, version=15):
-        self._socket.send_msg(PlayerInitCommand(team_name, version, goalie).str())
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
@@ -169,7 +159,7 @@ class PlayerAgent(SoccerAgent):
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
-        self._socket.send_msg(PlayerSendCommands.all_to_str(commands))
+        self._client.send_message(PlayerSendCommands.all_to_str(commands))
         dlog.flush()
         self._last_body_command = []
 
