@@ -1,3 +1,4 @@
+import socket
 import time
 from lib.math.geom_2d import *
 from base.decision import get_decision
@@ -72,7 +73,7 @@ class PlayerAgent(SoccerAgent):
         self.connect(team_name, goalie)
         self._full_world._team_name = team_name
         last_time_rec = time.time()
-
+        first_time = True
         while True:
             message_and_address = []
             message_count = 0
@@ -80,6 +81,13 @@ class PlayerAgent(SoccerAgent):
                 self._socket.recieve_msg(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
+                print(server_address)
+                print(message)
+                if first_time:
+                    # self._socket._sock.close()
+                    # self._socket._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    # self._socket._sock.bind((server_address[0], server_address[1] + 1))
+                    first_time = False
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:

@@ -1,12 +1,14 @@
 #!/usr/bin/python3
-
+from lib.player.basic_client import BasicClient
 from lib.player.player_agent import PlayerAgent
 import sys
 
 
 def main(team_name="Pyrus", goalie=False):
-    player_agent = PlayerAgent()
-    player_agent.run(team_name, goalie)
+    agent = PlayerAgent()
+    # client = BasicClient()
+    # client.run(agent)
+    agent.run(team_name, goalie)
 
 
 if __name__ == "__main__":

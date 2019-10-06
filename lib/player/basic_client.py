@@ -1,5 +1,6 @@
 from enum import Enum
 
+from lib.network.udp_socket import IPAddress
 from lib.player.templates import SoccerAgent
 
 
@@ -16,8 +17,8 @@ class BasicClient:
         # self._compression_lvl = 0
 
     def connect_to(self,
-                   host_port: tuple,
-                   interval_ms):
+                   host_port: IPAddress,
+                   interval_ms = None):
         pass
 
     def run(self, agent):
