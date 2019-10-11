@@ -62,7 +62,7 @@ class BhvPassGen:
         # print(simple_direct_pass.target_ball_pos)
         # print(pass_dist)
         while travel_dist < pass_dist and ball_speed >= 0.1:
-            dlog.add_circle(Level.PASS, Circle2D(ball_pos, 1.0))
+            # dlog.add_circle(Level.PASS, Circle2D(ball_pos, 1.0))
             cycle += 1
             travel_dist += ball_speed
             ball_speed *= SP.i().ball_decay()
@@ -116,7 +116,7 @@ class BhvKick:
         target = best_action.target_ball_pos
         # angle: AngleDeg = (target - wm.self().pos()).th()
         # angle -= wm.self().body()
-        print("Target :", target)
-        SmartKick(target, 2, 0.7, 3).execute(agent)  # best_action.start_ball_speed, 0.7, 3).execute(agent)
+        print("Target :", target , " Speed : " , best_action.start_ball_speed)
+        SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)  # best_action.start_ball_speed, 0.7, 3).execute(agent)
 
         # agent.do_kick(100, angle)
