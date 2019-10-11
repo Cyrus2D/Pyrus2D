@@ -68,7 +68,7 @@ class PlayerAgent(SoccerAgent):
     def handle_exit(self):
         if self._client.is_server_alive():
             self._impl.send_bye_command()
-        print(f"player({self._world.self_unum()}: finished")
+        print(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
 
     def handle_message(self):
         self.run()
@@ -103,7 +103,6 @@ class PlayerAgent(SoccerAgent):
                 self.action()
                 self._impl._think_received = False
             # TODO elif for not sync mode
-
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
