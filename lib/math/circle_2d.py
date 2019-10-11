@@ -128,7 +128,7 @@ class Circle2D:
             line = args[0]
             if math.fabs(line.a()) < EPSILON:
                 if math.fabs(line.b()) < EPSILON:
-                    return [0, 0.0, 0.0]
+                    return [0, Vector2D(), Vector2D()]
 
                 n_sol = QUADRATIC_F(1.0,
                                     -2.0 * self._center._x,
@@ -141,7 +141,7 @@ class Circle2D:
                     y1 = -line.c() / line.b()
                     sol_list = [n_sol[0], Vector2D(x1, y1), Vector2D(x2, y1)]
                 else:
-                    sol_list = [n_sol[0]]
+                    sol_list = [n_sol[0], Vector2D(), Vector2D()]
                 return sol_list
 
             else:
@@ -155,7 +155,11 @@ class Circle2D:
             n_sol = QUADRATIC_F(a, b, c)
             y1 = n_sol[1]
             y2 = n_sol[2]
-            sol_list = [n_sol[0], Vector2D(line.getX(y1), y1), Vector2D(line.getX(y2), y2)]
+            if n_sol[0] > 0:
+                sol_list = [n_sol[0], Vector2D(line.getX(y1), y1), Vector2D(line.getX(y2), y2)]
+            else:
+                sol_list = [n_sol[0], Vector2D(), Vector2D()]
+
             return sol_list
         elif len(args) == 1 and isinstance(args[0], tri2d.Ray2D):
             ray = args[0]
@@ -175,7 +179,6 @@ class Circle2D:
             seg = args[0]
             line = seg.line()
             sol_list = Circle2D.intersection(line)
-            print(sol_list)
             if sol_list[0] > 1 and not seg.contains(sol_list[1]):
                 sol_list[0] -= 1
 
@@ -194,7 +197,7 @@ class Circle2D:
             center_dist = math.sqrt(center_dist2)
 
             if center_dist < math.fabs(self._radius - circle.radius()) or self._radius + circle.radius() < center_dist:
-                return [0]
+                return [0, Vector2D(), Vector2D()]
 
             line = Line2D(-2.0 * rel_x, -2.0 * rel_y,
                           circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
