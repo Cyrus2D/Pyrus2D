@@ -82,8 +82,8 @@ class PlayerAgent(SoccerAgent):
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
-                print(server_address)
-                print(message)
+                # print(server_address)
+                # print(message)
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
