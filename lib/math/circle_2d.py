@@ -174,7 +174,6 @@ class Circle2D:
         elif len(args) == 1 and (args[0], Segment2D):
             seg = args[0]
             line = seg.line()
-
             sol_list = Circle2D.intersection(line)
             print(sol_list)
             if sol_list[0] > 1 and not seg.contains(sol_list[1]):
@@ -195,7 +194,7 @@ class Circle2D:
             center_dist = math.sqrt(center_dist2)
 
             if center_dist < math.fabs(self._radius - circle.radius()) or self._radius + circle.radius() < center_dist:
-                return
+                return [0]
 
             line = Line2D(-2.0 * rel_x, -2.0 * rel_y,
                           circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
