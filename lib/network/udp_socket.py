@@ -33,7 +33,7 @@ class UDPSocket:
     def send_msg(self, msg: str):
         if msg[-1] != '\0':
             msg += '\0'
-        self._sock.sendto(msg.encode(), self._ip.tuple())
+        return self._sock.sendto(msg.encode(), self._ip.tuple())
 
     def recieve_msg(self, message_and_address):
         try:
