@@ -1,5 +1,7 @@
 import socket
 import time
+
+from lib.action.kick_table import KickTable
 from lib.math.geom_2d import *
 from base.decision import get_decision
 from lib.debug.logger import *
@@ -82,8 +84,6 @@ class PlayerAgent(SoccerAgent):
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
-                print(server_address)
-                print(message)
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
@@ -104,12 +104,17 @@ class PlayerAgent(SoccerAgent):
                 self._impl._think_received = False
             # TODO elif for not sync mode
 
-
     def parse_message(self, message):
         if message.find("(init") is not -1:
             self.init_dlog(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
+
+            # TODO make function for these things
+            if KickTable.instance().createTables():
+                print("KICKTABLE CREATE")
+            else:
+                print("KICKTABLE Faild")
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)

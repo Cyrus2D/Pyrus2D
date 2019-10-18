@@ -2,7 +2,7 @@
 
 export PYTHONPATH="${PYTHONPATH}:`pwd`"
 
-./base/main_player.py g &
+#./base/main_player.py g &
 
 i=1
 while [ $i -le 11 ] ; do
