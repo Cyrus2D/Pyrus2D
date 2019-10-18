@@ -7,6 +7,8 @@ from lib.player.soccer_action import *
 from lib.action.kick_table import *
 from lib.action.stop_ball import StopBall
 from lib.action.hold_ball import HoldBall
+
+
 #  from lib.player.player_agent import *
 # from lib.math.soccer_math import *
 
@@ -32,17 +34,21 @@ class SmartKick(BodyAction):
         wm = agent.world()
         print("Kick Able -> ", wm.self().is_kickable())
         if not wm.self().is_kickable():
+            if SmartKick.PRINT_DEBUG:
+                print("----- NotKickable -----")
             dlog.add_text(Level.KICK, "not kickable")
             return False
         print("Vel Valid -> ", wm.ball().velValid())
         if not wm.ball().velValid():
+            if SmartKick.PRINT_DEBUG:
+                print("-- NonValidBall -> StopBall --")
             dlog.add_text(Level.KICK, "unknown ball vel")
             return StopBall().execute(agent)
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
         if SmartKick.PRINT_DEBUG:
-            print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
             print("*******************########KTS########********************")
+            print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
         max_step = max(1, self._max_step)
         ans = KickTable.instance().simulate(wm,
                                             self._target_point,
@@ -58,11 +64,13 @@ class SmartKick(BodyAction):
                   ans[1].pos_list_[0], " ",
                   len(ans[1].pos_list_), " step ",
                   ans[1].pos_list_)
+            if ans[0]:
+                print("###################********False*******####################")
+            else:
+                print('##################*********True********####################')
         if ans[0]:
             self._sequence = ans[1]
             if self._sequence.speed_ >= first_speed_thr:  # double check
-                if SmartKick.PRINT_DEBUG:
-                    print("###################********True********####################")
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
                 kick_accel = vel - wm.ball().vel()
                 if SmartKick.PRINT_DEBUG:
@@ -70,9 +78,10 @@ class SmartKick(BodyAction):
                           " ,Kick Angle : ", kick_accel.th() - wm.self().body())
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
+                if SmartKick.PRINT_DEBUG:
+                    print("----------------#### Player Number ", wm.self().unum(), " 'DO_KICK'ed in SmartKick at Time:", wm.time().cycle(),
+                          "  ####----------------")
                 return True
-        if SmartKick.PRINT_DEBUG:
-            print("###################********False*******####################")
 
         # failed to search the kick sequence
 

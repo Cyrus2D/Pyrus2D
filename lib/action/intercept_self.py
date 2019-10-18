@@ -239,6 +239,8 @@ class SelfIntercept:
         forward_accel_rel: Vector2D = max_forward_accel.rotated_vector(-dash_angle)
         back_accel_rel: Vector2D = max_back_accel.rotated_vector(-dash_angle)
         dash_rate = me.dash_rate() * SP.dash_dir_rate(dash_dir.degree())
+        # print(
+        # f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel} ,_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel} , _____ max_back_accel={max_back_accel} rel={back_accel_rel}")
         dlog.add_text(Level.INTERCEPT,
                       f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel}")
         dlog.add_text(Level.INTERCEPT,
@@ -339,9 +341,10 @@ class SelfIntercept:
 
         # y diff is longer than best dist.
         # just put the ball on player's side
-        if next_ball_rel.absY() > best_ctrl_dist_forward:
+        if next_ball_rel.absY() > best_ctrl_dist_forward:  # TODO FIX COMPLEX
             return next_ball_rel.x() / dash_rate
-
+        # if next_ball_rel.y()**2 > best_ctrl_dist_forward**2:
+        #     return next_ball_rel.x() / dash_rate
         forward_trap_accel_x = (next_ball_rel.x()
                                 - (best_ctrl_dist_forward ** 2
                                    - next_ball_rel.y() ** 2) ** 0.5)
@@ -352,8 +355,10 @@ class SelfIntercept:
         best_accel_x = 10000
         min_power = 10000
 
-        print("ftax & btax:", forward_trap_accel_x, backward_trap_accel_x)
         x_step = (backward_trap_accel_x - forward_trap_accel_x) / 5
+        # print("forward_trap_accel_x:", forward_trap_accel_x, "| backward_trap_accel_x :", backward_trap_accel_x,
+        #       "| X_step :",
+        #       x_step)
         for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x + 0.01, x_step):
             if (0 <= accel_x < max_forward_accel_x) or \
                     (max_back_accel_x < accel_x < 0):
@@ -791,8 +796,8 @@ class SelfIntercept:
                       f"self pred short cycle {cycle}: "
                       f"turn={n_turn}, "
                       f"turn_margin={turn_margin}"
-                      f"turn_momment={result_dash_angle.degree()-body_angle.degree()}"
-                      f"first_angle_diff={target_angle.degree()-body_angle.degree()}"
+                      f"turn_momment={result_dash_angle.degree() - body_angle.degree()}"
+                      f"first_angle_diff={target_angle.degree() - body_angle.degree()}"
                       f"final_angle={angle_diff}"
                       f"dash_angle={result_dash_angle}")
         return n_turn
