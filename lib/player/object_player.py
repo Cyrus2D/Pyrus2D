@@ -1,3 +1,5 @@
+from lib.debug.level import Level
+from lib.debug.logger import dlog
 from lib.rcsc.player_type import PlayerType
 from lib.player.object_ball import *
 from lib.player.stamina_model import StaminaModel
@@ -62,25 +64,27 @@ class PlayerObject(Object):
         self._kickable = False
         self._kickrate = 0.0
 
-        self._dist_from_ball = ball.dist_from_self()
-        self._angle_from_ball = ball.angle_from_self() + AngleDeg(180.0)
+        self._dist_from_ball = ball.pos().dist(self._pos)
+        self._angle_from_ball = (self._pos - wm.ball().pos()).th() + AngleDeg(180.0)
 
+        dlog.add_text(Level.KICK, f"_dist_from_ball={self._dist_from_ball}")
         # -----------------------------------------------------
         # check kickable
 
-        if ball.dist_from_self() <= self._player_type.kickable_area():
+        if self._dist_from_ball <= self._player_type.kickable_area():
             buf = 0.055
-            if ball.dist_from_self() <= self.player_type().kickable_area() - buf:
+            if self._dist_from_ball <= self.player_type().kickable_area() - buf:
                 self._kickable = True
 
-            self._kickrate = kick_rate(ball.dist_from_self(),
-                                       (ball.angle_from_self() - self._body).degree(),
+            self._kickrate = kick_rate(self._dist_from_ball,
+                                       (self._angle_from_ball - self._body).degree(),
                                        self.player_type().kick_power_rate(),
                                        SP.i().ball_size(),
                                        self.player_type().player_size(),
                                        self.player_type().kickable_margin())
+        dlog.add_text(Level.KICK, f"_kickable={self._kickable}")
 
-            # relative pos
+        # relative pos
 
         #
         # # kickable
