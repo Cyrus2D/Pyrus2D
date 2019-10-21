@@ -299,7 +299,7 @@ def calc_max_velocity(target_angle: AngleDeg,
 
 
 class _KickTable:
-    PRINT_DEBUG: bool = True
+    PRINT_DEBUG: bool = False  # PRINTs IN KICKTABLE
 
     def __init__(self):
         self._player_size = 0.0
@@ -1128,8 +1128,8 @@ class _KickTable:
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
 
         if len(self._state_list) == 0:
-            if _KickTable.PRINT_DEBUG:
-                print("False , Len  == 0")
+            # if _KickTable.PRINT_DEBUG:
+            #     print("False , Len  == 0")
             return False
 
         target_speed = bound(0.0,
@@ -1175,8 +1175,8 @@ class _KickTable:
         self.evaluate(target_speed, speed_thr)
 
         if not self._candidates:
-            if _KickTable.PRINT_DEBUG:
-                print("False -> candidates len == ", len(self._candidates))
+            # if _KickTable.PRINT_DEBUG:
+            #     print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : CMP Check
