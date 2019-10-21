@@ -311,10 +311,8 @@ class _KickTable:
             for j in range(NUM_STATE):
                 self._state_cache[i].append(0.0)
         # not  static state list
-        self._state_list = [State()] * NUM_STATE  # : List[State] = []
+        self._state_list = []
         self._tables = []
-        for i in range(DEST_DIR_DIVS):
-            self._tables.append([Path()] * 256)
 
         self._current_state = State()
 
@@ -347,6 +345,7 @@ class _KickTable:
 
         for i in range(DEST_DIR_DIVS):
             angle += angle_step
+            self._tables.append([])
             self.createTable(AngleDeg(angle), self._tables[i])
 
         return True
