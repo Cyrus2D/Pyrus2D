@@ -202,64 +202,58 @@ class Circle2D:
 
             return self.intersection(line=line)
 
+    """  ----------------- static method  ----------------- """
 
-"""  ----------------- static method  ----------------- """
+    """
+      \ brief get the circle through three points (circumcircle of the triangle).
+      \ param p0 triangle's 1st vertex
+      \ param p1 triangle's 2nd vertex
+      \ param p2 triangle's 3rd vertex
+      \ return coordinates of circumcenter
+    """
 
-"""
-  \ brief get the circle through three points (circumcircle of the triangle).
-  \ param p0 triangle's 1st vertex
-  \ param p1 triangle's 2nd vertex
-  \ param p2 triangle's 3rd vertex
-  \ return coordinates of circumcenter
-"""
+    @staticmethod
+    def circumcircle(p0, p1, p2):
+        center = tri2d.Triangle2D.tri_circumcenter(p0, p1, p2)
 
+        if not center.is_valid():
+            return Circle2D()
 
-@staticmethod
-def circumcircle(p0, p1, p2):
-    center = tri2d.Triangle2D.tri_circumcenter(p0, p1, p2)
+        return Circle2D(center, center.dist(p0))
 
-    if not center.is_valid():
-        return Circle2D()
+    """
+      \ brief check if the circumcircle contains the input point
+      \ param point input point
+      \ param p0 triangle's 1st vertex
+      \ param p1 triangle's 2nd vertex
+      \ param p2 triangle's 3rd vertex
+      \ return True if circumcircle contains the point, False.
+    """
 
-    return Circle2D(center, center.dist(p0))
+    @staticmethod
+    def circle_contains(point, p0, p1, p2):
+        a = p1.x - p0.x
+        b = p1.y - p0.y
+        c = p2.x - p0.x
+        d = p2.y - p0.y
 
+        e = a * (p0.x + p1.x) + b * (p0.y + p1.y)
+        f = c * (p0.x + p2.x) + d * (p0.y + p2.y)
 
-"""
-  \ brief check if the circumcircle contains the input point
-  \ param point input point
-  \ param p0 triangle's 1st vertex
-  \ param p1 triangle's 2nd vertex
-  \ param p2 triangle's 3rd vertex
-  \ return True if circumcircle contains the point, False.
-"""
+        g = 2.0 * (a * (p2.y - p1.y) - b * (p2.x - p1.x))
+        if math.fabs(g) < 1.0e-10:
+            return False
 
+        center = Vector2D((d * e - b * f) / g, (a * f - c * e) / g)
+        return center.dist2(point) < center.dist2(p0) - EPSILON * EPSILON
 
-@staticmethod
-def circle_contains(point, p0, p1, p2):
-    a = p1.x - p0.x
-    b = p1.y - p0.y
-    c = p2.x - p0.x
-    d = p2.y - p0.y
+    """
+      \ brief make a logical print.
+      \ return print_able str
+    """
 
-    e = a * (p0.x + p1.x) + b * (p0.y + p1.y)
-    f = c * (p0.x + p2.x) + d * (p0.y + p2.y)
-
-    g = 2.0 * (a * (p2.y - p1.y) - b * (p2.x - p1.x))
-    if math.fabs(g) < 1.0e-10:
-        return False
-
-    center = Vector2D((d * e - b * f) / g, (a * f - c * e) / g)
-    return center.dist2(point) < center.dist2(p0) - EPSILON * EPSILON
-
-
-"""
-  \ brief make a logical print.
-  \ return print_able str
-"""
-
-
-def __repr__(self):
-    return "({} , {})".format(self._center, self._radius)
+    def __repr__(self):
+        return "({} , {})".format(self._center, self._radius)
 
 
 def test():
