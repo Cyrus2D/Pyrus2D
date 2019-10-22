@@ -14,7 +14,7 @@ from lib.action.hold_ball import HoldBall
 
 
 class SmartKick(BodyAction):
-    PRINT_DEBUG: bool = True
+    PRINT_DEBUG: bool = False  # PRINTs IN SMARTKICK
 
     def __init__(self, target_point: Vector2D, first_speed, first_speed_thr, max_step):
         super().__init__()
@@ -32,23 +32,18 @@ class SmartKick(BodyAction):
     def execute(self, agent: PlayerAgent):
         dlog.add_text(Level.KICK, "Body_SmartKick")
         wm = agent.world()
-        print("Kick Able -> ", wm.self().is_kickable())
         if not wm.self().is_kickable():
             if SmartKick.PRINT_DEBUG:
                 print("----- NotKickable -----")
-            dlog.add_text(Level.KICK, "not kickable")
+                dlog.add_text(Level.KICK, "not kickable")
             return False
-        print("Vel Valid -> ", wm.ball().velValid())
         if not wm.ball().velValid():
             if SmartKick.PRINT_DEBUG:
                 print("-- NonValidBall -> StopBall --")
-            dlog.add_text(Level.KICK, "unknown ball vel")
+                dlog.add_text(Level.KICK, "unknown ball vel")
             return StopBall().execute(agent)
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
-        if SmartKick.PRINT_DEBUG:
-            print("*******************########KTS########********************")
-            print("input : first speed : ", first_speed, " Thr : ", first_speed_thr)
         max_step = max(1, self._max_step)
         ans = KickTable.instance().simulate(wm,
                                             self._target_point,
@@ -79,7 +74,8 @@ class SmartKick(BodyAction):
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
                 if SmartKick.PRINT_DEBUG:
-                    print("----------------#### Player Number ", wm.self().unum(), " 'DO_KICK'ed in SmartKick at Time:", wm.time().cycle(),
+                    print("----------------#### Player Number ", wm.self().unum(), " 'DO_KICK'ed in SmartKick at Time:",
+                          wm.time().cycle(),
                           "  ####----------------")
                 return True
 
