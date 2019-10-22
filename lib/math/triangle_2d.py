@@ -345,17 +345,17 @@ class Triangle2D(Region2D):
         perpendicular_ab = Line2D.perpendicular_bisector(a, b)
         perpendicular_bc = Line2D.perpendicular_bisector(b, c)
 
-        sol = perpendicular_ab.intersection(perpendicular_bc)
+        sol = perpendicular_ab.intersection(line=perpendicular_bc)
 
         if not sol.is_valid():
             perpendicular_ca = Line2D.perpendicular_bisector(c, a)
 
-            sol = perpendicular_ab.intersection(perpendicular_ca)
+            sol = perpendicular_ab.intersection(line=perpendicular_ca)
 
             if sol.is_valid():
                 return sol
 
-            sol = perpendicular_bc.intersection(perpendicular_ca)
+            sol = perpendicular_bc.intersection(line=perpendicular_ca)
 
             if sol.is_valid():
                 return sol
@@ -389,7 +389,7 @@ class Triangle2D(Region2D):
     def tri_orthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
         perpend_a = Line2D(b, c).perpendicular(a)
         perpend_b = Line2D(c, a).perpendicular(b)
-        return perpend_a.intersection(perpend_b)
+        return perpend_a.intersection(line=perpend_b)
 
     """
       \ brief check if triangle(a,b,c) contains the point 'p'.
