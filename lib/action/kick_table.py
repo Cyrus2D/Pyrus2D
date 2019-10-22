@@ -6,6 +6,8 @@ import functools
 
 # from typing import List
 # from enum import Enum
+from copy import copy
+
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.player.world_model import *
@@ -135,11 +137,16 @@ class Path:
         self.max_speed_ = 0.0
         self.power_ = 1000.0
 
-    """
-      \ class Sequence
-      \ brief simulated kick sequence
-     """
+    def __gt__(self, other):
+        if self.max_speed_ == other.max_speed_:
+            return self.power_ < other.power_
 
+        return self.max_speed_ > other.max_speed_
+
+"""
+  \ class Sequence
+  \ brief simulated kick sequence
+ """
 
 class Sequence:
     # < safety level flags. usually the combination of State flags
@@ -345,7 +352,7 @@ class _KickTable:
 
         for i in range(DEST_DIR_DIVS):
             angle += angle_step
-            self._tables.append([])
+            self._tables.append([None] * (NUM_STATE * NUM_STATE))
             self.createTable(AngleDeg(angle), self._tables[i])
 
         return True
@@ -394,11 +401,10 @@ class _KickTable:
      """
 
     def createTable(self, angle: AngleDeg, table):
-
         # max_combination = NUM_STATE * NUM_STATE
         max_state = len(self._state_list)
+        print("max_state: ", max_state)
 
-        table.clear()
         for origin in range(max_state):
             for dest in range(max_state):
                 vel = self._state_list[dest].pos_ - self._state_list[origin].pos_
@@ -410,9 +416,10 @@ class _KickTable:
 
                 path.max_speed_ = max_vel.r()
                 path.power_ = accel.r() / self._state_list[dest].kick_rate_
-                table.append(path)
+                table[max_state * origin + dest] = copy(path)
 
         table.sort(key=functools.cmp_to_key(TableCmp))
+        # table.sort()
 
         if len(table) > MAX_TABLE_SIZE:
             table = table[:MAX_TABLE_SIZE + 1]

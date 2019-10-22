@@ -1,10 +1,11 @@
+import logging
 import socket
 import time
 
 from lib.action.kick_table import KickTable
-from lib.math.geom_2d import *
 from base.decision import get_decision
-from lib.debug.logger import *
+from lib.debug.logger import dlog
+from lib.math.angle_deg import AngleDeg
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import UDPSocket, IPAddress
