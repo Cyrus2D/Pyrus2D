@@ -124,7 +124,7 @@ class GoToPoint:
 
         post_circle = Circle2D(nearest_post, collision_dist)
         move_line = Segment2D(wm.self().pos(), self._target)
-        if (post_circle.intersection("Segment2D", move_line))[0] == 0:
+        if (post_circle.intersection(segment=move_line))[0] == 0:
             return
 
         post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos()).th())

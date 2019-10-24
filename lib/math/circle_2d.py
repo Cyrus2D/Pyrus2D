@@ -4,7 +4,7 @@
 """
 
 from lib.math.segment_2d import *
-
+from lib.math.ray_2d import *
 """
   \ brief solve quadratic formula
   \ param a formula constant A
@@ -123,9 +123,12 @@ class Circle2D:
       \ return the number of solution + solutions
     """
 
-    def intersection(self, *args):  # , **kwargs):):):
-        if len(args) == 2 and args[0] == "Line2D":
-            line = args[1]
+    def intersection(self,
+                     line: Line2D = None,
+                     ray: Ray2D = None,
+                     segment: Segment2D = None,
+                     circle=None):
+        if line is not None:
             if math.fabs(line.a()) < EPSILON:
                 if math.fabs(line.b()) < EPSILON:
                     return [0, Vector2D(), Vector2D()]
@@ -161,11 +164,10 @@ class Circle2D:
                 sol_list = [n_sol[0], Vector2D(), Vector2D()]
 
             return sol_list
-        elif len(args) == 2 and args[0] == "Ray2D":
-            ray = args[1]
+        elif ray is not None:
             line_tmp = Line2D(ray.origin(), ray.dir())
 
-            sol_list = self.intersection("Line2D",line_tmp)
+            sol_list = self.intersection(line=line_tmp)
             if sol_list[0] > 1 and not ray.inRightDir(sol_list[2], 1.0):
                 sol_list[0] -= 1
 
@@ -175,21 +177,17 @@ class Circle2D:
 
             return sol_list
 
-        elif len(args) == 2 and args[0] == "Segment2D":
-            seg = args[1]
-            line = seg.line()
-            sol_list = self.intersection("Line2D", line)
-            if sol_list[0] > 1 and not seg.contains(sol_list[1]):
+        elif segment is not None:
+            line = segment.line()
+            sol_list = self.intersection(line=line)
+            if sol_list[0] > 1 and not segment.contains(sol_list[1]):
                 sol_list[0] -= 1
 
-            if sol_list[0] > 0 and not seg.contains(sol_list[2]):
+            if sol_list[0] > 0 and not segment.contains(sol_list[2]):
                 sol_list[0] -= 1
 
             return sol_list
-
-        elif len(args) == 2 and args[0] == "Circle2D":
-            circle = args[1]
-
+        elif circle is not None:
             rel_x = circle.center().x - self._center._x
             rel_y = circle.center().y - self._center._y
 
@@ -202,7 +200,7 @@ class Circle2D:
             line = Line2D(-2.0 * rel_x, -2.0 * rel_y,
                           circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
 
-            return self.intersection("Line2D", line)
+            return self.intersection(line=line)
 
     """  ----------------- static method  ----------------- """
 

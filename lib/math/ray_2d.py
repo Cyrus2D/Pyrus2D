@@ -118,8 +118,8 @@ def test():
     print(a)
     b = Ray2D(Vector2D(0, 0), AngleDeg(45))
     print(b)
-    c = Ray2D(a._origin, b.dir())
-    print(c)
+    # c = Ray2D(a._origin, b.dir())
+    # print(c)
 
 
 if __name__ == "__main__":

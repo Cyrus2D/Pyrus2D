@@ -257,7 +257,7 @@ def calc_max_velocity(target_angle: AngleDeg,
     desired_ray = Ray2D(Vector2D(0.0, 0.0), target_angle)
     next_reachable_circle = Circle2D(ball_vel, max_accel)
 
-    num = next_reachable_circle.intersection("Ray2D", desired_ray)
+    num = next_reachable_circle.intersection(ray=desired_ray)
     vel1 = num[1]
     vel2 = num[2]
     if num[0] == 0:
