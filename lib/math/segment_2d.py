@@ -254,36 +254,34 @@ class Segment2D:
       \ return checked result
     """
 
-    def existIntersection(self, *args):  # **kwarg):
-        if len(args) == 1 and isinstance(args[0], Segment2D):
-            other = args[0]
-            a0 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, other.origin())
-            a1 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, other.terminal())
-            b0 = tri2d.Triangle2D.double_signed_area(other.origin(), other.terminal(), self._origin)
-            b1 = tri2d.Triangle2D.double_signed_area(other.origin(), other.terminal(), self._terminal)
+    def existIntersection(self, segment=None, line: Line2D = None):  # **kwarg):
+        if segment is not None:
+            a0 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, segment.origin())
+            a1 = tri2d.Triangle2D.double_signed_area(self._origin, self._terminal, segment.terminal())
+            b0 = tri2d.Triangle2D.double_signed_area(segment.origin(), segment.terminal(), self._origin)
+            b1 = tri2d.Triangle2D.double_signed_area(segment.origin(), segment.terminal(), self._terminal)
 
             if a0 * a1 < 0.0 and b0 * b1 < 0.0:
                 return True
 
             if self._origin == self._terminal:
-                if other.origin() == other.terminal():
-                    return self._origin == other.origin()
+                if segment.origin() == segment.terminal():
+                    return self._origin == segment.origin()
 
-                return b0 == 0.0 and other.checkIntersectsOnLine(self._origin)
+                return b0 == 0.0 and segment.checkIntersectsOnLine(self._origin)
 
-            elif other.origin() == other.terminal():
-                return a0 == 0.0 and self.checkIntersectsOnLine(other.origin())
+            elif segment.origin() == segment.terminal():
+                return a0 == 0.0 and self.checkIntersectsOnLine(segment.origin())
 
-            if a0 == 0.0 and self.checkIntersectsOnLine(other.origin()) or (
-                    a1 == 0.0 and self.checkIntersectsOnLine(other.terminal())) or (
-                    b0 == 0.0 and other.checkIntersectsOnLine(self._origin)) or (
-                    b1 == 0.0 and other.checkIntersectsOnLine(self._terminal)):
+            if a0 == 0.0 and self.checkIntersectsOnLine(segment.origin()) or (
+                    a1 == 0.0 and self.checkIntersectsOnLine(segment.terminal())) or (
+                    b0 == 0.0 and segment.checkIntersectsOnLine(self._origin)) or (
+                    b1 == 0.0 and segment.checkIntersectsOnLine(self._terminal)):
                 return True
 
             return False
 
-        if len(args) == 1 and isinstance(args[0], Line2D):
-            line = args[0]
+        elif line is not None:
             a0 = line.a() * self._origin.x() + line.b() * self._origin.y() + line.c()
             a1 = line.a() * self._terminal.x() + line.b() * self._terminal.y() + line.c()
             return a0 * a1 <= 0.0
@@ -303,21 +301,11 @@ class Segment2D:
                     self._terminal.x() <= p.x() <= self._origin.x())
 
     """
-        This method is equivalent to existIntersection(), for convenience. .
-      \ brief check if segments cross each other or not / check if self line segment intersects with target line 
-      \ param other/l segment for cross checking / checked line
-      \ return True if self segment crosses, returns False / checked result
-     """
-
-    def intersects(self, other):
-        return self.existIntersection(other)
-
-    """
       \ brief check if segments intersect each other on non terminal point.
       \ param other segment for cross checking
       \ return True if segments intersect and intersection point is not a
       terminal point of segment.
-      False if segments do not intersect or intersect on terminal p oint of segment.
+      False if segments do not intersect or intersect on terminal point of segment.
     """
 
     def existIntersectionExceptEndpoint(self, other):
@@ -396,7 +384,7 @@ class Segment2D:
 
         if len(args) == 1 and isinstance(args[0], Segment2D):
             seg = args[0]
-            if self.existIntersection(seg):
+            if self.existIntersection(segment=seg):
                 return 0.0
             return min(self.dist(seg.self.origin), self.dist(seg.self.terminal), seg.dist(self._origin),
                        seg.dist(self._terminal))
