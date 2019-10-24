@@ -201,15 +201,15 @@ class Triangle2D(Region2D):
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
 
-            t_sol[n_sol] = Segment2D(self._a, self._b).intersection(line)
+            t_sol[n_sol] = Segment2D(self._a, self._b).intersection(line=line)
             if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
-            t_sol[n_sol] = Segment2D(self._b, self._c).intersection(line)
+            t_sol[n_sol] = Segment2D(self._b, self._c).intersection(line=line)
             if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 
-            t_sol[n_sol] = Segment2D(self._c, self._a).intersection(line)
+            t_sol[n_sol] = Segment2D(self._c, self._a).intersection(line=line)
             if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
 

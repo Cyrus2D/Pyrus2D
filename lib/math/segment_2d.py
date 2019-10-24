@@ -223,21 +223,21 @@ class Segment2D:
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
 
-    def intersection(self, *args):  # **kwargs):
-        if len(args) == 1 and isinstance(args[0], Line2D):
-            line = args[0]
+    def intersection(self,
+                     line: Line2D = None,
+                     segment=None, alp=None):  # **kwargs):
+        if line is not None:
             tmp_line = self.line()
             sol = tmp_line.intersection(line)
             if not sol.is_valid() or not self.contains(sol):
                 return Vector2D.invalid()
             return sol
 
-        elif len(args) == 2 and isinstance(args[1], bool):
-            other = args[0]
-            sol = self.line().intersection(other.line())
-            if not sol.is_valid() or not self.contains(sol) or not other.contains(sol):
+        elif segment is not None:
+            sol = self.line().intersection(segment.line())
+            if not sol.is_valid() or not self.contains(sol) or not segment.contains(sol):
                 return Vector2D.invalid()
-            if not args[1] and not self.existIntersectionExceptEndpoint(other):
+            if not alp and not self.existIntersectionExceptEndpoint(segment):
                 return Vector2D.invalid()
             return sol
         else:
