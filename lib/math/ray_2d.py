@@ -79,20 +79,18 @@ class Ray2D:
       \ return intersection point. if it does not exist, the invalidated value vector is returned.
     """
 
-    def intersection(self, *args):  # , **kwargs):):
-        if len(args) == 1 and isinstance(args[0], Ray2D):
-            other = args[0]
-            tmp_sol = self.line().intersection(other.line())
+    def intersection(self, ray=None, line: Line2D = None):  # , **kwargs):):
+        if ray is not None:
+            tmp_sol = self.line().intersection(ray.line())
 
             if not tmp_sol.is_valid():
                 return Vector2D.invalid()
 
-            if not self.inRightDir(tmp_sol) or not other.inRightDir(tmp_sol):
+            if not self.inRightDir(tmp_sol) or not ray.inRightDir(tmp_sol):
                 return Vector2D.invalid()
 
             return tmp_sol
-        if len(args) == 1 and isinstance(args[0], Line2D):
-            line = args[0]
+        if line is not None:
             tmp_sol = self.line().intersection(line)
 
             if not tmp_sol.is_valid():
