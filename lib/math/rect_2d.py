@@ -5,6 +5,7 @@
 from lib.math.size_2d import *
 from lib.math.segment_2d import *
 from lib.math.region_2d import *
+from lib.math.ray_2d import *
 
 """
     The model and naming rules are depend on soccer simulator environment
@@ -116,7 +117,7 @@ class Rect2D(Region2D):
     """
 
     def moveCenter(self, point):
-        self._top_left.assign(point.x - self._size._length() * 0.5, point.y - self._size._width() * 0.5)
+        self._top_left.assign(point.x - self._size.length() * 0.5, point.y - self._size.width() * 0.5)
 
     """
       \ brief move the rectangle.
@@ -136,7 +137,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottomRight(self, point):
-        self._top_left.assign(point.x - self._size._length(), point.y - self._size._width())
+        self._top_left.assign(point.x - self._size.length(), point.y - self._size.width())
 
     """
       \ brief move the rectangle.
@@ -164,7 +165,7 @@ class Rect2D(Region2D):
     """
 
     def moveRight(self, x):
-        self._top_left._x = x - self._size._length()
+        self._top_left._x = x - self._size.length()
 
     """
       \ brief alias of moveRight.
@@ -200,7 +201,7 @@ class Rect2D(Region2D):
     """
 
     def moveBottom(self, y):
-        self._top_left._y = y - self._size._width()
+        self._top_left._y = y - self._size.width()
 
     """
       \ brief alias of moveTop.
@@ -391,7 +392,7 @@ class Rect2D(Region2D):
     """
 
     def area(self):
-        return self._size._length() * self._size._width()
+        return self._size.length() * self._size.width()
 
     """
       \ brief check if point is within self region.
@@ -399,8 +400,8 @@ class Rect2D(Region2D):
       \ return True or False
     """
 
-    def contains(self, point):
-        return self.left() <= point._x <= self.right() and self.top() <= point._y <= self.bottom()
+    def contains(self, point: Vector2D):
+        return self.left() <= point.x() <= self.right() and self.top() <= point.y() <= self.bottom()
 
     """
       \ brief check if point is within self region with error threshold.
@@ -418,7 +419,7 @@ class Rect2D(Region2D):
     """
 
     def left(self):
-        return self._top_left._x
+        return self._top_left.x()
 
     """
       \ brief get the right x coordinate of self rectangle.
@@ -434,7 +435,7 @@ class Rect2D(Region2D):
     """
 
     def top(self):
-        return self._top_left._y
+        return self._top_left.y()
 
     """
       \ brief get the bottom y coordinate of self rectangle.
@@ -579,12 +580,13 @@ class Rect2D(Region2D):
       \ return number of intersection
     """
 
-    def intersection(self, *args):  # , **kwargs):):
-        if len(args) == 1 and isinstance(args[0], Line2D):
-            line = args[0]
+    def intersection(self,
+                     line: Line2D = None,
+                     ray: Ray2D = None,
+                     segment: Segment2D = None):  # , **kwargs):):
+        if line is not None:
             n_sol = 0
             t_sol = [Vector2D(0, 0), Vector2D(0, 0)]
-
             left_x = self.left()
             right_x = self.right()
             top_y = self.top()
@@ -592,35 +594,34 @@ class Rect2D(Region2D):
 
             t_sol[n_sol] = self.leftEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol]._y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol].y() <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.rightEdge().intersection(line)
 
-            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol]._y <= bottom_y:
+            if n_sol < 2 and t_sol[n_sol].is_valid() and top_y <= t_sol[n_sol].y() <= bottom_y:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol]._x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol].x() <= right_x:
                 n_sol += 1
 
             t_sol[n_sol] = self.topEdge().intersection(line)
 
-            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol]._x <= right_x:
+            if n_sol < 2 and (t_sol[n_sol]).is_valid() and left_x <= t_sol[n_sol].x() <= right_x:
                 n_sol += 1
 
-            if n_sol == 2 and math.fabs(t_sol[0]._x - t_sol[1]._x) < EPSILON and math.fabs(
-                    t_sol[0]._y - t_sol[1]._y) < EPSILON:
+            if n_sol == 2 and math.fabs(t_sol[0].x() - t_sol[1].x()) < EPSILON and math.fabs(
+                    t_sol[0].y() - t_sol[1].y()) < EPSILON:
                 n_sol = 1
 
             sol_list = [n_sol, t_sol[0], t_sol[1]]
 
             return sol_list
 
-        if len(args) == 1 and isinstance(args[0], Ray2D):
-            ray = args[0]
-            n_sol = self.intersection(ray.line())
+        elif ray is not None:
+            n_sol = self.intersection(line=ray.line())
 
             if n_sol[0] > 1 and not ray.inRightDir(n_sol[2], 1.0):
                 n_sol[0] -= 1
@@ -630,13 +631,12 @@ class Rect2D(Region2D):
                 n_sol[0] -= 1
 
             return n_sol
-        if len(args) == 1 and isinstance(args[0], Segment2D):
-            seg = args[0]
-            n_sol = self.intersection(seg.line())
-            if n_sol[0] > 1 and not seg.contains(n_sol[2]):
+        elif segment is not None:
+            n_sol = self.intersection(line=segment.line())
+            if n_sol[0] > 1 and not segment.contains(n_sol[2]):
                 n_sol[0] -= 1
 
-            if n_sol[0] > 0 and not seg.contains(n_sol[1]):
+            if n_sol[0] > 0 and not segment.contains(n_sol[1]):
                 n_sol[1] = n_sol[2]
                 n_sol[0] -= 1
 
@@ -698,7 +698,7 @@ class Rect2D(Region2D):
       \ param center_y y value of center point of rectangle.
       \ param length length(x-range) of rectangle.
       \ param width width(y-range) of rectangle.
-     """
+    """
 
     @staticmethod
     def from_center(*args):  # , **kwargs):)
