@@ -4,7 +4,7 @@
 """
 from lib.math.ray_2d import Ray2D
 from lib.math.segment_2d import *
-
+from lib.math.ray_2d import *
 """
   \ brief solve quadratic formula
   \ param a formula constant A
