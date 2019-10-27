@@ -99,7 +99,7 @@ class AngleDeg:
         return new_angle_deg
 
     def __sub__(self, other):
-        if isinstance(other, AngleDeg):
+        if type(other) == AngleDeg:
             new_angle_deg = AngleDeg(self._degree - other.degree())
         else:
             new_angle_deg = AngleDeg(self._degree - other)

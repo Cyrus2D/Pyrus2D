@@ -41,23 +41,18 @@ class Circle2D:
     """
         Default:
       \ brief create a zero area circle at (0,0)
-        Len = 2
+        Input:
       \ brief construct with center point and radius value.
       \ param c center point
       \ param r radius value
     """
 
-    def __init__(self, *args):  # , **kwargs):)
-        if len(args) == 2 and isinstance(args[0], Vector2D):
-            self._center = args[0]
-            self._radius = args[1]
-            if args[1] < 0.0:
-                self._radius = 0.0
-            self._is_valid = True
-        else:
-            self._center = Vector2D()
+    def __init__(self, center=Vector2D(), radius=0.0):  # , **kwargs):)
+        self._center = center
+        self._radius = radius
+        if radius < 0.0:
             self._radius = 0.0
-            self._is_valid = True
+        self._is_valid = True
 
     """
       \ brief assign value.
