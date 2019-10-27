@@ -23,11 +23,11 @@ class Triangle2D(Region2D):
 
     def __init__(self, *args):  # , **kwargs):):):
         super().__init__()
-        if len(args) == 3 and isinstance(args[0], Vector2D):
+        if len(args) == 3:
             self._a = args[0]
             self._b = args[1]
             self._c = args[2]
-        elif len(args) == 2 and isinstance(args[0], Segment2D):
+        elif len(args) == 2:
             seg = args[0]
             self._a = seg.origin()
             self._b = seg.terminal()
@@ -48,11 +48,11 @@ class Triangle2D(Region2D):
     """
 
     def assign(self, *args):  # , **kwargs):):):
-        if len(args) == 3 and isinstance(args[0], Vector2D):
+        if len(args) == 3:
             self._a = args[0]
             self._b = args[1]
             self._c = args[2]
-        elif len(args) == 2 and isinstance(args[0], Segment2D):
+        elif len(args) == 2:
             seg = args[0]
             self._a = seg.origin()
             self._b = seg.terminal()
@@ -195,9 +195,8 @@ class Triangle2D(Region2D):
       \ return number of intersection + sol 1 + sol 2
     """
 
-    def intersection(self, *args):  # , **kwargs):):):
-        if len(args) == 1 and isinstance(args[0], Line2D):
-            line = args[0]
+    def intersection(self, line: Line2D = None, ray: Ray2D = None, segment: Segment2D = None):  # , **kwargs):):):
+        if line is not None:
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
 
@@ -219,38 +218,31 @@ class Triangle2D(Region2D):
             sol_list = [n_sol, t_sol[0], t_sol[1]]
 
             return sol_list
-        elif len(args) == 1 and isinstance(args[0], Ray2D):
-            ray = args[0]
-            t_sol1 = Vector2D()
-            t_sol2 = Vector2D()
-            n_sol = Triangle2D.intersection(ray.line(), t_sol1, t_sol2)
+        elif ray is not None:
+            n_sol = Triangle2D.intersection(line=ray.line())
 
-            if n_sol[0] > 1 and not ray.inRightDir(t_sol2, 1.0):
+            if n_sol[0] > 1 and not ray.inRightDir(n_sol[1], 1.0):
                 n_sol[0] -= 1
 
-            if n_sol[0] > 0 and not ray.inRightDir(t_sol1, 1.0):
-                t_sol1 = t_sol2
+            if n_sol[0] > 0 and not ray.inRightDir(n_sol[1], 1.0):
+                n_sol[1] = n_sol[2]
                 n_sol[0] -= 1
 
-            sol_list = [n_sol[0], t_sol1, t_sol2]
+            return n_sol
 
-            return sol_list
+        elif segment is not None:
+            n_sol = Triangle2D.intersection(line=segment.line())
 
-        elif len(args) == 1 and isinstance(args[0], Segment2D):
-            segment = args[0]
-            t_sol1 = Vector2D()
-            t_sol2 = Vector2D()
-            n_sol = Triangle2D.intersection(segment.line(), t_sol1, t_sol2)
+            if n_sol[0] > 1 and not segment.contains(n_sol[2]):
+                n_sol[0] -= 1
 
-            if n_sol > 1 and not segment.contains(t_sol2):
-                n_sol -= 1
+            if n_sol > 0 and not segment.contains(n_sol[1]):
+                n_sol[1] = n_sol[2]
+                n_sol[0] -= 1
 
-            if n_sol > 0 and not segment.contains(t_sol1):
-                t_sol1 = t_sol2
-                n_sol -= 1
-            sol_list = [n_sol, t_sol1, t_sol2]
-
-            return sol_list
+            return n_sol
+        else:
+            return [0]
 
     """  ----------------- static method  ----------------- """
 
