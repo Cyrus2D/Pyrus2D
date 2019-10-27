@@ -30,7 +30,7 @@ class Line2D:
             self._b = args[1]
             self._c = args[2]
             self.is_valid = True
-        elif len(args) == 2 and isinstance(args[0], Vector2D):
+        elif len(args) == 2:
             self._a = 0.0
             self._b = 0.0
             self._c = 0.0
@@ -117,7 +117,7 @@ class Line2D:
     """
 
     def dist(self, p: Vector2D):
-        return math.fabs((self._a * p._x + self._b * p._y + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
+        return math.fabs((self._a * p.x() + self._b * p.y() + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
 
     """
       \ brief get squared distance from this line to point
@@ -126,7 +126,7 @@ class Line2D:
     """
 
     def dist2(self, p: Vector2D):
-        d = self._a * p._x + self._b * p._y + self._c
+        d = self._a * p.x() + self._b * p.y() + self._c
         return (d * d) / (self._a * self._a + self._b * self._b)
 
     """    
