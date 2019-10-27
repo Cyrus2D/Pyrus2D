@@ -1,4 +1,4 @@
-# Geom2D | Soccer_Math
+# Geom2D | Soccer Math
 
 Geom is a Python library for dealing with math and geometry problems in SS2D.
 
@@ -7,7 +7,11 @@ Geom is a Python library for dealing with math and geometry problems in SS2D.
 Use the this include to install Geom.
 
 ```python
-from lib.math.geom import *
+from lib.math.soccer_math import *
+```
+Or
+```python
+from lib.math.soccer_math import *
 ```
 
 ## Usage
@@ -16,10 +20,10 @@ from lib.math.geom import *
 from lib.math.soccer_math import *
 
 vec1 = Vector2D() # create Vector with default value.
-vec2 = Vector2D(20,20) # create Vector with 20 , 20 value directly.
-a = Line2D(vec1,vec2) # create line from 2 points.
-b = Circle2D(3,3,5) # create circle with center point and radius value.
-print(b.intersection(a)) #  calculate the intersection with straight line.
+vec2 = Vector2D(20,30) # create Vector with 20 , 30 value directly.
+l = Line2D(vec1,vec2) # create line from 2 points.
+c = Circle2D(3,3,5) # create circle with center point and radius value.
+print(c.intersection(line=l)) #  calculate the intersection with straight line.
 ```
 
 ## Contributing
