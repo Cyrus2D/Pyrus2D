@@ -54,15 +54,11 @@ class Rect2D(Region2D):
             self._top_left = Vector2D(args[0], args[1])
             self._size = Size2D(args[2], args[3])
             self._is_valid = True
-        elif len(args) == 3 and isinstance(args[0], Vector2D):
+        elif len(args) == 3:
             self._top_left = args[0]
             self._size = Size2D(args[1], args[2])
             self._is_valid = True
-        elif len(args) == 2 and isinstance(args[1], Size2D):
-            self._top_left = args[0]
-            self._size = args[1]
-            self._is_valid = True
-        elif len(args) == 2 and isinstance(args[1], Vector2D):
+        elif len(args) == 2 and type(args[1]) == Vector2D:
             self._top_left = args[0]
             bottom_right = args[1]
             top_left = args[0]
@@ -78,6 +74,10 @@ class Rect2D(Region2D):
                 self._top_left = Vector2D()
                 self._size = Size2D()
                 self._is_valid = True
+        elif len(args) == 2:
+            self._top_left = args[0]
+            self._size = args[1]
+            self._is_valid = True
 
     """
         4 NUM
@@ -102,10 +102,10 @@ class Rect2D(Region2D):
         if len(args) == 4:
             self._top_left.assign(args[0], args[1])
             self._size.assign(args[0], args[3])
-        elif len(args) == 3 and isinstance(args[0], Vector2D):
+        elif len(args) == 3:
             self._top_left = args[0]
             self._size.assign(args[1], args[2])
-        elif len(args) == 2 and isinstance(args[1], Size2D):
+        elif len(args) == 2:
             self._top_left = args[0]
             self._size = args[1]
 
@@ -225,7 +225,7 @@ class Rect2D(Region2D):
     def setTopLeft(self, *args):
         x = 0.0
         y = 0.0
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1:
             x = args[0].x()
             y = args[0].y()
         elif len(args) == 2:
@@ -251,7 +251,7 @@ class Rect2D(Region2D):
     def setBottomRight(self, *args):
         x = 0.0
         y = 0.0
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1:
             x = args[0].x()
             y = args[0].y()
         elif len(args) == 2:
@@ -367,7 +367,7 @@ class Rect2D(Region2D):
       \ brief set a size
       \ param length range
       \ param width range
-        Size
+       1 Size
       \ brief set a size
       \ param size range
     """
@@ -375,7 +375,7 @@ class Rect2D(Region2D):
     def setSize(self, *args):  # , **kwargs):)
         if len(args) == 2:
             self._size.assign(args[0], args[1])
-        elif len(args) == 1 and isinstance(args[0], Size2D):
+        elif len(args) == 1:
             self._size = args[0]
 
     """
@@ -704,7 +704,7 @@ class Rect2D(Region2D):
     def from_center(*args):  # , **kwargs):)
         if len(args) == 4:
             return Rect2D(args[0] - args[2] * 0.5, args[1] - args[3] * 0.5, args[2], args[3])
-        elif len(args) == 3 and isinstance(args[0], Vector2D):
+        elif len(args) == 3:
             return Rect2D(args[0] - args[2] * 0.5, args[1] - args[3] * 0.5)
 
     """
