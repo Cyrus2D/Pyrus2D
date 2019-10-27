@@ -54,11 +54,11 @@ class Line2D:
     """
 
     def assign(self, *args):  # , **kwargs):):
-        if len(args) == 2 and isinstance(args[1], Vector2D):
+        if len(args) == 2 and type(args[1]) == Vector2D:
             self._a = -(args[1].y() - args[0].y())
             self._b = args[1].x() - args[0].x()
             self._c = -self._a * args[0].x() - self._b * args[0].y()
-        if len(args) == 2 and isinstance(args[1], AngleDeg):
+        elif len(args) == 2:
             linedir = args[1]
             self._a = -linedir.sin()
             self._b = linedir.cos()
