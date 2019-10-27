@@ -195,7 +195,7 @@ class Triangle2D(Region2D):
       \ return number of intersection + sol 1 + sol 2
     """
 
-    def intersection(self, line: Line2D = None, ray: Ray2D = None, segment: Segment2D = None):  # , **kwargs):):):
+    def intersection(self, line: Line2D = None, ray: Ray2D = None, segment=None):  # , **kwargs):):):
         if line is not None:
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
