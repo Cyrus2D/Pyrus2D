@@ -21,11 +21,11 @@ class Ray2D:
     """
 
     def __init__(self, *args):  # , **kwargs):)
-        if len(args) == 2 and isinstance(args[1], AngleDeg):
+        if len(args) == 2 and type(args[1]) == AngleDeg:
             self._origin = args[0]
             self._direction = args[1]
             self._is_valid = True
-        elif len(args) == 2 and isinstance(args[1], Vector2D):
+        elif len(args) == 2:
             self._origin = args[0]
             self._direction = (args[1] - args[0]).th()
             self._is_valid = True
