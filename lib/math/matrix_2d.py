@@ -214,7 +214,7 @@ class Matrix2D:
     """
 
     def transform(self, *args):  # **kwargs):
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1:
             v = args[0]
             return Vector2D(self._m11 * v.x + self._m12 * v.y + self._dx,
                             self._m21 * v.x + self._m22 * v.y + self._dy)
@@ -228,8 +228,8 @@ class Matrix2D:
     """
 
     def transform_vec(self, v: Vector2D):
-        tx = self._m11 * v._x() + self._m12 * v._y() + self._dx
-        ty = self._m21 * v._x() + self._m22 * v._y() + self._dy
+        tx = self._m11 * v.x() + self._m12 * v.y() + self._dx
+        ty = self._m21 * v.x() + self._m22 * v.y() + self._dy
         v.assign(tx, ty)
 
     """  ----------------- static method  ----------------- """
@@ -304,11 +304,11 @@ class Matrix2D:
     """
 
     def __mul__(self, *args):  # , **kwargs):):
-        if len(args) == 1 and isinstance(args[0], Matrix2D):
+        if len(args) == 1 and type(args[0]) == Vector2D:
+            return self.transform(args[0])
+        if len(args) == 1:
             mat_tmp = self
             return mat_tmp.__imul__(args[0])
-        elif len(args) == 1 and isinstance(args[0], Vector2D):
-            return self.transform(args[0])
 
     """
       \ brief make a logical print.

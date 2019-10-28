@@ -63,7 +63,7 @@ class Polygon2D(Region2D):
         super().__init__()
         if len(args) == 0:
             self._vertices = [Vector2D()]
-        elif isinstance(args[0][0], Vector2D):
+        elif len(args[0]) > 0:
             self._vertices = args[0]
         else:
             self._vertices = [Vector2D()]
@@ -82,7 +82,7 @@ class Polygon2D(Region2D):
     """
 
     def assign(self, v):
-        if isinstance(v[0], Vector2D):
+        if len(v[0]) > 0:
             self._vertices = v
 
     """
@@ -272,7 +272,8 @@ class Polygon2D(Region2D):
             n = i + 1
             if n == size:
                 n = 0
-            ds_area_value += (self._vertices[i].x() * self._vertices[n].y() - self._vertices[n].x() * self._vertices[i].y())
+            ds_area_value += (
+                        self._vertices[i].x() * self._vertices[n].y() - self._vertices[n].x() * self._vertices[i].y())
 
         return ds_area_value
 

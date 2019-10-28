@@ -31,10 +31,10 @@ class Segment2D:
     """
 
     def __init__(self, *args):  # , **kwargs):
-        if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
+        if len(args) == 2:
             self._origin = args[0]
             self._terminal = args[1]
-        elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
+        elif len(args) == 3:
             self._origin = args[0]
             self._terminal = args[0] + Vector2D.from_polar(args[1], args[2])
         elif len(args) == 4:
@@ -63,10 +63,10 @@ class Segment2D:
         """
 
     def assign(self, *args):  # **kwargs):
-        if len(args) == 2 and isinstance(args[0], Vector2D) and isinstance(args[1], Vector2D):
+        if len(args) == 2:
             self._origin = args[0]
             self._terminal = args[1]
-        elif len(args) == 3 and isinstance(args[0], Vector2D) and isinstance(args[2], AngleDeg):
+        elif len(args) == 3:
             self._origin = args[0]
             self._terminal = args[0] + Vector2D.from_polar(args[1], args[2])
         elif len(args) == 4:
@@ -370,7 +370,7 @@ class Segment2D:
     """
 
     def dist(self, *args):  # **kwargs):
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1 and type(args[0]) == Vector2D:
             vec = args[0]
             length = self.length()
             if length == 0.0:
@@ -382,7 +382,7 @@ class Segment2D:
             return math.sqrt(min(self._origin.dist2(vec),
                                  self._terminal.dist2(vec)))
 
-        if len(args) == 1 and isinstance(args[0], Segment2D):
+        elif len(args) == 1:
             seg = args[0]
             if self.existIntersection(segment=seg):
                 return 0.0

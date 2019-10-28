@@ -14,7 +14,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     """
 
     def __init__(self, *args):
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1:
             self._x = args[0].x()
             self._y = args[0].y()
         elif len(args) == 2:
@@ -167,7 +167,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     """
 
     def add(self, *args):  # **kwargs):
-        if len(args) == 1 and isinstance(args[0], Vector2D):
+        if len(args) == 1:
             self._x += args[0].x()
             self._y += args[0].y()
         elif len(args) == 2:
