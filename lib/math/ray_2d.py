@@ -20,19 +20,19 @@ class Ray2D:
       \ param __d direction angle
     """
 
-    def __init__(self, *args):  # , **kwargs):)
-        if len(args) == 2 and type(args[1]) == AngleDeg:
-            self._origin = args[0]
-            self._direction = args[1]
-            self._is_valid = True
-        elif len(args) == 2:
-            self._origin = args[0]
-            self._direction = (args[1] - args[0]).th()
-            self._is_valid = True
+    def __init__(self,
+                 origin: Vector2D = None, direction: AngleDeg = None,
+                 dir_point: Vector2D = None):
+        if direction is not None:
+            self._origin = origin
+            self._direction = direction
+        elif dir_point is not None:
+            self._origin = origin
+            self._direction = (dir_point - origin).th()
         else:
             self._origin = Vector2D()
             self._direction = AngleDeg()
-            self._is_valid = True
+        self._is_valid = True
 
     """
       \ brief get origin point
@@ -112,10 +112,11 @@ class Ray2D:
 
 
 def test():
-    a = Ray2D(Vector2D(5, 10), Vector2D(10, 10))
-    print(a)
-    b = Ray2D(Vector2D(0, 0), AngleDeg(45))
-    print(b)
+    pass
+    # a = Ray2D(Vector2D(5, 10), Vector2D(10, 10))
+    # print(a)
+    # b = Ray2D(Vector2D(0, 0), AngleDeg(45))
+    # print(b)
     # c = Ray2D(a._origin, b.dir())
     # print(c)
 

@@ -48,7 +48,7 @@ class Circle2D:
       \ param r radius value
     """
 
-    def __init__(self, center=Vector2D(), radius=0.0):  # , **kwargs):)
+    def __init__(self, center=Vector2D(), radius=0.0):
         self._center = center
         self._radius = radius
         if radius < 0.0:
@@ -149,7 +149,7 @@ class Circle2D:
 
                 a = 1.0 + m * m
                 b = 2.0 * (-self._center._y + (d + self._center._x) * m)
-                c = SQUARE(d + self._center._x) + SQUARE(self._center._y) - SQUARE(self._radius)
+                c = (d + self._center._x) ** 2 + (self._center._y) ** 2 - (self._radius) ** 2
 
             n_sol = QUADRATIC_F(a, b, c)
             y1 = n_sol[1]

@@ -262,7 +262,7 @@ def calc_far_dist(player_type: PlayerType):
 def calc_max_velocity(target_angle: AngleDeg,
                       krate,
                       ball_vel: Vector2D):
-    ball_speed_max2 = pow(ServerParam.i().ball_speed_max(), 2)
+    ball_speed_max2 = ServerParam.i().ball_speed_max() ** 2
     max_accel = min(ServerParam.i().max_power() * krate,
                     ServerParam.i().ball_accel_max())
 

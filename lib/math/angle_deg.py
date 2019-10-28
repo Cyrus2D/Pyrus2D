@@ -100,11 +100,12 @@ class AngleDeg:
             new_angle_deg = AngleDeg(self._degree + other)
         return new_angle_deg
 
-    def __sub__(self, degree: float = None, angledeg=None):
-        if degree is not None:
-            return AngleDeg(self._degree - degree)
-        if angledeg is not None:
-            return AngleDeg(self._degree - angledeg._degree)
+    def __sub__(self, other):
+        if type(other) == AngleDeg:
+            new_angle_deg = AngleDeg(self._degree - other.degree())
+        else:
+            new_angle_deg = AngleDeg(self._degree - other)
+        return new_angle_deg
 
     def __mul__(self, other):
         new_angle_deg = AngleDeg(self._degree * other)
@@ -125,13 +126,13 @@ class AngleDeg:
         return new_angle_deg
 
     def cos(self):
-        return math.cos(self.degree() * DEG2RAD)
+        return math.cos(self._degree * DEG2RAD)
 
     def sin(self):
-        return math.sin(self.degree() * DEG2RAD)
+        return math.sin(self._degree * DEG2RAD)
 
     def tan(self):
-        return math.tan(self.degree() * DEG2RAD)
+        return math.tan(self._degree * DEG2RAD)
 
     def is_left_of(self, angle):
         diff = angle.degree() - self.degree()

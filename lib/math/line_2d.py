@@ -33,12 +33,12 @@ class Line2D:
             self._b = 0.0
             self._c = 0.0
             self.assign(p1, p2)
-        if angle is not None and origin is not None:
+        elif angle is not None and origin is not None:
             self._a = 0.0
             self._b = 0.0
             self._c = 0.0
             self.assign(origin=origin, linedir=angle)
-        if (a is not None
+        elif (a is not None
                 and b is not None
                 and c is not None):
             self._a = a
