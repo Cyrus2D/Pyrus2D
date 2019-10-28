@@ -315,11 +315,11 @@ class Triangle2D(Region2D):
     def tri_incenter(a: Vector2D, b: Vector2D, c: Vector2D):
         ab = b - a
         ac = c - a
-        bisect_a = Line2D(a, AngleDeg.bisect(ab.th(), ac.th()))
+        bisect_a = Line2D(origin=a, angle=AngleDeg.bisect(ab.th(), ac.th()))
 
         ba = a - b
         bc = c - b
-        bisect_b = Line2D(b, AngleDeg.bisect(ba.th(), bc.th()))
+        bisect_b = Line2D(origin=b, angle=AngleDeg.bisect(ba.th(), bc.th()))
 
         return bisect_a.intersection(bisect_b)
 
@@ -379,8 +379,8 @@ class Triangle2D(Region2D):
 
     @staticmethod
     def tri_orthocenter(a: Vector2D, b: Vector2D, c: Vector2D):
-        perpend_a = Line2D(b, c).perpendicular(a)
-        perpend_b = Line2D(c, a).perpendicular(b)
+        perpend_a = Line2D(p1=b, p2=c).perpendicular(a)
+        perpend_b = Line2D(p1=c, p2=a).perpendicular(b)
         return perpend_a.intersection(line=perpend_b)
 
     """

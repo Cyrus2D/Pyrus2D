@@ -76,7 +76,7 @@ class Formation:
         Pa = Vector2D(self._balls[ids[0]][0], self._balls[ids[0]][1])
         Pb = Vector2D(self._balls[ids[1]][0], self._balls[ids[1]][1])
         Pc = Vector2D(self._balls[ids[2]][0], self._balls[ids[2]][1])
-        lineProj = Line2D(Pb, Pc).projection(B)
+        lineProj = Line2D(p1=Pb, p2=Pc).projection(B)
         m1 = Pb.dist(lineProj)
         n1 = Pc.dist(lineProj)
         m2 = Pa.dist(B)

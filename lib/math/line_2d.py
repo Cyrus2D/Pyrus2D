@@ -24,23 +24,31 @@ class Line2D:
      \ param linedir direction from origin point
     """
 
-    def __init__(self, *args):  # , **kwargs):):
-        if len(args) == 3:
-            self._a = args[0]
-            self._b = args[1]
-            self._c = args[2]
-            self.is_valid = True
-        elif len(args) == 2:
+    def __init__(self,
+                 p1: Vector2D = None, p2: Vector2D = None,
+                 origin: Vector2D = None, angle: AngleDeg = None,
+                 a: float = None, b: float = None, c: float = None):
+        if p1 is not None and p2 is not None:
             self._a = 0.0
             self._b = 0.0
             self._c = 0.0
-            self.is_valid = True
-            self.assign(args[0], args[1])
+            self.assign(p1, p2)
+        if angle is not None and origin is not None:
+            self._a = 0.0
+            self._b = 0.0
+            self._c = 0.0
+            self.assign(origin=origin, linedir=angle)
+        if (a is not None
+                and b is not None
+                and c is not None):
+            self._a = a
+            self._b = b
+            self._c = c
         else:
             self._a = 0.0
             self._b = 0.0
             self._c = 0.0
-            self.is_valid = True
+        self.is_valid = True
 
     """
         Len = 2 / 2 Vector2D
@@ -53,16 +61,18 @@ class Line2D:
       \ param linedir direction from origin point
     """
 
-    def assign(self, *args):  # , **kwargs):):
-        if len(args) == 2 and type(args[1]) == Vector2D:
-            self._a = -(args[1].y() - args[0].y())
-            self._b = args[1].x() - args[0].x()
-            self._c = -self._a * args[0].x() - self._b * args[0].y()
-        elif len(args) == 2:
-            linedir = args[1]
+    def assign(self,
+               p1: Vector2D = None, p2: Vector2D = None,
+               origin: Vector2D = None, linedir: AngleDeg = None):
+        if p1 is not None and p2 is not None:
+            self._a = -(p2._y - p1._y)
+            self._b = p2._x - p1._x
+            self._c = -self._a * p1._x - self._b * p1._y
+            return self
+        if origin is not None and linedir is not None:
             self._a = -linedir.sin()
             self._b = linedir.cos()
-            self._c = self._a * args[0].x() - self._b * args[0].y()
+            self._c = self._a * origin.x() - self._b * origin.y()
 
     """
       \ brief accessor
@@ -117,7 +127,8 @@ class Line2D:
     """
 
     def dist(self, p: Vector2D):
-        return math.fabs((self._a * p.x() + self._b * p.y() + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
+        return math.fabs(
+            (self._a * p.x() + self._b * p.y() + self._c) / math.sqrt(self._a * self._a + self._b * self._b))
 
     """
       \ brief get squared distance from this line to point
@@ -155,7 +166,7 @@ class Line2D:
     """
 
     def perpendicular(self, point):
-        return Line2D(self._b, -self._a, self._a * point.y() - self._b * point.x())
+        return Line2D(a=self._b, b=-self._a, c=self._a * point.y() - self._b * point.x())
 
     """
       \ brief calc projection point from p
@@ -195,7 +206,7 @@ class Line2D:
 
     @staticmethod
     def angle_bisector(origin, left, right):
-        return Line2D(origin, AngleDeg.bisect(left, right))
+        return Line2D(origin=origin, angle=AngleDeg.bisect(left, right))
 
     """
       \ brief make perpendicular bisector line from twt points
@@ -209,9 +220,9 @@ class Line2D:
         if math.fabs(point2.x - point1.x) < EPSILON and math.fabs(point2.y - point1.y) < EPSILON:
             print("Error : points have same coordinate values")
             tmp_vec = Vector2D(point1.x + 1, point2.y)
-            return Line2D(point1, tmp_vec)
+            return Line2D(p1=point1, p2=tmp_vec)
         tmp = (point2.x * point2.x - point1.x * point1.x + point2.y * point2.y - point1.y * point1.y) * -0.5
-        return Line2D(point2.x - point1.x, point2.y - point1.y, tmp)
+        return Line2D(a=point2.x - point1.x, b=point2.y - point1.y, c=tmp)
 
     """
       \ brief make a logical print.
@@ -226,7 +237,7 @@ class Line2D:
 
 
 def test():
-    a = Line2D(1, 1)
+    # a = Line2D(1, 1)
     print(a)
 
 

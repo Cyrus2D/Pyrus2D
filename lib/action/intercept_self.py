@@ -471,7 +471,7 @@ class SelfIntercept:
 
         body_angle = me.body() + 180 if back_dash else me.body()
         my_inertia = me.inertia_point(cycle)
-        target_line = Line2D(ball_pos, body_angle)
+        target_line = Line2D(origin=ball_pos, angle=body_angle)
 
         if target_line.dist(my_inertia) < control_area - 0.4:
             return
@@ -587,7 +587,7 @@ class SelfIntercept:
         max_omni_dash = min(2, cycle)
 
         body_angle = me.body() + 180 if back_dash else me.body()
-        target_line = Line2D(ball_pos, body_angle)
+        target_line = Line2D(origin=ball_pos, angle=body_angle)
         my_inertia = me.inertia_point(cycle)
 
         if target_line.dist(my_inertia) < control_area - 0.4:
@@ -1067,7 +1067,7 @@ class SelfIntercept:
                 inertia_pos = ptype.inertia_point(tmp_pos, tmp_vel, n_dash - (i + 1))
                 my_final_pos = wm.self().pos() + tmp_pos.rotate(dash_angle)
                 if my_inertia.dist2(my_final_pos) > 0.01:
-                    my_final_pos = Line2D(my_inertia, my_final_pos).projection(ball_pos)
+                    my_final_pos = Line2D(p1=my_inertia, p2=my_final_pos).projection(ball_pos)
                 stamina_model.simulate_waits(ptype, n_dash - (i + 1))
                 mode = (InterceptInfo.Mode.EXHAUST
                         if stamina_model.recovery() < wm.self().recovery()

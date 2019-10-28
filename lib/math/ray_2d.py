@@ -56,7 +56,7 @@ class Ray2D:
     """
 
     def line(self):
-        return Line2D(self._origin, self._direction)
+        return Line2D(origin=self._origin, angle=self._direction)
 
     """
       \ brief check whether p is on the direction of this Ray

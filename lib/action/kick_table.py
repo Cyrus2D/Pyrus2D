@@ -143,10 +143,15 @@ class Path:
 
         return self.max_speed_ > other.max_speed_
 
+    def copy(self):
+        return Path(self.origin_, self.dest_)
+
+
 """
   \ class Sequence
   \ brief simulated kick sequence
  """
+
 
 class Sequence:
     # < safety level flags. usually the combination of State flags
@@ -416,7 +421,7 @@ class _KickTable:
 
                 path.max_speed_ = max_vel.r()
                 path.power_ = accel.r() / self._state_list[dest].kick_rate_
-                table[max_state * origin + dest] = copy(path)
+                table[max_state * origin + dest] = path.copy()
 
         table.sort(key=functools.cmp_to_key(TableCmp))
         # table.sort()

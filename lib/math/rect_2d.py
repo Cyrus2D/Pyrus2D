@@ -533,7 +533,7 @@ class Rect2D(Region2D):
     """
 
     def leftEdge(self):
-        return Line2D(self.topLeft(), self.bottomLeft())
+        return Line2D(p1=self.topLeft(), p2=self.bottomLeft())
 
     """
       \ brief get the right edge line
@@ -541,7 +541,7 @@ class Rect2D(Region2D):
     """
 
     def rightEdge(self):
-        return Line2D(self.topRight(), self.bottomRight())
+        return Line2D(p1=self.topRight(), p2=self.bottomRight())
 
     """
       \ brief get the top edge line
@@ -549,7 +549,7 @@ class Rect2D(Region2D):
     """
 
     def topEdge(self):
-        return Line2D(self.topLeft(), self.topRight())
+        return Line2D(p1=self.topLeft(), p2=self.topRight())
 
     """
       \ brief get the bottom edge line
@@ -557,7 +557,7 @@ class Rect2D(Region2D):
     """
 
     def bottomEdge(self):
-        return Line2D(self.bottomLeft(), self.bottomRight())
+        return Line2D(p1=self.bottomLeft(), p2=self.bottomRight())
 
     """
         Line2D

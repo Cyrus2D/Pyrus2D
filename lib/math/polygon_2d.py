@@ -273,7 +273,7 @@ class Polygon2D(Region2D):
             if n == size:
                 n = 0
             ds_area_value += (
-                        self._vertices[i].x() * self._vertices[n].y() - self._vertices[n].x() * self._vertices[i].y())
+                    self._vertices[i].x() * self._vertices[n].y() - self._vertices[n].x() * self._vertices[i].y())
 
         return ds_area_value
 
@@ -311,19 +311,19 @@ class Polygon2D(Region2D):
         clipped_p_4 = []
         clipped_p_1 = Polygon2D.scissorWithLine(XLessEqual(r.right()),
                                                 p, clipped_p_1,
-                                                Line2D(Vector2D(r.maxX(), 0.0), 90.0))
+                                                Line2D(origin=Vector2D(r.maxX(), 0.0), angle=AngleDeg(90.0)))
 
         clipped_p_2 = Polygon2D.scissorWithLine(YLessEqual(r.bottom()),
                                                 clipped_p_1, clipped_p_2,
-                                                Line2D(Vector2D(0.0, r.maxY()), 0.0))
+                                                Line2D(origin=Vector2D(0.0, r.maxY()), angle=AngleDeg(0.0)))
 
         clipped_p_3 = Polygon2D.scissorWithLine(XMoreEqual(r.left()),
                                                 clipped_p_2, clipped_p_3,
-                                                Line2D(Vector2D(r.minX(), 0.0), 90.0))
+                                                Line2D(origin=Vector2D(r.minX(), 0.0), angle=AngleDeg(90.0)))
 
         clipped_p_4 = Polygon2D.scissorWithLine(YMoreEqual(r.top()),
                                                 clipped_p_3, clipped_p_4,
-                                                Line2D(Vector2D(0.0, r.minY()), 0.0))
+                                                Line2D(origin=Vector2D(0.0, r.minY()), angle=AngleDeg(0.0)))
 
         return Polygon2D(clipped_p_4)
 
@@ -347,14 +347,14 @@ class Polygon2D(Region2D):
                 if in_rectangle[index_1]:
                     new_points.append(p1)
                 else:
-                    c = line.intersection(line=Line2D(p0, p1))
+                    c = line.intersection(line=Line2D(p1=p0, p2=p1))
 
                     if not c.is_valid():
                         return
                     new_points.push_back(c)
             else:
                 if in_rectangle[index_1]:
-                    c = line.intersection(line=Line2D(p0, p1))
+                    c = line.intersection(line=Line2D(p1=p0, p2=p1))
 
                     if not c.is_valid():
                         return

@@ -16,12 +16,8 @@ class Sector2D(Region2D):
       \ param end end angle(turn clockwise)
     """
 
-    def __init__(self, __c=Vector2D(0, 0), __min_r=0.0, __max_r=0.0, __start=AngleDeg(), __end=AngleDeg()):
+    def __init__(self, __c: Vector2D, __min_r: float, __max_r: float, __start: AngleDeg, __end: AngleDeg):
         super().__init__()
-        if type(__end) != AngleDeg:
-            __end = AngleDeg(__end)
-        if type(__start) != AngleDeg:
-            __start = AngleDeg(__start)
 
         self.center = __c
         if __min_r < 0.0:

@@ -107,7 +107,7 @@ class Segment2D:
     """
 
     def line(self):
-        return Line2D(self._origin, self._terminal)
+        return Line2D(p1=self._origin, p2=self._terminal)
 
     """
       \ brief get the length of self segment

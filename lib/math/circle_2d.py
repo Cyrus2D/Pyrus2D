@@ -5,6 +5,7 @@
 from lib.math.ray_2d import Ray2D
 from lib.math.segment_2d import *
 from lib.math.ray_2d import *
+
 """
   \ brief solve quadratic formula
   \ param a formula constant A
@@ -160,7 +161,7 @@ class Circle2D:
 
             return sol_list
         elif ray is not None:
-            line_tmp = Line2D(ray.origin(), ray.dir())
+            line_tmp = Line2D(origin=ray.origin(), angle=ray.dir())
 
             sol_list = self.intersection(line=line_tmp)
             if sol_list[0] > 1 and not ray.inRightDir(sol_list[2], 1.0):
@@ -192,8 +193,8 @@ class Circle2D:
             if center_dist < math.fabs(self._radius - circle.radius()) or self._radius + circle.radius() < center_dist:
                 return [0, Vector2D(), Vector2D()]
 
-            line = Line2D(-2.0 * rel_x, -2.0 * rel_y,
-                          circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
+            line = Line2D(a=-2.0 * rel_x, b=-2.0 * rel_y,
+                          c=circle.center().r2() - circle.radius() * circle.radius() - self._center.r2() + self._radius * self._radius)
 
             return self.intersection(line=line)
 

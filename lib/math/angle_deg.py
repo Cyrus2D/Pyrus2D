@@ -10,10 +10,11 @@ PI = 3.14159265358979323846
 class AngleDeg:
     PI = 3.14159265358979323846
 
-    def __init__(self, __degree=0.0):
-        if isinstance(__degree,  AngleDeg):
-            __degree = __degree.degree()
-        self._degree = __degree
+    def __init__(self, degree: float = None, angledeg=None):
+        if degree is not None:
+            self._degree = degree
+        if angledeg is not None:
+            self._degree = angledeg._degree
         self.normal()
 
     def normal(self):
@@ -60,7 +61,8 @@ class AngleDeg:
 
     def reverse(self):
         if self._degree >= 0:
-            self._degree = -(180 - self._degree)  # Aref eh zeshte :)) # 3 saat debug budam saresh :/ # btw code che gonahi karde?
+            self._degree = -(
+                    180 - self._degree)  # Aref eh zeshte :)) # 3 saat debug budam saresh :/ # btw code che gonahi karde?
         else:
             self._degree = 180 + self._degree
         return self._degree
@@ -98,12 +100,11 @@ class AngleDeg:
             new_angle_deg = AngleDeg(self._degree + other)
         return new_angle_deg
 
-    def __sub__(self, other):
-        if type(other) == AngleDeg:
-            new_angle_deg = AngleDeg(self._degree - other.degree())
-        else:
-            new_angle_deg = AngleDeg(self._degree - other)
-        return new_angle_deg
+    def __sub__(self, degree: float = None, angledeg=None):
+        if degree is not None:
+            return AngleDeg(self._degree - degree)
+        if angledeg is not None:
+            return AngleDeg(self._degree - angledeg._degree)
 
     def __mul__(self, other):
         new_angle_deg = AngleDeg(self._degree * other)
@@ -134,7 +135,7 @@ class AngleDeg:
 
     def is_left_of(self, angle):
         diff = angle.degree() - self.degree()
-        return (0.0 < diff and diff < 180.0 ) or diff < -180.0
+        return (0.0 < diff and diff < 180.0) or diff < -180.0
 
     def is_right_of(self, angle):
         diff = self.degree() - angle.degree()
@@ -218,6 +219,7 @@ def test():
     y = (-x)
     print(y)
     print(-x)
+
 
 if __name__ == "__main__":
     test()

@@ -13,17 +13,16 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
        \ param __y assigned x value
     """
 
-    def __init__(self, *args):
-        if len(args) == 1:
-            self._x = args[0].x()
-            self._y = args[0].y()
-        elif len(args) == 2:
-            self._x = args[0]
-            self._y = args[1]
-            if math.fabs(self._x) <= EPSILON:
-                self._x = 0
-            if math.fabs(self._y) <= EPSILON:
-                self._y = 0
+    def __init__(self,
+                 x: float = None,
+                 y: float = None,
+                 vector2d=None):
+        if x is not None and y is not None:
+            self._x = x
+            self._y = y
+        elif vector2d is not None:
+            self._x = vector2d._x
+            self._y = vector2d._y
         else:
             self._x = 0
             self._y = 0
@@ -189,7 +188,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
         return Vector2D(self._x + other.x(), self._y + other.y())
 
     def __sub__(self, other):
-        return Vector2D(self._x - other.x(), self._y - other.y())
+        return Vector2D(self._x - other._x, self._y - other._y)
 
     def __truediv__(self, other):
         return Vector2D(self._x / other, self._y / other)
