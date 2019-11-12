@@ -16,7 +16,7 @@ class AngleDeg:
         elif angledeg is not None:
             self._degree = angledeg._degree
         else:
-            self._degree = 0
+            self._degree = 0.0
         self.normal()
 
     def normal(self):
@@ -63,8 +63,10 @@ class AngleDeg:
 
     def reverse(self):
         if self._degree >= 0:
-            self._degree = -(
-                    180 - self._degree)  # Aref eh zeshte :)) # 3 saat debug budam saresh :/ # btw code che gonahi karde?
+            self._degree = -(180 - self._degree)
+            # Aref eh zeshte :))
+            # 3 saat debug budam saresh :/
+            # btw code che gonahi karde?
         else:
             self._degree = 180 + self._degree
         return self._degree
@@ -104,108 +106,136 @@ class AngleDeg:
 
     def __sub__(self, other):
         if type(other) == AngleDeg:
-            new_angle_deg = AngleDeg(self._degree - other.degree())
-        else:
-            new_angle_deg = AngleDeg(self._degree - other)
-        return new_angle_deg
 
-    def __mul__(self, other):
-        new_angle_deg = AngleDeg(self._degree * other)
-        return new_angle_deg
+<< << << < HEAD
+new_angle_deg = AngleDeg(self._degree - other.degree())
+else:
+new_angle_deg = AngleDeg(self._degree - other)
+return new_angle_deg
+== == == =
+return AngleDeg(self._degree - other.degree())
+else:
+return AngleDeg(self._degree - other)
+>> >> >> > c1e1671804766ce5a1f0592b6e9638b46f36601a
 
-    def __floordiv__(self, other):
-        new_angle_deg = AngleDeg(self._degree / other)
-        return new_angle_deg
 
-    def __repr__(self):
-        return str(self.degree())
+def __mul__(self, other):
+    new_angle_deg = AngleDeg(self._degree * other)
+    return new_angle_deg
 
-    def __float__(self):
-        return float(self.degree())
 
-    def __neg__(self):
-        new_angle_deg = AngleDeg(-self._degree)
-        return new_angle_deg
+def __floordiv__(self, other):
+    new_angle_deg = AngleDeg(self._degree / other)
+    return new_angle_deg
 
-    def cos(self):
-        return math.cos(self._degree * DEG2RAD)
 
-    def sin(self):
-        return math.sin(self._degree * DEG2RAD)
+def __repr__(self):
+    return str(self.degree())
 
-    def tan(self):
-        return math.tan(self._degree * DEG2RAD)
 
-    def is_left_of(self, angle):
-        diff = angle.degree() - self.degree()
-        return (0.0 < diff and diff < 180.0) or diff < -180.0
+def __float__(self):
+    return float(self.degree())
 
-    def is_right_of(self, angle):
-        diff = self.degree() - angle.degree()
-        return (0.0 < diff and diff < 180.0) or diff < -180.0
 
-    def copy(self):
-        return AngleDeg(self._degree)
+def __neg__(self):
+    new_angle_deg = AngleDeg(-self._degree)
+    return new_angle_deg
 
-    @staticmethod
-    def rad2deg(rad):
-        return rad * RAD2DEG
 
-    @staticmethod
-    def deg2rad(deg):
-        return deg * DEG2RAD
+def cos(self):
+    return math.cos(self._degree * DEG2RAD)
 
-    @staticmethod
-    def cos_deg(deg):
-        return math.cos(AngleDeg.deg2rad(deg))
 
-    @staticmethod
-    def sin_deg(deg):
-        return math.sin(AngleDeg.deg2rad(deg))
+def sin(self):
+    return math.sin(self._degree * DEG2RAD)
 
-    @staticmethod
-    def tan_deg(deg):
-        return math.tan(AngleDeg.deg2rad(deg))
 
-    @staticmethod
-    def acos_deg(cosine):
-        if cosine >= 1.0:
-            return 0.0
-        elif cosine <= -1.0:
-            return 180.0
-        else:
-            AngleDeg.rad2deg(math.acos(cosine))
+def tan(self):
+    return math.tan(self._degree * DEG2RAD)
 
-    @staticmethod
-    def asin_deg(sine):
-        if sine >= 1.0:
-            return 90.0
-        elif sine <= -1.0:
-            return -90.0
-        else:
-            return AngleDeg.rad2deg(math.asin(sine))
 
-    @staticmethod
-    def atan_deg(tangent):
-        return AngleDeg.rad2deg(math.atan(tangent))
+def is_left_of(self, angle):
+    diff = angle.degree() - self.degree()
+    return (0.0 < diff < 180.0) or diff < -180.0
 
-    @staticmethod
-    def atan2_deg(y, x):
-        if x is 0.0 and y is 0.0:
-            return 0.0
-        else:
-            return AngleDeg.rad2deg(math.atan2(y, x))
 
-    @staticmethod
-    def bisect(left, right):
-        result = AngleDeg(left)
-        rel = AngleDeg(right - left)
-        diff = result.degree() - AngleDeg(right).degree()
-        half_deg = rel.degree() * 0.5
-        result += half_deg
-        if (0.0 < diff < 180.0) or diff < -180.0:
-            return result
-        return result + 180.0
+def is_right_of(self, angle):
+    diff = self.degree() - angle.degree()
+    return (0.0 < diff < 180.0) or diff < -180.0
+
+
+def copy(self):
+    return AngleDeg(self._degree)
+
+
+@staticmethod
+def rad2deg(rad):
+    return rad * RAD2DEG
+
+
+@staticmethod
+def deg2rad(deg):
+    return deg * DEG2RAD
+
+
+@staticmethod
+def cos_deg(deg):
+    return math.cos(AngleDeg.deg2rad(deg))
+
+
+@staticmethod
+def sin_deg(deg):
+    return math.sin(AngleDeg.deg2rad(deg))
+
+
+@staticmethod
+def tan_deg(deg):
+    return math.tan(AngleDeg.deg2rad(deg))
+
+
+@staticmethod
+def acos_deg(cosine):
+    if cosine >= 1.0:
+        return 0.0
+    elif cosine <= -1.0:
+        return 180.0
+    else:
+        AngleDeg.rad2deg(math.acos(cosine))
+
+
+@staticmethod
+def asin_deg(sine):
+    if sine >= 1.0:
+        return 90.0
+    elif sine <= -1.0:
+        return -90.0
+    else:
+        return AngleDeg.rad2deg(math.asin(sine))
+
+
+@staticmethod
+def atan_deg(tangent):
+    return AngleDeg.rad2deg(math.atan(tangent))
+
+
+@staticmethod
+def atan2_deg(y, x):
+    if x is 0.0 and y is 0.0:
+        return 0.0
+    else:
+        return AngleDeg.rad2deg(math.atan2(y, x))
+
+
+@staticmethod
+def bisect(left, right):
+    result = AngleDeg(left)
+    rel = AngleDeg(right - left)
+    diff = result.degree() - AngleDeg(right).degree()
+    half_deg = rel.degree() * 0.5
+    result += half_deg
+    if (0.0 < diff < 180.0) or diff < -180.0:
+        return result
+    return result + 180.0
 
 
 def test():
