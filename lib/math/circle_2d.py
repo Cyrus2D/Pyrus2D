@@ -184,8 +184,8 @@ class Circle2D:
 
             return sol_list
         elif circle is not None:
-            rel_x = circle.center().x - self._center._x
-            rel_y = circle.center().y - self._center._y
+            rel_x = circle.center()._x - self._center._x
+            rel_y = circle.center()._y - self._center._y
 
             center_dist2 = rel_x * rel_x + rel_y * rel_y
             center_dist = math.sqrt(center_dist2)

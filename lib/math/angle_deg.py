@@ -13,8 +13,10 @@ class AngleDeg:
     def __init__(self, degree: float = None, angledeg=None):
         if degree is not None:
             self._degree = degree
-        if angledeg is not None:
+        elif angledeg is not None:
             self._degree = angledeg._degree
+        else:
+            self._degree = 0
         self.normal()
 
     def normal(self):
