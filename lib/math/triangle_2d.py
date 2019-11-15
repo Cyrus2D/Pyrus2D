@@ -21,17 +21,20 @@ class Triangle2D(Region2D):
       \ param v third vertex point
     """
 
-    def __init__(self, *args):  # , **kwargs):):):
+    def __init__(self,
+                 v1: Vector2D = None, v2: Vector2D = None, v3: Vector2D = None,
+                 seg=None, v: Vector2D = None):  # , **kwargs):):):
         super().__init__()
-        if len(args) == 3:
-            self._a = args[0]
-            self._b = args[1]
-            self._c = args[2]
-        elif len(args) == 2:
-            seg = args[0]
-            self._a = seg.origin()
-            self._b = seg.terminal()
-            self._c = args[1]
+        if (v1 is not None
+                and v2 is not None
+                and v3 is not None):
+            self._a: Vector2D = v1.copy()
+            self._b: Vector2D = v2.copy()
+            self._c: Vector2D = v3.copy()
+        elif seg is not None and v is not None:
+            self._a = seg.origin().copy()
+            self._b = seg.terminal().copy()
+            self._c = v
 
     """
         Len = 3 / Vector2d
@@ -136,15 +139,15 @@ class Triangle2D(Region2D):
     """
 
     def contains(self, point: Vector2D):
-        rel1 = Vector2D(self._a - point)
-        rel2 = Vector2D(self._b - point)
-        rel3 = Vector2D(self._c - point)
+        rel1 = Vector2D(vector2d=self._a - point)
+        rel2 = Vector2D(vector2d=self._b - point)
+        rel3 = Vector2D(vector2d=self._c - point)
 
         outer1 = rel1.outerProduct(rel2)
         outer2 = rel2.outerProduct(rel3)
         outer3 = rel3.outerProduct(rel1)
 
-        if outer1 >= 0.0 and outer2 >= 0.0 and outer3 >= 0.0 or (outer1 <= 0.0 and outer2 <= 0.0 and outer3 <= 0.0):
+        if (outer1 >= 0.0 and outer2 >= 0.0 and outer3 >= 0.0) or (outer1 <= 0.0 and outer2 <= 0.0 and outer3 <= 0.0):
             return True
         return False
 

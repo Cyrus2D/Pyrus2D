@@ -322,7 +322,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
         #   xn = self.y * v.z - self.z * v.y;
         #   yn = self.z * v.x - self.x * v.z;
         #   zn = self.x * v.y - self.y * v.x;
-        return self._x * v.y() - self._y * v.x()
+        return self._x * v._y - self._y * v._x
         # == |this| * |v| * (*this - v).th().sin()
 
     """
