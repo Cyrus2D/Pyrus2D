@@ -27,8 +27,10 @@ class IPAddress:
 class UDPSocket:
     def __init__(self, ip_address: IPAddress):
         self._ip: IPAddress = ip_address
+        print(self._ip)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.settimeout(3)  # TODO isn't this risky?!?!?
+        self._receive_first_message = False
 
     def send_msg(self, msg: str):
         if msg[-1] != '\0':
@@ -41,8 +43,10 @@ class UDPSocket:
             message_and_address.clear()
             message_and_address.append(message)
             message_and_address.append(server_address)
+            if not self._receive_first_message:
+                self._receive_first_message = True
+                self._ip._port = server_address[1]
             return len(message)
-
         except:
             message = ""
             server_addredss = 0
