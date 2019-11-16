@@ -22,13 +22,14 @@ class BhvMove:
                       f"tm_min={tm_min}")
         dlog.add_text(Level.BLOCK,
                       f"opp_min={opp_min}")
-        # if (not wm.exist_kickable_teammates()
-        #         and (self_min <= 5
-        #              or (self_min <= tm_min
-        #                  and self_min < opp_min + 5))):
-        #     dlog.add_text(Level.BLOCK, "INTERCEPTING")
-        #     Intercept().execute(agent)
-        #     return True
+
+        if (not wm.exist_kickable_teammates()
+                and (self_min <= 5
+                     or (self_min <= tm_min
+                         and self_min < opp_min + 5))):
+            dlog.add_text(Level.BLOCK, "INTERCEPTING")
+            Intercept().execute(agent)
+            return True
 
         st = StrategyFormation().i()
         target = st.get_pos(agent.world().self().unum())
