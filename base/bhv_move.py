@@ -3,6 +3,7 @@ from base.strategy_formation import *
 from lib.action.intercept import Intercept
 from lib.debug.logger import *
 from lib.player.templates import *
+from base.tools import *
 
 
 class BhvMove:
@@ -32,17 +33,28 @@ class BhvMove:
 
         st = StrategyFormation().i()
         target = st.get_pos(agent.world().self().unum())
-        min_dist_ball = 1000
+        min_cycle = 1000
         nearest_tm = 0
         for u in range(1, 12):
             tm = wm.our_player(u)
             if tm.unum() is not 0:
-                dist = tm.pos().dist(wm.ball().pos())
-                if dist < min_dist_ball:
-                    min_dist_ball = dist
+                tmcycle = 1000
+                for i in range(40):
+                    bpos = wm.ball().inertia_point(i)
+                    tm_pos = tm.inertia_point(i)
+                    dist = tm_pos.dist(bpos)
+                    tmcycle = predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
+                    tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area())
+                    if tmcycle <= i:
+                        break
+                    else:
+                        tmcycle = 1000
+
+                if tmcycle < min_cycle:
+                    min_cycle = tmcycle
                     nearest_tm = u
         if nearest_tm == wm.self().unum():
-            target = wm.ball().pos()
+            target = wm.ball().inertia_point(min_cycle)
             agent.debug_client().set_target(target)
             agent.debug_client().add_message('basic_intercept')
             GoToPoint(target, 0.1, 100).execute(agent)
