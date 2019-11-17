@@ -7,6 +7,9 @@ from lib.action.smart_kick import SmartKick
 from typing import List
 from base.tools import *
 
+DEBUG_DRIBBLE = True
+
+
 class KickActionType(Enum):
     No = 0
     Pass = 'Pass'
@@ -22,6 +25,7 @@ class KickAction:
         self.start_ball_speed = 0
         self.type = KickActionType.No
         self.eval = 0
+        self.index = 0
 
     def __gt__(self, other):
         return self.eval > other.eval
@@ -36,6 +40,7 @@ class KickAction:
 class BhvKickGen:
     def __init__(self):
         self.candidates = []
+        self.index = 0
 
     def can_opponent_cut_ball(self, wm: WorldModel, ball_pos, cycle):
         for unum in range(1, 12):
@@ -249,8 +254,22 @@ class BhvPassGen(BhvKickGen):
 
 class BhvDribbleGen(BhvKickGen):
     def generator(self, wm: WorldModel):
+        self.debug_dribble = []
         self.generate_simple_dribble(wm)
-        print(self.candidates)
+
+        if DEBUG_DRIBBLE:
+            for dribble in self.debug_dribble:
+                if dribble[2]:
+                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]),
+                                     color=Color(string='black'))
+                    dlog.add_circle(Level.DRIBBLE, cicle=Circle2D(dribble[1], 0.2),
+                                    color=Color(string='green'))
+                else:
+                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]),
+                                     color=Color(string='black'))
+                    dlog.add_circle(Level.DRIBBLE, cicle=Circle2D(dribble[1], 0.2),
+                                    color=Color(string='red'))
+
         return self.candidates
 
     def generate_simple_dribble(self, wm: WorldModel):
@@ -266,9 +285,13 @@ class BhvDribbleGen(BhvKickGen):
             dash_angle = wm.self().body() + (angle_step * a)
 
             if wm.self().pos().x() < 16.0 and dash_angle.abs() > 100.0:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, '#dash angle:{} cancel is not safe1'.format(dash_angle))
                 continue
 
             if wm.self().pos().x() < -36.0 and wm.self().pos().absY() < 20.0 and dash_angle.abs() > 45.0:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, '#dash angle:{} cancel is not safe2'.format(dash_angle))
                 continue
 
             n_turn = 0
@@ -290,7 +313,8 @@ class BhvDribbleGen(BhvKickGen):
                 dash_angle -= dir_diff
             else:
                 dash_angle += dir_diff
-
+            if DEBUG_DRIBBLE:
+                dlog.add_text(Level.DRIBBLE, '#dash angle:{} turn:{}'.format(dash_angle, n_turn))
             self.simulate_kick_turns_dashes(wm, dash_angle, n_turn)
 
     def simulate_kick_turns_dashes(self, wm, dash_angle, n_turn):
@@ -300,7 +324,8 @@ class BhvDribbleGen(BhvKickGen):
         self_cache = []
 
         self.create_self_cache(wm, dash_angle, n_turn, max_dash, self_cache)
-
+        if DEBUG_DRIBBLE:
+            dlog.add_text(Level.DRIBBLE, '##self_cache:{}'.format(self_cache))
         sp = ServerParam.i()
         ptype = wm.self().player_type()
 
@@ -311,9 +336,14 @@ class BhvDribbleGen(BhvKickGen):
         max_y = sp.pitch_half_width() - 1.0
 
         for n_dash in range(max_dash, min_dash - 1, -1):
+            self.index += 1
             ball_trap_pos = self_cache[n_turn + n_dash] + trap_rel
 
             if ball_trap_pos.absX() > max_x or ball_trap_pos.absY() > max_y:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  '#index:{} target:{} our of field'.format(self.index, ball_trap_pos))
+                    self.debug_dribble.append((self.index, ball_trap_pos, False))
                 continue
 
             term = (1.0 - pow(sp.ball_decay(), 1 + n_turn + n_dash ) ) / (1.0 - sp.ball_decay())
@@ -323,9 +353,19 @@ class BhvDribbleGen(BhvKickGen):
 
             if kick_power > sp.max_power() or kick_accel.r2() > pow(sp.ball_accel_max(), 2) or first_vel.r2() > pow(
                     sp.ball_speed_max(), 2):
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  '#index:{} target:{} need more power, power:{}, accel:{}, vel:{}'.format(
+                                      self.index, ball_trap_pos, kick_power, kick_accel, first_vel))
+                    self.debug_dribble.append((self.index, ball_trap_pos, False))
                 continue
 
             if (wm.ball().pos() + first_vel).dist2(self_cache[0]) < pow(ptype.player_size() + sp.ball_size() + 0.1, 2):
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  '#index:{} target:{} in body, power:{}, accel:{}, vel:{}'.format(
+                                      self.index, ball_trap_pos, kick_power, kick_accel, first_vel))
+                self.debug_dribble.append((self.index, ball_trap_pos, False))
                 continue
 
             if self.check_opponent(wm, ball_trap_pos, 1 + n_turn + n_dash):
@@ -335,7 +375,19 @@ class BhvDribbleGen(BhvKickGen):
                 dribble_candidate.target_ball_pos = ball_trap_pos
                 dribble_candidate.target_unum = wm.self().unum()
                 dribble_candidate.start_ball_speed = first_vel.r()
+                dribble_candidate.index = self.index
                 self.candidates.append(dribble_candidate)
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  '#index:{} target:{}, power:{}, accel:{}, vel:{} OK'.format(
+                                      self.index, ball_trap_pos, kick_power, kick_accel, first_vel))
+                    self.debug_dribble.append((self.index, ball_trap_pos, True))
+            else:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  '#index:{} target:{}, power:{}, accel:{}, vel:{} Opponent catch it'.format(
+                                      self.index, ball_trap_pos, kick_power, kick_accel, first_vel))
+                    self.debug_dribble.append((self.index, ball_trap_pos, False))
 
     def create_self_cache(self, wm: WorldModel, dash_angle, n_turn, n_dash, self_cache):
         sp = ServerParam.i()
@@ -351,12 +403,12 @@ class BhvDribbleGen(BhvKickGen):
         my_pos += my_vel
         my_vel *= ptype.player_decay()
 
-        self_cache.append(my_pos)
+        self_cache.append(Vector2D(vector2d=my_pos))
 
         for i in range(n_turn):
             my_pos += my_vel
             my_vel *= ptype.player_decay()
-            self_cache.append(my_pos)
+            self_cache.append(Vector2D(vector2d=my_pos))
             stamina_model.simulate_waits(ptype, 1 + n_turn)
 
         unit_vec = Vector2D.polar2vector(1.0, dash_angle)
@@ -371,7 +423,7 @@ class BhvDribbleGen(BhvKickGen):
                 my_vel *= ptype.player_decay()
 
                 stamina_model.simulate_dash(ptype, dash_power)
-                self_cache.append(my_pos)
+                self_cache.append(Vector2D(vector2d=my_pos))
 
     def check_opponent(self, wm: WorldModel, ball_trap_pos: Vector2D, dribble_step: int):
         sp = ServerParam.i()
@@ -380,10 +432,14 @@ class BhvDribbleGen(BhvKickGen):
         for o in range(12):
             opp: PlayerObject = wm.their_player(o)
             if opp.unum() is 0:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, "###OPP {} is ghost".format(o))
                 continue
 
             if opp.dist_from_self() > 20.0:
-                break
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, "###OPP {} is far".format(o))
+                continue
 
             ptype = opp.player_type()
 
@@ -398,11 +454,15 @@ class BhvDribbleGen(BhvKickGen):
             ball_to_opp_rel = (opp.pos() - wm.ball().pos()).rotated_vector(-ball_move_angle)
 
             if ball_to_opp_rel.x() < -4.0:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, "###OPP {} is behind".format(o))
                 continue
 
             target_dist = opp_pos.dist(ball_trap_pos)
 
             if target_dist - control_area < 0.001:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE, "###OPP {} Catch, ball will be in his body".format(o))
                 return False
 
             dash_dist = target_dist
@@ -436,7 +496,16 @@ class BhvDribbleGen(BhvKickGen):
                 bonus_step += bound( 0, opp.pos_count(), 4 )
 
             if n_step - bonus_step <= dribble_step:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  "###OPP {} catch n_step:{}, dr_step:{}, bonas:{}".format(o, n_step, dribble_step,
+                                                                                       bonus_step))
                 return False
+            else:
+                if DEBUG_DRIBBLE:
+                    dlog.add_text(Level.DRIBBLE,
+                                  "###OPP {} can't catch n_step:{}, dr_step:{}, bonas:{}".format(o, n_step, dribble_step,
+                                                                                           bonus_step))
         return True
 
 
