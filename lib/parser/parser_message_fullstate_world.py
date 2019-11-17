@@ -63,7 +63,6 @@ class PlayerMessageParser:
             use_point_to = 0
             if msg[3] == 'g':
                 k = 1
-            if msg[12].find('stamina') > 0:
             if msg[12 + k].find('stamina') > 0:
                 use_point_to = 2
             player_dic = {
