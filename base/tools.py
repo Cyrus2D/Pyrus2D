@@ -44,7 +44,7 @@ def predict_kick_count(wm: WorldModel, kicker, first_ball_speed, ball_move_angle
 
 
 def estimate_min_reach_cycle(player_pos: Vector2D, player_speed_max, target_first_point: Vector2D, target_move_angle: AngleDeg):
-    target_to_player: Vector2D = (player_pos - target_first_point).rotatedVector(-target_move_angle)
+    target_to_player: Vector2D = (player_pos - target_first_point).rotated_vector(-target_move_angle)
     if target_to_player.x() < -1.0:
         return -1
     else:

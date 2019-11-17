@@ -212,7 +212,7 @@ class BhvPassGen(BhvKickGen):
             ball_pos = inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
             control_area = ptype.kickable_area()
 
-            inertia_pos = ptype.inertiaPoint(opponent.pos(), opponent.vel(), cycle)
+            inertia_pos = ptype.inertia_point(opponent.pos(), opponent.vel(), cycle)
             target_dist = inertia_pos.dist(ball_pos)
 
             dash_dist = target_dist
