@@ -101,6 +101,14 @@ class dlog:
             dlog.add_point(level, pos.x(), pos.y(), color=color)
 
     @staticmethod
+    def add_message(level: Level.LEVEL_ANY,
+                    x,
+                    y,
+                    msg):
+        dlog._commands += f"{dlog._time} {level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
+
+    # {color}\n
+    @staticmethod
     def flush():
         if dlog._time is None or dlog._time.cycle() == 0:
             return
