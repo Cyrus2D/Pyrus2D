@@ -1,6 +1,9 @@
 from lib.math.geom_2d import *
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.player_type import PlayerType
+from lib.player.templates import *
+from lib.rcsc.game_mode import GameModeType
+from lib.action.kick_table import calc_max_velocity
 
 
 def predict_player_turn_cycle(ptype: PlayerType, player_body: AngleDeg, player_speed, target_dist,
@@ -23,3 +26,26 @@ def predict_player_turn_cycle(ptype: PlayerType, player_body: AngleDeg, player_s
         n_turn += 1
 
     return n_turn
+
+
+def predict_kick_count(wm: WorldModel, kicker, first_ball_speed, ball_move_angle: AngleDeg):
+    if wm.game_mode().type() != GameModeType.PlayOn and not wm.game_mode().is_penalty_kick_mode():
+        return 1
+
+    if kicker == wm.self().unum() and wm.self().is_kickable():
+        max_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel())
+        if max_vel.r2() >= pow( first_ball_speed, 2):
+            return 1
+    if first_ball_speed > 2.5:
+        return 3
+    elif first_ball_speed > 1.5:
+        return 2
+    return 1
+
+
+def estimate_min_reach_cycle(player_pos: Vector2D, player_speed_max, target_first_point: Vector2D, target_move_angle: AngleDeg):
+    target_to_player: Vector2D = (player_pos - target_first_point).rotatedVector(-target_move_angle)
+    if target_to_player.x() < -1.0:
+        return -1
+    else:
+        return max( 1, int(target_to_player.absY() / player_speed_max))
