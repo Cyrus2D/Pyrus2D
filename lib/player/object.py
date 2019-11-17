@@ -28,6 +28,9 @@ class Object:
     def pos_count(self):
         return self._pos_count
 
+    def rpos_count(self):
+        return self._pos_count
+
     def seen_pos_count(self):
         return self._seen_pos_count
 

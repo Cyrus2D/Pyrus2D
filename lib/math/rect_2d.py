@@ -723,6 +723,10 @@ class Rect2D(Region2D):
     def __repr__(self):
         return "[len:{},wid:{}]".format(self._top_left, self._size)
 
+    def to_str(self, ostr):
+        ostr += ' (rect {} {} {} {})'.format(round(self.left(), 3), round(self.top(), 3),
+                                             round(self.right(), 3), round(self.bottom(), 3))
+
 
 def test():
     origin = Vector2D(0, 0)

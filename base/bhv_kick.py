@@ -24,7 +24,7 @@ class KickAction:
         self.eval = 0
 
     def __gt__(self, other):
-        return self.eval < other.eval
+        return self.eval > other.eval
 
     def __repr__(self):
         return 'KAction {} to {} in {} eval:{}'.format(self.start_unum, self.target_unum, self.target_ball_pos, self.eval)
@@ -122,6 +122,8 @@ class BhvKick:
 
         target = best_action.target_ball_pos
         print("target len:", len(action_candidates), "Target :", target , " Speed : " , best_action.start_ball_speed)
+        agent.debug_client().set_target(target)
+        agent.debug_client().add_message('bhv_kick')
         SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)  # best_action.start_ball_speed, 0.7, 3).execute(agent)
 
         # agent.do_kick(100, angle)

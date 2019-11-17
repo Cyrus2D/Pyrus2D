@@ -39,7 +39,10 @@ class WorldModel:
         return self._ball
 
     def self(self) -> PlayerObject:
-        return self._our_players[self._self_unum - 1]
+        if self.self_unum():
+            return self._our_players[self._self_unum - 1]
+        else:
+            return None
 
     def our_side(self):
         return SideID.RIGHT if self._our_side == 'r' else SideID.LEFT if self._our_side == 'l' else SideID.NEUTRAL

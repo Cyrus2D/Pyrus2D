@@ -251,6 +251,9 @@ class Circle2D:
     def __repr__(self):
         return "({} , {})".format(self._center, self._radius)
 
+    def to_str(self, ostr):
+        ostr += ' (circle {} {} {})'.format(round(self.center().x(), 3), round(self.center().y(), 3), round(self.radius(), 3))
+
 
 def test():
     c = Circle2D()

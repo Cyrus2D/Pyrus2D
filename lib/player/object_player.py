@@ -190,6 +190,9 @@ class PlayerObject(Object):
     def tackle_count(self):
         return 0  # TODO WHAT the fuck again :/
 
+    def face_count(self):
+        return 0
+
     def is_frozen(self):
         return False  # TODO yep aref WHAT the fuck rasman
 
@@ -202,3 +205,4 @@ class PlayerObject(Object):
     def get_safety_dash_power(self, dash_power):
         return self.stamina_model().get_safety_dash_power(self.player_type(),
                                                           dash_power)
+

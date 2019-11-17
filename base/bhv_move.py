@@ -11,7 +11,6 @@ class BhvMove:
 
     def execute(self, agent: PlayerAgent):
         wm: WorldModel = agent.world()
-
         # intercept
         self_min = wm.intercept_table().self_reach_cycle()
         tm_min = wm.intercept_table().teammate_reach_cycle()
@@ -44,6 +43,7 @@ class BhvMove:
                     nearest_tm = u
         if nearest_tm == wm.self().unum():
             target = wm.ball().pos()
-
+        agent.debug_client().set_target(target)
+        agent.debug_client().add_message('bhv_move')
         GoToPoint(target, 1, 100).execute(agent)
         return True

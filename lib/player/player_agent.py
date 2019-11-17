@@ -15,6 +15,7 @@ from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDash
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.server_param import ServerParam
+from lib.player.debug_client import DebugClient
 
 
 class PlayerAgent(SoccerAgent):
@@ -53,6 +54,7 @@ class PlayerAgent(SoccerAgent):
         self._full_world = WorldModel()
         self._is_synch_mode = True
         self._last_body_command = []
+        self._debug_client = DebugClient()
 
     def handle_start(self):
         if self._client is None:
@@ -155,6 +157,9 @@ class PlayerAgent(SoccerAgent):
     def full_world(self) -> WorldModel:
         return self._full_world
 
+    def debug_client(self) ->DebugClient:
+        return self._debug_client
+
     def action(self):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
@@ -166,6 +171,7 @@ class PlayerAgent(SoccerAgent):
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         self._client.send_message(PlayerSendCommands.all_to_str(commands))
+        self._debug_client.write_all(self.world(), None)  # TODO add action effector
         dlog.flush()
         self._last_body_command = []
 
@@ -174,3 +180,5 @@ class PlayerAgent(SoccerAgent):
         unum = int(message[2])
         side = message[1]
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
+
+
