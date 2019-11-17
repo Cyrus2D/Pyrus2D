@@ -162,7 +162,6 @@ class DebugClient:
                      + ' ' + str(self._target_point.y()) + ')')
 
         if self._message != '':
-            print(self._message)
             ostr += (' (message \"' + self._message + 'xvt' + '\")')
 
         for obj in self._lines: obj.to_str(ostr)

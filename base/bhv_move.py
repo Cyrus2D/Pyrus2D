@@ -43,6 +43,10 @@ class BhvMove:
                     nearest_tm = u
         if nearest_tm == wm.self().unum():
             target = wm.ball().pos()
+            agent.debug_client().set_target(target)
+            agent.debug_client().add_message('basic_intercept')
+            GoToPoint(target, 0.1, 100).execute(agent)
+            return True
         agent.debug_client().set_target(target)
         agent.debug_client().add_message('bhv_move')
         GoToPoint(target, 1, 100).execute(agent)
