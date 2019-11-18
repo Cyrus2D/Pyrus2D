@@ -114,7 +114,7 @@ class TrainerAgent(SoccerAgent):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
-        get_decision(self)  # TODO DECISION?!?!?!?!
+        self.action_impl()
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
@@ -127,7 +127,7 @@ class TrainerAgent(SoccerAgent):
     def action_impl(self):
         pass
 
-    def do_team_name(self):
+    def do_teamname(self):
         command = TrainerTeamNameCommand()
         return self.send_command(command)
 

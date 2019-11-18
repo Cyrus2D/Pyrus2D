@@ -10,3 +10,6 @@ class SamplePlayer(TrainerAgent):
             self.do_teamname()
             return
         self.sample_action()
+
+    def sample_action(self):
+        pass  # sample training code ...
