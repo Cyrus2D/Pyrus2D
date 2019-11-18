@@ -1,5 +1,4 @@
 import logging
-import socket
 import time
 
 from lib.action.kick_table import KickTable
@@ -8,7 +7,7 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
-from lib.network.udp_socket import UDPSocket, IPAddress
+from lib.network.udp_socket import IPAddress
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand, \
     PlayerKickCommand, PlayerTackleCommand
@@ -50,7 +49,6 @@ class PlayerAgent(SoccerAgent):
         self._impl: PlayerAgent.Impl = PlayerAgent.Impl(self)
         self._world = WorldModel()
         self._full_world = WorldModel()
-        self._is_synch_mode = True
         self._last_body_command = []
 
     def handle_start(self):

@@ -43,6 +43,7 @@ class TrainerAgent(SoccerAgent):
         self._impl: TrainerAgent.Impl = TrainerAgent.Impl(self)
         self._world = WorldModel()
         self._full_world = WorldModel()
+        self._is_synch_mode = True
         self._last_body_command = []
 
     def handle_message(self):
@@ -111,7 +112,7 @@ class TrainerAgent(SoccerAgent):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
-        get_decision(self) # TODO DECISION?!?!?!?!
+        get_decision(self)  # TODO DECISION?!?!?!?!
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
@@ -120,4 +121,11 @@ class TrainerAgent(SoccerAgent):
         self._client.send_message(PlayerSendCommands.all_to_str(commands))
         dlog.flush()
         self._last_body_command = []
+
+    def action_impl(self):
+        pass
+
+    def do_team_name(self):
+        command = TrainerTeamNameCommand()
+        return send_command(com)
 

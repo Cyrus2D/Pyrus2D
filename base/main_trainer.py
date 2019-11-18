@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 from lib.player.basic_client import BasicClient
+from lib.player.soccer_agent import SoccerAgent
+
 import sys
 
 
 def main(team_name="Pyrus", goalie=False):
-    agent = TrainerAgent()
+    agent = SoccerAgent()
     client = BasicClient()
     agent.init(client)
 
