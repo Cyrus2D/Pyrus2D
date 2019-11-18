@@ -1,9 +1,10 @@
-from lib.action.go_to_point import *
-from base.strategy_formation import *
+from lib.action.go_to_point import GoToPoint
+from base.strategy_formation import StrategyFormation
 from lib.action.intercept import Intercept
-from lib.debug.logger import *
+from lib.debug.logger import dlog, Level
+from base.tools import Tools
+from base.stamina_manager import get_normal_dash_power
 from lib.player.templates import *
-from base.tools import *
 
 
 class BhvMove:
@@ -43,7 +44,7 @@ class BhvMove:
                     bpos = wm.ball().inertia_point(i)
                     tm_pos = tm.inertia_point(i)
                     dist = tm_pos.dist(bpos)
-                    tmcycle = predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
+                    tmcycle = Tools.predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
                     tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area() + 0.3)
                     if tmcycle <= i:
                         break
@@ -59,7 +60,15 @@ class BhvMove:
             agent.debug_client().add_message('basic_intercept')
             GoToPoint(target, 0.1, 100).execute(agent)
             return True
+
         agent.debug_client().set_target(target)
         agent.debug_client().add_message('bhv_move')
-        GoToPoint(target, 1, 100).execute(agent)
+
+        dash_power = get_normal_dash_power(wm)
+        dist_thr = wm.ball().dist_from_self() * 0.1
+
+        if dist_thr < 1.0:
+            dist_thr = 1.0
+
+        GoToPoint(target, dist_thr, dash_power).execute(agent)
         return True

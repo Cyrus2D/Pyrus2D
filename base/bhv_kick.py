@@ -1,11 +1,11 @@
-from lib.action.go_to_point import *
-from lib.debug.logger import *
+from lib.debug.logger import dlog, Level, Color
 from lib.math.geom_2d import *
-from enum import Enum
+import lib.math.soccer_math as smath
+from lib.player.templates import *
 from lib.rcsc.server_param import ServerParam as SP
 from lib.action.smart_kick import SmartKick
 from typing import List
-from base.tools import *
+from base.tools import Tools
 
 DEBUG_DRIBBLE = True
 
@@ -66,7 +66,7 @@ class BhvPassGen(BhvKickGen):
         return self.candidates
 
     def update_receivers(self, wm: WorldModel):
-        sp = ServerParam.i()
+        sp = SP.i()
         for unum in range(12):
             if unum == wm.self().unum():
                 continue
@@ -83,10 +83,10 @@ class BhvPassGen(BhvKickGen):
             self.receivers.append(unum)
 
     def generate_direct_pass(self, wm: WorldModel, t):
-        sp = ServerParam.i()
+        sp = SP.i()
         MIN_RECEIVE_STEP = 3
 
-        MAX_DIRECT_PASS_DIST = 0.8 * inertia_final_distance(sp.ball_speed_max(), sp.ball_decay())
+        MAX_DIRECT_PASS_DIST = 0.8 * smath.inertia_final_distance(sp.ball_speed_max(), sp.ball_decay())
         MAX_RECEIVE_BALL_SPEED = sp.ball_speed_max() * pow(sp.ball_decay(), MIN_RECEIVE_STEP)
         receiver = wm.our_player(t)
         MIN_DIRECT_PASS_DIST = receiver.player_type().kickable_area() * 2.2
@@ -145,11 +145,11 @@ class BhvPassGen(BhvKickGen):
                     min_step, max_step, min_first_ball_speed, max_first_ball_speed,
                     min_receive_ball_speed, max_receive_ball_speed,
                     ball_move_dist, ball_move_angle: AngleDeg, description):
-        sp = ServerParam.i()
+        sp = SP.i()
 
         for step in range(min_step, max_step + 1):
             self.index += 1
-            first_ball_speed = calc_first_term_geom_series(ball_move_dist, sp.ball_decay(), step)
+            first_ball_speed = smath.calc_first_term_geom_series(ball_move_dist, sp.ball_decay(), step)
 
             if first_ball_speed < min_first_ball_speed:
                 dlog.add_text(Level.PASS,
@@ -193,7 +193,7 @@ class BhvPassGen(BhvKickGen):
                                   receive_ball_speed))
                 continue
 
-            kick_count = predict_kick_count(wm, wm.self().unum(), first_ball_speed, ball_move_angle )
+            kick_count = Tools.predict_kick_count(wm, wm.self().unum(), first_ball_speed, ball_move_angle )
 
             o_step = self.predict_opponents_reach_step(wm, wm.ball().pos(), first_ball_speed, ball_move_angle, receive_point, step + (kick_count - 1) + 5, description)
 
@@ -238,17 +238,17 @@ class BhvPassGen(BhvKickGen):
         return min_step
 
     def predict_opponent_reach_step(self, wm: WorldModel, unum, first_ball_pos: Vector2D, first_ball_vel: Vector2D, ball_move_angle: AngleDeg, receive_point: Vector2D, max_cycle, description):
-        sp = ServerParam.i()
+        sp = SP.i()
         CONTROL_AREA_BUF = 0.15
         opponent = wm.their_player(unum)
         ptype = opponent.player_type()
-        min_cycle = estimate_min_reach_cycle(opponent.pos(), ptype.real_speed_max(), first_ball_pos, ball_move_angle)
+        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(), ptype.real_speed_max(), first_ball_pos, ball_move_angle)
 
         if min_cycle < 0:
             return 1000
 
         for cycle in range(max( 1, min_cycle), max_cycle + 1):
-            ball_pos = inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = Tools.inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
             control_area = ptype.kickable_area()
 
             inertia_pos = ptype.inertia_point(opponent.pos(), opponent.vel(), cycle)
@@ -274,7 +274,7 @@ class BhvPassGen(BhvKickGen):
 
             n_turn = 0
             if opponent.body_count() > 1:
-                n_turn = predict_player_turn_cycle(ptype, opponent.body(), opponent.vel().r(), target_dist, (ball_pos - inertia_pos).th(), control_area, True)
+                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body(), opponent.vel().r(), target_dist, (ball_pos - inertia_pos).th(), control_area, True)
 
             n_step = n_turn + n_dash if n_turn == 0 else n_turn + n_dash + 1
 
@@ -308,7 +308,7 @@ class BhvDribbleGen(BhvKickGen):
         angle_div = 16
         angle_step = 360.0 / angle_div
 
-        sp = ServerParam.i()
+        sp = SP.i()
         ptype = wm.self().player_type()
 
         my_first_speed = wm.self().vel().r()
@@ -358,7 +358,7 @@ class BhvDribbleGen(BhvKickGen):
         self.create_self_cache(wm, dash_angle, n_turn, max_dash, self_cache)
         if DEBUG_DRIBBLE:
             dlog.add_text(Level.DRIBBLE, '##self_cache:{}'.format(self_cache))
-        sp = ServerParam.i()
+        sp = SP.i()
         ptype = wm.self().player_type()
 
         # trap_rel = Vector2D.polar2vector(ptype.playerSize() + ptype.kickableMargin() * 0.2 + SP.ball_size(), dash_angle)
@@ -422,7 +422,7 @@ class BhvDribbleGen(BhvKickGen):
                     self.debug_dribble.append((self.index, ball_trap_pos, False))
 
     def create_self_cache(self, wm: WorldModel, dash_angle, n_turn, n_dash, self_cache):
-        sp = ServerParam.i()
+        sp = SP.i()
         ptype = wm.self().player_type()
 
         self_cache.clear()
@@ -458,7 +458,7 @@ class BhvDribbleGen(BhvKickGen):
                 self_cache.append(Vector2D(vector2d=my_pos))
 
     def check_opponent(self, wm: WorldModel, ball_trap_pos: Vector2D, dribble_step: int):
-        sp = ServerParam.i()
+        sp = SP.i()
         ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos()).th()
 
         for o in range(12):
@@ -502,13 +502,13 @@ class BhvDribbleGen(BhvKickGen):
             dash_dist -= 0.2
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            n_turn = 1 if opp.body_count() > 1 else predict_player_turn_cycle(ptype,
-                                                                              opp.body(),
-                                                                              opp.vel().r(),
-                                                                              target_dist,
-                                                                              (ball_trap_pos - opp_pos).th(),
-                                                                              control_area,
-                                                                              True)
+            n_turn = 1 if opp.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
+                                                                                      opp.body(),
+                                                                                      opp.vel().r(),
+                                                                                      target_dist,
+                                                                                      (ball_trap_pos - opp_pos).th(),
+                                                                                      control_area,
+                                                                                      True)
 
             n_step = n_turn + n_dash if n_turn == 0 else n_turn + n_dash + 1
 
@@ -523,9 +523,9 @@ class BhvDribbleGen(BhvKickGen):
                 bonus_step = -5
 
             if ball_to_opp_rel.x() > 0.5:
-                bonus_step += bound( 0, opp.pos_count(), 8 )
+                bonus_step += smath.bound(0, opp.pos_count(), 8)
             else:
-                bonus_step += bound( 0, opp.pos_count(), 4 )
+                bonus_step += smath.bound(0, opp.pos_count(), 4)
 
             if n_step - bonus_step <= dribble_step:
                 if DEBUG_DRIBBLE:
