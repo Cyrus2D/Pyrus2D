@@ -162,7 +162,7 @@ class DebugClient:
                      + ' ' + str(self._target_point.y()) + ')')
 
         if self._message != '':
-            ostr += (' (message \"' + self._message + 'xvt' + '\")')
+            ostr += (' (message \"' + self._message + '\")')
 
         for obj in self._lines: obj.to_str(ostr)
         for obj in self._triangles: obj.to_str(ostr)
@@ -192,7 +192,6 @@ class DebugClient:
 
     def add_message( self, msg):
         self._message += msg
-        # self._message += '/'
 
     def set_target(self, unum_or_position):
         if type(unum_or_position) == int:

@@ -44,7 +44,7 @@ class BhvMove:
                     tm_pos = tm.inertia_point(i)
                     dist = tm_pos.dist(bpos)
                     tmcycle = predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
-                    tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area())
+                    tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area() + 0.3)
                     if tmcycle <= i:
                         break
                     else:

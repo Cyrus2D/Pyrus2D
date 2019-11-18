@@ -58,7 +58,7 @@ class BhvPassGen(BhvKickGen):
     def generator(self, wm: WorldModel):
         self.receivers = []
         self.update_receivers(wm)
-        print('##', wm.time().cycle())
+        dlog.add_text(Level.PASS, 'receivers:{}'.format(self.receivers))
         for r in self.receivers:
             self.generate_direct_pass(wm, r)
             self.generate_lead_pass(wm, r)
@@ -91,9 +91,11 @@ class BhvPassGen(BhvKickGen):
         receiver = wm.our_player(t)
         MIN_DIRECT_PASS_DIST = receiver.player_type().kickable_area() * 2.2
         if receiver.pos().x() > sp.pitch_half_length() - 1.5 or receiver.pos().x() < -sp.pitch_half_length() + 5.0 or receiver.pos().absY() > sp.pitch_half_width() - 1.5:
+            dlog.add_text(Level.PASS, '#DPass to {} {}, out of field'.format(t, receiver.pos()))
             return
         # TODO sp.ourTeamGoalPos()
-        if receiver.pos().x() < wm.ball().pos().x() + 1.0 and receiver.pos().dist2(Vector2D(-52.5,0)) < pow(18.0, 2):
+        if receiver.pos().x() < wm.ball().pos().x() + 1.0 and receiver.pos().dist2(Vector2D(-52.5, 0)) < pow(18.0, 2):
+            dlog.add_text(Level.PASS, '#DPass to {} {}, danger near goal'.format(t, receiver.pos()))
             return
 
         ptype = receiver.player_type()
@@ -108,11 +110,13 @@ class BhvPassGen(BhvKickGen):
         ball_move_dist = wm.ball().pos().dist(receive_point)
 
         if ball_move_dist < MIN_DIRECT_PASS_DIST or MAX_DIRECT_PASS_DIST < ball_move_dist:
+            dlog.add_text(Level.PASS, '#DPass to {} {}, far or close'.format(t, receiver.pos()))
             return
 
         if wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right] \
             and receive_point.x < sp.our_penalty_area_line_x() + 1.0 \
                 and receive_point.absY() < sp.penalty_area_half_width() + 1.0:
+            dlog.add_text(Level.PASS, '#DPass to {} {}, in penalty area in goal kick mode'.format(t, receiver.pos()))
             return
 
         max_receive_ball_speed = min(MAX_RECEIVE_BALL_SPEED, ptype.kickable_area() + (sp.max_dash_power() * ptype.dash_power_rate() * ptype.effort_max()) * 1.8)
@@ -124,6 +128,7 @@ class BhvPassGen(BhvKickGen):
         # TODO Penalty step
         start_step = max(max(MIN_RECEIVE_STEP, min_ball_step), 0)
         max_step = start_step + 2
+        dlog.add_text(Level.PASS, '#DPass to {} {}'.format(t, receiver.pos()))
         self.create_pass(wm, receiver, receive_point,
                           start_step, max_step, min_ball_speed,
                           max_ball_speed, min_receive_ball_speed,
@@ -143,20 +148,49 @@ class BhvPassGen(BhvKickGen):
         sp = ServerParam.i()
 
         for step in range(min_step, max_step + 1):
+            self.index += 1
             first_ball_speed = calc_first_term_geom_series(ball_move_dist, sp.ball_decay(), step)
 
             if first_ball_speed < min_first_ball_speed:
+                dlog.add_text(Level.PASS,
+                              '##Pass {},to {} {}, step:{}, ball_speed:{}, first ball speed is low'.format(self.index,
+                                                                                                           receiver.unum(),
+                                                                                                           receiver.pos(),
+                                                                                                           step,
+                                                                                                           first_ball_speed))
                 break
 
             if max_first_ball_speed < first_ball_speed:
+                dlog.add_text(Level.PASS,
+                              '##Pass {},to {} {}, step:{}, ball_speed:{}, first ball speed is high'.format(self.index,
+                                                                                                           receiver.unum(),
+                                                                                                           receiver.pos(),
+                                                                                                           step,
+                                                                                                           first_ball_speed))
                 continue
 
             receive_ball_speed = first_ball_speed * pow(sp.ball_decay(), step)
 
             if receive_ball_speed < min_receive_ball_speed:
+                dlog.add_text(Level.PASS,
+                              '##Pass {},to {} {}, step:{}, ball_speed:{}, rball_speed:{}, receive ball speed is low'.format(
+                                  self.index,
+                                  receiver.unum(),
+                                  receiver.pos(),
+                                  step,
+                                  first_ball_speed,
+                                  receive_ball_speed))
                 break
 
             if max_receive_ball_speed < receive_ball_speed:
+                dlog.add_text(Level.PASS,
+                              '##Pass {},to {} {}, step:{}, ball_speed:{}, rball_speed:{}, receive ball speed is high'.format(
+                                  self.index,
+                                  receiver.unum(),
+                                  receiver.pos(),
+                                  step,
+                                  first_ball_speed,
+                                  receive_ball_speed))
                 continue
 
             kick_count = predict_kick_count(wm, wm.self().unum(), first_ball_speed, ball_move_angle )
@@ -260,13 +294,11 @@ class BhvDribbleGen(BhvKickGen):
         if DEBUG_DRIBBLE:
             for dribble in self.debug_dribble:
                 if dribble[2]:
-                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]),
-                                     color=Color(string='black'))
+                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]))
                     dlog.add_circle(Level.DRIBBLE, cicle=Circle2D(dribble[1], 0.2),
                                     color=Color(string='green'))
                 else:
-                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]),
-                                     color=Color(string='black'))
+                    dlog.add_message(Level.DRIBBLE, dribble[1].x(), dribble[1].y(), '{}'.format(dribble[0]))
                     dlog.add_circle(Level.DRIBBLE, cicle=Circle2D(dribble[1], 0.2),
                                     color=Color(string='red'))
 
