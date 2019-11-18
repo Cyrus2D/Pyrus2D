@@ -1,3 +1,4 @@
+import logging
 import time
 
 from lib.action.kick_table import KickTable
@@ -7,6 +8,7 @@ from lib.player.world_model import WorldModel
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
+from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands
 from lib.rcsc.server_param import ServerParam
 
 
@@ -127,5 +129,7 @@ class TrainerAgent(SoccerAgent):
 
     def do_team_name(self):
         command = TrainerTeamNameCommand()
-        return send_command(com)
+        return self.send_command(command)
 
+    def send_command(self, commands):
+        self._client.send_message(TrainerSendCommands.all_to_str(commands))

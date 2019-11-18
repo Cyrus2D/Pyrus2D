@@ -33,3 +33,24 @@ class TrainerCommand:
 
     def str(self):
         pass
+
+
+class TrainerTeamNameCommand(TrainerCommand):
+    def __init__(self):
+        super().__init__()
+
+    def type(self):
+        return TrainerCommand.Type.TEAM_NAMES
+
+    def str(self):
+        return "(team_name)"
+
+
+class TrainerSendCommands(TrainerCommand):
+    @staticmethod
+    def all_to_str(commands):
+        commands_msg = ""
+        for command in commands:
+            commands_msg += command.str()  # TODO FIX THIS
+        commands_msg = commands_msg
+        return commands_msg
