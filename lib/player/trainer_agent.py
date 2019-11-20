@@ -10,7 +10,8 @@ from lib.player.world_model import WorldModel
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
-from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands
+from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
+    TrainerMovePlayerCommand
 from lib.rcsc.server_param import ServerParam
 
 
@@ -144,6 +145,7 @@ class TrainerAgent(SoccerAgent):
                        teamname: str,
                        unum: int,
                        pos: Vector2D,
-                       angle: AngleDeg = None):
-        command = TrainerMovePlayerCommand(teamname, unum, pos, angle)
+                       angle: AngleDeg = None,
+                       vel: Vector2D = None):
+        command = TrainerMovePlayerCommand(teamname, unum, pos, angle, vel)
         return self.send_command(command)

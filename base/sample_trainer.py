@@ -5,7 +5,7 @@ from lib.math.vector_2d import Vector2D
 from lib.player.trainer_agent import TrainerAgent
 
 
-class SamplePlayer(TrainerAgent):
+class SampleTrainer(TrainerAgent):
     def __init__(self):
         super().__init__()
 
