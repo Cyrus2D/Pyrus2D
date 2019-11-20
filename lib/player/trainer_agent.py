@@ -26,7 +26,7 @@ class TrainerAgent(SoccerAgent):
             # TODO check reconnection
 
             # TODO make config class for these data
-            com = TrainerInitCommand("Pyrus", 15, False)
+            com = TrainerInitCommand(15)
             # TODO set team name from config
             self._agent._full_world._team_name = "Pyrus"
 
@@ -58,7 +58,7 @@ class TrainerAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6000)):
+        if not self._client.connect_to(IPAddress('localhost', 6001)):
             print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
@@ -74,6 +74,7 @@ class TrainerAgent(SoccerAgent):
             while True:
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
+                print("MESSSAGE:", message)
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
@@ -114,10 +115,7 @@ class TrainerAgent(SoccerAgent):
             self._impl._think_received = True
 
     def init_dlog(self, message):
-        message = message.split(" ")
-        unum = int(message[2])
-        side = message[1]
-        dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
+        dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name()}-coach.log", logging.DEBUG)
 
     def world(self) -> WorldModel:
         return self._full_world

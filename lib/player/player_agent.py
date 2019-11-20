@@ -50,6 +50,7 @@ class PlayerAgent(SoccerAgent):
         self._world = WorldModel()
         self._full_world = WorldModel()
         self._last_body_command = []
+        self._is_synch_mode = True
 
     def handle_start(self):
         if self._client is None:
