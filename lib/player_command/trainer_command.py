@@ -113,3 +113,15 @@ class TrainerMovePlayerCommand(TrainerCommand):
             print("Illegal uniform number")
             return False
         return True
+
+
+class TrainerInitCommand(TrainerCommand):
+    def __init__(self, version):
+        super().__init__()
+        self._version = version
+
+    def type(self):
+        return TrainerCommand.Type.INIT
+
+    def str(self):
+        return f"(init (version {self._version}))"

@@ -5,13 +5,13 @@ from lib.action.kick_table import KickTable
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.vector_2d import Vector2D
+from lib.network.udp_socket import IPAddress
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
-from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
-    TrainerMovePlayerCommand
+    TrainerMovePlayerCommand, TrainerInitCommand
 from lib.rcsc.server_param import ServerParam
 
 
@@ -26,7 +26,7 @@ class TrainerAgent(SoccerAgent):
             # TODO check reconnection
 
             # TODO make config class for these data
-            com = PlayerInitCommand("Pyrus", 15, False)
+            com = TrainerInitCommand("Pyrus", 15, False)
             # TODO set team name from config
             self._agent._full_world._team_name = "Pyrus"
 
@@ -35,8 +35,6 @@ class TrainerAgent(SoccerAgent):
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            com = PlayerByeCommand()
-            self._agent._client.send_message(com.str())
             self._agent._client.set_server_alive(False)
 
         @property
@@ -53,6 +51,20 @@ class TrainerAgent(SoccerAgent):
 
     def handle_message(self):
         self.run()
+
+    def handle_start(self):
+        if self._client is None:
+            return False
+
+        # TODO check for config.host not empty
+
+        if not self._client.connect_to(IPAddress('localhost', 6000)):
+            print("ERROR failed to connect to server")
+            self._client.set_server_alive(False)
+            return False
+
+        self._impl.send_init_command()
+        return True
 
     def run(self):
         last_time_rec = time.time()
