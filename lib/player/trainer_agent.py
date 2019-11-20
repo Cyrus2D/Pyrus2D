@@ -3,6 +3,8 @@ import time
 
 from lib.action.kick_table import KickTable
 from lib.debug.logger import dlog
+from lib.math.angle_deg import AngleDeg
+from lib.math.vector_2d import Vector2D
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
@@ -131,5 +133,17 @@ class TrainerAgent(SoccerAgent):
         command = TrainerTeamNameCommand()
         return self.send_command(command)
 
-    def send_command(self, commands):
+    def send_command(self, commands):  # TODO it should be boolean
         self._client.send_message(TrainerSendCommands.all_to_str(commands))
+
+    def do_move_ball(self, pos: Vector2D, vel: Vector2D = Vector2D(0, 0)):
+        command = TrainerMoveBallCommand(pos, vel)
+        return self.send_command(command)
+
+    def do_move_player(self,
+                       teamname: str,
+                       unum: int,
+                       pos: Vector2D,
+                       angle: AngleDeg = None):
+        command = TrainerMovePlayerCommand(teamname, unum, pos, angle)
+        return self.send_command(command)
