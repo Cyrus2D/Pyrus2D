@@ -60,7 +60,7 @@ class BhvPassGen(BhvKickGen):
         self.update_receivers(wm)
         dlog.add_text(Level.PASS, 'receivers:{}'.format(self.receivers))
         for r in self.receivers:
-            self.generate_direct_pass(wm, r)
+            # self.generate_direct_pass(wm, r)
             self.generate_lead_pass(wm, r)
             self.generate_through_pass(wm, r)
         return self.candidates
@@ -136,10 +136,108 @@ class BhvPassGen(BhvKickGen):
                           ball_move_angle, "D")
 
     def generate_lead_pass(self, wm: WorldModel, t):
-        pass
+        sp = SP.i()
+        OUR_GOAL_DIST_THR2 = pow(16.0, 2)
+        MIN_RECEIVE_STEP = 4
+        MAX_RECEIVE_STEP = 20
+        MIN_LEADING_PASS_DIST = 3.0
+        MAX_LEADING_PASS_DIST = 0.8 * smath.inertia_final_distance(sp.ball_speed_max(), sp.ball_decay() )
+        MAX_RECEIVE_BALL_SPEED = sp.ball_speed_max() * pow(sp.ball_decay(), MIN_RECEIVE_STEP )
+
+        ANGLE_DIVS = 12
+        ANGLE_STEP = 360.0 / ANGLE_DIVS
+        DIST_DIVS = 4
+        DIST_STEP = 1.1
+
+        receiver = wm.our_player(t)
+        ptype = receiver.player_type()
+        max_ball_speed = wm.self().kick_rate() * sp.max_power()
+        if wm.game_mode().type() == GameModeType.PlayOn:
+            max_ball_speed = sp.ball_speed_max()
+        min_ball_speed = sp.default_player_speed_max()
+
+        max_receive_ball_speed = min(MAX_RECEIVE_BALL_SPEED, ptype.kickable_area() + (sp.max_dash_power() * ptype.dash_power_rate() * ptype.effort_max() ) *1.5 )
+        min_receive_ball_speed = 0.001
+
+        our_goal = Vector2D(-52.5, 0)
+
+        angle_from_ball = (receiver.pos() - wm.ball().pos()).th()
+        for d in range(1, DIST_DIVS + 1):
+            player_move_dist = DIST_STEP * d
+            a_step = 2 if player_move_dist * 2.0 * math.pi / ANGLE_DIVS < 0.6 else 1
+            for a in range(ANGLE_DIVS + 1):
+                angle = angle_from_ball + ANGLE_STEP * a
+                receive_point = receiver.inertia_point(1) + Vector2D.from_polar(player_move_dist, angle)
+
+                move_dist_penalty_step = 0
+                ball_move_line = Line2D(wm.ball().pos(), receive_point)
+                player_line_dist = ball_move_line.dist(receiver.pos())
+                move_dist_penalty_step = int(player_line_dist * 0.3)
+                if receive_point.x() > sp.pitch_half_length() - 3.0 \
+                        or receive_point.x() < -sp.pitch_half_length() + 5.0 \
+                        or receive_point.absY() > sp.pitch_half_width() - 3.0:
+                    continue
+
+                if receive_point.x() < wm.ball().pos().x() \
+                        and receive_point.dist2(our_goal) < OUR_GOAL_DIST_THR2:
+                    continue
+
+                if wm.game_mode().type() in [GameModeType.GoalKick_Right, GameModeType.GoalKick_Left] \
+                        and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
+                        and receive_point.absY() < sp.penalty_area_half_width() + 1.0:
+                    return
+
+                ball_move_dist = wm.ball().pos().dist(receive_point)
+
+                if ball_move_dist < MIN_LEADING_PASS_DIST or MAX_LEADING_PASS_DIST < ball_move_dist:
+                    continue
+
+                nearest_receiver_unum = Tools.get_nearest_teammate_unum(wm, receive_point, self.receivers)
+                if nearest_receiver_unum != t:
+                    break
+
+                receiver_step = self.predict_receiver_reach_step(receiver, receive_point, True, 'L') + move_dist_penalty_step
+                ball_move_angle = (receive_point - wm.ball().pos()).th()
+
+                min_ball_step = sp.ball_move_step(sp.ball_speed_max(), ball_move_dist)
+
+                start_step = max(max(MIN_RECEIVE_STEP, min_ball_step), receiver_step )
+                # ifdef CREATE_SEVERAL_CANDIDATES_ON_SAME_POINT
+                # max_step = std::max(MAX_RECEIVE_STEP, start_step + 3);
+                # else
+                max_step = start_step + 3
+                self.create_pass(wm, receiver, receive_point,
+                                 start_step, max_step,
+                                 min_ball_speed, max_ball_speed,
+                                 min_receive_ball_speed, max_receive_ball_speed,
+                                 ball_move_dist, ball_move_angle,
+                                 'L')
 
     def generate_through_pass(self, wm: WorldModel, t):
         pass
+
+    def predict_receiver_reach_step(self, receiver, pos: Vector2D, use_penalty, pass_type):
+        ptype = receiver.player_type()
+
+        target_dist = receiver.inertia_point(1).dist(pos)
+        n_turn = 1 if receiver.body_count() > 0 else Tools.predict_player_turn_cycle(ptype, receiver.body(), receiver.vel().r(), target_dist, (pos - receiver.inertia_point(1)).th(), ptype.kickable_area(), False)
+        dash_dist = target_dist
+
+        # if use_penalty:
+        #     dash_dist += receiver.penalty_distance_;
+
+        if pass_type == 'L':
+            dash_dist *= 1.05
+
+            dash_angle = (pos - receiver.pos()).th()
+
+            if dash_angle.abs() > 90.0 or receiver.body_count() > 1 or (dash_angle - receiver.body()).abs() > 30.0:
+                n_turn += 1
+
+        n_dash = ptype.cycles_to_reach_distance(dash_dist)
+
+        n_step = n_turn + n_dash if n_turn == 0 else n_turn + n_dash + 1
+        return n_step
 
     def create_pass(self, wm: WorldModel, receiver, receive_point: Vector2D,
                     min_step, max_step, min_first_ball_speed, max_first_ball_speed,
@@ -552,7 +650,7 @@ class BhvKick:
         wm: WorldModel = agent.world()
         action_candidates: List[KickAction] = []
         action_candidates += BhvPassGen().generator(wm)
-        action_candidates += BhvDribbleGen().generator(wm)
+        # action_candidates += BhvDribbleGen().generator(wm)
         if len(action_candidates) is 0:
             return True
         for action_candidate in action_candidates:

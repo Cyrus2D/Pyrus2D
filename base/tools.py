@@ -51,3 +51,15 @@ class Tools:
             return -1
         else:
             return max( 1, int(target_to_player.absY() / player_speed_max))
+
+    @staticmethod
+    def get_nearest_teammate_unum(wm: WorldModel, position: Vector2D, unums=[x for x in range(1, 12)]):
+        unum = 0
+        min_dist2 = 1000
+        for i in unums:
+            d2 = wm.our_player(i).pos().dist2( position )
+            if d2 < min_dist2:
+                min_dist2 = d2
+                unum = i
+
+        return unum
