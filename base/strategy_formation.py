@@ -47,16 +47,21 @@ class _StrategyFormation:
                 self.current_formation = self.offense_formation
             else:
                 self.current_formation = self.defense_formation
-        elif wm.game_mode().type() in [GameModeType.BeforeKickOff, GameModeType.AfterGoal_Left, GameModeType.AfterGoal_Right]:
+
+        elif wm.game_mode().type() in [GameModeType.BeforeKickOff, GameModeType.AfterGoal_Left,
+                                       GameModeType.AfterGoal_Right]:
             self.current_formation = self.before_kick_off_formation
+
         elif wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right]: # Todo add Goal Catch!!
             if wm.game_mode().is_our_set_play(wm.our_side()):
                 self.current_formation = self.goalie_kick_our_formation
             else:
                 self.current_formation = self.goalie_kick_opp_formation
+
         else:
             if wm.game_mode().is_our_set_play(wm.our_side()):
-                if wm.game_mode().type() in [GameModeType.KickIn_Right, GameModeType.KickIn_Left, GameModeType.CornerKick_Right, GameModeType.CornerKick_Left]:
+                if wm.game_mode().type() in [GameModeType.KickIn_Right, GameModeType.KickIn_Left,
+                                             GameModeType.CornerKick_Right, GameModeType.CornerKick_Left]:
                     self.current_formation = self.kickin_our_formation
                 else:
                     self.current_formation = self.setplay_our_formation
@@ -65,7 +70,9 @@ class _StrategyFormation:
 
         self.current_formation.update(ball_pos)
         self._poses = self.current_formation.get_poses()
-        if self.current_formation is self.before_kick_off_formation:
+
+        if self.current_formation is self.before_kick_off_formation or wm.game_mode().type() in \
+                [GameModeType.KickOff_Left, GameModeType.KickOff_Right]:
             for pos in self._poses:
                 pos._x = min(pos.x(), -0.5)
         else:

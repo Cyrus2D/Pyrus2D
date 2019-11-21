@@ -28,15 +28,15 @@ class Line2D:
                  p1: Vector2D = None, p2: Vector2D = None,
                  origin: Vector2D = None, angle: AngleDeg = None,
                  a: float = None, b: float = None, c: float = None):
+        self._a = 0.0
+        self._b = 0.0
+        self._c = 0.0
+
+        self.is_valid = True
+
         if p1 is not None and p2 is not None:
-            self._a = 0.0
-            self._b = 0.0
-            self._c = 0.0
             self.assign(p1, p2)
         elif angle is not None and origin is not None:
-            self._a = 0.0
-            self._b = 0.0
-            self._c = 0.0
             self.assign(origin=origin, linedir=angle)
         elif (a is not None
                 and b is not None
@@ -45,10 +45,7 @@ class Line2D:
             self._b = b
             self._c = c
         else:
-            self._a = 0.0
-            self._b = 0.0
-            self._c = 0.0
-        self.is_valid = True
+            self.is_valid = False
 
     """
         Len = 2 / 2 Vector2D

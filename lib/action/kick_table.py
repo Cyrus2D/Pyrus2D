@@ -10,9 +10,9 @@ from copy import copy
 
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.player.world_model import *
-from lib.rcsc.player_type import *
-from lib.rcsc.server_param import *
+from lib.player.world_model import WorldModel
+from lib.rcsc.player_type import PlayerType
+from lib.rcsc.server_param import ServerParam
 from lib.math.soccer_math import *
 from lib.rcsc.game_time import *
 
@@ -627,7 +627,7 @@ class _KickTable:
 
                 continue
 
-            control_area = o.player_type.catch_able_area() if (
+            control_area = o.player_type().catchable_area() if (
                     o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(state.pos_
                                                                                             )) else o.player_type().kickable_area()
 
@@ -734,7 +734,7 @@ class _KickTable:
                     if opp_pos.dist(ball_pos) < (o.player_type().player_size() + ServerParam.i().ball_size()):
                         state.flag_ |= RELEASE_INTERFERE
                     continue
-                control_area = o.player_type.catch_able_area() if (
+                control_area = o.player_type().catchable_area() if (
                         o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
                     state.pos_)) else o.player_type().kickable_area()
 
@@ -1140,6 +1140,7 @@ class _KickTable:
     def simulate(self, world, target_point: Vector2D, first_speed, allowable_speed, max_step, sequence: Sequence):
 
         if len(self._state_list) == 0:
+            dlog.add_text(Level.KICK, 'there isnt any state list')
             # if _KickTable.PRINT_DEBUG:
             #     print("False , Len  == 0")
             return False
@@ -1185,14 +1186,14 @@ class _KickTable:
                 dlog.add_text(Level.KICK, "simulate() found 3 step")
 
         self.evaluate(target_speed, speed_thr)
-
+        dlog.add_text(Level.KICK, "candidate number:{}".format(len(self._candidates)))
         if not self._candidates:
             # if _KickTable.PRINT_DEBUG:
             #     print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
         sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : CMP Check
-        if _KickTable.PRINT_DEBUG:
+        if _KickTable.PRINT_DEBUG or True:
             print("_______________________candidates_AE_________________________")
             for tmp in self._candidates:
                 print(tmp)

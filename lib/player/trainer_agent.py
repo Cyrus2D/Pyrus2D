@@ -6,8 +6,8 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.vector_2d import Vector2D
 from lib.network.udp_socket import IPAddress
+from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent
-from lib.player.world_model import WorldModel
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
@@ -44,8 +44,8 @@ class TrainerAgent(SoccerAgent):
     def __init__(self):
         super().__init__()
         self._impl: TrainerAgent.Impl = TrainerAgent.Impl(self)
-        self._world = WorldModel()
-        self._full_world = WorldModel()
+        self._world = GlobalWorldModel()
+        self._full_world = GlobalWorldModel()
         self._is_synch_mode = True
         self._last_body_command = []
 
@@ -117,10 +117,10 @@ class TrainerAgent(SoccerAgent):
     def init_dlog(self, message):
         dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name()}-coach.log", logging.DEBUG)
 
-    def world(self) -> WorldModel:
+    def world(self) -> GlobalWorldModel:
         return self._full_world
 
-    def full_world(self) -> WorldModel:
+    def full_world(self) -> GlobalWorldModel:
         return self._full_world
 
     def action(self):

@@ -6,6 +6,7 @@ from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import GameModeType
 from lib.math.soccer_math import *
+from typing import List
 
 
 class WorldModel:
@@ -15,10 +16,10 @@ class WorldModel:
         self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [PlayerObject() for _ in range(11)]
-        self._teammates_from_ball = []
-        self._opponents_from_ball = []
-        self._teammates_from_self = []
-        self._opponents_from_self = []
+        self._teammates_from_ball: List[PlayerObject] = []
+        self._opponents_from_ball: List[PlayerObject] = []
+        self._teammates_from_self: List[PlayerObject] = []
+        self._opponents_from_self: List[PlayerObject] = []
         self._their_players = [PlayerObject() for _ in range(11)]
         self._unknown_player = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
@@ -39,7 +40,10 @@ class WorldModel:
         return self._ball
 
     def self(self) -> PlayerObject:
-        return self._our_players[self._self_unum - 1]
+        if self.self_unum():
+            return self._our_players[self._self_unum - 1]
+        else:
+            return None
 
     def our_side(self):
         return SideID.RIGHT if self._our_side == 'r' else SideID.LEFT if self._our_side == 'l' else SideID.NEUTRAL
@@ -115,14 +119,19 @@ class WorldModel:
         return self._team_name
 
     def _update_players(self):
+        self._exist_kickable_teammates = False
+        self._exist_kickable_opponents = False
         for i in range(len(self._our_players)):
-            if self._our_players[i].player_type() is None: continue
+            if self._our_players[i].player_type() is None:
+                continue
             self._our_players[i].update_with_world(self)
             if self._our_players[i].is_kickable():
                 self._last_kicker_side = self.our_side()
-                self._exist_kickable_teammates = True
+                if i != self.self().unum():
+                    self._exist_kickable_teammates = True
         for i in range(len(self._their_players)):
-            if self._their_players[i].player_type() is None: continue
+            if self._their_players[i].player_type() is None:
+                continue
             self._their_players[i].update_with_world(self)
             if self._our_players[i].is_kickable():
                 self._last_kicker_side = self._their_players[i].side()

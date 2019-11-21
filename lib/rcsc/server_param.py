@@ -1,5 +1,6 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
+from lib.math.soccer_math import *
 # import lib.math.soccer_math as smath
 
 DEFAULT_MAX_PLAYER = 11
@@ -1398,6 +1399,9 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def default_player_speed_max(self):
         return self._player_speed_max
+
+    def ball_move_step(self, first_ball_speed, ball_move_dist):
+        return int(math.ceil(calc_length_geom_series(first_ball_speed, ball_move_dist, self.ball_decay())) + 1.0e-10)
 
 
 # TODO we can use function, instance instance class

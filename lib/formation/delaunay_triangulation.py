@@ -60,7 +60,7 @@ class Formation:
             return
         self._tri = Delaunay(self._balls).simplices
         for tri in self._tri:
-            tmp = [tri2d.Triangle2D(Vector2D(self._balls[tri[0]][0], self._balls[tri[0]][1]),
+            tmp = [Triangle2D(Vector2D(self._balls[tri[0]][0], self._balls[tri[0]][1]),
                                     Vector2D(self._balls[tri[1]][0], self._balls[tri[1]][1]),
                                     Vector2D(self._balls[tri[2]][0], self._balls[tri[2]][1])), tri[0], tri[1], tri[2]]
             self._triangles.append(tmp)

@@ -3,7 +3,7 @@
   \ brief 2D triangle class File.
 """
 
-from lib.math.segment_2d import *
+# from lib.math.segment_2d import Segment2D
 from lib.math.region_2d import *
 from lib.math.ray_2d import *
 
@@ -202,7 +202,7 @@ class Triangle2D(Region2D):
         if line is not None:
             n_sol = 0
             t_sol = [Vector2D(), Vector2D()]
-
+            from lib.math.segment_2d import Segment2D
             t_sol[n_sol] = Segment2D(self._a, self._b).intersection(line=line)
             if n_sol < 2 and t_sol[n_sol].is_valid():
                 n_sol += 1
@@ -416,6 +416,11 @@ class Triangle2D(Region2D):
 
     def __repr__(self):
         return "[{},{},{}]".format(self._a, self._b, self._c)
+
+    def to_str(self, ostr):
+        ostr += ' (tri {} {} {} {} {} {})'.format(round(self.a().x(), 3), round(self.a().y(), 3),
+                                                  round(self.b().x(), 3), round(self.b().y(), 3),
+                                                  round(self.c().x(), 3), round(self.c().y(), 3))
 
 
 def test():

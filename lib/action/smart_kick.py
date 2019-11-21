@@ -4,9 +4,14 @@
 """
 
 from lib.player.soccer_action import *
-from lib.action.kick_table import *
+from lib.action.kick_table import KickTable, Sequence
 from lib.action.stop_ball import StopBall
 from lib.action.hold_ball import HoldBall
+from lib.player.templates import PlayerAgent
+from lib.debug.level import Level
+from lib.debug.logger import dlog
+from lib.rcsc.server_param import ServerParam
+from lib.math.soccer_math import *
 
 
 #  from lib.player.player_agent import *
@@ -14,7 +19,7 @@ from lib.action.hold_ball import HoldBall
 
 
 class SmartKick(BodyAction):
-    PRINT_DEBUG: bool = False  # PRINTs IN SMARTKICK
+    PRINT_DEBUG: bool = True # PRINTs IN SMARTKICK
 
     def __init__(self, target_point: Vector2D, first_speed, first_speed_thr, max_step):
         super().__init__()
@@ -51,7 +56,7 @@ class SmartKick(BodyAction):
                                             first_speed_thr,
                                             max_step,
                                             self._sequence)
-        if SmartKick.PRINT_DEBUG:
+        if ans[0] and SmartKick.PRINT_DEBUG:
             print("Smart kick : ", ans[0], " seq -> speed : ",
                   ans[1].speed_, " power : ", ans[1].power_,
                   " score : ", ans[1].score_, "  flag : ",

@@ -342,3 +342,24 @@ def unquantize_error(see_dist, qstep):
     min_dist = (math.exp(unquantize_min(math.log(unquantize_min(see_dist, 0.1)), qstep)) - SERVER_EPS)
     max_dist = (math.exp(unquantize_max(math.log(unquantize_max(see_dist, 0.1)), qstep)) - SERVER_EPS)
     return math.fabs(max_dist - min_dist)
+
+
+"""------------------------------------------------------------------"""
+"""
+  \ brief caluculate the length of a geometric series
+  \ param first_term value of the first term
+  \ param r multiplication ratio
+  \ param sum sum of a geometric series
+  \ return a round number of the length of geometric series
+"""
+
+
+def calc_length_geom_series(first_term, sum, r):
+    if first_term <= SERVER_EPS or sum < 0.0 or r <= SERVER_EPS:
+        return -1.0
+    if sum <= SERVER_EPS:
+        return 0.0
+    tmp = 1.0 + sum * (r - 1.0) / first_term
+    if tmp <= SERVER_EPS:
+        return -1.0
+    return math.log( tmp ) / math.log( r )

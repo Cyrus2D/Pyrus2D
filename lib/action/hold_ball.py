@@ -7,10 +7,14 @@ import functools
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.soccer_math import *
-from lib.action.stop_ball import *
-from lib.action.basic_actions import *
-from lib.player.soccer_action import *
-
+from lib.action.stop_ball import StopBall
+from lib.action.basic_actions import TurnToPoint
+from lib.player.soccer_action import BodyAction
+# from lib.player.player_agent import PlayerAgent
+from lib.rcsc.game_time import GameTime
+from lib.player.templates import PlayerAgent
+from lib.rcsc.server_param import ServerParam
+from lib.player.world_model import WorldModel
 """
   \ struct KeepPoint
   \ brief keep point info
@@ -276,7 +280,7 @@ class HoldBall(BodyAction):
 
             player_type = o.player_type()
             opp_next = o.pos() + o.vel()
-            control_area = o.player_type.catch_able_area() if (
+            control_area = o.player_type().catchable_area() if (
                     o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
                 keep_point)) else o.player_type().kickable_area()
             opp_dist = opp_next.dist(keep_point)

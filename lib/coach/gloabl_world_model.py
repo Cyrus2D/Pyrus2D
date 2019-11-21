@@ -8,37 +8,29 @@ from lib.rcsc.types import GameModeType
 from lib.math.soccer_math import *
 
 
-class WorldModel:
+class GlobalWorldModel:
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
-        self._self_unum: int = None
         self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
-        self._our_players = [PlayerObject() for _ in range(11)]
-        self._teammates_from_ball = []
-        self._opponents_from_ball = []
-        self._teammates_from_self = []
-        self._opponents_from_self = []
-        self._their_players = [PlayerObject() for _ in range(11)]
-        self._unknown_player = [PlayerObject() for _ in range(22)]
-        self._ball: BallObject = BallObject()
+        self._our_players = [GloabalPlayerObject() for _ in range(11)]
+        self._their_players = [GloabalPlayerObject() for _ in range(11)]
+        self._unknown_player = [GloabalPlayerObject() for _ in range(22)]
+        self._ball: BallObject = GlobalBallObject()
         self._time: GameTime = GameTime(0, 0)
-        self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode()
-        self._our_goalie_unum: int = 0
-        self._their_goalie_unum: int = 0
         self._last_kicker_side: SideID = SideID.NEUTRAL
-        self._exist_kickable_teammates: bool = False
-        self._exist_kickable_opponents: bool = False
-        self._offside_line_x: float = 0
-        self._offside_line_count = 0
-        self._their_defense_line_x: float = 0
-        self._their_defense_line_count = 0
+        self._yellow_card_left = [False for _ in range(11)]
+        self._yellow_card_right = [False for _ in range(11)]
+        self._red_card_left = [False for _ in range(11)]
+        self._red_card_right = [False for _ in range(11)]
+        self._last_playon_start: int = 0
+        # TODO add freeform allow/send count
 
-    def ball(self) -> BallObject:
+    def ball(self) -> GlobalBallObject:
         return self._ball
 
-    def self(self) -> PlayerObject:
+    def self(self) -> GlobalPlayerObject:
         return self._our_players[self._self_unum - 1]
 
     def our_side(self):

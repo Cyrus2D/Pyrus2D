@@ -7,6 +7,10 @@ from lib.rcsc.server_param import ServerParam
 
 
 class BallObject(Object):
+    vel_count_thr = 10
+    pos_count_thr = 10
+    rpos_count_thr = 5
+
     def __init__(self, string=None):
         super().__init__()
         self._dist_from_self: float = 10000
@@ -33,12 +37,10 @@ class BallObject(Object):
         return self._angle_from_self
 
     def velValid(self):  # ToDo : add count need fix
-        if self._vel.r() < ServerParam.i().player_speed_max():
-            return True
-        return False
+        return self.vel_count() < BallObject.vel_count_thr
 
     def posValid(self):  # TODO : add Count need fix
-        return True
+        return self.pos_count() < BallObject.pos_count_thr
 
     def __repr__(self):
         return f"(pos: {self.pos()}) (vel:{self.vel()})"

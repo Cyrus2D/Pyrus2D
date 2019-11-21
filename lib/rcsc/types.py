@@ -171,6 +171,8 @@ class GameModeType(Enum):
     PenaltyMiss_Right = "penalty_miss_r"
     PenaltyScore_Left = "penalty_score_l"
     PenaltyScore_Right = "penalty_score_r"
+    IllegalDefense_Left = "illegal_defense_l"
+    IllegalDefense_Right = "illegal_defense_r"
     MAX = "max"
 
 
@@ -270,6 +272,8 @@ GAMEMODETYPE_STRINGS = ["",  # TODO Value of PlayerMode enum be these strings...
                         "penalty_miss_r",
                         "penalty_score_l",
                         "penalty_score_r",
+                        "illegal_defense_l",
+                        "illegal_defense_r",
                         "",
                         "",
                         "",

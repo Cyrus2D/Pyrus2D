@@ -3,8 +3,10 @@
   \ brief basic player actions
 """
 
-from lib.math.vector_2d import Vector2D
 from lib.player.soccer_action import *
+from lib.player.templates import PlayerAgent
+from lib.math.soccer_math import *
+from lib.rcsc.server_param import ServerParam
 
 """
   \ class Body_TurnToPoint
