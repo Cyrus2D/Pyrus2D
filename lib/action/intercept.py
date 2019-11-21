@@ -248,7 +248,7 @@ class Intercept:
             noturn_ball_vel = (wm.ball().vel()
                                * SP.ball_decay() ** noturn_best.reach_cycle())
             noturn_ball_speed = noturn_ball_vel.r()
-            if (noturn_ball_vel.x > 0.1
+            if (noturn_ball_vel.x() > 0.1
                     and (noturn_ball_speed > speed_max
                          or noturn_best.reach_cycle() <= forward_best.reach_cycle() + 2)):
                 return noturn_best

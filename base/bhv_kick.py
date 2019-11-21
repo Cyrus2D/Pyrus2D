@@ -248,7 +248,7 @@ class BhvPassGen(BhvKickGen):
             return 1000
 
         for cycle in range(max( 1, min_cycle), max_cycle + 1):
-            ball_pos = Tools.inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = smath.inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
             control_area = ptype.kickable_area()
 
             inertia_pos = ptype.inertia_point(opponent.pos(), opponent.vel(), cycle)

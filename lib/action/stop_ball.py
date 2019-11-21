@@ -4,6 +4,11 @@
 """
 
 from lib.player.soccer_action import *
+from lib.math.soccer_math import *
+from lib.player.templates import PlayerAgent
+# from lib.player.player_agent import PlayerAgent
+from lib.player.world_model import WorldModel
+from lib.rcsc.server_param import ServerParam
 """
   \ class Body_StopBall
   \ brief stop the ball, possible as.

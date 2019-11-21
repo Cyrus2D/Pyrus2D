@@ -29,37 +29,39 @@ class BhvMove:
                      or (self_min <= tm_min
                          and self_min < opp_min + 5))):
             dlog.add_text(Level.BLOCK, "INTERCEPTING")
+            agent.debug_client().add_message('intercept')
             Intercept().execute(agent)
             return True
 
         st = StrategyFormation().i()
         target = st.get_pos(agent.world().self().unum())
-        min_cycle = 1000
-        nearest_tm = 0
-        for u in range(1, 12):
-            tm = wm.our_player(u)
-            if tm.unum() is not 0:
-                tmcycle = 1000
-                for i in range(40):
-                    bpos = wm.ball().inertia_point(i)
-                    tm_pos = tm.inertia_point(i)
-                    dist = tm_pos.dist(bpos)
-                    tmcycle = Tools.predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
-                    tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area() + 0.3)
-                    if tmcycle <= i:
-                        break
-                    else:
-                        tmcycle = 1000
-
-                if tmcycle < min_cycle:
-                    min_cycle = tmcycle
-                    nearest_tm = u
-        if nearest_tm == wm.self().unum():
-            target = wm.ball().inertia_point(min_cycle)
-            agent.debug_client().set_target(target)
-            agent.debug_client().add_message('basic_intercept')
-            GoToPoint(target, 0.1, 100).execute(agent)
-            return True
+        # min_cycle = 1000
+        # nearest_tm = 0
+        # for u in range(1, 12):
+        #     tm = wm.our_player(u)
+        #     if tm.unum() is not 0:
+        #         tmcycle = 1000
+        #         for i in range(40):
+        #             bpos = wm.ball().inertia_point(i)
+        #             tm_pos = tm.inertia_point(i)
+        #             dist = tm_pos.dist(bpos)
+        #             tmcycle = Tools.predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), dist, (bpos - tm.pos()).th(), 0.1, False)
+        #             tmcycle += tm.player_type().cycles_to_reach_distance(dist - tm.player_type().kickable_area() + 0.3)
+        #             if tmcycle <= i:
+        #                 break
+        #             else:
+        #                 tmcycle = 1000
+        #
+        #         if tmcycle < min_cycle:
+        #             min_cycle = tmcycle
+        #             nearest_tm = u
+        # if nearest_tm == wm.self().unum():
+        #     target = wm.ball().inertia_point(min_cycle)
+        #     agent.debug_client().set_target(target)
+        #     agent.debug_client().add_message('basic_intercept')
+        #     # GoToPoint(target, 0.1, 100).execute(agent)
+        #     Intercept().execute(agent)
+        #     return True
 
         agent.debug_client().set_target(target)
         agent.debug_client().add_message('bhv_move')

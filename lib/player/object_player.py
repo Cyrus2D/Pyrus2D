@@ -122,7 +122,7 @@ class PlayerObject(Object):
     def goalie(self):
         return self._goalie
 
-    def player_type(self):
+    def player_type(self)-> PlayerType:
         return self._player_type
 
     def pointto(self):
