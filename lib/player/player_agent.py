@@ -51,11 +51,8 @@ class PlayerAgent(SoccerAgent):
         self._world = WorldModel()
         self._full_world = WorldModel()
         self._last_body_command = []
-<<<<<<< HEAD
         self._is_synch_mode = True
-=======
         self._debug_client = DebugClient()
->>>>>>> c783197206013215353d3aeb90ab840be618f6a2
 
     def handle_start(self):
         if self._client is None:
