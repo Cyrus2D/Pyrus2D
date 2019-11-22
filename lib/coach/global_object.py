@@ -22,6 +22,10 @@ class GlobalBallObject:
     def set_vel(self, x, y):
         self._vel.assign(x, y)
 
+    def reverse(self):
+        self._pos.reverse()
+        self._vel.reverse()
+
 
 class GlobalPlayerObject:
     def __init__(self):
@@ -168,3 +172,9 @@ class GlobalPlayerObject:
             self._charged_cycle += 1
         else:
             self._charged_cycle = 0
+
+    def reverse(self):
+        self._pos.reverse()
+        self._vel.reverse()
+        self._body.reverse()
+        self._face.reverse()
