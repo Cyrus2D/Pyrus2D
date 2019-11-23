@@ -32,6 +32,27 @@ class KickAction:
         return self.__repr__()
 
 
+class ShootAction:
+    def __init__(self, index, target_point, first_ball_speed, ball_move_angle, ball_move_dist, ball_reach_step):
+        self.index = index
+        self.target_point: Vector2D = target_point
+        self.first_ball_vel: Vector2D = Vector2D.polar2vector(first_ball_speed, ball_move_angle)
+        self.first_ball_speed = first_ball_speed
+        self.ball_move_angle: AngleDeg = ball_move_angle
+        self.ball_move_dist = ball_move_dist
+        self.ball_reach_step = ball_reach_step
+        self.goalie_never_reach = True
+        self.opponent_never_reach = True
+        self.kick_step = 3
+        self.score = 0
+
+    def __repr__(self):
+        return '{} target {} first_vel {}'.format(self.index, self.target_point, self.first_ball_vel)
+
+    def __str__(self):
+        return self.__repr__()
+
+
 class BhvKickGen:
     def __init__(self):
         self.candidates = []
