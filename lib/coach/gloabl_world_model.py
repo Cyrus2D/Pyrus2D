@@ -31,9 +31,6 @@ class GlobalWorldModel:
     def ball(self) -> GlobalBallObject:
         return self._ball
 
-    def self(self) -> GlobalPlayerObject:
-        return self._our_players[self._self_unum - 1]
-
     def our_side(self):
         return SideID.RIGHT if self._our_side == 'r' else SideID.LEFT if self._our_side == 'l' else SideID.NEUTRAL
 
@@ -50,7 +47,7 @@ class GlobalWorldModel:
         if message.find("fullstate") is not -1:
             self.fullstate_parser(message)
         if message.find("(init") is not -1:
-            self.self_parser(message)
+            pass
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
         elif message.find("sense_body") is not -1:
@@ -111,6 +108,3 @@ class GlobalWorldModel:
 
     def last_kicker_side(self) -> SideID:
         return self._last_kicker_side
-
-    def offside_line_x(self) -> float:
-        return self._offside_line_x
