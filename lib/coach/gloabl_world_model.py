@@ -12,7 +12,8 @@ from lib.math.soccer_math import *
 class GlobalWorldModel:
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
-        self._team_name: str = ""
+        self._team_name_l: str = ""
+        self._team_name_r: str = ""
         self._our_side: SideID = SideID.NEUTRAL
         self._our_players = [GlobalPlayerObject() for _ in range(11)]
         self._their_players = [GlobalPlayerObject() for _ in range(11)]
@@ -44,10 +45,8 @@ class GlobalWorldModel:
         return self._time.copy()
 
     def parse(self, message):
-        if message.find("fullstate") is not -1:
+        if message.find("see_global") is not -1:
             self.fullstate_parser(message)
-        if message.find("(init") is not -1:
-            pass
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
         elif message.find("sense_body") is not -1:
@@ -101,7 +100,7 @@ class GlobalWorldModel:
         Object.reverse_list(self._their_players)
 
     def team_name(self):
-        return self._team_name
+        return self._team_name_l
 
     def game_mode(self):
         return self._game_mode
