@@ -149,3 +149,17 @@ class TrainerEyeCommand(TrainerCommand):
         if self._on:
             return "(eye on)"
         return "(eye off)"
+
+
+class TrainerEarCommand(TrainerCommand):
+    def __init__(self, on: bool):
+        super().__init__()
+        self._on = on
+
+    def type(self):
+        return TrainerCommand.Type.EAR
+
+    def str(self):
+        if self._on:
+            return "(ear on)"
+        return "(ear off)"
