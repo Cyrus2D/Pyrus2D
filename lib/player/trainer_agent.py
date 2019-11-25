@@ -11,7 +11,7 @@ from lib.player.soccer_agent import SoccerAgent
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
-    TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand
+    TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand, TrainerEyeCommand, TrainerEarCommand
 from lib.rcsc.server_param import ServerParam
 
 
@@ -82,7 +82,6 @@ class TrainerAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
-                    self._impl._think_received = True
                 # elif time.time() - last_time_rec > 3:
                 #     print("TIME")
                 #     self._client.set_server_alive(False)
@@ -107,8 +106,7 @@ class TrainerAgent(SoccerAgent):
             self._impl.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
-        elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
-                "sense_body") is not -1 or message.find("(init") is not -1:
+        elif message.find("see_global") is not -1 or message.find("player_type") is not -1:
             self._full_world.parse(message)
             dlog._time = self.world().time()
         elif message.find("think") is not -1:
