@@ -135,3 +135,17 @@ class TrainerDoneCommand(TrainerCommand):
 
     def str(self):
         return "(done)"
+
+
+class TrainerEyeCommand(TrainerCommand):
+    def __init__(self, on: bool):
+        super().__init__()
+        self._on: bool = on
+
+    def type(self):
+        return TrainerCommand.Type.EYE
+
+    def str(self):
+        if self._on:
+            return "(eye on)"
+        return "(eye off)"
