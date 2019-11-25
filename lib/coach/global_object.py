@@ -33,7 +33,7 @@ class GlobalPlayerObject:
         self._unum: int = -1
         self._goalie: bool = False
         self._type = -1
-        self._player_type: PlayerType = None
+        self._player_type: PlayerType = PlayerType()
         self._pos: Vector2D = Vector2D.invalid()
         self._vel: Vector2D = Vector2D(0, 0)
         self._body: AngleDeg = AngleDeg(0)

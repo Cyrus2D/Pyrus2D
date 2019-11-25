@@ -11,7 +11,7 @@ from lib.player.soccer_agent import SoccerAgent
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
-    TrainerMovePlayerCommand, TrainerInitCommand
+    TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand
 from lib.rcsc.server_param import ServerParam
 
 
@@ -27,19 +27,23 @@ class TrainerAgent(SoccerAgent):
 
             # TODO make config class for these data
             com = TrainerInitCommand(15)
-            # TODO set team name from config
-            self._agent._full_world._team_name = "Pyrus"
 
             if self._agent._client.send_message(com.str()) <= 0:
                 print("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
+            print("SEND BYE")
             self._agent._client.set_server_alive(False)
 
         @property
         def think_received(self):
             return self._think_received
+
+        def analyze_init(self, message):
+            self._agent.init_dlog(message)
+            self._agent.do_eye(True)
+            self._agent.do_ear(False)  # TODO fix hearing
 
     def __init__(self):
         super().__init__()
@@ -74,13 +78,15 @@ class TrainerAgent(SoccerAgent):
             while True:
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
-                print("MESSSAGE:", message)
+                print("recMESSAGE:", message)
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
-                elif time.time() - last_time_rec > 3:
-                    self._client.set_server_alive(False)
-                    break
+                    self._impl._think_received = True
+                # elif time.time() - last_time_rec > 3:
+                #     print("TIME")
+                #     self._client.set_server_alive(False)
+                #     break
                 message_count += 1
                 if self._impl.think_received:
                     last_time_rec = time.time()
@@ -93,20 +99,14 @@ class TrainerAgent(SoccerAgent):
 
             if self._impl.think_received:
                 self.action()
-                self._impl._think_received = False
+                self._impl._think_received = True
             # TODO elif for not sync mode
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
-            self.init_dlog(message)
+            self._impl.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
-
-            # TODO make function for these things
-            if KickTable.instance().createTables():
-                print("KICKTABLE CREATE")
-            else:
-                print("KICKTABLE Faild")
         elif message.find("fullstate") is not -1 or message.find("player_type") is not -1 or message.find(
                 "sense_body") is not -1 or message.find("(init") is not -1:
             self._full_world.parse(message)
@@ -124,16 +124,12 @@ class TrainerAgent(SoccerAgent):
         return self._full_world
 
     def action(self):
-        if (self.world().self_unum() is None
-                or self.world().self().unum() != self.world().self_unum()):
-            return
         self.action_impl()
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
-        if self._is_synch_mode:
-            commands.append(PlayerDoneCommand())
-        self._client.send_message(PlayerSendCommands.all_to_str(commands))
+        commands.append(TrainerDoneCommand())
+        self._client.send_message(TrainerSendCommands.all_to_str(commands))
         dlog.flush()
         self._last_body_command = []
 
@@ -142,14 +138,16 @@ class TrainerAgent(SoccerAgent):
 
     def do_teamname(self):
         command = TrainerTeamNameCommand()
-        return self.send_command(command)
+        self._last_body_command.append(command)
+        return True
 
     def send_command(self, commands):  # TODO it should be boolean
         self._client.send_message(TrainerSendCommands.all_to_str(commands))
 
     def do_move_ball(self, pos: Vector2D, vel: Vector2D = Vector2D(0, 0)):
         command = TrainerMoveBallCommand(pos, vel)
-        return self.send_command(command)
+        self._last_body_command.append(command)
+        return True
 
     def do_move_player(self,
                        teamname: str,
@@ -158,4 +156,11 @@ class TrainerAgent(SoccerAgent):
                        angle: AngleDeg = None,
                        vel: Vector2D = None):
         command = TrainerMovePlayerCommand(teamname, unum, pos, angle, vel)
-        return self.send_command(command)
+        self._last_body_command.append(command)
+        return True
+
+    def do_eye(self, on: bool):
+        self._last_body_command.append(TrainerEyeCommand(on))
+
+    def do_ear(self, on: bool):
+        self._last_body_command.append(TrainerEarCommand(on))
