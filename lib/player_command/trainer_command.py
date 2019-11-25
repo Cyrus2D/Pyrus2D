@@ -46,7 +46,7 @@ class TrainerTeamNameCommand(TrainerCommand):
         return TrainerCommand.Type.TEAM_NAMES
 
     def str(self):
-        return "(team_name)"
+        return "(team_names)"
 
 
 class TrainerSendCommands(TrainerCommand):
@@ -55,7 +55,6 @@ class TrainerSendCommands(TrainerCommand):
         commands_msg = ""
         for command in commands:
             commands_msg += command.str()  # TODO FIX THIS
-        commands_msg = commands_msg
         return commands_msg
 
 
@@ -125,3 +124,14 @@ class TrainerInitCommand(TrainerCommand):
 
     def str(self):
         return f"(init (version {self._version}))"
+
+
+class TrainerDoneCommand(TrainerCommand):
+    def __init__(self):
+        super().__init__()
+
+    def type(self):
+        return TrainerCommand.Type.DONE
+
+    def str(self):
+        return "(done)"
