@@ -30,7 +30,7 @@ class PlayerObject(Object):
         self._kickable: bool = False  # TODO does it change?
         self._kickrate: float = 0.0
         self._dist_from_ball: float = 0.0
-        self._angle_from_ball: float = 0.0
+        self._angle_from_ball: AngleDeg = AngleDeg(0.0)
         self._body_count: int = 0
 
     # update with server data

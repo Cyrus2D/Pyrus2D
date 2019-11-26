@@ -171,6 +171,8 @@ class GameModeType(Enum):
     PenaltyMiss_Right = "penalty_miss_r"
     PenaltyScore_Left = "penalty_score_l"
     PenaltyScore_Right = "penalty_score_r"
+    GoalieCatchBall_Left = "goalie_catch_ball_l"
+    GoalieCatchBall_Right = "goalie_catch_ball_r"
     IllegalDefense_Left = "illegal_defense_l"
     IllegalDefense_Right = "illegal_defense_r"
     MAX = "max"
