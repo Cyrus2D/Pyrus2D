@@ -2,6 +2,7 @@ from enum import Enum, unique, auto
 
 from lib.math.angle_deg import AngleDeg
 from lib.math.vector_2d import Vector2D
+from lib.rcsc.types import GameModeType
 
 
 class TrainerCommand:
@@ -82,7 +83,7 @@ class TrainerMovePlayerCommand(TrainerCommand):
                  angle: float = None,
                  vel: Vector2D = None):
         super().__init__()
-        self._teamname = teamname
+        self._teamname = teamname.strip('"')
         self._unum = unum
         self._pos = pos
         self._angle = angle
@@ -163,3 +164,15 @@ class TrainerEarCommand(TrainerCommand):
         if self._on:
             return "(ear on)"
         return "(ear off)"
+
+
+class TrainerChangeModeCommand(TrainerCommand):
+    def __init__(self, mode: GameModeType):
+        super().__init__()
+        self._mode: GameModeType = mode
+
+    def type(self):
+        return TrainerCommand.Type.CHANGE_MODE
+
+    def str(self):
+        return f"(change_mode {self._mode.value})"
