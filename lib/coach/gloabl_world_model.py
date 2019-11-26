@@ -55,7 +55,6 @@ class GlobalWorldModel:
     def fullstate_parser(self, message):
         parser = GlobalFullStateWorldMessageParser()
         parser.parse(message)
-        print("PARSER: ", parser.dic())
         self._time._cycle = int(parser.dic()['time'])
         self._team_name_l = parser.dic()['teams']['team_left']
         self._team_name_r = parser.dic()['teams']['team_right']

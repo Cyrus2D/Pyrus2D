@@ -35,7 +35,6 @@ class TrainerAgent(SoccerAgent):
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            print("SEND BYE")
             self._agent._client.set_server_alive(False)
 
         @property
@@ -80,12 +79,11 @@ class TrainerAgent(SoccerAgent):
             while True:
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
-                print("recMESSAGE:", message)
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
-                    print("TIME")
+                    ("TIME")
                     self._client.set_server_alive(False)
                     break
                 message_count += 1
@@ -105,7 +103,6 @@ class TrainerAgent(SoccerAgent):
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
-            print("INIT")
             self._impl.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
