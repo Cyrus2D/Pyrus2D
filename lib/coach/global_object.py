@@ -10,6 +10,12 @@ class GlobalBallObject:
         self._pos: Vector2D = Vector2D(0, 0)
         self._vel: Vector2D = Vector2D(0, 0)
 
+    def init_str(self, string: str):
+        data = string.split(" ")
+        self._pos = Vector2D(float(data[0]), float(data[1]))
+        self._vel = Vector2D(float(data[2]), float(data[3]))
+
+
     def pos(self) -> Vector2D:
         return self._pos
 
@@ -45,6 +51,25 @@ class GlobalPlayerObject:
         self._tackle_cycle: int = 0
         self._charged_cycle: int = 0
         self._card: Card = Card.NO_CARD
+
+    def init_dic(self, dic: dict):
+        self._unum = int(dic["unum"])
+        self._pos = Vector2D(float(dic["pos_x"]), float(dic["pos_y"]))
+        self._vel = Vector2D(float(dic["vel_x"]), float(dic["vel_y"]))
+        self._side = SideID.RIGHT if dic["side_id"] == 'r' else SideID.LEFT if dic["side_id"] == 'l' else SideID.NEUTRAL
+        self._body = AngleDeg(float(dic["body"]))
+        self._face = AngleDeg(float(dic["neck"]))
+        self._goalie = True if "goalie" in dic else False
+        self._point_to = Vector2D.invalid()
+        if "pointto_dist" in dic:
+            self._point_to = Vector2D.polar2vector(float(dic["pointto_dist"]), float(dic["pointto_dir"]))
+        self._kicked = True if "kick" in dic else False
+        if "tackle" in dic:
+             self._tackle_cycle = 1
+        if "charged" in dic:
+            self._charged_cycle = 1
+        if "card" in dic:
+            self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
 
     def side(self) -> SideID:
         return self._side
