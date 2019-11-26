@@ -1,19 +1,6 @@
 from lib.debug.logger import dlog
 from lib.parser.parser_message_params import MessageParamsParser
 
-""""
-    (fullstate <time>
-    (pmod1e {goalie_catch_ball_{l|r}|<play mode>})
-    (vmode {high|low} {narrow|normal|high})
-    //(stamina <stamina> <effort> <recovery>)
-    (count <kicks> <dashes> <turns> <catches> <moves>
-           <turn_necks> <change_views> <says>)
-    (arm (movable <MOVABLE>) (expires <EXPIRES>)
-    (target <DIST> <DIR>) (count <COUNT>))
-    (score <team_points> <enemy_points>)
-    ((b) <pos.x> <pos.y> <vel.x> <vel.y>)
-    <players>)
-"""
 """
     sample version >= 7.0
     (see_global TIME ((g l) -52.5 0) ((g r) 52.5 0) ((b) <x> <y> <vx> <vy>)
@@ -47,6 +34,10 @@ class GlobalFullStateWorldMessageParser:
         # and now parsing players
         msg = message[message.find("((p"):]
         self._dic.update(PlayerMessageParser().parse(msg))
+        self._dic.update({"teams": {
+            "team_left": PlayerMessageParser._team_l,
+            "team_right": PlayerMessageParser._team_r
+        }})
 
     def dic(self):
         return self._dic
@@ -63,6 +54,8 @@ class PlayerMessageParser:
     def _parser(dic: dict, message: str):
         players = []
         seek = 0
+        if len(message) < 5:
+            return
         while seek < len(message):
             seek = message.find("((p", seek)
             next_seek = message.find("((p", seek + 1)
@@ -75,7 +68,7 @@ class PlayerMessageParser:
             if msg[3] == 'g':
                 k = 0
             player_dic = {
-                "unum": msg[2],
+                "unum": msg[2].strip("()"),
                 "pos_x": msg[4 + k],
                 "pos_y": msg[5 + k],
                 "vel_x": msg[6 + k],
@@ -84,15 +77,15 @@ class PlayerMessageParser:
                 "neck": msg[9 + k],
             }
             if PlayerMessageParser._team_l == msg[1]:
-                player_dic['side'] = 'l'
+                player_dic['side_id'] = 'l'
             elif PlayerMessageParser._team_r == msg[1]:
-                player_dic['side'] = 'r'
+                player_dic['side_id'] = 'r'
             elif PlayerMessageParser._team_l is None:
                 PlayerMessageParser._team_l = msg[1]
-                player_dic['side'] = 'l'
+                player_dic['side_id'] = 'l'
             elif PlayerMessageParser._team_r is None:
                 PlayerMessageParser._team_r = msg[1]
-                player_dic['side'] = 'r'
+                player_dic['side_id'] = 'r'
 
             if k == 0:
                 player_dic['goalie'] = 'g'
