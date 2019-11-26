@@ -44,7 +44,6 @@ class GlobalFullStateWorldMessageParser:
         msg = message[:message.find("((p")]
         MessageParamsParser._parse(self._dic, msg)
 
-
         # and now parsing players
         msg = message[message.find("((p"):]
         self._dic.update(PlayerMessageParser().parse(msg))
@@ -54,6 +53,9 @@ class GlobalFullStateWorldMessageParser:
 
 
 class PlayerMessageParser:
+    _team_l = None
+    _team_r = None
+
     def __init__(self):
         self._dic = {}
 
@@ -73,7 +75,6 @@ class PlayerMessageParser:
             if msg[3] == 'g':
                 k = 0
             player_dic = {
-                "team_name": msg[1],
                 "unum": msg[2],
                 "pos_x": msg[4 + k],
                 "pos_y": msg[5 + k],
@@ -82,6 +83,17 @@ class PlayerMessageParser:
                 "body": msg[8 + k],
                 "neck": msg[9 + k],
             }
+            if PlayerMessageParser._team_l == msg[1]:
+                player_dic['side'] = 'l'
+            elif PlayerMessageParser._team_r == msg[1]:
+                player_dic['side'] = 'r'
+            elif PlayerMessageParser._team_l is None:
+                PlayerMessageParser._team_l = msg[1]
+                player_dic['side'] = 'l'
+            elif PlayerMessageParser._team_r is None:
+                PlayerMessageParser._team_r = msg[1]
+                player_dic['side'] = 'r'
+
             if k == 0:
                 player_dic['goalie'] = 'g'
             ext = []
