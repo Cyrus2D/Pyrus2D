@@ -57,22 +57,24 @@ class GlobalWorldModel:
         parser.parse(message)
         print("PARSER: ", parser.dic())
         self._time._cycle = int(parser.dic()['time'])
-        self._game_mode.set_game_mode(GameModeType(parser.dic()['pmode']))
+        self._team_name_l = parser.dic()['teams']['team_left']
+        self._team_name_r = parser.dic()['teams']['team_right']
 
         # TODO vmode counters and arm
 
         self._ball.init_str(parser.dic()['b'])
 
-        for player_dic in parser.dic()['players']:
-            player = GlobalPlayerObject()
-            player.init_dic(player_dic)
-            player.set_player_type(self._player_types[player.type()])
-            if player.side().value == self._our_side:
-                self._our_players[player.unum() - 1] = player
-            elif player.side() == SideID.NEUTRAL:
-                self._unknown_player[player.unum() - 1] = player
-            else:
-                self._their_players[player.unum() - 1] = player
+        if 'players' in parser.dic():
+            for player_dic in parser.dic()['players']:
+                player = GlobalPlayerObject()
+                player.init_dic(player_dic)
+                # player.set_player_type(self._player_types[player.type()])
+                if player.side().value == self._our_side:
+                    self._our_players[player.unum() - 1] = player
+                elif player.side() == SideID.NEUTRAL:
+                    self._unknown_player[player.unum() - 1] = player
+                else:
+                    self._their_players[player.unum() - 1] = player
             # TODO check reversion
 
     def __repr__(self):
@@ -95,8 +97,11 @@ class GlobalWorldModel:
         Object.reverse_list(self._our_players)
         Object.reverse_list(self._their_players)
 
-    def team_name(self):
+    def team_name_l(self):
         return self._team_name_l
+
+    def team_name_r(self):
+        return self._team_name_r
 
     def game_mode(self):
         return self._game_mode
