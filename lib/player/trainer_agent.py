@@ -11,8 +11,10 @@ from lib.player.soccer_agent import SoccerAgent
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.player_command.player_command_support import PlayerDoneCommand
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
-    TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand, TrainerEyeCommand, TrainerEarCommand
+    TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand, TrainerEyeCommand, TrainerEarCommand, \
+    TrainerChangeModeCommand
 from lib.rcsc.server_param import ServerParam
+from lib.rcsc.types import GameModeType
 
 
 class TrainerAgent(SoccerAgent):
@@ -20,7 +22,7 @@ class TrainerAgent(SoccerAgent):
         def __init__(self, agent):
             # TODO so many things....
             self._agent: TrainerAgent = agent
-            self._think_received = False
+            self._think_received = True
 
         def send_init_command(self):
             # TODO check reconnection
@@ -82,10 +84,10 @@ class TrainerAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
-                # elif time.time() - last_time_rec > 3:
-                #     print("TIME")
-                #     self._client.set_server_alive(False)
-                #     break
+                elif time.time() - last_time_rec > 3:
+                    print("TIME")
+                    self._client.set_server_alive(False)
+                    break
                 message_count += 1
                 if self._impl.think_received:
                     last_time_rec = time.time()
@@ -98,7 +100,7 @@ class TrainerAgent(SoccerAgent):
 
             if self._impl.think_received:
                 self.action()
-                self._impl._think_received = True
+                self._impl._think_received = False
             # TODO elif for not sync mode
 
     def parse_message(self, message):
@@ -112,9 +114,11 @@ class TrainerAgent(SoccerAgent):
             dlog._time = self.world().time()
         elif message.find("think") is not -1:
             self._impl._think_received = True
+        elif message.find("(ok") is not -1:
+            self._client.send_message(TrainerDoneCommand().str())
 
     def init_dlog(self, message):
-        dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name()}-coach.log", logging.DEBUG)
+        dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name_l()}-coach.log", logging.DEBUG)
 
     def world(self) -> GlobalWorldModel:
         return self._full_world
@@ -160,8 +164,9 @@ class TrainerAgent(SoccerAgent):
 
     def do_eye(self, on: bool):
         self._client.send_message(TrainerEyeCommand(on).str())
-        self._last_body_command.append(TrainerEyeCommand(on))
 
     def do_ear(self, on: bool):
         self._client.send_message(TrainerEarCommand(on).str())
-        self._last_body_command.append(TrainerEarCommand(on))
+
+    def do_change_mode(self, mode: GameModeType):
+        self._last_body_command.append(TrainerChangeModeCommand(mode))
