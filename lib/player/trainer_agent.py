@@ -132,7 +132,9 @@ class TrainerAgent(SoccerAgent):
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         commands.append(TrainerDoneCommand())
-        self._client.send_message(TrainerSendCommands.all_to_str(commands))
+        # self._client.send_message(TrainerSendCommands.all_to_str(commands))
+        for com in commands:
+            self._client.send_message(com.str())
         dlog.flush()
         self._last_body_command = []
 
