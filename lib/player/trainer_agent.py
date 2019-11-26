@@ -103,6 +103,7 @@ class TrainerAgent(SoccerAgent):
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
+            print("INIT")
             self._impl.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
@@ -158,7 +159,9 @@ class TrainerAgent(SoccerAgent):
         return True
 
     def do_eye(self, on: bool):
+        self._client.send_message(TrainerEyeCommand(on).str())
         self._last_body_command.append(TrainerEyeCommand(on))
 
     def do_ear(self, on: bool):
+        self._client.send_message(TrainerEarCommand(on).str())
         self._last_body_command.append(TrainerEarCommand(on))
