@@ -1,12 +1,10 @@
-from lib.action.intercept_table import InterceptTable
 from lib.coach.global_object import GlobalPlayerObject, GlobalBallObject
+from lib.parser.global_message_parser import GlobalFullStateWorldMessageParser
 from lib.player.object_player import *
 from lib.player.object_ball import *
-from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import GameModeType
-from lib.math.soccer_math import *
 
 
 class GlobalWorldModel:
@@ -55,8 +53,9 @@ class GlobalWorldModel:
             pass
 
     def fullstate_parser(self, message):
-        parser = FullStateWorldMessageParser()
+        parser = GlobalFullStateWorldMessageParser()
         parser.parse(message)
+        print("PARSER: ", parser.dic())
         self._time._cycle = int(parser.dic()['time'])
         self._game_mode.set_game_mode(GameModeType(parser.dic()['pmode']))
 
@@ -74,10 +73,7 @@ class GlobalWorldModel:
                 self._unknown_player[player.unum() - 1] = player
             else:
                 self._their_players[player.unum() - 1] = player
-        if self.self().side() == SideID.RIGHT:
-            self.reverse()
-
-        # print(self)
+            # TODO check reversion
 
     def __repr__(self):
         # Fixed By MM _ temp
