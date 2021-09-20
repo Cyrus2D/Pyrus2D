@@ -297,3 +297,24 @@ BALL_STATUS_STRINGS = ["",
                        "goal_r",
                        "out_of_field",
                        ]
+
+
+@unique
+class ViewQuality(Enum):
+    HIGH = 'high'
+    LOW = 'low'
+    ILLEGAL = 'illegal'
+
+    def __repr__(self):
+        return self.value
+
+
+@unique
+class ViewWidth(Enum):
+    NARROW = 'narrow'
+    NORMAL = 'normal'
+    WIDE = 'wide'
+    ILLEGAL = 'illegal'
+
+    def __repr__(self):
+        return self.value
