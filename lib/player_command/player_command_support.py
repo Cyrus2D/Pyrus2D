@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 from lib.player.sensor.see_state import SeeState
 from lib.player_command.player_command import PlayerCommand, CommandType
 from lib.rcsc.types import ViewWidth, ViewQuality
@@ -84,7 +86,39 @@ class PlayerPointtoCommand(PlayerSupportCommand):
         return CommandType.POINTTO
 
 
-# TODO Write other commands ...
+class PlayerAttentiontoCommand(PlayerSupportCommand):
+    class SideType(Enum):
+        OUR = auto()
+        OPP = auto()
+        NONE = auto()
+
+    def __init__(self, side=SideType.NONE, unum=0):
+        self._side: PlayerAttentiontoCommand.SideType = side
+        self._unum: int = unum
+
+    def type(self):
+        return CommandType.ATTENTIONTO
+
+    def str(self):
+        if self._side != PlayerAttentiontoCommand.SideType.NONE:
+            return f"(attentionto " + (f"our {self._unum})"
+                                       if self._side == PlayerAttentiontoCommand.SideType.OUR
+                                       else f"opp {self._unum})")
+        else:
+            return "(attentionto off)"
+
+    def name(self):
+        return "attentionto"
+
+    def is_on(self):
+        return self._side != PlayerAttentiontoCommand.SideType.NONE
+
+    def side(self) -> SideType:
+        return self._side
+
+    def number(self):
+        return self._unum
+
 
 class PlayerDoneCommand(PlayerSupportCommand):
     def __init__(self):
