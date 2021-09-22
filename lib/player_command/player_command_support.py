@@ -1,4 +1,6 @@
+from lib.player.sensor.see_state import SeeState
 from lib.player_command.player_command import PlayerCommand, CommandType
+from lib.rcsc.types import ViewWidth, ViewQuality
 
 
 class PlayerSupportCommand(PlayerCommand):
@@ -26,9 +28,23 @@ class PlayerTurnNeckCommand(PlayerSupportCommand):
         return self._moment
 
 
-# TODO kirie in :\
-# class PlayerChangeViewCommand(PlayerSupportCommand):
-#     def __init__(self):
+class PlayerChangeViewCommand(PlayerSupportCommand):
+    def __init__(self, w: ViewWidth, q: ViewQuality, version: float = 8.0):
+        self._width: ViewWidth = w
+        self._quality: ViewQuality = q
+        self._version = version
+
+    def type(self):
+        return CommandType.CHANGE_VIEW
+
+    def str(self):
+        return f"(change_view {self._width}" + (f" {self._quality})" if not SeeState.synch_see_mode() else ")")
+
+    def width(self):
+        return self._width
+
+    def quality(self):
+        return self._quality
 
 
 class PlayerSayCommand(PlayerSupportCommand):
