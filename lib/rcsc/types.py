@@ -177,6 +177,75 @@ class GameModeType(Enum):
     IllegalDefense_Right = "illegal_defense_r"
     MAX = "max"
 
+    def is_KickOff(self):
+        return self == GameModeType.KickOff_Left or self == GameModeType.KickOff_Right
+
+    def is_KickIn(self):
+        return self == GameModeType.KickIn_Left or self == GameModeType.KickIn_Right
+
+    def is_FreeKick(self):
+        return self == GameModeType.FreeKick_Left or self == GameModeType.FreeKick_Right
+
+    def is_CornerKick(self):
+        return self == GameModeType.CornerKick_Left or self == GameModeType.CornerKick_Right
+
+    def is_GoalKick(self):
+        return self == GameModeType.GoalKick_Left or self == GameModeType.GoalKick_Right
+
+    def is_AfterGoal(self):
+        return self == GameModeType.AfterGoal_Left or self == GameModeType.AfterGoal_Right
+
+    def is_OffSide(self):
+        return self == GameModeType.OffSide_Left or self == GameModeType.OffSide_Right
+
+    def is_PK(self):
+        return self == GameModeType.PK_Left or self == GameModeType.PK_Right
+
+    def is_Foul_Charge(self):
+        return self == GameModeType.Foul_Charge_Left or self == GameModeType.Foul_Charge_Right
+
+    def is_Foul_Push(self):
+        return self == GameModeType.Foul_Push_Left or self == GameModeType.Foul_Push_Right
+
+    def is_Foul_MultipleAttacker(self):
+        return self == GameModeType.Foul_MultipleAttacker_Left or self == GameModeType.Foul_MultipleAttacker_Right
+
+    def is_Foul_BallOut(self):
+        return self == GameModeType.Foul_BallOut_Left or self == GameModeType.Foul_BallOut_Right
+
+    def is_Back_Pass(self):
+        return self == GameModeType.Back_Pass_Left or self == GameModeType.Back_Pass_Right
+
+    def is_Free_Kick_Fault(self):
+        return self == GameModeType.Free_Kick_Fault_Left or self == GameModeType.Free_Kick_Fault_Right
+
+    def is_CatchFault(self):
+        return self == GameModeType.CatchFault_Left or self == GameModeType.CatchFault_Right
+
+    def is_IndFreeKick(self):
+        return self == GameModeType.IndFreeKick_Left or self == GameModeType.IndFreeKick_Right
+
+    def is_PenaltySetup(self):
+        return self == GameModeType.PenaltySetup_Left or self == GameModeType.PenaltySetup_Right
+
+    def is_PenaltyReady(self):
+        return self == GameModeType.PenaltyReady_Left or self == GameModeType.PenaltyReady_Right
+
+    def is_PenaltyTaken(self):
+        return self == GameModeType.PenaltyTaken_Left or self == GameModeType.PenaltyTaken_Right
+
+    def is_PenaltyMiss(self):
+        return self == GameModeType.PenaltyMiss_Left or self == GameModeType.PenaltyMiss_Right
+
+    def is_PenaltyScore(self):
+        return self == GameModeType.PenaltyScore_Left or self == GameModeType.PenaltyScore_Right
+
+    def is_GoalieCatchBall(self):
+        return self == GameModeType.GoalieCatchBall_Left or self == GameModeType.GoalieCatchBall_Right
+
+    def is_IllegalDefense(self):
+        return self == GameModeType.IllegalDefense_Left or self == GameModeType.IllegalDefense_Right
+
 
 """
     \enum BallStatus
