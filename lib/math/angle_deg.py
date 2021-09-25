@@ -146,6 +146,17 @@ class AngleDeg:
         return rad * RAD2DEG
 
     @staticmethod
+    def normalize_angle(dir: float):
+        if dir < -360 or dir > 360:
+            dir = dir % 360
+
+        if dir < -180:
+            dir += 360
+        if dir > 180:
+            dir -= 360
+        return dir
+
+    @staticmethod
     def deg2rad(deg):
         return deg * DEG2RAD
 
