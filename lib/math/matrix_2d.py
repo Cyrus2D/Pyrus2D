@@ -16,8 +16,9 @@
 
 """
 
-from lib.math.vector_2d import *
-
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+import math
 
 class Matrix2D:
     """

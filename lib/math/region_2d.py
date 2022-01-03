@@ -4,7 +4,7 @@
 
 """
 
-from lib.math.vector_2d import *
+from lib.math.vector_2d import Vector2D
 
 
 class Region2D:

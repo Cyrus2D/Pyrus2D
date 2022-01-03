@@ -4,8 +4,13 @@
 """
 
 # from lib.math.segment_2d import Segment2D
-from lib.math.region_2d import *
-from lib.math.ray_2d import *
+from lib.math.region_2d import Region2D
+from lib.math.ray_2d import Ray2D
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+from lib.math.line_2d import Line2D
+from lib.math.math_values import *
+import math
 
 
 class Triangle2D(Region2D):

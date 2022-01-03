@@ -3,7 +3,9 @@
   \ brief 2d vector class
 """
 
-from lib.math.angle_deg import *
+from lib.math.angle_deg import AngleDeg
+from lib.math.math_values import *
+import math
 
 
 class Vector2D:  # TODO maybe give some bugs because of x and _x and x()

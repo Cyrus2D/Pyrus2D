@@ -3,7 +3,10 @@
   \ brief 2D sector region File.
 """
 
-from lib.math.region_2d import *
+from lib.math.region_2d import Region2D
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+from lib.math.math_values import *
 
 
 class Sector2D(Region2D):

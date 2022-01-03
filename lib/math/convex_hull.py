@@ -6,8 +6,12 @@
 from enum import Enum, unique, auto
 import functools
 
-from lib.math.triangle_2d import *
-from lib.math.polygon_2d import *
+from lib.math.triangle_2d import Triangle2D
+from lib.math.polygon_2d import Polygon2D
+from lib.math.vector_2d import Vector2D
+from lib.math.segment_2d import Segment2D
+from math_values import *
+
 
 """
   \ enum MethodType

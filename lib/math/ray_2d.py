@@ -5,7 +5,9 @@
 
 """
 
-from lib.math.line_2d import *
+from lib.math.line_2d import Line2D
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
 
 
 class Ray2D:

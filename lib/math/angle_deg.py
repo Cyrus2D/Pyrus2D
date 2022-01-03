@@ -1,15 +1,8 @@
 import math
-
-EPSILON = 1.0e-6
-ERROR_VALUE = 1e20
-DEG2RAD = math.pi / 180.0
-RAD2DEG = 180.0 / math.pi
-PI = 3.14159265358979323846
+from lib.math.math_values import *
 
 
 class AngleDeg:
-    PI = 3.14159265358979323846
-
     def __init__(self, degree: float = None, angledeg=None):
         if degree is not None:
             self._degree = degree

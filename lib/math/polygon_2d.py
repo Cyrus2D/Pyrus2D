@@ -3,8 +3,14 @@
   \ brief 2D polygon region File.
 """
 
-from lib.math.rect_2d import *
-from lib.math.region_2d import *
+from lib.math.rect_2d import Rect2D
+from lib.math.region_2d import Region2D
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+from lib.math.size_2d import Size2D
+from lib.math.line_2d import Line2D
+from lib.math.segment_2d import Segment2D
+import math
 
 
 class XLessEqual:

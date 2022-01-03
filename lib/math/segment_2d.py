@@ -4,9 +4,11 @@
 """
 
 from lib.math.triangle_2d import Triangle2D
-from lib.math.line_2d import *
-
-CALC_ERROR = 1.0e-9
+from lib.math.line_2d import Line2D
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+import math
+from lib.math.math_values import *
 
 
 class Segment2D:

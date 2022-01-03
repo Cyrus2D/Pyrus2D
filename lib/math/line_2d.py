@@ -5,7 +5,10 @@
     Line Formula: aX + bY + c = 0
 """
 
-from lib.math.vector_2d import *
+from lib.math.vector_2d import Vector2D
+from lib.math.angle_deg import AngleDeg
+import math
+from lib.math.math_values import *
 
 
 class Line2D:
@@ -234,7 +237,7 @@ class Line2D:
 
 
 def test():
-    # a = Line2D(1, 1)
+    a = Line2D(1, 1)
     print(a)
 
 

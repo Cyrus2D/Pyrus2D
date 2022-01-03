@@ -2,9 +2,14 @@
   \ file circle_2d.py
   \ brief 2D circle region File.
 """
+from lib.math.segment_2d import Segment2D
 from lib.math.ray_2d import Ray2D
-from lib.math.segment_2d import *
-from lib.math.ray_2d import *
+from lib.math.vector_2d import Vector2D
+from lib.math.line_2d import Line2D
+from lib.math.triangle_2d import Triangle2D
+import math
+from lib.math.math_values import *
+
 
 """
   \ brief solve quadratic formula
@@ -210,7 +215,7 @@ class Circle2D:
 
     @staticmethod
     def circumcircle(p0, p1, p2):
-        center = tri2d.Triangle2D.tri_circumcenter(p0, p1, p2)
+        center = Triangle2D.tri_circumcenter(p0, p1, p2)
 
         if not center.is_valid():
             return Circle2D()
