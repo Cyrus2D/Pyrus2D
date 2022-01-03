@@ -3,8 +3,11 @@ import time
 
 from lib.action.kick_table import KickTable
 from base.decision import get_decision
+from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
+from lib.player.sensor.body_sensor import BodySensor
+from lib.player.sensor.see_state import SeeState
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
@@ -13,6 +16,7 @@ from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDash
     PlayerKickCommand, PlayerTackleCommand
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
 
@@ -23,6 +27,11 @@ class PlayerAgent(SoccerAgent):
             # TODO so many things....
             self._agent: PlayerAgent = agent
             self._think_received = False
+            self._current_time: GameTime = GameTime()
+            self._server_cycle_stopped: bool = False
+            self._last_decision_time: GameTime = GameTime()
+            self._body = BodySensor()
+            self._see_state: SeeState = SeeState()
 
         def send_init_command(self):
             # TODO check reconnection
@@ -40,6 +49,53 @@ class PlayerAgent(SoccerAgent):
             com = PlayerByeCommand()
             self._agent._client.send_message(com.str())
             self._agent._client.set_server_alive(False)
+
+        def sense_body_parser(self, message: str):
+            self.parse_cycle_info(message, True)
+
+            dlog.add_text(Level.SENSOR, "Receive body sensor")
+
+            self._body.parse(message, self._current_time)
+
+            self.see_state_.update_by_sense_body(self._time, self._body.view_width(), self._body.view_quality())
+
+            # todo action counters
+            self.update_after_sense_body(self._body, )
+
+        def parse_cycle_info(self, msg: str, by_sense_body: bool):
+            cycle = int(msg.split(' ')[1].strip(')('))
+            self.update_current_time(cycle, by_sense_body)
+
+        def update_current_time(self, new_time: int, by_sense_body: bool):
+            old_time: GameTime = self._current_time.copy()
+
+            if self._server_cycle_stopped:
+                if new_time != self._current_time.cycle():
+                    self._current_time.assign(new_time, 0)
+
+                    if new_time - 1 != old_time.cycle():
+                        print(f"player_n({self._agent.world().self_unum()}):"
+                              f"last server time was wrong maybe")
+                else:
+                    if by_sense_body:
+                        self._current_time.assign(self._current_time.cycle(), self._current_time.stopped_cycle() + 1)
+                        dlog.add_text(Level.LEVEL_ANY, f"Cycle: {self._current_time.cycle()}-"
+                                                       f"{self._current_time.stopped_cycle()} " + '-' * 20)
+
+                        if self._last_decision_time != old_time and old_time.stopped_cycle() != 0:
+                            dlog.add_text(Level.SYSTEM, f"(update current time) missed last action(1)")
+            else:
+                self._current_time.assign(new_time, 0)
+                if old_time.cycle() != new_time:
+                    dlog.add_text(Level.LEVEL_ANY, f"Cycle {new_time}-0 " + '-' * 20)
+
+                    if new_time - 1 != old_time.cycle():
+                        print(f"player_n({self._agent.world().self_unum()}):"
+                              f"last server time was wrong maybe")
+
+                    if (self._last_decision_time.stopped_cycle() == 0
+                            and self._last_decision_time.cycle() != new_time - 1):
+                        dlog.add_text(Level.SYSTEM, f"(update current time) missed last action(2)")
 
         @property
         def think_received(self):
@@ -76,6 +132,9 @@ class PlayerAgent(SoccerAgent):
     def handle_message(self):
         self.run()
 
+    def see_state(self):
+        return self._impl._see_state
+
     def run(self):
         last_time_rec = time.time()
         while True:
@@ -110,6 +169,8 @@ class PlayerAgent(SoccerAgent):
             self.init_dlog(message)
         if message.find("server_param") != -1:
             ServerParam.i().parse(message)
+        if message.find("sense_body") != -1:
+            self._impl.sense_body_parser(message)
 
             # TODO make function for these things
             if KickTable.instance().create_tables():
@@ -155,7 +216,7 @@ class PlayerAgent(SoccerAgent):
     def full_world(self) -> WorldModel:
         return self._full_world
 
-    def debug_client(self) ->DebugClient:
+    def debug_client(self) -> DebugClient:
         return self._debug_client
 
     def action(self):
@@ -178,5 +239,3 @@ class PlayerAgent(SoccerAgent):
         unum = int(message[2])
         side = message[1]
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
-
-
