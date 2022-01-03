@@ -6,7 +6,6 @@ import functools
 
 # from typing import List
 # from enum import Enum
-from copy import copy
 
 from lib.debug.level import Level
 from lib.debug.logger import dlog
@@ -339,12 +338,10 @@ class _KickTable:
 
     def createTables(self):
         player_type = PlayerType()  # default type
-
         if (math.fabs(self._player_size - player_type.player_size()) < EPS
                 and math.fabs(self._kickable_margin - player_type.kickable_margin()) < EPS
                 and math.fabs(self._ball_size - ServerParam.i().ball_size()) < EPS):
             return False
-
         self._player_size = player_type.player_size()
         self._kickable_margin = player_type.kickable_margin()
         self._ball_size = ServerParam.i().ball_size()
@@ -352,14 +349,14 @@ class _KickTable:
         self.createStateList(player_type)
 
         angle_step = 360.0 / DEST_DIR_DIVS
+        angles = [AngleDeg(-180 + i * angle_step) for i in range(DEST_DIR_DIVS)]
+        # TODO this functions should be checked
+        from multiprocessing import Pool
+        pool = Pool(4)
+        self._tables = pool.map(self.createTable, angles)
 
-        angle = -180.0
-
-        for i in range(DEST_DIR_DIVS):
-            angle += angle_step
-            self._tables.append([None] * (NUM_STATE * NUM_STATE))
-            self.createTable(AngleDeg(angle), self._tables[i])
-
+        # for i in range(len(angles)):
+        #     self._tables.append(self.createTable(angles[i]))
         return True
 
     """
@@ -405,10 +402,10 @@ class _KickTable:
       \ param table reference to the container variable
      """
 
-    def createTable(self, angle: AngleDeg, table):
+    def createTable(self, angle: AngleDeg):
         # max_combination = NUM_STATE * NUM_STATE
+        res: list = [None] * (NUM_STATE * NUM_STATE)
         max_state = len(self._state_list)
-        print("max_state: ", max_state)
 
         for origin in range(max_state):
             for dest in range(max_state):
@@ -418,17 +415,14 @@ class _KickTable:
                                             vel)
                 accel = max_vel - vel
                 path = Path(origin, dest)
-
                 path.max_speed_ = max_vel.r()
                 path.power_ = accel.r() / self._state_list[dest].kick_rate_
-                table[max_state * origin + dest] = path.copy()
+                res[max_state * origin + dest] = path
+        res.sort(key=functools.cmp_to_key(TableCmp))
+        if len(res) > MAX_TABLE_SIZE:
+            res = res[:MAX_TABLE_SIZE + 1]
+        return res
 
-        table.sort(key=functools.cmp_to_key(TableCmp))
-        # table.sort()
-
-        if len(table) > MAX_TABLE_SIZE:
-            table = table[:MAX_TABLE_SIZE + 1]
-        return table
 
     """
       \ brief update internal state
