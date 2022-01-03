@@ -356,7 +356,7 @@ class _KickTable:
         self._tables = pool.map(self.create_table, angles)
 
         # for i in range(len(angles)):
-        #     self._tables.append(self.createTable(angles[i]))
+        #     self._tables.append(self.create_table(angles[i]))
         return True
 
     """
