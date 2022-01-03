@@ -23,14 +23,14 @@ from lib.rcsc.game_time import *
 """
 
 
-def TableCmp(item1, item2) -> bool:
+def table_cmp(item1, item2) -> bool:
     if item1.max_speed_ == item2.max_speed_:
         return item1.power_ < item2.power_
 
     return item1.max_speed_ > item2.max_speed_
 
 
-def SequenceCmp(item1, item2) -> bool:
+def sequence_cmp(item1, item2) -> bool:
     return item1.score_ > item2.score_
 
 
@@ -336,7 +336,7 @@ class _KickTable:
     \ return result of table creation
     """
 
-    def createTables(self):
+    def create_tables(self):
         player_type = PlayerType()  # default type
         if (math.fabs(self._player_size - player_type.player_size()) < EPS
                 and math.fabs(self._kickable_margin - player_type.kickable_margin()) < EPS
@@ -346,14 +346,14 @@ class _KickTable:
         self._kickable_margin = player_type.kickable_margin()
         self._ball_size = ServerParam.i().ball_size()
 
-        self.createStateList(player_type)
+        self.create_state_list(player_type)
 
         angle_step = 360.0 / DEST_DIR_DIVS
         angles = [AngleDeg(-180 + i * angle_step) for i in range(DEST_DIR_DIVS)]
         # TODO this functions should be checked
         from multiprocessing import Pool
         pool = Pool(4)
-        self._tables = pool.map(self.createTable, angles)
+        self._tables = pool.map(self.create_table, angles)
 
         # for i in range(len(angles)):
         #     self._tables.append(self.createTable(angles[i]))
@@ -363,7 +363,7 @@ class _KickTable:
       \ brief create static state list
     """
 
-    def createStateList(self, player_type: PlayerType):
+    def create_state_list(self, player_type: PlayerType):
         near_dist = calc_near_dist(player_type)
         mid_dist = calc_mid_dist(player_type)
         far_dist = calc_far_dist(player_type)
@@ -402,7 +402,7 @@ class _KickTable:
       \ param table reference to the container variable
      """
 
-    def createTable(self, angle: AngleDeg):
+    def create_table(self, angle: AngleDeg):
         # max_combination = NUM_STATE * NUM_STATE
         res: list = [None] * (NUM_STATE * NUM_STATE)
         max_state = len(self._state_list)
@@ -418,7 +418,7 @@ class _KickTable:
                 path.max_speed_ = max_vel.r()
                 path.power_ = accel.r() / self._state_list[dest].kick_rate_
                 res[max_state * origin + dest] = path
-        res.sort(key=functools.cmp_to_key(TableCmp))
+        res.sort(key=functools.cmp_to_key(table_cmp))
         if len(res) > MAX_TABLE_SIZE:
             res = res[:MAX_TABLE_SIZE + 1]
         return res
@@ -429,21 +429,21 @@ class _KickTable:
       \ param world  reference to the WorldModel
      """
 
-    def updateState(self, world: WorldModel):
+    def update_state(self, world: WorldModel):
 
         if KickTable.S_UPDATE_TIME == world.time():
             return
 
         KickTable.S_UPDATE_TIME = world.time()
 
-        self.createStateCache(world)
+        self.create_state_cache(world)
 
     """
       \ brief implementation of the state update
       \ param world  reference to the WorldModel
      """
 
-    def createStateCache(self, world: WorldModel):
+    def create_state_cache(self, world: WorldModel):
 
         param = ServerParam.i()
         pitch = Rect2D(Vector2D(- param.pitch_half_length(), - param.pitch_half_width()), Size2D(param.pitch_length(),
@@ -472,7 +472,7 @@ class _KickTable:
         self._current_state.pos_ = world.ball().pos()
         self._current_state.kick_rate_ = world.self().kick_rate()
 
-        self.checkInterfereAt(world, self._current_state)  # 0
+        self.check_interfere_at(world, self._current_state)  # 0
 
         #
         # create future state
@@ -496,7 +496,7 @@ class _KickTable:
                 pos.set_length(near_dist)
                 pos += self_pos
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
-                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
+                self.check_interfere_at(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -511,7 +511,7 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, mid_dist, pos, krate))
-                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
+                self.check_interfere_at(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -526,7 +526,7 @@ class _KickTable:
                 pos += self_pos
 
                 self._state_cache[i].append(State(index, far_dist, pos, krate))
-                self.checkInterfereAt(world, self._state_cache[i][-1])  # i + 1
+                self.check_interfere_at(world, self._state_cache[i][-1])  # i + 1
                 if not pitch.contains(pos):
                     self._state_cache[i][-1].flag_ |= OUT_OF_PITCH
 
@@ -539,7 +539,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def checkCollisionAfterRelease(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def check_collision_after_release(self, world: WorldModel, target_point: Vector2D, first_speed):
 
         self_type = world.self().player_type()
 
@@ -587,9 +587,9 @@ class _KickTable:
     """
 
     @staticmethod
-    def checkInterfereAt(world: WorldModel,
-                         # cycle,  # not needed
-                         state: State):
+    def check_interfere_at(world: WorldModel,
+                           # cycle,  # not needed
+                           state: State):
         # cycle += 0  Check need
         penalty_area = Rect2D(Vector2D(ServerParam.i().their_penalty_area_line_x(),
                                        - ServerParam.i().penalty_area_half_width()),
@@ -678,19 +678,19 @@ class _KickTable:
       \ param state reference to the State variable to be updated
     """
 
-    def checkInterfereAfterRelease(self, *args):  # , **kwargs):):
+    def check_interfere_after_release(self, *args):  # , **kwargs):):
         if len(args) == 3:
             world: WorldModel = args[0]
             target_point: Vector2D = args[1]
             first_speed: float = args[2]
-            self.checkInterfereAfterRelease(world, target_point, first_speed, 1, self._current_state)
+            self.check_interfere_after_release(world, target_point, first_speed, 1, self._current_state)
 
             for i in range(MAX_DEPTH):
                 for state in self._state_cache[i]:
                     state.flag_ &= NOT_RELEASE_INTERFERE
                     state.flag_ &= NOT_MAYBE_RELEASE_INTERFERE
 
-                    self.checkInterfereAfterRelease(world, target_point, first_speed, i + 2, state)
+                    self.check_interfere_after_release(world, target_point, first_speed, i + 2, state)
         elif len(args) == 5:
             world: WorldModel = args[0]
             target_point: Vector2D = args[1]
@@ -775,7 +775,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulateOneStep(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def simulate_one_step(self, world: WorldModel, target_point: Vector2D, first_speed):
         if self._current_state.flag_ & SELF_COLLISION:
             return False
 
@@ -826,7 +826,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulateTwoStep(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def simulate_two_step(self, world: WorldModel, target_point: Vector2D, first_speed):
         max_power = ServerParam.i().max_power()
         accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
@@ -929,9 +929,9 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulateThreeStep(self, world: WorldModel,
-                          target_point: Vector2D,
-                          first_speed):
+    def simulate_three_step(self, world: WorldModel,
+                            target_point: Vector2D,
+                            first_speed):
 
         max_power = ServerParam.i().max_power()
         accel_max = ServerParam.i().ball_accel_max()
@@ -1148,33 +1148,33 @@ class _KickTable:
 
         self._candidates.clear()
 
-        self.updateState(world)
+        self.update_state(world)
 
-        self.checkCollisionAfterRelease(world,
-                                        target_point,
-                                        target_speed)
-        self.checkInterfereAfterRelease(world,
-                                        target_point,
-                                        target_speed)
+        self.check_collision_after_release(world,
+                                           target_point,
+                                           target_speed)
+        self.check_interfere_after_release(world,
+                                           target_point,
+                                           target_speed)
 
         if (max_step >= 1
-                and self.simulateOneStep(world,
-                                         target_point,
-                                         target_speed)):
+                and self.simulate_one_step(world,
+                                           target_point,
+                                           target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 1 step")
                 dlog.add_text(Level.KICK, "simulate() found 1 step")
         if (max_step >= 2
-                and self.simulateTwoStep(world,
-                                         target_point,
-                                         target_speed)):
+                and self.simulate_two_step(world,
+                                           target_point,
+                                           target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 2 step")
                 dlog.add_text(Level.KICK, "simulate() found 2 step")
         if (max_step >= 3
-                and self.simulateThreeStep(world,
-                                           target_point,
-                                           target_speed)):
+                and self.simulate_three_step(world,
+                                             target_point,
+                                             target_speed)):
             if _KickTable.PRINT_DEBUG:
                 print("simulate() found 3 step")
                 dlog.add_text(Level.KICK, "simulate() found 3 step")
@@ -1186,7 +1186,7 @@ class _KickTable:
             #     print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
-        sequence = max(self._candidates, key=functools.cmp_to_key(SequenceCmp))  # TODO : CMP Check
+        sequence = max(self._candidates, key=functools.cmp_to_key(sequence_cmp))  # TODO : CMP Check
         if _KickTable.PRINT_DEBUG or True:
             print("_______________________candidates_AE_________________________")
             for tmp in self._candidates:

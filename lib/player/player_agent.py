@@ -112,7 +112,7 @@ class PlayerAgent(SoccerAgent):
             ServerParam.i().parse(message)
 
             # TODO make function for these things
-            if KickTable.instance().createTables():
+            if KickTable.instance().create_tables():
                 print("KICKTABLE CREATE")
             else:
                 print("KICKTABLE Faild")
