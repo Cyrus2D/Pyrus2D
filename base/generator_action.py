@@ -62,7 +62,7 @@ class BhvKickGen:
     def can_opponent_cut_ball(self, wm: WorldModel, ball_pos, cycle):
         for unum in range(1, 12):
             opp: PlayerObject = wm.their_player(unum)
-            if opp.unum() is 0:
+            if opp.unum() == 0:
                 continue
             opp_cycle = opp.pos().dist(ball_pos) - opp.player_type().kickable_area()
             opp_cycle /= opp.player_type().real_speed_max()

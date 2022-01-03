@@ -25,7 +25,7 @@ class BhvKick:
             action_candidates: List[KickAction] = []
             action_candidates += BhvPassGen().generator(wm)
             action_candidates += BhvDribbleGen().generator(wm)
-            if len(action_candidates) is 0:
+            if len(action_candidates) == 0:
                 return True
 
             best_action: KickAction = max(action_candidates)
