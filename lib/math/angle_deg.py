@@ -185,7 +185,7 @@ class AngleDeg:
 
     @staticmethod
     def atan2_deg(y, x):
-        if x is 0.0 and y is 0.0:
+        if math.fabs(x) < EPSILON and math.fabs(y) < EPSILON:
             return 0.0
         else:
             return AngleDeg.rad2deg(math.atan2(y, x))
