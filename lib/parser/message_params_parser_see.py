@@ -2,14 +2,13 @@ class MessageParamsParserSee:
     def __init__(self) -> None:
         pass
 
-    def parse(self, string):
+    def parse(self, string) -> dict:
         dic = {}
         dic["cycle"] = int(string.strip(" ()").split(" ")[1])
         objects_start_index = string.find("((")
 
         if objects_start_index == -1:
-            print("No Objects have been seen")
-            return
+            return None
 
         objects_string = string[objects_start_index: -1]
         objects_list_string = objects_string[1:-1].split(") (")
