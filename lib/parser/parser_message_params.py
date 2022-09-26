@@ -18,7 +18,10 @@ class MessageParamsParser:
         else:
             dic[key] = {}
             end_of_dic = MessageParamsParser.end_of_dic(value)
-            MessageParamsParser._parse(dic[key], value[:end_of_dic])
+            if end_of_dic == -1:
+                MessageParamsParser._parse(dic[key], value[:])
+            else:
+                MessageParamsParser._parse(dic[key], value[:end_of_dic])
             MessageParamsParser._parse(dic, value[end_of_dic:])
 
     @staticmethod
@@ -45,3 +48,5 @@ class MessageParamsParser:
 
     def dic(self):
         return self._dic
+
+
