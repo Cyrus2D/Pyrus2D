@@ -9,13 +9,13 @@ class VisualSensor:
     DIR_ERR = -360
 
     class ObjectType(Enum):
-        Obj_Goal = auto()
-        Obj_Goal_Behind = auto()
-        Obj_Marker = auto()
-        Obj_Marker_Behind = auto()
-        Obj_Line = auto()
-        Obj_Ball = auto()
-        Obj_Player = auto()
+        Obj_Goal = 'g'
+        Obj_Goal_Behind = 'G'
+        Obj_Marker = 'f'
+        Obj_Marker_Behind = 'F'
+        Obj_Line = 'l'
+        Obj_Ball = 'b'
+        Obj_Player = 'p'
         Obj_Unknown = auto()
 
     class PlayerInfoType:
@@ -178,3 +178,4 @@ class VisualSensor:
         self._opponents = []
         self._unknown_opponents = []
         self._unknown_players = []
+        
