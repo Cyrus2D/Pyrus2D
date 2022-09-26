@@ -57,10 +57,10 @@ class PlayerAgent(SoccerAgent):
 
             self._body.parse(message, self._current_time)
 
-            self.see_state_.update_by_sense_body(self._time, self._body.view_width(), self._body.view_quality())
+            self._see_state.update_by_sense_body(self._time, self._body.view_width(), self._body.view_quality())
 
             # todo action counters
-            self.update_after_sense_body(self._body, )
+            self._agent.world().update_after_sense_body(self._body, )
 
         def parse_cycle_info(self, msg: str, by_sense_body: bool):
             cycle = int(msg.split(' ')[1].strip(')('))
@@ -211,7 +211,7 @@ class PlayerAgent(SoccerAgent):
         return True
 
     def world(self) -> WorldModel:
-        return self._full_world
+        return self._world
 
     def full_world(self) -> WorldModel:
         return self._full_world
