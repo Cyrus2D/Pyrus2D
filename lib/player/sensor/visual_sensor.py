@@ -98,6 +98,8 @@ class VisualSensor:
         def parse_string(key, value, type, marker_map):
             marker = VisualSensor.MarkerT()
             marker.id_ = VisualSensor.ObjectType.Obj_Unknown
+            marker.object_type_ = type
+            
             if not (type == VisualSensor.ObjectType.Obj_Marker_Behind
                     or type == VisualSensor.ObjectType.Obj_Goal_Behind):
                 if marker_map.get(key) is None:
@@ -166,12 +168,13 @@ class VisualSensor:
             n_player_data = len(player_data)
             
             if n_player_data >= 2:
+                player_data[1] = player_data[1].strip('"')
                 if player_data[1] == team_name:
                     result_type = types.Player_Unknown_Teammate
                 else:
                     result_type = types.Player_Unknown_Opponent
                     if  visual_sensor._their_team_name is None:
-                        visual_sensor._their_team_name = player_data[1].strip('"')
+                        visual_sensor._their_team_name = player_data[1]
             else:
                 result_type = types.Player_Unknown
             
@@ -396,20 +399,20 @@ class VisualSensor:
 
     def __repr__(self) -> str:
         res = ""
-        res += "\nteammates: \n".upper()
-        res += "\n".join(map(str, self._teammates))
-        res += "\nunknown_teammates: \n".upper()
-        res += "\n".join(map(str, self._unknown_teammates))
-        res += "\nopponents: \n".upper()
-        res += "\n".join(map(str, self._opponents))
-        res += "\nunknown_opponents: \n".upper()
-        res += "\n".join(map(str, self._unknown_opponents))
-        res += "\nunknown_players: \n".upper()
-        res += "\n".join(map(str, self._unknown_players))
-        res += "\nmarkers: \n".upper()
-        res += "\n".join(map(str, self._markers))
-        res += "\nbehind_markers: \n".upper()
-        res += "\n".join(map(str, self._behind_markers))
-        res += "\nlines: \n".upper()
-        res += "\n".join(map(str, self._lines))
+        res += "teammates: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._teammates))
+        res += "\n" + "#"*50 + "\nunknown_teammates: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_teammates))
+        res += "\n" + "#"*50 + "\nopponents: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._opponents))
+        res += "\n" + "#"*50 + "\nunknown_opponents: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_opponents))
+        res += "\n" + "#"*50 + "\nunknown_players: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_players))
+        res += "\n" + "#"*50 + "\nmarkers: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._markers))
+        res += "\n" + "#"*50 + "\nbehind_markers: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._behind_markers))
+        res += "\n" + "#"*50 + "\nlines: \n".upper()
+        res += ("\n" + "#"*10 + "\n").join(map(str, self._lines))
         return res
