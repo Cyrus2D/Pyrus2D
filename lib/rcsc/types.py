@@ -106,10 +106,10 @@ class MarkerID(Enum):
 
 @unique
 class LineID(Enum):
-    Line_Left = auto()
-    Line_Right = auto()
-    Line_Top = auto()
-    Line_Bottom = auto()
+    Line_Left = 'l'
+    Line_Right = 'r'
+    Line_Top = 't'
+    Line_Bottom = 'b'
     Line_Unknown = auto()
 
 

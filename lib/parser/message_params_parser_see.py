@@ -13,10 +13,9 @@ class MessageParamsParserSee:
         objects_string = string[objects_start_index: -1]
         objects_list_string = objects_string[1:-1].split(") (")
         
-        dic = {}
         for object_string in objects_list_string:
             key_end_index = object_string.find(")")
             key = object_string[1:key_end_index]
-            dic[key] = object_string[key_end_index+1:]
+            dic[key] = object_string[key_end_index+1:].strip(" ")
         
         return dic

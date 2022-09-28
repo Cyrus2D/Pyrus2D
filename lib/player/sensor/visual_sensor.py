@@ -1,4 +1,3 @@
-from cmath import polar
 from enum import Enum, auto
 from lib.parser.message_params_parser_see import MessageParamsParserSee
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID
@@ -38,7 +37,7 @@ class VisualSensor:
             self.dir_ = VisualSensor.DIR_ERR
 
         @staticmethod
-        def parse_string(key, value, type):
+        def parse_string(key, value):
             pass
 
     class MoveableT(PolarT):
@@ -62,6 +61,20 @@ class VisualSensor:
         def reset(self):
             super().reset()
             self.id_ = LineID.Line_Unknown
+        
+        @staticmethod
+        def parse_string(key, value):
+            line = VisualSensor.LineT()
+            line_name = key.split(' ')[1]
+
+            line.id_ = LineID(line_name)
+            
+            state_data = value.split(" ")
+            line.dist_ = float(state_data[0])
+            line.dir_ = float(state_data[1])
+
+            return line
+            
 
     class MarkerT(PolarT):
         def __init__(self) -> None:
@@ -92,15 +105,32 @@ class VisualSensor:
 
             return marker
 
-    class BallT(PolarT):
+    class BallT(MoveableT):
         def __init__(self) -> None:
             super().__init__()
+        
+        @staticmethod
+        def parse_string(key, value):
+            ball = VisualSensor.BallT()
+            
+            state_data = value.split(" ")
+            n_state_data = len(state_data)
+
+            ball.dist_ = float(state_data[0])
+            ball.dir_ = float(state_data[1])
+            
+            if n_state_data == 4:
+                ball.dist_chng_ = float(state_data[2])
+                ball.dir_chng_ = float(state_data[3])
+                ball.has_vel_ = True
+            return ball
+                
 
     class PlayerT(MoveableT):
         def __init__(self) -> None:
             super().__init__()
             self.unum_ = UNUM_UNKNOWN
-            self.goalie: bool = False
+            self.goalie_: bool = False
             self.body_ = VisualSensor.DIR_ERR
             self.face_ = VisualSensor.DIR_ERR
             self.arm_ = VisualSensor.DIR_ERR
@@ -110,17 +140,111 @@ class VisualSensor:
         def reset(self):
             super().reset()
             self.unum_ = UNUM_UNKNOWN
-            self.goalie: bool = False
+            self.goalie_: bool = False
             self.body_ = VisualSensor.DIR_ERR
             self.face_ = VisualSensor.DIR_ERR
             self.arm_ = VisualSensor.DIR_ERR
             self.kicking_: bool = False
             self.tackle_: bool = False
+        
+        @staticmethod
+        def parse_string(key, value, team_name, visual_sensor):
+            # PARSE KEY
+            types = VisualSensor.PlayerInfoType
+
+            player = VisualSensor.PlayerT()
+            result_type = types.Player_Illegal
+            
+            player_data = key.split(" ")
+            n_player_data = len(player_data)
+            
+            if n_player_data >= 2:
+                if player_data[1] == team_name:
+                    result_type = types.Player_Unknown_Teammate
+                else:
+                    result_type = types.Player_Unknown_Opponent
+                    if  visual_sensor._their_team_name is None:
+                        visual_sensor._their_team_name = player_data[1].stript('"')
+            else:
+                result_type = types.Player_Unknown
+            
+            if n_player_data >= 3:
+                player.unum_ = int(player_data[2])
+                result_type = (types.Player_Teammate
+                                if result_type == types.Player_Unknown_Teammate
+                                else types.Player_Opponent)
+            
+            else:
+                player.unum_ = UNUM_UNKNOWN
+            
+            if n_player_data == 4:
+                player.goalie_ = True
+            
+            # PARSE VALUE
+            state_data = value.split(" ")
+            n_state_data = len(state_data)
+            
+            if n_state_data >= 5:
+                player.dist_ = float(state_data[0])
+                player.dir_ = float(state_data[1])
+                player.dist_chng_ = float(state_data[2])
+                player.dir_chng_ = float(state_data[3])
+                player.body_ = float(state_data[4])
+                player.has_vel_ = True
+                
+                if n_state_data >=6:
+                    player.face_ = float(state_data[5])
+                
+                if n_state_data == 8:
+                    player.arm_ = float(state_data[6])
+                    if state_data[7] == 'k':
+                        player.kicking_ = True
+                    if state_data[7] == 't':
+                        player.tackle_ = True
+                
+                elif n_state_data == 7:
+                    if state_data[-1] == 'k':
+                        player.kicking_ = True
+                    elif state_data[-1] == 't':
+                        player.tackle_ = True
+                    else:
+                        player.arm_ = float(state_data[-1])
+            
+            elif n_state_data >= 2:
+                player.dist_ = float(state_data[0])
+                player.dir_ = float(state_data[1])
+                
+                if n_state_data == 4:
+                    if state_data[-1] == 't':
+                        player.tackle_ = True
+                        player.arm_ = float(state_data[-2])
+                    elif state_data[-1] == 'k':
+                        player.kicking_ = True
+                        player.arm_ = float(state_data[-2])
+                    else:
+                        player.dist_chng_ = float(state_data[2])
+                        player.dir_chng_ = float(state_data[3])
+                        player.has_vel_ = True
+                elif n_state_data == 3:
+                    if state_data[-1] == 'k':
+                        player.kicking_ = True
+                    elif state_data[-1] == 't':
+                        player.tackle_ = True
+                    else:
+                        player.arm_ = float(state_data[-1])
+            
+            elif n_state_data == 1:
+                player.dir_ = float(state_data[0])
+            
+            return player, result_type
+                    
+
+
 
     def __init__(self) -> None:
-        self._time: GameTime
-        self._their_team_name: str
-        self._marker_map: dict[str, MarkerID]
+        self._time: GameTime = GameTime()
+        self._their_team_name: str = None
+        self._marker_map: dict[str, MarkerID] = {}
 
         self._balls: list[VisualSensor.BallT] = []
         self._markers: list[VisualSensor.MarkerT] = []
@@ -202,6 +326,19 @@ class VisualSensor:
         self._unknown_opponents.clear()
         self._unknown_players.clear()
 
+    def add_player(self, player, player_type):
+        types = VisualSensor.PlayerInfoType
+        if player_type == types.Player_Teammate:
+            self._teammates.append(player)
+        elif player_type == types.Player_Unknown_Teammate:
+            self._unknown_teammates.append(player)
+        elif player_type == types.Player_Opponent:
+            self._opponents.append(player)
+        elif player_type == types.Player_Unknown_Opponent:
+            self._unknown_opponents.append(player)
+        elif player_type == types.Player_Unknown:
+            self._unknown_players.append(player)
+    
     def parse(self, message: str, team_name: str, current_time: GameTime):
         if self._time == current_time:
             return
@@ -225,15 +362,15 @@ class VisualSensor:
                 self._behind_markers.append(VisualSensor.MarkerT.parse_string(
                     key, value, obj_type, self._marker_map))
             elif obj_type == types.Obj_Player:
-                player = VisualSensor.PlayerT.parse_string(
-                    key, value, obj_type)
-                self.add_player(player)
+                player, player_type = VisualSensor.PlayerT.parse_string(
+                    key, value, team_name)
+                self.add_player(player, player_type)
             elif obj_type == types.Obj_Line:
                 self._lines.append(
-                    VisualSensor.LineT.parse_string(key, value, obj_type))
+                    VisualSensor.LineT.parse_string(key, value))
             elif obj_type == types.Obj_Ball:
                 self._balls.append(
-                    VisualSensor.BallT.parse_string(key, value, obj_type))
+                    VisualSensor.BallT.parse_string(key, value))
             else:
                 print(f"A seen object is not identified by its type!!")
 
