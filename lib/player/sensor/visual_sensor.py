@@ -39,6 +39,13 @@ class VisualSensor:
         @staticmethod
         def parse_string(key, value):
             pass
+        
+        def __repr__(self) -> str:
+            res = ""
+            for k, v in self.__dict__.items():
+                res += f"{k}: {v}\n"
+            return res[:-1]
+        
 
     class MoveableT(PolarT):
         def __init__(self) -> None:
@@ -164,7 +171,7 @@ class VisualSensor:
                 else:
                     result_type = types.Player_Unknown_Opponent
                     if  visual_sensor._their_team_name is None:
-                        visual_sensor._their_team_name = player_data[1].stript('"')
+                        visual_sensor._their_team_name = player_data[1].strip('"')
             else:
                 result_type = types.Player_Unknown
             
@@ -339,6 +346,17 @@ class VisualSensor:
         elif player_type == types.Player_Unknown:
             self._unknown_players.append(player)
     
+    def sort_all(self):
+        dist_lambda = lambda a: a.dist_
+        self._teammates.sort(key=dist_lambda)
+        self._unknown_teammates.sort(key=dist_lambda)
+        self._opponents.sort(key=dist_lambda)
+        self._unknown_opponents.sort(key=dist_lambda)
+        self._unknown_players.sort(key=dist_lambda)
+        self._markers.sort(key=dist_lambda)
+        self._behind_markers.sort(key=dist_lambda)
+        self._lines.sort(key=dist_lambda)
+    
     def parse(self, message: str, team_name: str, current_time: GameTime):
         if self._time == current_time:
             return
@@ -363,7 +381,7 @@ class VisualSensor:
                     key, value, obj_type, self._marker_map))
             elif obj_type == types.Obj_Player:
                 player, player_type = VisualSensor.PlayerT.parse_string(
-                    key, value, team_name)
+                    key, value, team_name, self)
                 self.add_player(player, player_type)
             elif obj_type == types.Obj_Line:
                 self._lines.append(
@@ -375,3 +393,23 @@ class VisualSensor:
                 print(f"A seen object is not identified by its type!!")
 
             self.sort_all()
+
+    def __repr__(self) -> str:
+        res = ""
+        res += "\nteammates: \n".upper()
+        res += "\n".join(map(str, self._teammates))
+        res += "\nunknown_teammates: \n".upper()
+        res += "\n".join(map(str, self._unknown_teammates))
+        res += "\nopponents: \n".upper()
+        res += "\n".join(map(str, self._opponents))
+        res += "\nunknown_opponents: \n".upper()
+        res += "\n".join(map(str, self._unknown_opponents))
+        res += "\nunknown_players: \n".upper()
+        res += "\n".join(map(str, self._unknown_players))
+        res += "\nmarkers: \n".upper()
+        res += "\n".join(map(str, self._markers))
+        res += "\nbehind_markers: \n".upper()
+        res += "\n".join(map(str, self._behind_markers))
+        res += "\nlines: \n".upper()
+        res += "\n".join(map(str, self._lines))
+        return res

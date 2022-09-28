@@ -4,7 +4,6 @@ class MessageParamsParserSee:
 
     def parse(self, string) -> dict:
         dic = {}
-        dic["cycle"] = int(string.strip(" ()").split(" ")[1])
         objects_start_index = string.find("((")
 
         if objects_start_index == -1:
