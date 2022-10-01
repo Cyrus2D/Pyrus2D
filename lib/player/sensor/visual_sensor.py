@@ -39,13 +39,12 @@ class VisualSensor:
         @staticmethod
         def parse_string(key, value):
             pass
-        
+
         def __repr__(self) -> str:
             res = ""
             for k, v in self.__dict__.items():
                 res += f"{k}: {v}\n"
             return res[:-1]
-        
 
     class MoveableT(PolarT):
         def __init__(self) -> None:
@@ -68,20 +67,19 @@ class VisualSensor:
         def reset(self):
             super().reset()
             self.id_ = LineID.Line_Unknown
-        
+
         @staticmethod
         def parse_string(key, value):
             line = VisualSensor.LineT()
             line_name = key.split(' ')[1]
 
             line.id_ = LineID(line_name)
-            
+
             state_data = value.split(" ")
             line.dist_ = float(state_data[0])
             line.dir_ = float(state_data[1])
 
             return line
-            
 
     class MarkerT(PolarT):
         def __init__(self) -> None:
@@ -99,7 +97,7 @@ class VisualSensor:
             marker = VisualSensor.MarkerT()
             marker.id_ = VisualSensor.ObjectType.Obj_Unknown
             marker.object_type_ = type
-            
+
             if not (type == VisualSensor.ObjectType.Obj_Marker_Behind
                     or type == VisualSensor.ObjectType.Obj_Goal_Behind):
                 if marker_map.get(key) is None:
@@ -117,23 +115,22 @@ class VisualSensor:
     class BallT(MoveableT):
         def __init__(self) -> None:
             super().__init__()
-        
+
         @staticmethod
         def parse_string(key, value):
             ball = VisualSensor.BallT()
-            
+
             state_data = value.split(" ")
             n_state_data = len(state_data)
 
             ball.dist_ = float(state_data[0])
             ball.dir_ = float(state_data[1])
-            
+
             if n_state_data == 4:
                 ball.dist_chng_ = float(state_data[2])
                 ball.dir_chng_ = float(state_data[3])
                 ball.has_vel_ = True
             return ball
-                
 
     class PlayerT(MoveableT):
         def __init__(self) -> None:
@@ -155,7 +152,7 @@ class VisualSensor:
             self.arm_ = VisualSensor.DIR_ERR
             self.kicking_: bool = False
             self.tackle_: bool = False
-        
+
         @staticmethod
         def parse_string(key, value, team_name, visual_sensor):
             # PARSE KEY
@@ -163,37 +160,37 @@ class VisualSensor:
 
             player = VisualSensor.PlayerT()
             result_type = types.Player_Illegal
-            
+
             player_data = key.split(" ")
             n_player_data = len(player_data)
-            
+
             if n_player_data >= 2:
                 player_data[1] = player_data[1].strip('"')
                 if player_data[1] == team_name:
                     result_type = types.Player_Unknown_Teammate
                 else:
                     result_type = types.Player_Unknown_Opponent
-                    if  visual_sensor._their_team_name is None:
+                    if visual_sensor._their_team_name is None:
                         visual_sensor._their_team_name = player_data[1]
             else:
                 result_type = types.Player_Unknown
-            
+
             if n_player_data >= 3:
                 player.unum_ = int(player_data[2])
                 result_type = (types.Player_Teammate
-                                if result_type == types.Player_Unknown_Teammate
-                                else types.Player_Opponent)
-            
+                               if result_type == types.Player_Unknown_Teammate
+                               else types.Player_Opponent)
+
             else:
                 player.unum_ = UNUM_UNKNOWN
-            
+
             if n_player_data == 4:
                 player.goalie_ = True
-            
+
             # PARSE VALUE
             state_data = value.split(" ")
             n_state_data = len(state_data)
-            
+
             if n_state_data >= 5:
                 player.dist_ = float(state_data[0])
                 player.dir_ = float(state_data[1])
@@ -201,17 +198,17 @@ class VisualSensor:
                 player.dir_chng_ = float(state_data[3])
                 player.body_ = float(state_data[4])
                 player.has_vel_ = True
-                
-                if n_state_data >=6:
+
+                if n_state_data >= 6:
                     player.face_ = float(state_data[5])
-                
+
                 if n_state_data == 8:
                     player.arm_ = float(state_data[6])
                     if state_data[7] == 'k':
                         player.kicking_ = True
                     if state_data[7] == 't':
                         player.tackle_ = True
-                
+
                 elif n_state_data == 7:
                     if state_data[-1] == 'k':
                         player.kicking_ = True
@@ -219,11 +216,11 @@ class VisualSensor:
                         player.tackle_ = True
                     else:
                         player.arm_ = float(state_data[-1])
-            
+
             elif n_state_data >= 2:
                 player.dist_ = float(state_data[0])
                 player.dir_ = float(state_data[1])
-                
+
                 if n_state_data == 4:
                     if state_data[-1] == 't':
                         player.tackle_ = True
@@ -242,14 +239,11 @@ class VisualSensor:
                         player.tackle_ = True
                     else:
                         player.arm_ = float(state_data[-1])
-            
+
             elif n_state_data == 1:
                 player.dir_ = float(state_data[0])
-            
+
             return player, result_type
-                    
-
-
 
     def __init__(self) -> None:
         self._time: GameTime = GameTime()
@@ -348,9 +342,9 @@ class VisualSensor:
             self._unknown_opponents.append(player)
         elif player_type == types.Player_Unknown:
             self._unknown_players.append(player)
-    
+
     def sort_all(self):
-        dist_lambda = lambda a: a.dist_
+        def dist_lambda(a): return a.dist_
         self._teammates.sort(key=dist_lambda)
         self._unknown_teammates.sort(key=dist_lambda)
         self._opponents.sort(key=dist_lambda)
@@ -359,7 +353,7 @@ class VisualSensor:
         self._markers.sort(key=dist_lambda)
         self._behind_markers.sort(key=dist_lambda)
         self._lines.sort(key=dist_lambda)
-    
+
     def parse(self, message: str, team_name: str, current_time: GameTime):
         if self._time == current_time:
             return
@@ -416,3 +410,39 @@ class VisualSensor:
         res += "\n" + "#"*50 + "\nlines: \n".upper()
         res += ("\n" + "#"*10 + "\n").join(map(str, self._lines))
         return res
+
+    def time(self):
+        return self._time
+
+    def their_team_name(self):
+        return self._their_team_name
+
+    def marker_map(self):
+        return self._marker_map
+
+    def balls(self):
+        return self._balls
+
+    def markers(self):
+        return self._markers
+
+    def behind_markers(self):
+        return self._behind_markers
+
+    def lines(self):
+        return self._lines
+
+    def teammates(self):
+        return self._teammates
+
+    def unknown_teammates(self):
+        return self._unknown_teammates
+
+    def opponents(self):
+        return self._opponents
+
+    def unknown_opponents(self):
+        return self._unknown_opponents
+
+    def unknown_players(self):
+        return self._unknown_players
