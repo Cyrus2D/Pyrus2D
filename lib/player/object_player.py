@@ -5,7 +5,7 @@ from lib.player.object_ball import *
 from lib.player.stamina_model import StaminaModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam as SP
-from lib.rcsc.types import SideID, Card
+from lib.rcsc.types import SideID, Card, ViewQuality, ViewWidth
 
 
 # from lib.player.templates import *
@@ -32,6 +32,8 @@ class PlayerObject(Object):
         self._dist_from_ball: float = 0.0
         self._angle_from_ball: AngleDeg = AngleDeg(0.0)
         self._body_count: int = 0
+        self._view_width: ViewWidth = ViewWidth.ILLEGAL
+        self._view_quality: ViewQuality= ViewQuality.ILLEGAL
 
     # update with server data
     def init_dic(self, dic: dict):
@@ -185,22 +187,32 @@ class PlayerObject(Object):
         return 0.25
 
     def is_tackling(self):
-        return False  # TODO WHAT the fuck :/
+        return False  # TODO 
 
     def tackle_count(self):
-        return 0  # TODO WHAT the fuck again :/
+        return 0  # TODO 
 
     def face_count(self):
         return 0
 
     def is_frozen(self):
-        return False  # TODO yep aref WHAT the fuck rasman
+        return False  # TODO 
 
     def is_ghost(self):
-        return False  # TODO should be written again
+        return False  # TODO should 
 
     def body_count(self):
         return self._body_count
+    
+    def view_width(self):
+        return self._view_width
+
+    def view_width(self):
+        return self._view_width
+
+    def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
+        self._view_width = vw.copy()
+        self._view_quality = vq.copy()
 
     def get_safety_dash_power(self, dash_power):
         return self.stamina_model().get_safety_dash_power(self.player_type(),
