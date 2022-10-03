@@ -207,8 +207,8 @@ class PlayerObject(Object):
     def view_width(self):
         return self._view_width
 
-    def view_width(self):
-        return self._view_width
+    def view_quality(self):
+        return self._view_quality
 
     def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
         self._view_width = vw.copy()

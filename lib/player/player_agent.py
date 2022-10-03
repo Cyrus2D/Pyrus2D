@@ -8,6 +8,7 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState
+from lib.player.sensor.visual_sensor import VisualSensor
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
@@ -30,8 +31,12 @@ class PlayerAgent(SoccerAgent):
             self._current_time: GameTime = GameTime()
             self._server_cycle_stopped: bool = False
             self._last_decision_time: GameTime = GameTime()
+
             self._body = BodySensor()
+            
+            self._visual: VisualSensor = VisualSensor()
             self._see_state: SeeState = SeeState()
+            self._team_name = "Pyrus" # TODO REMOVE IT
 
         def send_init_command(self):
             # TODO check reconnection
@@ -61,6 +66,24 @@ class PlayerAgent(SoccerAgent):
 
             # todo action counters
             self._agent.world().update_after_sense_body(self._body, )
+        
+        def sense_visual_parser(self, message: str):
+            self.parse_cycle_info(message, False)
+            
+            self._visual.parse(message,
+                               self._team_name,
+                               self._current_time)
+
+            self._see_state.update_by_see(self._current_time,
+                                          self._agent.world().self().view_width(),
+                                          self._agent.world().self().view_quality())
+
+            if self._visual.time() == self._current_time and \
+                self._agent.world().see_time() != self._current_time:
+                    self._agent.world().update_after_see(self._visual,
+                                                         self._body,
+                                                         self._agent.effector(),
+                                                         self._current_time)
 
         def parse_cycle_info(self, msg: str, by_sense_body: bool):
             cycle = int(msg.split(' ')[1].strip(')('))
