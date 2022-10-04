@@ -1,7 +1,10 @@
 from lib.action.intercept_table import InterceptTable
+from lib.player.action_effector import ActionEffector
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
+from lib.player.sensor.body_sensor import BodySensor
+from lib.player.sensor.visual_sensor import VisualSensor
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import GameModeType
@@ -349,3 +352,10 @@ class WorldModel:
 
     def self_unum(self):
         return self._self_unum
+
+    def update_after_see(self,
+                         visual: VisualSensor,
+                         body: BodySensor,
+                         effector: ActionEffector,
+                         current_time: GameTime):
+        
