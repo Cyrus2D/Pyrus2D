@@ -1,7 +1,11 @@
+from lib.debug.level import Level
+from lib.debug.logger import dlog
+from lib.math.angle_deg import AngleDeg
 from lib.math.vector_2d import Vector2D
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
 from lib.rcsc.game_time import GameTime
+from lib.rcsc.server_param import ServerParam
 
 
 class ActionEffector:
@@ -123,4 +127,77 @@ class ActionEffector:
         if body.attentionto_count() == self._command_counter[CommandType.ATTENTIONTO]:
             print(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             self._command_counter[CommandType.ATTENTIONTO] =   body.attentionto_count()
+    
+    @staticmethod
+    def conserve_dash_power(wm, power, rel_dir):
+        dlog.add_text(Level.ACTION, f"(conserved dash power) power={power}")
+
+        SP = ServerParam.i()
+        required_stamina = power
+        available_stamina = wm.self().stamina() + wm.self().player_type().extra_stamina()
+        
+        if available_stamina < required_stamina:
+            dlog.add_text(Level.ACTION, f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")
+            power = available_stamina
+        
+        dir_rate = SP.dash_dir_rate(rel_dir)
+        accel_mag = abs(power*dir_rate*wm.self().dash_rate())
+        accel_angle = wm.self().body() + rel_dir
+        _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel(),
+                                                accel_angle=accel_angle,
+                                                accel_mag=accel_mag)
+        
+        power = accel_mag / wm.self().dashRate() / dir_rate
+        power = SP.normalize_dash_power(power)
+        
+        dlog.add_text(Level.ACTION, f"(conserved dash power) conserved power={power}")
+        
+    def set_kick(self, power: float, rel_dir: AngleDeg | float):
+        wm = self._agent.world()
+
+        rel_dir = float(rel_dir)
+        
+        if power < 0 or power > 100:
+            print(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            power = ServerParam.i().max_power() if power > 100 else ServerParam.i().min_power()
+        
+        dlog.add_text(Level.ACTION, f"(set kick) power={power}, rel_dir={rel_dir}")
+        self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate(),
+                                                 wm.self().body() + rel_dir)
+        max_rand = wm.self().player_type().kick_rand()*power/ServerParam.i().max_power()
+        self._kick_accel_error = Vector2D(max_rand, max_rand)
+        
+    def set_dash(self, power: float, rel_dir: AngleDeg | float = 0):
+        SP = ServerParam.i()
+        wm = self._agent.world()
+
+        rel_dir = float(rel_dir)
+        
+        if power > 100 or power < 0:
+            print(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            SP.normalize_dash_power(power)
+        
+        if rel_dir > 100 or rel_dir < 0:
+            print(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
+            SP.normalize_dash_angle(rel_dir)
+        
+        rel_dir = SP.discretize_dash_angle(rel_dir)
+        power = ActionEffector.conserve_dash_power(wm, power, rel_dir)
+        
+        dir_rate = SP.dash_dir_rate(rel_dir)
+        accel_mag = abs(power*dir_rate*wm.self().dash_rate())
+        accel_mag = min(accel_mag, SP.player_accel_max())
+        accel_angle = wm.self().body() + rel_dir
+        
+        self._dash_power = power
+        self._dash_dir = rel_dir
+        self._dash_accel = Vector2D.polar2vector(accel_mag, accel_angle)
+        
+        dlog.add_text(Level.ACTION, f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
+
+
+        
+        
+            
+
 
