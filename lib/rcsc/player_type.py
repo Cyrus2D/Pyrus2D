@@ -210,13 +210,22 @@ class PlayerType:
     def inertiaFinalPoint(self, initial_pos: Vector2D, initial_vel: Vector2D):
         return smath.inertia_final_point(initial_pos, initial_vel, self.player_decay())
 
-    def normalize_accel(self, vel: Vector2D, accel: Vector2D):
-        if (vel + accel).r2() > self.player_speed_max2() + 0.0001:
-            rel_vel = vel.rotated_vector(-accel.th())
-            max_dash_x = (self.player_speed_max2() - rel_vel.y() - rel_vel.x()) ** 0.5
-            accel.set_length(max_dash_x - rel_vel.x())
-            return True
-        return False
+    def normalize_accel(self, vel: Vector2D, accel: Vector2D = None, accel_mag: float = None, accel_angle=None):
+        if accel_mag is None or accel_angle is None:
+            if (vel + accel).r2() > self.player_speed_max2() + 0.0001:
+                rel_vel = vel.rotated_vector(-accel.th())
+                max_dash_x = (self.player_speed_max2() - rel_vel.y() - rel_vel.x()) ** 0.5
+                accel.set_length(max_dash_x - rel_vel.x())
+                return True
+            return False
+        else:
+            dash_move = vel.copy()
+            dash_move += Vector2D.polar2vector(accel_mag, accel_angle)
+            if dash_move.r2() > self.player_speed_max2():
+                rel_vel = vel.rotated_vector(-accel_angle)
+                max_dash_x = (self.player_speed_max2() - rel_vel.y**2)**0.5
+                return True, (max_dash_x - rel_vel.x)
+            return False, accel_angle
 
     def can_over_speed_max(self, dash_power: float, effort: float):
         return (abs(dash_power) * self.dash_power_rate() * effort
