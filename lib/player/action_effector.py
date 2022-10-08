@@ -1,11 +1,14 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
+from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
+from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
+from lib.rcsc.types import GameModeType
 
 
 class ActionEffector:
@@ -157,7 +160,7 @@ class ActionEffector:
 
         rel_dir = float(rel_dir)
         
-        if power < 0 or power > 100:
+        if power < ServerParam.i().min_power() or power > ServerParam.i().max_power():
             print(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             power = ServerParam.i().max_power() if power > 100 else ServerParam.i().min_power()
         
@@ -173,11 +176,11 @@ class ActionEffector:
 
         rel_dir = float(rel_dir)
         
-        if power > 100 or power < 0:
+        if power > SP.max_dash_power() or power < SP.min_dash_power():
             print(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_power(power)
         
-        if rel_dir > 100 or rel_dir < 0:
+        if rel_dir > SP.max_dash_power() or rel_dir < SP.min_dash_power():
             print(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_angle(rel_dir)
         
@@ -195,9 +198,71 @@ class ActionEffector:
         
         dlog.add_text(Level.ACTION, f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
 
+    def set_turn(self, moment: AngleDeg | float):
+        moment = float(moment)
+        
+        SP = ServerParam.i()
+        wm = self._agent.world()
+        speed = wm.self().vel().r()
 
+        moment *= 1 + speed * wm.self().player_type().inertia_moment()
+        if moment > SP.max_moment() or moment < SP.min_moment():
+            print(f"(set turn) player({wm.self().unum()}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
+            moment = SP.max_moment() if moment > SP.max_moment() else SP.min_moment()
         
+        self._turn_actual = moment / (1 + speed*wm.self().player_type().inertia_moment())
+        self._turn_error = abs(SP.player_rand()*self._turn_actual)
+
+        dlog.add_text(Level.ACTION, f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
+    
+    def set_move(self, x: float, y: float):
+        SP = ServerParam.i()
+        wm = self._agent.world()
+
+        if abs(x) > SP.pitch_half_length() or abs(y) > SP.pitch_half_width():
+            print(f"(set move) player({wm.self().unum()}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
+            x = min_max(-SP.pitch_half_length(), x, SP.pitch_half_length())
+            y = min_max(-SP.pitch_half_width(), y, SP.pitch_half_width())
         
+        if SP.kickoff_offside() and x > 0:
+            print(f"(set move) player({wm.self().unum()}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
+            x = -0.1
+        
+        if wm.game_mode().type().is_goalie_catch_ball() and wm.game_mode().side() == wm.our_side():
+            if x < -SP.pitch_half_length() + 1 or x > -SP.our_penalty_area_line_x() - 1:
+                print(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                x = min_max(-SP.pitch_half_length()+1, x, -SP.our_penalty_area_line_x()-1)
+            if abs(y) > SP.penalty_area_half_width() -1:
+                print(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                y = min_max(-SP.penalty_area_half_width(),y, SP.penalty_area_half_width())
+        
+        self._move_pos.assign(x, y)
+    
+    def set_catch(self):
+        SP = ServerParam.i()
+        wm = self._agent.world()
+        
+        diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w()*0.5, SP.catch_area_l())
+        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
+        catch_angle = ball_rel_angle + diagonal_angle
+        
+        if not (SP.min_catch_angle() < catch_angle < SP.max_catch_angle()):
+            catch_angle = ball_rel_angle - diagonal_angle
+    
+    def set_tackle(self, dir: float|AngleDeg, foul: bool):
+        wm = self._agent.world()
+        
+        dir = float(dir)
+        if abs(dir) > 180:
+            print(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. pos=({x},{y})")
+            dir = AngleDeg.normalize_angle(dir)
+        
+        self._tackle_power = ServerParam.i().max_tackle_power()
+        self._tackle_dir = dir
+        self._tackle_foul = foul
+    
+    
             
-
+                
+            
 
