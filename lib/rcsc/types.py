@@ -177,73 +177,73 @@ class GameModeType(Enum):
     IllegalDefense_Right = "illegal_defense_r"
     MAX = "max"
 
-    def is_KickOff(self):
+    def is_kick_off(self):
         return self == GameModeType.KickOff_Left or self == GameModeType.KickOff_Right
 
-    def is_KickIn(self):
+    def is_kick_in(self):
         return self == GameModeType.KickIn_Left or self == GameModeType.KickIn_Right
 
-    def is_FreeKick(self):
+    def is_free_kick(self):
         return self == GameModeType.FreeKick_Left or self == GameModeType.FreeKick_Right
 
-    def is_CornerKick(self):
+    def is_corner_kick(self):
         return self == GameModeType.CornerKick_Left or self == GameModeType.CornerKick_Right
 
-    def is_GoalKick(self):
+    def is_goal_kick(self):
         return self == GameModeType.GoalKick_Left or self == GameModeType.GoalKick_Right
 
-    def is_AfterGoal(self):
+    def is_after_goal(self):
         return self == GameModeType.AfterGoal_Left or self == GameModeType.AfterGoal_Right
 
-    def is_OffSide(self):
+    def is_offside(self):
         return self == GameModeType.OffSide_Left or self == GameModeType.OffSide_Right
 
-    def is_PK(self):
+    def is_pk(self):
         return self == GameModeType.PK_Left or self == GameModeType.PK_Right
 
-    def is_Foul_Charge(self):
+    def is_foul_charge(self):
         return self == GameModeType.Foul_Charge_Left or self == GameModeType.Foul_Charge_Right
 
-    def is_Foul_Push(self):
+    def is_foul_push(self):
         return self == GameModeType.Foul_Push_Left or self == GameModeType.Foul_Push_Right
 
-    def is_Foul_MultipleAttacker(self):
+    def is_foul_multiple_attacker(self):
         return self == GameModeType.Foul_MultipleAttacker_Left or self == GameModeType.Foul_MultipleAttacker_Right
 
-    def is_Foul_BallOut(self):
+    def is_foul_ball_out(self):
         return self == GameModeType.Foul_BallOut_Left or self == GameModeType.Foul_BallOut_Right
 
-    def is_Back_Pass(self):
+    def is_back_pass(self):
         return self == GameModeType.Back_Pass_Left or self == GameModeType.Back_Pass_Right
 
-    def is_Free_Kick_Fault(self):
+    def is_free_kick_fault(self):
         return self == GameModeType.Free_Kick_Fault_Left or self == GameModeType.Free_Kick_Fault_Right
 
-    def is_CatchFault(self):
+    def is_catch_fault(self):
         return self == GameModeType.CatchFault_Left or self == GameModeType.CatchFault_Right
 
-    def is_IndFreeKick(self):
+    def is_ind_free_kick(self):
         return self == GameModeType.IndFreeKick_Left or self == GameModeType.IndFreeKick_Right
 
-    def is_PenaltySetup(self):
+    def is_penalty_setup(self):
         return self == GameModeType.PenaltySetup_Left or self == GameModeType.PenaltySetup_Right
 
-    def is_PenaltyReady(self):
+    def is_penalty_ready(self):
         return self == GameModeType.PenaltyReady_Left or self == GameModeType.PenaltyReady_Right
 
-    def is_PenaltyTaken(self):
+    def is_penalty_taken(self):
         return self == GameModeType.PenaltyTaken_Left or self == GameModeType.PenaltyTaken_Right
 
-    def is_PenaltyMiss(self):
+    def is_penalty_miss(self):
         return self == GameModeType.PenaltyMiss_Left or self == GameModeType.PenaltyMiss_Right
 
-    def is_PenaltyScore(self):
+    def is_penalty_score(self):
         return self == GameModeType.PenaltyScore_Left or self == GameModeType.PenaltyScore_Right
 
-    def is_GoalieCatchBall(self):
+    def is_goalie_catch_ball(self):
         return self == GameModeType.GoalieCatchBall_Left or self == GameModeType.GoalieCatchBall_Right
 
-    def is_IllegalDefense(self):
+    def is_illegal_defense(self):
         return self == GameModeType.IllegalDefense_Left or self == GameModeType.IllegalDefense_Right
 
 
