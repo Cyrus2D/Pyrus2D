@@ -559,6 +559,9 @@ class _ServerParam:  # TODO specific TYPES and change them
 
         self._catchable_area: float = 0
         self._real_speed_max: float = 0
+        
+        self._max_catch_angle:float = 0
+        self._min_catch_angle:float = 0
 
     def set_data(self, dic):
         self._audio_cut_dist = dic["audio_cut_dist"]
@@ -698,6 +701,8 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._wind_none = dic["wind_none"]
         self._wind_rand = dic["wind_rand"]
         self._use_wind_random = dic["wind_random"]
+        self._max_catch_angle = dic["max_catch_angle"]
+        self._min_catch_angle = dic["min_catch_angle"]
 
     def parse(self, message):
         dic = MessageParamsParser().parse(message)
@@ -1308,6 +1313,13 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def golden_goal(self):
         return self._golden_goal
+    
+    def max_catch_angle(self):
+        return self._max_catch_angle
+        
+    def min_catch_angle(self):
+        return self._min_catch_angle
+        
 
     def discretize_dash_angle(self, direction):
         return direction if self._dash_angle_step < 1e-10 else \
