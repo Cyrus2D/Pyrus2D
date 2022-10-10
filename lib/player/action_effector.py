@@ -5,10 +5,12 @@ from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
+from lib.player_command.player_command_body import PlayerBodyCommand, PlayerCatchCommand, PlayerDashCommand, PlayerKickCommand, PlayerMoveCommand, PlayerTackleCommand, PlayerTurnCommand
+from lib.player_command.player_command_support import PlayerChangeViewCommand, PlayerPointtoCommand, PlayerTurnNeckCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import GameModeType
+from lib.rcsc.types import GameModeType, ViewQuality, ViewWidth
 
 
 class ActionEffector:
@@ -17,6 +19,11 @@ class ActionEffector:
 
         self._agent: PlayerAgent = agent
 
+        self._body_command: PlayerBodyCommand = None
+        self._neck_command: PlayerTurnNeckCommand = None
+        self._pointto_command: PlayerPointtoCommand = None
+        self._change_view_command: PlayerChangeViewCommand = None
+        
         self._command_counter: list[int] = [0 for _ in range(len(CommandType))]
         self._last_body_commands: list[int] = [
             CommandType.ILLEGAL for _ in range(2)]
@@ -169,6 +176,9 @@ class ActionEffector:
                                                  wm.self().body() + rel_dir)
         max_rand = wm.self().player_type().kick_rand()*power/ServerParam.i().max_power()
         self._kick_accel_error = Vector2D(max_rand, max_rand)
+
+        self._body_command = PlayerKickCommand(power, rel_dir)
+        return self._body_command
         
     def set_dash(self, power: float, rel_dir: AngleDeg | float = 0):
         SP = ServerParam.i()
@@ -198,6 +208,9 @@ class ActionEffector:
         
         dlog.add_text(Level.ACTION, f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
 
+        self._body_command = PlayerDashCommand(power, rel_dir)
+        return self._body_command
+
     def set_turn(self, moment: AngleDeg | float):
         moment = float(moment)
         
@@ -214,6 +227,9 @@ class ActionEffector:
         self._turn_error = abs(SP.player_rand()*self._turn_actual)
 
         dlog.add_text(Level.ACTION, f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
+
+        self._body_command = PlayerTurnCommand(moment)
+        return self._body_command
     
     def set_move(self, x: float, y: float):
         SP = ServerParam.i()
@@ -237,6 +253,9 @@ class ActionEffector:
                 y = min_max(-SP.penalty_area_half_width(),y, SP.penalty_area_half_width())
         
         self._move_pos.assign(x, y)
+
+        self._body_command = PlayerMoveCommand(x, y)
+        return self._body_command
     
     def set_catch(self):
         SP = ServerParam.i()
@@ -248,18 +267,73 @@ class ActionEffector:
         
         if not (SP.min_catch_angle() < catch_angle < SP.max_catch_angle()):
             catch_angle = ball_rel_angle - diagonal_angle
-    
-    def set_tackle(self, dir: float|AngleDeg, foul: bool):
+
+        self._body_command = PlayerCatchCommand(catch_angle)
+        return self._body_command    
+
+    def set_tackle(self, dir: float | AngleDeg, foul: bool):
         wm = self._agent.world()
         
         dir = float(dir)
         if abs(dir) > 180:
-            print(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. pos=({x},{y})")
+            print(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. dir={dir}")
             dir = AngleDeg.normalize_angle(dir)
         
         self._tackle_power = ServerParam.i().max_tackle_power()
         self._tackle_dir = dir
         self._tackle_foul = foul
+
+        self._body_command = PlayerTackleCommand(dir, foul)
+        return self._body_command
+    
+    def set_turn_neck(self, moment: AngleDeg| float):
+        SP = ServerParam.i()
+        wm = self._agent.world()
+        
+        moment = float(moment)
+        if not (SP.min_neck_moment() < moment < SP.max_neck_moment()):
+            print(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
+            moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
+        
+        next_neck_angle = wm.self().neck().degree() + moment
+        if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
+            print(f"(set turn neck) player({wm.self().unum()}) \
+                next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
+            moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
+        self._turn_neck_moment = moment
+
+        self._neck_command = PlayerTurnNeckCommand(moment)
+        return self._neck_command
+    
+    def set_change_view(self, width: ViewWidth):
+        self._change_view_command = PlayerChangeViewCommand(width, ViewQuality.HIGH)
+        return self._change_view_command
+    
+    def set_pointto(self, x, y):
+        wm = self._agent.world()
+
+        target = Vector2D(x,y)
+        target = target - wm.self().pos()
+        target.rotate(-wm.self().face())
+
+        self._pointto_command = PlayerPointtoCommand(target.r(), target.th())
+        return self._pointto_command
+    
+    def set_pointto_off(self):
+        self._pointto_command = PlayerPointtoCommand()
+        return self._pointto_command
+    
+    
+        
+        
+
+    
+            
+        
+            
+            
+
+        
     
     
             
