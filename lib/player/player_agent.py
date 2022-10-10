@@ -6,6 +6,7 @@ from base.decision import get_decision
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
+from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState
 from lib.player.sensor.visual_sensor import VisualSensor
@@ -20,6 +21,7 @@ from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
+from lib.rcsc.types import ViewWidth
 
 
 class PlayerAgent(SoccerAgent):
@@ -132,6 +134,7 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command = []
         self._is_synch_mode = True
         self._debug_client = DebugClient()
+        self._effector = ActionEffector(self)
 
     def handle_start(self):
         if self._client is None:
@@ -208,31 +211,47 @@ class PlayerAgent(SoccerAgent):
             self._impl._think_received = True
 
     def do_dash(self, power, angle=0):
-        self._last_body_command.append(PlayerDashCommand(power, float(angle)))
+        if self.world().self().is_frozen():
+            print(f"(do dash) player({self._world.self_unum()} is frozen!")
+            return False
+        self._last_body_command.append(self._effector.set_dash(power, float(angle)))
         return True
 
     def do_turn(self, angle):
-        self._last_body_command.append(PlayerTurnCommand(float(angle)))
+        if self.world().self().is_frozen():
+            print(f"(do turn) player({self._world.self_unum()} is frozen!")
+            return Falseself._last_body_command.append(self._effector.set_turn(float(angle)))
         return True
 
     def do_move(self, x, y):
-        self._last_body_command.append(PlayerMoveCommand(x, y))
+        if self.world().self().is_frozen():
+            print(f"(do move) player({self._world.self_unum()} is frozen!")
+            return False
+        self._last_body_command.append(self._effector.set_move(x, y))
         return True
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
-        self._last_body_command.append(PlayerKickCommand(power, rel_dir))
+        if self.world().self().is_frozen():
+            print(f"(do kick) player({self._world.self_unum()} is frozen!")
+            return False
+        self._last_body_command.append(self._effector.set_kick(power, rel_dir))
         return True
 
     def do_tackle(self, power_or_dir: float, foul: bool):  # TODO : tons of work
         if self.world().self().is_frozen():
+            print(f"(do tackle) player({self._world.self_unum()} is frozen!")
             return False
-        self._last_body_command.append(PlayerTackleCommand(power_or_dir, foul))
+        self._last_body_command.append(self._effector.set_tackle(power_or_dir, foul))
         return True
 
     def do_turn_neck(self, moment: AngleDeg) -> bool:
-        self._last_body_command.append(PlayerTurnNeckCommand(moment))
+        self._last_body_command.append(self._effector.set_turn_neck(moment))
         return True
 
+    def do_change_view(self, width: ViewWidth) -> bool:
+        self._last_body_command.append(self._effector.set_change_view(width))
+        return True
+    
     def world(self) -> WorldModel:
         return self._world
 
