@@ -7,7 +7,7 @@ from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.visual_sensor import VisualSensor
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import GameModeType
+from lib.rcsc.types import UNUM_UNKNOWN, GameModeType
 from lib.math.soccer_math import *
 from typing import List
 
@@ -24,8 +24,9 @@ class WorldModel:
         self._teammates_from_self: List[PlayerObject] = []
         self._opponents_from_self: List[PlayerObject] = []
         self._their_players = [PlayerObject() for _ in range(11)]
-        self._unknown_player = [PlayerObject() for _ in range(22)]
+        self._unknown_players = [PlayerObject() for _ in range(22)]
         self._ball: BallObject = BallObject()
+        self._prev_ball: BallObject = None
         self._time: GameTime = GameTime(0, 0)
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode()
@@ -38,6 +39,18 @@ class WorldModel:
         self._offside_line_count = 0
         self._their_defense_line_x: float = 0
         self._their_defense_line_count = 0
+        
+        self._previous_kickable_teammate: bool = False
+        self._previous_kickable_teammate_unum: int = UNUM_UNKNOWN
+        self._kickable_teammate: PlayerObject = None
+        self._previous_kickable_opponent: bool = False
+        self._previous_kickable_opponent_unum: int = UNUM_UNKNOWN
+        self._kickable_opponent: PlayerObject = None
+        self._maybe_kickable_teammate: PlayerObject = None
+        self._maybe_kickable_opponent: PlayerObject = None
+        
+        self._teammates: list[PlayerObject] = []
+        self._opponents: list[PlayerObject] = []
 
     def ball(self) -> BallObject:
         return self._ball
@@ -90,7 +103,7 @@ class WorldModel:
             if player.side().value == self._our_side:
                 self._our_players[player.unum() - 1] = player
             elif player.side() == SideID.NEUTRAL:
-                self._unknown_player[player.unum() - 1] = player
+                self._unknown_players[player.unum() - 1] = player
             else:
                 self._their_players[player.unum() - 1] = player
         if self.self().side() == SideID.RIGHT:
@@ -121,7 +134,7 @@ class WorldModel:
     def team_name(self):
         return self._team_name
 
-    def _update_players(self):
+    def _update_players(self): # TODO Modify it based on teammates and opponent list
         self._exist_kickable_teammates = False
         self._exist_kickable_opponents = False
         for i in range(len(self._our_players)):
@@ -353,9 +366,69 @@ class WorldModel:
     def self_unum(self):
         return self._self_unum
 
+    def update(self, act: ActionEffector, current_time: GameTime):
+        if self._time == current_time:
+            print(f"(update) player({self.self_unum()}) called twice.")
+            return
+        
+        self._time = current_time.copy()
+        self._prev_ball = self._ball.copy()
+
+        self.self().update(act, current_time)
+        self.ball().update(act, self.game_mode())
+
+        self._previous_kickable_teammate = False
+        self._previous_kickable_teammate_unum = UNUM_UNKNOWN
+        if self._kickable_teammate is not None:
+            self._previous_kickable_teammate = True
+            self._previous_kickable_teammate_unum = self._kickable_teammate.unum()
+            
+        self._previous_kickable_opponent = False
+        self._previous_kickable_opponent_unum = UNUM_UNKNOWN
+        if self._kickable_opponent is not None:
+            self._previous_kickable_opponent = True
+            self._previous_kickable_opponent_unum = self._kickable_opponent.unum()
+        
+        self._kickable_teammate = None
+        self._kickable_opponent = None
+        self._maybe_kickable_teammate = None
+        self._maybe_kickable_opponent = None
+        
+        self._teammates_from_ball.clear()
+        self._teammates_from_self.clear()
+        self._opponents_from_ball.clear()
+        self._opponents_from_self.clear()
+
+        self._all_players.clear()
+        self._our_players.clear()
+        self._their_players.clear()
+
+        if (self.game_mode().type() == GameModeType.BeforeKickOff
+            or (self.game_mode().type().is_after_goal() and self._time.stopped_cycle() <= 48)):
+            
+            self._teammates.clear()
+            self._opponents.clear()
+            self._unknown_players.clear()
+        
+        for p in self._teammates:
+            p.update()
+        self._teammates = list(filter(lambda p: p.pos_count() < 30,self._teammates))
+
+        for p in self._opponents:
+            p.update()
+        self._opponents = list(filter(lambda p: p.pos_count() < 30,self._opponents))
+        
+        for p in self._unknown_players:
+            p.update()
+        self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
+        
+
+        
+        
+
     def update_after_see(self,
                          visual: VisualSensor,
                          body: BodySensor,
                          effector: ActionEffector,
                          current_time: GameTime):
-        
+        pass

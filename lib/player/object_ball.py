@@ -55,3 +55,14 @@ class BallObject(Object):
         return inertia_final_point(self.pos(),
                                    self.vel(),
                                    ServerParam.i().ball_decay())
+
+    def copy(self):
+        ball = BallObject()
+        
+        ball._dist_from_self = self._dist_from_self
+        ball._angle_from_self = self._angle_from_self
+        ball._pos = self._pos
+        ball._vel = self._vel
+
+        return ball
+        
