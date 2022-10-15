@@ -322,8 +322,30 @@ class ActionEffector:
     def set_pointto_off(self):
         self._pointto_command = PlayerPointtoCommand()
         return self._pointto_command
-    
-    
+
+    def last_body_command(self):
+        return self._last_body_commands[0]
+
+    def get_kick_info(self) -> Vector2D:
+        return self._kick_accel
+
+    def get_dash_info(self) -> tuple[Vector2D, float]:
+        return self._dash_accel, self._dash_power
+
+    def get_turn_info(self) -> float:
+        return self._turn_actual
+
+    def tackle_foul(self) -> bool:
+        return self._tackle_foul
+
+    def get_move_pos(self) -> Vector2D:
+        return self._move_pos
+
+    def get_turn_neck_moment(self) -> float:
+        return self._turn_neck_moment
+
+    def done_turn_neck(self) -> bool:
+        return self._done_turn_neck
         
         
 
