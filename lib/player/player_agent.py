@@ -66,8 +66,8 @@ class PlayerAgent(SoccerAgent):
 
             self._see_state.update_by_sense_body(self._time, self._body.view_width(), self._body.view_quality())
 
-            # todo action counters
-            self._agent.world().update_after_sense_body(self._body, )
+            self._agent._effector.check_command_count(self._body)
+            self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
         
         def sense_visual_parser(self, message: str):
             self.parse_cycle_info(message, False)
@@ -193,9 +193,9 @@ class PlayerAgent(SoccerAgent):
     def parse_message(self, message):
         if message.find("(init") != -1:
             self.init_dlog(message)
-        if message.find("server_param") != -1:
+        elif message.find("server_param") != -1:
             ServerParam.i().parse(message)
-        if message.find("sense_body") != -1:
+        elif message.find("sense_body") != -1:
             self._impl.sense_body_parser(message)
 
             # TODO make function for these things
@@ -203,6 +203,8 @@ class PlayerAgent(SoccerAgent):
                 print("KICKTABLE CREATE")
             else:
                 print("KICKTABLE Faild")
+        elif message.find("(see") != -1:
+            self._impl.sense_visual_parser(message)
         elif message.find("fullstate") != -1 or message.find("player_type") != -1 or message.find(
                 "sense_body") != -1 or message.find("(init") != -1:
             self._full_world.parse(message)

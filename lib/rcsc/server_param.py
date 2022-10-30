@@ -707,6 +707,16 @@ class _ServerParam:  # TODO specific TYPES and change them
     def parse(self, message):
         dic = MessageParamsParser().parse(message)
         self.set_data(dic['server_param'])
+        self.set_additional_param()
+    
+    def set_additional_param(self):
+        self._kickable_area = self._kickable_margin + self._ball_size + self._player_size
+        self._catchable_area = ((self.catch_area_w()*0.5)**2 + (self.catch_area_l()**2))**0.5
+        self._control_radius_width = self._control_radius - self._player_size
+        
+        accel_max = self.max_dash_power() * self.default_dash_power_rate() * self.default_effort_max()
+        self._real_speed_max = accel_max / (1 - self.default_player_decay())
+        self._real_speed_max = min(self._real_speed_max, self.default_player_speed_max())
 
     def goal_width(self):
         return self._goal_width
@@ -717,7 +727,7 @@ class _ServerParam:  # TODO specific TYPES and change them
     def player_size(self):
         return self._player_size
 
-    def player_decay(self):
+    def default_player_decay(self):
         return self._player_decay
 
     def player_rand(self):
@@ -726,8 +736,11 @@ class _ServerParam:  # TODO specific TYPES and change them
     def player_weight(self):
         return self._player_weight
 
-    def player_speed_max(self):
+    def default_player_speed_max(self):
         return self._player_speed_max
+    
+    def default_player_real_speed_max(self):
+        return self._real_speed_max
 
     def player_accel_max(self):
         return self._player_accel_max
@@ -753,7 +766,7 @@ class _ServerParam:  # TODO specific TYPES and change them
     def recover_dec(self):
         return self._recover_dec
 
-    def effort_init(self):
+    def default_effort_max(self):
         return self._effort_init
 
     def effort_dec_thr(self):
@@ -807,7 +820,7 @@ class _ServerParam:  # TODO specific TYPES and change them
     def ball_accel_max(self):
         return self._ball_accel_max
 
-    def dash_power_rate(self):
+    def default_dash_power_rate(self):
         return self._dash_power_rate
 
     def kick_power_rate(self):
@@ -1414,7 +1427,13 @@ class _ServerParam:  # TODO specific TYPES and change them
 
     def ball_move_step(self, first_ball_speed, ball_move_dist):
         return int(math.ceil(calc_length_geom_series(first_ball_speed, ball_move_dist, self.ball_decay())) + 1.0e-10)
+    
+    def first_ball_speed(self, ball_move_dist: float, total_step: int):
+        return calc_first_term_geom_series(ball_move_dist, self.ball_decay(), total_step)
+    
+    def actual_half_time(self):
 
+        return self._half_time * 10
 
 # TODO we can use function, instance instance class
 # like:

@@ -1,3 +1,4 @@
+from typing import Union
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
@@ -25,8 +26,7 @@ class ActionEffector:
         self._change_view_command: PlayerChangeViewCommand = None
         
         self._command_counter: list[int] = [0 for _ in range(len(CommandType))]
-        self._last_body_commands: list[int] = [
-            CommandType.ILLEGAL for _ in range(2)]
+        self._last_body_commands: list[CommandType] = [CommandType.ILLEGAL for _ in range(2)]
         self._last_action_time: GameTime = GameTime()
 
         self._kick_accel: float = 0
@@ -162,7 +162,7 @@ class ActionEffector:
         
         dlog.add_text(Level.ACTION, f"(conserved dash power) conserved power={power}")
         
-    def set_kick(self, power: float, rel_dir: AngleDeg | float):
+    def set_kick(self, power: float, rel_dir: Union[AngleDeg, float]):
         wm = self._agent.world()
 
         rel_dir = float(rel_dir)
@@ -180,7 +180,7 @@ class ActionEffector:
         self._body_command = PlayerKickCommand(power, rel_dir)
         return self._body_command
         
-    def set_dash(self, power: float, rel_dir: AngleDeg | float = 0):
+    def set_dash(self, power: float, rel_dir: Union[AngleDeg, float] = 0):
         SP = ServerParam.i()
         wm = self._agent.world()
 
@@ -211,7 +211,7 @@ class ActionEffector:
         self._body_command = PlayerDashCommand(power, rel_dir)
         return self._body_command
 
-    def set_turn(self, moment: AngleDeg | float):
+    def set_turn(self, moment: Union[AngleDeg, float]):
         moment = float(moment)
         
         SP = ServerParam.i()
@@ -271,7 +271,7 @@ class ActionEffector:
         self._body_command = PlayerCatchCommand(catch_angle)
         return self._body_command    
 
-    def set_tackle(self, dir: float | AngleDeg, foul: bool):
+    def set_tackle(self, dir: Union[float, AngleDeg], foul: bool):
         wm = self._agent.world()
         
         dir = float(dir)
@@ -286,7 +286,7 @@ class ActionEffector:
         self._body_command = PlayerTackleCommand(dir, foul)
         return self._body_command
     
-    def set_turn_neck(self, moment: AngleDeg| float):
+    def set_turn_neck(self, moment: Union[AngleDeg, float]):
         SP = ServerParam.i()
         wm = self._agent.world()
         
@@ -323,8 +323,8 @@ class ActionEffector:
         self._pointto_command = PlayerPointtoCommand()
         return self._pointto_command
 
-    def last_body_command(self):
-        return self._last_body_commands[0]
+    def last_body_command(self, index: int = 0):
+        return self._last_body_commands[min_max(0, index, 1)]
 
     def get_kick_info(self) -> Vector2D:
         return self._kick_accel

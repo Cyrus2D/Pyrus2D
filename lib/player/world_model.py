@@ -1,8 +1,11 @@
+from logging import Logger
 from lib.action.intercept_table import InterceptTable
 from lib.player.action_effector import ActionEffector
+from lib.player.localizer import Localizer
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
+from lib.player.object_self import SelfObject
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.visual_sensor import VisualSensor
 from lib.rcsc.game_mode import GameMode
@@ -11,6 +14,20 @@ from lib.rcsc.types import UNUM_UNKNOWN, GameModeType
 from lib.math.soccer_math import *
 from typing import List
 
+def player_accuracy_value(p: PlayerObject):
+    value: int = 0
+    if p.goalie():
+        value += -1000
+    elif p.unum() == UNUM_UNKNOWN:
+        value += 1000
+    value += p.pos_count() + p.ghost_count() * 10
+    return value
+
+def player_count_value(p: PlayerObject):
+    return p.pos_count() + p.ghost_count() * 10
+
+def player_valid_check(p: PlayerObject):
+    return p.pos_valid()
 
 class WorldModel:
     def __init__(self):
@@ -51,11 +68,15 @@ class WorldModel:
         
         self._teammates: list[PlayerObject] = []
         self._opponents: list[PlayerObject] = []
+        
+        self._localizer: Localizer = Localizer()
+        
+        self._sense_body_time: GameTime = None
 
     def ball(self) -> BallObject:
         return self._ball
 
-    def self(self) -> PlayerObject:
+    def self(self) -> SelfObject:
         if self.self_unum():
             return self._our_players[self._self_unum - 1]
         else:
@@ -421,14 +442,463 @@ class WorldModel:
         for p in self._unknown_players:
             p.update()
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
-        
+    
+    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: ActionEffector, rpos: Vector2D) -> tuple[Vector2D, int]:
+        SP = ServerParam.i()
 
+        if self.self().has_sensed_collision():
+            if self.self()._collides_with_player or self.self()._collides_with_post:
+                return Vector2D.invalid(), 1000
         
-        
+        if self.ball().rpos_count() == 1:
+            if (see.balls()[0].dist_ < SP.visible_distance()
+                and self._prev_ball.rpos().is_valid()
+                and self.self().vel_valid()
+                and self.self().last_move().is_valid()):
+                
+                rpos_diff = rpos - self._prev_ball.rpos()
+                tmp_vel = rpos_diff + self.self().last_move() * SP.ball_decay()
 
+                if (self.ball().seen_vel_count() <= 2
+                    and self._prev_ball.rpos().r() > 1.5
+                    and see.balls()[0].dist_ > 1.5
+                    and abs(tmp_vel.x() - self.ball().vel().x()) < 0.1
+                    and abs(tmp_vel.y() - self.ball().vel().y()) < 0.1):
+
+                    return Vector2D.invalid(), 1000
+
+                return tmp_vel, 1
+        
+        elif self.ball().rpos_count() == 2:
+            if (see.balls()[0].dist_ < SP.visible_distance()
+                and act.last_body_command() is not CommandType.KICK
+                and self.ball().seen_rpos().is_valid()
+                and self.ball().seen_rpos().r() < SP.visible_distance()
+                and self.self().vel_valid()
+                and self.self().last_move(0).is_valid()
+                and self.self().last_move(1).is_valid()):
+                
+                ball_move: Vector2D = rpos - self.ball().seen_rpos()
+                ball_move += sum([self.self().last_move(i) for i in range(2)])
+                vel = ball_move * (SP.ball_decay()**2/(1+SP.ball_decay()))
+                vel_r = vel.r()
+                estimate_speed = self.ball().vel().r() 
+                if (vel_r > estimate_speed + 0.1
+                    or vel_r < estimate_speed*(1-SP.ball_rand()*2) - 0.1
+                    or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
+                    
+                    vel.invalidate()
+                    return vel, 1000
+                else:
+                    return vel, 2
+        
+        elif self.ball().rpos_count() == 3:
+            if (see.balls()[0].dist_ < SP.visible_distance()
+                and act.last_body_command(0) is not CommandType.KICK
+                and act.last_body_command(1) is not CommandType.KICK
+                and self.ball().seen_rpos().is_valid()
+                and self.ball().seen_rpos().r() < SP.visible_distance()
+                and self.self().vel_valid()
+                and self.self().last_move(0).is_valid()
+                and self.self().last_move(1).is_valid()
+                and self.self().last_move(2).is_valid()):
+                
+                ball_move: Vector2D = rpos - self.ball().seen_rpos()
+                ball_move += sum([self.self().last_move(i) for i in range(3)])
+                vel = ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2))
+                vel_r = vel.r()
+                estimate_speed = self.ball().vel().r()
+                if (vel_r > estimate_speed + 0.1
+                    or vel_r < estimate_speed*(1-SP.ball_rand()*3) - 0.1
+                    or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
+                    
+                    vel.invalidate()
+                    return vel, 1000
+                else:
+                    return vel, 3
+                
+
+
+    
+    def localize_self(self,
+                      see:VisualSensor,
+                      body: BodySensor,
+                      act: ActionEffector,
+                      current_time: GameTime):
+        angle_face = self._localizer.estimate_self_face(see)
+        if angle_face is None:
+            return False
+        
+        self.self().update_angle_by_see(angle_face, current_time)
+        self.self().update_vel_dir_after_see(body, current_time)
+
+        my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
+        if my_pos is None:
+            return False
+        
+        if my_pos.is_valid():
+            self.self().update_pos_by_see(my_pos, angle_face, current_time)
+        
+    def localize_ball(self, see: VisualSensor, act: ActionEffector):
+        SP = ServerParam.i()
+        if not self.self().face_valid():
+            return
+        
+        rpos, rvel = self._localizer.localize_ball_relative(see,
+                                                            self.self().face())
+        
+        if rpos is None:
+            return
+        
+        if not self.self().pos_valid():
+            if (self._prev_ball.rpos_count() == 0
+                and see.balls()[0].dist_ > self.self().player_type().player_size() + SP.ball_size() + 0.1
+                and self.self().last_move().is_valid()):
+                
+                tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
+                tvel *= SP.ball_decay()
+                self._ball.update_only_vel(tvel, 1)
+            self._ball.update_only_relative_pos(rpos)
+            return
+        
+        pos = self.self().pos() + rpos
+        gvel = Vector2D.invalid()
+        vel_count = 1000
+        
+        if rvel.is_valid() and self.self().vel_valid():
+            gvel = self.self().vel() + rvel
+            vel_count = 0
+        
+        if not gvel.is_valid():
+            gvel, vel_count = self.estimate_ball_by_pos_diff(see, act, rpos)
+        
+        if not gvel.is_valid():
+            if (see.balls()[0].dist_ < 2
+                and self._prev_ball.seen_pos_count() == 0
+                and self._prev_ball.rpos_count() == 0
+                and self._prev_ball.rpos().r() < 5):
+                
+                gvel = pos - self._prev_ball.pos()
+                vel_count = 2
+            elif (see.balls()[0].dist_  < 2
+                  and not self.self().is_kicking()
+                  and 2 <= self._ball.seen_pos_count() <= 6
+                  and self.self().last_move(0).is_valid()
+                  and self.self().last_move(1).is_valid()):
+                
+                prev_pos = self._ball.seen_pos()
+                move_step = self._ball.seen_pos_count()
+                ball_move: Vector2D = pos - prev_pos
+                dist = ball_move.r()
+                speed = SP.first_ball_speed(dist, move_step)
+                speed = max(speed, SP.ball_speed_max()) * (SP.ball_decay()**move_step)
+                gvel = ball_move.set_length_vector(speed)
+                vel_count = move_step
+        
+        if gvel.is_valid():
+            self._ball.update_all(pos, self.self().pos_count(),
+                                  rpos, gvel, vel_count)
+        else:
+            self._ball.update_pos(pos, self.self().pos_count(), rpos)
+    
+    def their_side(self):
+        return SideID.LEFT if self._our_side is SideID.RIGHT else SideID.RIGHT
+    
+    def check_team_player(self,
+                          side: SideID,
+                          player: Localizer.PlayerT,
+                          old_known_players: list[PlayerObject],
+                          old_unknown_players: list[PlayerObject],
+                          new_known_players: list[PlayerObject]):
+        
+        if player.unum_ != UNUM_UNKNOWN:
+            for p in old_known_players:
+                if p.unum() == player.unum_:
+                    p.update_by_see(side, player)
+
+                    new_known_players.append(p)
+                    old_known_players.remove(p)
+
+                    return
+        
+        min_team_dist = 1000
+        min_unknown_dist = 1000
+        
+        candidate_team:PlayerObject = None
+        candidate_unknown: PlayerObject = None
+        
+        for p in old_known_players:
+            if (p.unum() != UNUM_UNKNOWN
+                and player.unum_ != UNUM_UNKNOWN
+                and p.unum() != player.unum_):
+                continue
+            
+            count = p.seen_pos_count()
+            old_pos = p.seen_pos()
+            if p.heard_pos_count() < p.seen_pos_count():
+                count = p.heard_pos_count()
+                old_pos = p.heard_pos()
+            
+            d = player.pos_.dist(old_pos)
+            if d > p.player_type().real_speed_max() * count:
+                continue
+            
+            if d < min_team_dist:
+                min_team_dist = d
+                candidate_team = p
+                
+        for p in old_unknown_players:
+            if (p.unum() != UNUM_UNKNOWN
+                and player.unum_ != UNUM_UNKNOWN
+                and p.unum() != player.unum_):
+                continue
+            
+            count = p.seen_pos_count()
+            old_pos = p.seen_pos()
+            if p.heard_pos_count() < p.seen_pos_count():
+                count = p.heard_pos_count()
+                old_pos = p.heard_pos()
+            
+            d = player.pos_.dist(old_pos)
+            if d > p.player_type().real_speed_max() * count:
+                continue
+            
+            if d < min_team_dist:
+                min_unknown_dist = d
+                candidate_unknown = p
+        
+        candidate: PlayerObject = None
+        target_list: list[PlayerObject] = None
+        if candidate_team is not None and min_team_dist < min_unknown_dist:
+            candidate = candidate_team
+            target_list = old_known_players
+        
+        if candidate_unknown is not None and min_unknown_dist < min_team_dist:
+            candidate = candidate_unknown
+            target_list = old_unknown_players
+        
+        if candidate is not None and target_list is not None:
+            candidate.update_by_see(side, player)
+            new_known_players.append(candidate)
+            target_list.remove(candidate)
+            return
+        
+        new_known_players.append(PlayerObject(side=side, player=player))
+    
+    def check_unknown_player(self,
+                             player: Localizer.PlayerT,
+                             old_teammates: list[PlayerObject],
+                             old_opponents: list[PlayerObject],
+                             old_unknown_players: list[PlayerObject],
+                             new_teammates: list[PlayerObject],
+                             new_opponents: list[PlayerObject],
+                             new_unknown_players: list[PlayerObject]):
+        
+        min_opponent_dist = 100
+        min_teammate_dist = 100
+        min_unknown_dist = 100
+        
+        candidate_opponent: PlayerObject = None
+        candidate_teammate: PlayerObject = None
+        candidate_unknown: PlayerObject = None
+        
+        for p in old_opponents:
+            if (p.unum() != UNUM_UNKNOWN
+                and player.unum_ != UNUM_UNKNOWN
+                and p.unum() != player.unum_):
+                continue
+            
+            count = p.seen_pos_count()
+            old_pos = p.seen_pos()
+            if p.heard_pos_count() < p.seen_pos_count():
+                count = p.heard_pos_count()
+                old_pos = p.heard_pos()
+            
+            d = player.pos_.dist(old_pos)
+            if d > p.player_type().real_speed_max() * count:
+                continue
+            
+            if d < min_opponent_dist:
+                min_opponent_dist = d
+                candidate_opponent = p
+        
+        for p in old_teammates:
+            if (p.unum() != UNUM_UNKNOWN
+                and player.unum_ != UNUM_UNKNOWN
+                and p.unum() != player.unum_):
+                continue
+            
+            count = p.seen_pos_count()
+            old_pos = p.seen_pos()
+            if p.heard_pos_count() < p.seen_pos_count():
+                count = p.heard_pos_count()
+                old_pos = p.heard_pos()
+            
+            d = player.pos_.dist(old_pos)
+            if d > p.player_type().real_speed_max() * count:
+                continue
+            
+            if d < min_teammate_dist:
+                min_teammate_dist = d
+                candidate_teammate = p
+
+        for p in old_unknown_players:
+            if (p.unum() != UNUM_UNKNOWN
+                and player.unum_ != UNUM_UNKNOWN
+                and p.unum() != player.unum_):
+                continue
+            
+            count = p.seen_pos_count()
+            old_pos = p.seen_pos()
+            if p.heard_pos_count() < p.seen_pos_count():
+                count = p.heard_pos_count()
+                old_pos = p.heard_pos()
+            
+            d = player.pos_.dist(old_pos)
+            if d > p.player_type().real_speed_max() * count:
+                continue
+            
+            if d < min_unknown_dist:
+                minunk = d
+                candidate_unknown = p
+        
+        candidate: PlayerObject = None
+        new_list: list[PlayerObject] = None
+        old_list: list[PlayerObject] = None
+        side: SideID = SideID.NEUTRAL
+
+        if (candidate_teammate is not None
+            and min_teammate_dist < min(min_opponent_dist, min_unknown_dist)):
+            candidate = candidate_teammate
+            new_list = new_teammates
+            old_list = old_teammates
+            side = self.our_side()
+        
+        if (candidate_opponent is not None
+            and min_opponent_dist < min(min_teammate_dist, min_unknown_dist)):
+            candidate = candidate_opponent
+            new_list = new_opponents
+            old_list = old_opponents
+            side = self.their_side()
+        
+        if (candidate_unknown is not None
+            and min_unknown_dist < min(min_teammate_dist, min_opponent_dist)):
+            candidate = candidate_unknown
+            new_list = new_unknown_players
+            old_list = old_unknown_players
+            side = SideID.NEUTRAL
+        
+        if candidate is not None and new_list is not None and old_list is not None:
+            candidate.update_by_see(side, player)
+            new_list.append(candidate)
+            old_list.remove(candidate)
+            return
+        
+        new_unknown_players.append(PlayerObject(side=SideID.NEUTRAL, player=player))
+    
+    def localize_players(self, see: VisualSensor):
+        if not self.self().face_valid() or not self.self().pos_valid():
+            return
+        
+        new_teammates: list[PlayerObject] = []
+        new_opponents: list[PlayerObject] = []
+        new_unknown_players: list[PlayerObject] = []
+        
+        my_pos = self.self().pos()
+        my_vel = self.self().vel()
+        my_face = self.self().face()
+
+        for p in see.opponents() + see.unknown_opponents():
+            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            if player is None:
+                continue
+            self.check_team_player(self.their_side(),
+                                   player,
+                                   self._opponents,
+                                   self._unknown_players,
+                                   new_opponents)
+            
+        for p in see.teammates() + see.unknown_teammates():
+            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            if player is None:
+                continue
+            self.check_team_player(self.our_side(),
+                                   player,
+                                   self._teammates,
+                                   self._unknown_players,
+                                   new_teammates)
+        
+        for p in see.unknown_players():
+            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            if player is None:
+                continue
+            self.check_unknown_player(player,
+                                      self._teammates,
+                                      self._opponents,
+                                      self._unknown_players,
+                                      new_teammates,
+                                      new_opponents,
+                                      new_unknown_players)
+        
+        self._teammates += new_teammates
+        self._opponents += new_opponents
+        self._unknown_players += new_unknown_players
+        
+        all_teammates = sorted(self._teammates, key=player_accuracy_value)
+        all_opponents = sorted(self._opponents, key=player_accuracy_value)
+        self._unknown_players.sort(key=player_count_value)
+        
+        for p in all_teammates[10:] + all_opponents[11:]:
+            p.forgot()
+        
+        self._teammates = list(filter(self._teammates, key=player_valid_check))
+        self._opponents = list(filter(self._opponents, key=player_valid_check))
+    
+    def update_player_type(self):
+        
+        
     def update_after_see(self,
-                         visual: VisualSensor,
+                         see: VisualSensor,
                          body: BodySensor,
-                         effector: ActionEffector,
+                         act: ActionEffector,
                          current_time: GameTime):
-        pass
+        if self._time != current_time:
+            self.update(act, current_time)
+        
+        if self._see_time == current_time: # TODO see time
+            return
+        
+        self._see_time = current_time.copy()
+        dlog.add_text(Level.WORLD, f"{'*'*20} Update by See {'*'*20}")
+
+        if self._their_team_name is None and see.their_team_name() is not None:
+            self._their_team_name = see.their_team_name() # TODO their team name
+            dlog.add_text(f"(update after see) their team name set to {self._their_team_name}")
+        
+        # TODO FULL STATE TIME CHECK
+        
+        self.localize_self(see, body, act, current_time)
+        self.localize_ball(see, act)
+        self.localize_players(see)
+        self.update_player_type()
+
+    def update_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
+        if self._sense_body_time == current_time:
+            print(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
+            return
+        
+        self._sense_body_time = body.time().copy()
+
+        stars = "*"*20
+        dlog.add_text(Level.WORLD, f"{stars} update after sense body {stars}")
+
+        if body.time() == current_time:
+            self.self().update_after_sense_body(body, act, current_time)
+        
+        # RECOVERY AND STAMINA CAPACITY THINGS...
+        # CARD THINGS...
+        
+        if self.time() != current_time:
+            self.update(act, current_time)
+                    
+        

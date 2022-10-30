@@ -3,6 +3,7 @@
   \ brief 2d vector class
 """
 
+from typing import Union
 from lib.math.angle_deg import AngleDeg
 from lib.math.math_values import *
 import math
@@ -18,10 +19,14 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     def __init__(self,
                  x: float = None,
                  y: float = None,
+                 r: float = None,
+                 theta: Union[AngleDeg, float] = None,
                  vector2d=None):
         if x is not None and y is not None:
             self._x = x
             self._y = y
+        elif r is not None and theta is not None:
+          self.set_polar(r, float(theta))    
         elif vector2d is not None:
             self._x = vector2d._x
             self._y = vector2d._y
@@ -37,7 +42,12 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
         \ return reference to itself
     """
 
-    def assign(self, __x, __y):
+    def assign(self, __x=None, __y=None, v = None):
+        print(v)
+        if v:
+          self._x = v._x
+          self._y = v._y
+          return self
         self._x = __x
         self._y = __y
         return self

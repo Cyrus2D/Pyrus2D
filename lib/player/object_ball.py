@@ -23,6 +23,8 @@ class BallObject(Object):
         self._pos = Vector2D.invalid()
         self._vel = Vector2D.invalid()
         
+        self._seen_rpos: Vector2D = Vector2D.invalid()
+        
         self._rpos_count:int = 1000
         self._heard_pos_count: int = 1000
         self._heard_vel_count: int = 1000
@@ -46,6 +48,9 @@ class BallObject(Object):
 
     def angle_from_self(self):
         return self._angle_from_self
+    
+    def seen_rpos(self):
+        return self._seen_rpos
 
     def vel_valid(self):
         return self.vel_count() < BallObject.VEL_COUNT_THR
@@ -125,3 +130,37 @@ class BallObject(Object):
         self._seen_vel_count = min(1000, self._seen_vel_count + 1)
         self._heard_vel_count = min(1000, self._heard_vel_count + 1)
         self._lost_count = min(1000, self._lost_count + 1)
+    
+    def update_only_vel(self, vel: Vector2D, vel_count:int):
+        self._vel = vel.copy()
+        self._vel_count = vel_count
+        self._seen_vel = vel.copy()
+        self._seen_vel_count = vel_count
+    
+    def update_only_relative_pos(self, rpos: Vector2D):
+        self._rpos = rpos.copy()
+        self._rpos_count = 0
+        self._seen_rpos = rpos.copy()
+    
+    def update_pos(self,
+                   pos: Vector2D,
+                   pos_count: int,
+                   rpos: Vector2D):
+        self._pos = pos.copy()
+        self._pos_count = pos_count
+        self._seen_pos = pos.copy()
+        self._seen_pos_count = 0
+        
+        self.update_only_relative_pos(rpos)
+        
+        self._lost_count = 0
+        self._ghost_count = 0
+    
+    def update_all(self, 
+                   pos: Vector2D,
+                   pos_count: int,
+                   rpos: Vector2D,
+                   vel: Vector2D,
+                   vel_count: int):
+        self.update_pos(pos, pos_count, rpos)
+        self.update_only_vel(vel, vel_count)

@@ -1,4 +1,5 @@
 import copy
+from lib.rcsc.game_time import GameTime
 
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
@@ -46,7 +47,7 @@ class StaminaModel:
             self._capacity = max(0, self._capacity)
         else:
             self._stamina += stamina_inc
-        self._stamina = min(self._stamina, SP.stamina_max())  # kirm tu in mohasebat :|
+        self._stamina = min(self._stamina, SP.stamina_max()) 
 
     def simulate_waits(self, player_type: PlayerType, n_wait: int):
         for i in range(n_wait):
@@ -108,3 +109,25 @@ class StaminaModel:
             return normalized_power
 
         return result_power
+
+    def update_by_sense_body(self,
+                             sensed_stamina: float,
+                             sensed_effort: float,
+                             sensed_capacity: float,
+                             current_time: GameTime):
+        SP = ServerParam.i()
+        
+        self._stamina = sensed_stamina
+        self._effort = sensed_effort
+        self._capacity = sensed_capacity
+
+        half_time = SP.actual_half_time()
+        normal_time = half_time * SP.nr_normal_halfs()
+
+        if (half_time >= 0
+            and SP.nr_normal_halfs() >= 0
+            and current_time.cycle() < normal_time
+            and current_time.cycle() %  half_time == 1):
+            
+            self._recovery = SP.recover_init()
+

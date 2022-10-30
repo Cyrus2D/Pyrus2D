@@ -114,8 +114,8 @@ class BodySensor:
                 self._post_collided = True
 
 
-
-
+    def time(self) -> GameTime:
+        return self._current
 
     def view_quality(self):
         return self._view_quality
@@ -135,7 +135,7 @@ class BodySensor:
     def speed_mag(self):
         return self._speed_mag
 
-    def speed_dir_relative(self):
+    def speed_dir(self):
         return self._speed_dir_relative
 
     def neck_relative(self):

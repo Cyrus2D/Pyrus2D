@@ -9,12 +9,16 @@ class Object:
         self._rpos = Vector2D.invalid()
         self._dist_from_self = 100000
 
-        self._pos_count = 0  # TODO maybe 10000
-        self._seen_pos_count = 0  # TODO maybe 10000
-        self._seen_pos = Vector2D.invalid()
-        self._vel_count = 0  # TODO maybe 10000
-        self._seen_vel_count = 0  # TODO maybe 10000
-        self._seen_vel = Vector2D.invalid()
+        self._pos_count: int = 0  # TODO maybe 10000
+        self._seen_pos_count: int = 0  # TODO maybe 10000
+        self._seen_pos: Vector2D = Vector2D.invalid()
+        self._vel_count: int = 0  # TODO maybe 10000
+        self._seen_vel_count: int = 0  # TODO maybe 10000
+        self._seen_vel: Vector2D = Vector2D.invalid()
+        self._ghost_count: int  = 1000
+        self._heard_pos_count: int = 1000
+        self._heard_pos: Vector2D = Vector2D.invalid()
+
 
     def pos(self) -> Vector2D:
         return self._pos.copy()
@@ -45,6 +49,12 @@ class Object:
 
     def seen_vel(self):
         return self._vel.copy()  # TODO should be written again
+    
+    def heard_pos_count(self):
+        return self._heard_pos_count
+    
+    def heard_pos(self):
+        return self._heard_pos
 
     def reverse(self):
         self._pos.reverse()
@@ -75,3 +85,6 @@ class Object:
 
     def dist_from_self(self):
         return self._dist_from_self
+    
+    def ghost_count(self):
+        return self._ghost_count
