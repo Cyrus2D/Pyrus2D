@@ -338,6 +338,9 @@ class _KickTable:
 
     def create_tables(self):
         player_type = PlayerType()  # default type
+        if self._tables != []:
+            return True
+        
         if (math.fabs(self._player_size - player_type.player_size()) < EPS
                 and math.fabs(self._kickable_margin - player_type.kickable_margin()) < EPS
                 and math.fabs(self._ball_size - ServerParam.i().ball_size()) < EPS):
@@ -434,7 +437,7 @@ class _KickTable:
         if KickTable.S_UPDATE_TIME == world.time():
             return
 
-        KickTable.S_UPDATE_TIME = world.time()
+        KickTable.S_UPDATE_TIME = world.time().copy()
 
         self.create_state_cache(world)
 

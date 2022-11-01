@@ -53,11 +53,11 @@ class Localizer:
     
     def _initial_landmark_map(self):
         
-        pitch_half_w = ServerParam.i().pitchHalfWidth()
-        pitch_half_l = ServerParam.i().pitchHalfLength()
-        penalty_l = ServerParam.i().penaltyAreaLength()
-        penalty_half_w = ServerParam.i().penaltyAreaHalfWidth()
-        goal_half_w = ServerParam.i().goalHalfWidth()
+        pitch_half_w = ServerParam.i().pitch_half_width()
+        pitch_half_l = ServerParam.i().pitch_half_length()
+        penalty_l = ServerParam.i().penalty_area_length()
+        penalty_half_w = ServerParam.i().penalty_area_half_width()
+        goal_half_w = ServerParam.i().goal_half_width()
 
         self._landmark_map[MarkerID.Goal_L] = Vector2D( -pitch_half_l, 0.0 )
         self._landmark_map[MarkerID.Goal_R] = Vector2D( +pitch_half_l, 0.0 )

@@ -144,7 +144,7 @@ class DebugClient:
         if world.ball().pos().is_valid():
             ostr_ball = ' (b ' + str(round(world.ball().pos().x(), 2)) \
                         + ' ' + str(round(world.ball().pos().y(), 2))
-            if world.ball().velValid():
+            if world.ball().vel_valid():
                     ostr_ball += (' ' + str(round(world.ball().vel().x(), 2))
                                   + ' ' + str(round(world.ball().vel().y(), 2)))
             ostr_ball += (' (c \'g' + str(world.ball().pos_count()) + 'r'

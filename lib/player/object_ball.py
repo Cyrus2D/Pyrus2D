@@ -1,6 +1,7 @@
 from lib.math.soccer_math import *
 from lib.player.action_effector import ActionEffector
 from lib.player.object import *
+from lib.player.object_self import SelfObject
 from lib.player_command.player_command import CommandType
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
@@ -18,8 +19,6 @@ class BallObject(Object):
 
     def __init__(self, string=None):
         super().__init__()
-        self._dist_from_self: float = 10000
-        self._angle_from_self = AngleDeg(0.0)
         self._pos = Vector2D.invalid()
         self._vel = Vector2D.invalid()
         
@@ -86,7 +85,7 @@ class BallObject(Object):
         SP = ServerParam.i()
 
         new_vel = Vector2D(0, 0)
-        if self.velValid():
+        if self.vel_valid():
             accel: Vector2D = Vector2D(0,0)
             new_vel = self.vel()
             
@@ -164,3 +163,65 @@ class BallObject(Object):
                    vel_count: int):
         self.update_pos(pos, pos_count, rpos)
         self.update_only_vel(vel, vel_count)
+    
+    def update_by_game_mode(self, game_mode: GameMode):
+        SP = ServerParam.i()
+        GMT = GameModeType
+        type = game_mode.type()
+        
+        if type in [GMT.PlayOn,
+                    GMT.GoalKick_Left,
+                    GMT.GoalKick_Right,
+                    GMT.PenaltyTaken_Left,
+                    GMT.PenaltyTaken_Right]:
+            return
+        
+        self._vel = Vector2D(0, 0)
+        self._vel_count = 0
+        self._seen_vel = Vector2D(0,0)
+        self._seen_vel_count = 0
+        
+        if type in [GMT.GoalieCatchBall_Left, GMT.GoalieCatchBall_Right]:
+            return
+        
+        if type in [GMT.CornerKick_Left, GMT.CornerKick_Right]:
+            if self.pos_count() <= 1 and self.rpos().r2() > 3 ** 2:
+                self.pos().assign(
+                    SP.pitch_half_length() - SP.corner_kick_margin() * (1 if self.pos().x() > 0 else -1),
+                    SP.pitch_half_width() - SP.corner_kick_margin() * (1 if self.pos().y() > 0 else -1)
+                )
+            return
+        
+        if type in [GMT.KickIn_Left, GMT.KickIn_Right]:
+            if self.pos_count() <= 1 and self.rpos().r2() > 3**2:
+                self.pos()._y = SP.pitch_half_width() * (1 if self.pos().y() > 0 else -1)
+            return
+        
+        if type in [GMT.BeforeKickOff, GMT.KickOff_Left, GMT.KickOff_Right]:
+            self.pos().assign(0,0)
+            self._pos_count = 0
+            self._seen_pos.assign(0, 0)
+            self._seen_pos_count = 0
+
+    def update_self_related(self, player: SelfObject, prev):
+        prev: BallObject = None
+        
+        if self.rpos_count() == 0:
+            self._dist_from_self = self.rpos().r()
+            self._angle_from_self = self.rpos().th()
+        else:
+            if prev.rpos().is_valid() and player.last_move().is_valid():
+                self._rpos = prev.rpos() + self.vel() / ServerParam.i().ball_decay() - player.last_move()
+            
+            if self.rpos().is_valid() and self.pos_count() > self.rpos_count():
+                self._pos = player.pos() + self.rpos()
+                self._dist_from_self = self.rpos().r()
+                self._angle_from_self = self.rpos().th()
+            elif self.pos_valid() and player.pos_valid():
+                self._rpos = self.pos() - player.pos()
+                self._dist_from_self = self.rpos().r()
+                self._angle_from_self = self.rpos().th()
+            else:
+                self._dist_from_self = 1000
+                self._angle_from_self = AngleDeg(0)
+                

@@ -245,6 +245,14 @@ class GameModeType(Enum):
 
     def is_illegal_defense(self):
         return self == GameModeType.IllegalDefense_Left or self == GameModeType.IllegalDefense_Right
+    
+    def side(self) -> SideID:
+        side = self.value.split('_')[-1]
+        if side == "l":
+            return SideID.LEFT
+        if side == "r":
+            return SideID.RIGHT
+        return SideID.NEUTRAL
 
 
 """

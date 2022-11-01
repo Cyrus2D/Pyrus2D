@@ -230,3 +230,92 @@ class PlayerType:
     def can_over_speed_max(self, dash_power: float, effort: float):
         return (abs(dash_power) * self.dash_power_rate() * effort
                 > self.player_speed_max() * (1 - self.player_decay()))
+    
+    def reliable_catch_length(self):
+        return (2 - self._catchable_area_l_stretch) * SP.i().catch_area_l()
+    
+    def max_catch_length(self):
+        return self.catchable_area_l_stretch() * SP.i().catch_area_l()
+                
+    def get_catch_probability(self,
+                              player_pos: Vector2D = None,
+                              player_body: AngleDeg = None,
+                              ball_pos: Vector2D = None,
+                              dist_buf: float = None,
+                              dir_buf: float = None,
+                              dist: float = None) -> float:
+        if dist:
+            if dist < self._reliable_catchable_dist:
+                return SP.i().catch_probability()
+            elif dist > self._max_catchable_dist:
+                return 0
+
+            catch_stretch_length_x = (self.catchable_area_l_stretch() - 1) * SP.i().catch_area_l()
+            catch_length_min_x = SP.i().catch_area_l() - catch_stretch_length_x
+            
+            dist_x = (dist**2 - (SP.i().catch_area_l()/2)**2)**0.5
+            fail_prob = (dist_x - catch_length_min_x) / (catch_stretch_length_x*2)
+            return (1 - fail_prob)* SP.i().catch_probability()
+                
+        ball_rel = (ball_pos - player_pos).rotated_vector(-player_body)
+        ball_dist = ball_rel.r()
+        ball_dir = ball_rel.th()
+
+        reliable_diagonal_angle = AngleDeg.atan2_deg(SP.i().catch_area_w()*0.5, self.reliable_catch_length())
+        reliable_max_angle = SP.i().max_catch_angle() + reliable_diagonal_angle
+        
+        if reliable_max_angle > 180:
+            return self.get_catch_probability(dist=ball_dist + dist_buf)
+        
+        if (-reliable_max_angle + dir_buf < ball_dir.degree() < reliable_max_angle - dir_buf
+            and ball_dist < self.reliable_catchable_dist()  - dist_buf):
+            
+            return SP.i().catch_probability()
+        
+        ball_rel_min_angle = ball_rel.rotated_vector(-SP.i().min_catch_angle())
+        if (0 < ball_rel_min_angle.x() < self.reliable_catch_length()  - dist_buf
+            and ball_rel_min_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+
+            return SP.i().catch_probability()
+        
+        ball_rel_max_angle = ball_rel.rotated_vector(-SP.i().max_catch_angle())
+        if (0 < ball_rel_max_angle.x() < self.reliable_catch_length()  - dist_buf
+            and ball_rel_max_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+
+            return SP.i().catch_probability()
+        
+        unreliable_diagonal_angle = AngleDeg.atan2_deg(SP.i().catch_area_w() * 0.5, self.max_catch_length())
+        unreliable_max_angle = SP.i().max_catch_angle() + unreliable_diagonal_angle
+        
+        if unreliable_max_angle > 180:
+            return self.get_catch_probability(dist=ball_dist+dist_buf)
+        
+        if (-unreliable_max_angle + dir_buf < ball_dir.degree() < unreliable_max_angle - dir_buf
+            and ball_dist < self.max_catchable_dist() - dist_buf):
+            
+            return self.get_catch_probability(dist=ball_dist+dist_buf)
+        
+        if (0 < ball_rel_min_angle.x() < self.max_catch_length()  - dist_buf
+            and ball_rel_min_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            
+            fail_prob = (ball_rel_min_angle.x - catch_length_min_x + dist_buf) / (catch_stretch_length_x*2)
+            if fail_prob < 0:
+                return SP.i().catch_probability()
+            elif fail_prob > 1:
+                return 0
+            else:
+                return (1 - fail_prob) * SP.i().catch_probability()
+            
+        if (0 < ball_rel_max_angle.x() < self.max_catch_length()  - dist_buf
+            and ball_rel_max_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            
+            fail_prob = (ball_rel_max_angle.x - catch_length_min_x + dist_buf) / (catch_stretch_length_x*2)
+            if fail_prob < 0:
+                return SP.i().catch_probability()
+            elif fail_prob > 1:
+                return 0
+            else:
+                return (1 - fail_prob) * SP.i().catch_probability()
+        
+        return 0
+        

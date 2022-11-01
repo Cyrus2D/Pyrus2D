@@ -6,6 +6,7 @@ from base.bhv_move import BhvMove
 
 
 def get_decision(agent):
+    print("Decisioning...")
     wm: WorldModel = agent.world()
     st = StrategyFormation().i()
     st.update(wm)

@@ -58,7 +58,7 @@ class InterceptTable:
         # if self._last_update_time == wm.time(): # TODO uncomment it
         #     dlog.add_text(Level.INTERCEPT, "intercept updated befor :| it called agein")
 
-        self._last_update_time = wm.time()
+        self._last_update_time = wm.time().copy()
         self.clear()
 
         if wm.game_mode().type() == GameModeType.TimeOver or \

@@ -589,8 +589,8 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._coach_mode = dic["coach"]
         self._trainer_port = dic["coach_port"]
         self._coach_with_referee_mode = dic["coach_w_referee"]
-        self._control_radius = dic["control_radius"]
-        self._dash_power_rate = dic["dash_power_rate"]
+        self._control_radius = float(dic["control_radius"])
+        self._dash_power_rate = float(dic["dash_power_rate"])
         self._drop_ball_time = dic["drop_ball_time"]
         self._effort_dec = float(dic["effort_dec"])
         self._effort_dec_thr = float(dic["effort_dec_thr"])
@@ -613,7 +613,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._game_logging = dic["game_logging"]
         self._goal_width = float(dic["goal_width"])
         self._goalie_max_moves = dic["goalie_max_moves"]
-        self._half_time = dic["half_time"]
+        self._half_time = int(dic["half_time"])
         self._player_hear_decay = dic["hear_decay"]
         self._player_hear_inc = dic["hear_inc"]
         self._player_hear_max = dic["hear_max"]
@@ -622,7 +622,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._kick_rand = dic["kick_rand"]
         self._kick_rand_factor_l = dic["kick_rand_factor_l"]
         self._kick_rand_factor_r = dic["kick_rand_factor_r"]
-        self._kickable_margin = dic["kickable_margin"]
+        self._kickable_margin = float(dic["kickable_margin"])
         self._landmark_file = dic["landmark_file"]
         self._log_date_format = dic["log_date_format"]
         self._log_times = dic["log_times"]
@@ -632,7 +632,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._max_neck_moment = dic["maxneckmoment"]
         self._max_power = float(dic["maxpower"])
         self._min_moment = dic["minmoment"]
-        self._min_neck_angle = dic["minneckang"]
+        self._min_neck_angle = float(dic["minneckang"])
         self._min_neck_moment = dic["minneckmoment"]
         self._min_power = float(dic["minpower"])
         self._offside_active_area_size = dic["offside_active_area_size"]
@@ -642,7 +642,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._player_accel_max = float(dic["player_accel_max"])
         self._player_decay = float(dic["player_decay"])
         self._player_rand = float(dic["player_rand"])
-        self._player_size = dic["player_size"]
+        self._player_size = float(dic["player_size"])
         self._player_speed_max = float(dic["player_speed_max"])
         self._player_weight = dic["player_weight"]
         self._point_to_ban = dic["point_to_ban"]
@@ -694,15 +694,15 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._use_offside = bool(int(dic["use_offside"]))
         self._verbose_mode = dic["verbose"]
         self._visible_angle = float(dic["visible_angle"])
-        self._visible_distance = dic["visible_distance"]
+        self._visible_distance = float(dic["visible_distance"])
         self._wind_angle = dic["wind_ang"]
         self._wind_dir = dic["wind_dir"]
         self._wind_force = dic["wind_force"]
         self._wind_none = dic["wind_none"]
         self._wind_rand = dic["wind_rand"]
         self._use_wind_random = dic["wind_random"]
-        self._max_catch_angle = dic["max_catch_angle"]
-        self._min_catch_angle = dic["min_catch_angle"]
+        # self._max_catch_angle = dic["max_catch_angle"] TODO FIX THESE
+        # self._min_catch_angle = dic["min_catch_angle"]
 
     def parse(self, message):
         dic = MessageParamsParser().parse(message)

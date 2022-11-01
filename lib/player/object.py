@@ -1,13 +1,17 @@
 from lib.math.geom_2d import *
 
 
-class Object:
+class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of the value, the reference is enough
     def __init__(self):
         self._pos = Vector2D.invalid()
         self._vel = Vector2D.invalid()
 
         self._rpos = Vector2D.invalid()
-        self._dist_from_self = 100000
+        
+        self._dist_from_self:float = 0
+        self._angle_from_self: AngleDeg = AngleDeg(0)
+        self._dist_from_ball:float = 0
+        self._angle_from_ball: AngleDeg = AngleDeg(0)
 
         self._pos_count: int = 0  # TODO maybe 10000
         self._seen_pos_count: int = 0  # TODO maybe 10000
@@ -78,7 +82,7 @@ class Object:
         pass
 
     def _update_rpos(self, wm):
-        self._rpos = self._pos - wm.self().pos()
+        self._rpos: Vector2D = self._pos - wm.self().pos()
 
     def _update_dist_from_self(self, wm):
         self._dist_from_self = self._rpos.r()

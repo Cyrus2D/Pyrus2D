@@ -2,11 +2,13 @@ from lib.math.angle_deg import AngleDeg
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.action_effector import ActionEffector
+from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.stamina_model import StaminaModel
 from lib.player_command.player_command import CommandType
 from lib.rcsc.game_time import GameTime
+from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import SideID, ViewQuality, ViewWidth
 
@@ -17,7 +19,7 @@ class SelfObject(PlayerObject):
     def __init__(self):
         super().__init__()
         self._time: GameTime = GameTime()
-        self._sense_body_time: GameTime = None
+        self._sense_body_time: GameTime = GameTime()
 
         self._view_width: ViewWidth = ViewWidth.ILLEGAL
         self._view_quality: ViewQuality = ViewQuality.ILLEGAL
@@ -55,6 +57,13 @@ class SelfObject(PlayerObject):
                 
         self._last_move: Vector2D = Vector2D(0,0)
         self._last_moves: list[Vector2D] = [Vector2D(0,0) for _ in range(4)]
+        
+        self._arm_movable: int = 0
+    
+    def init(self, side: SideID, unum: int, goalie: bool):
+        self._side = side
+        self._unum = unum
+        self._goalie = goalie
 
     def view_width(self):
         return self._view_width
@@ -77,6 +86,9 @@ class SelfObject(PlayerObject):
     def is_kicking(self):
         return self._kicking
     
+    def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
+        self._view_width = vw.copy()
+        self._view_quality = vq.copy()
     
     def update(self, act: ActionEffector, current_time: GameTime):
         if self._time == current_time:
@@ -290,7 +302,86 @@ class SelfObject(PlayerObject):
         self._arm_expires = body.arm_expires()
         self._charge_expires = body.charged_expires()
         self._card = body.card()
-
-                
-            
+    
+    def set_pointto(self,point: Vector2D, done_time: GameTime):
+        self._pointto_pos = point.copy()
+        self._last_pointto_time = done_time
         
+        if self.pos_valid():
+            self._pointto_angle = (point - self.pos()).th()
+            self._pointto_count = 0
+    
+    def update_ball_info(self, ball: BallObject):
+        self._kickable = False
+        self._kickrate = 0
+        self._catch_probability = 0
+        self._tackle_probability = 0
+        self._foul_probability = 0
+        
+        if self.pos_count() > 100 or not ball.pos_valid():
+            return
+        
+        self._dist_from_ball = ball.dist_from_self()
+        self._angle_from_ball = ball.angle_from_self() + 180
+
+        if ball.ghost_count() > 0:
+            return
+        
+        SP = ServerParam.i()
+        ptype = self.player_type()
+
+        if ball.dist_from_self() <= ptype.kickable_area():
+            buff = 0.055
+            if ball.seen_pos_count() >= 1:
+                buff = 0.155
+            if ball.seen_pos_count() >= 2:
+                buff = 0.255
+            if ball.dist_from_self() <= ptype.kickable_area() - buff:
+                self._kickable = True
+            
+            self._kickrate = ptype.kick_rate(ball.dist_from_self(),
+                                             (ball.angle_from_self() - self.body()).degree())
+        
+        if self._last_catch_time.cycle() + SP.catch_ban_cycle() <= self._time.cycle():
+            self._catch_probability = ptype.get_catch_probability(self.pos(), self.body(), ball.pos(), 0.055, 0.5) # TODO IMP FUNC
+        
+        player2ball = (ball.pos() - self.pos()).rotated_vector(-self.body())
+        tackle_dist = SP.tackle_dist() if player2ball.x() > 0 else SP.tackle_back_dist()
+        tackle_fail_prob = 1
+        foul_fail_prob = 1
+        
+        if tackle_dist > 1e-5:
+            tackle_fail_prob = ((player2ball.absX()/tackle_dist)**SP.tackle_exponent()
+                                    + (player2ball.absY()/SP.tackle_width())**SP.tackle_exponent())
+            foul_fail_prob = ((player2ball.absX()/tackle_dist)**SP.foul_exponent()
+                                    + (player2ball.absY()/SP.tackle_width())**SP.foul_exponent())
+            
+        if tackle_fail_prob < 1:
+            self._tackle_probability = 1 - tackle_fail_prob
+        if foul_fail_prob < 1:
+            self._foul_probability = 1 - foul_fail_prob
+    
+    def update_kickable_state(self,
+                              ball: BallObject,
+                              self_reach_cycle: int,
+                              teammate_reach_cycle: int,
+                              opponent_reach_cycle: int):
+        if (not self._kickable
+            and ball.seen_pos_count() == 0
+            and ball.dist_from_self() < self.player_type().kickable_area() - 0.001):
+            
+            if (self_reach_cycle >= 10
+                and opponent_reach_cycle < min(self_reach_cycle, teammate_reach_cycle) - 7):
+                
+                self._kickable = True
+                return
+
+            min_cycle = min(self_reach_cycle, teammate_reach_cycle, opponent_reach_cycle)
+            ball_pos = ball.inertia_point(min_cycle)
+            if ball_pos.absX() > ServerParam.i().pitch_half_length() or ball_pos.absY() > ServerParam.i().pitch_half_width():
+                self._kickable = True
+                return
+            
+        if opponent_reach_cycle > 0:
+            self._foul_probability = 0
+            

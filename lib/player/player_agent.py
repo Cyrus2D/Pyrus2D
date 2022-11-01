@@ -1,3 +1,4 @@
+from itertools import cycle
 import logging
 import time
 
@@ -18,10 +19,11 @@ from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDash
     PlayerKickCommand, PlayerTackleCommand
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
+from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
-from lib.rcsc.types import ViewWidth
+from lib.rcsc.types import GameModeType, ViewWidth
 
 
 class PlayerAgent(SoccerAgent):
@@ -39,6 +41,9 @@ class PlayerAgent(SoccerAgent):
             self._visual: VisualSensor = VisualSensor()
             self._see_state: SeeState = SeeState()
             self._team_name = "Pyrus" # TODO REMOVE IT
+            
+            self._game_mode: GameMode = GameMode()
+            self._server_cycle_stopped: bool = True
 
         def send_init_command(self):
             # TODO check reconnection
@@ -64,7 +69,7 @@ class PlayerAgent(SoccerAgent):
 
             self._body.parse(message, self._current_time)
 
-            self._see_state.update_by_sense_body(self._time, self._body.view_width(), self._body.view_quality())
+            self._see_state.update_by_sense_body(self._current_time, self._body.view_width(), self._body.view_quality())
 
             self._agent._effector.check_command_count(self._body)
             self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
@@ -86,6 +91,37 @@ class PlayerAgent(SoccerAgent):
                                                          self._body,
                                                          self._agent.effector(),
                                                          self._current_time)
+
+        def hear_parser(self, message: str):
+            self.parse_cycle_info(message, False)
+            _, cycle, sender = tuple(
+                message.split(" ")[:3]
+            )
+            cycle = int(cycle)
+            
+            if sender == "referee":
+                self.hear_referee_parser(self, message)            
+        
+        def hear_referee_parser(self, message: str):
+            mode = message.split(" ")[-1].strip(")")
+            self._game_mode.update(mode, self._current_time)
+            
+            # TODO CARDS AND OTHER STUFF
+            
+            self.update_server_status()
+            
+            if self._game_mode.type() is GameModeType.TimeOver:
+                self.send_bye_command()
+                return
+            self._agent.world().update_game_mode(self._game_mode, self._current_time)
+            # TODO FULL STATE WORLD update
+        
+        def update_server_status(self):
+            if self._server_cycle_stopped:
+                self._server_cycle_stopped = False
+            
+            if self._game_mode.is_server_cycle_stopped_mode():
+                self._server_cycle_stopped = True
 
         def parse_cycle_info(self, msg: str, by_sense_body: bool):
             cycle = int(msg.split(' ')[1].strip(')('))
@@ -122,7 +158,6 @@ class PlayerAgent(SoccerAgent):
                             and self._last_decision_time.cycle() != new_time - 1):
                         dlog.add_text(Level.SYSTEM, f"(update current time) missed last action(2)")
 
-        @property
         def think_received(self):
             return self._think_received
 
@@ -176,23 +211,32 @@ class PlayerAgent(SoccerAgent):
                     self._client.set_server_alive(False)
                     break
                 message_count += 1
-                if self._impl.think_received:
+                if self._impl.think_received():
                     last_time_rec = time.time()
                     break
+            print(self._impl._think_received)
 
             if not self._client.is_server_alive():
                 print("Pyrus Agent : Server Down")
                 # print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
 
-            if self._impl.think_received:
+            if self._impl.think_received():
+                print("GOING TO ACTION")
                 self.action()
+                self.debug_players()
                 self._impl._think_received = False
             # TODO elif for not sync mode
 
+    def debug_players(self):
+        for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
+            if p.pos_valid():
+                dlog.add_circle(Level.WORLD, 1, center=p.pos())
+
     def parse_message(self, message):
+        print(f"MSG: {message}")
         if message.find("(init") != -1:
-            self.init_dlog(message)
+            self.parse_init(message)
         elif message.find("server_param") != -1:
             ServerParam.i().parse(message)
         elif message.find("sense_body") != -1:
@@ -205,10 +249,12 @@ class PlayerAgent(SoccerAgent):
                 print("KICKTABLE Faild")
         elif message.find("(see") != -1:
             self._impl.sense_visual_parser(message)
+        elif message.find("(hear") != -1:
+            self._impl.hear_parser(message)
         elif message.find("fullstate") != -1 or message.find("player_type") != -1 or message.find(
                 "sense_body") != -1 or message.find("(init") != -1:
             self._full_world.parse(message)
-            dlog._time = self.world().time()
+            dlog._time = self.world().time().copy()
         elif message.find("think") != -1:
             self._impl._think_received = True
 
@@ -222,7 +268,8 @@ class PlayerAgent(SoccerAgent):
     def do_turn(self, angle):
         if self.world().self().is_frozen():
             print(f"(do turn) player({self._world.self_unum()} is frozen!")
-            return Falseself._last_body_command.append(self._effector.set_turn(float(angle)))
+            return False
+        self._last_body_command.append(self._effector.set_turn(float(angle)))
         return True
 
     def do_move(self, x, y):
@@ -267,7 +314,19 @@ class PlayerAgent(SoccerAgent):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
+        
+        self.world().update_just_before_decision()
+        # TODO FULL STATE
+        
+        self._effector.reset() # TODO IMP FUNC
+        
+
         get_decision(self)
+        
+        self.world().update_just_after_decision(self._effector)
+        self._impl._see_state.set_view_mode(self.world().self().view_width(),
+                                            self.world().self().view_quality())
+        
         commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
@@ -278,8 +337,11 @@ class PlayerAgent(SoccerAgent):
         dlog.flush()
         self._last_body_command = []
 
-    def init_dlog(self, message):
+    def parse_init(self, message):
         message = message.split(" ")
         unum = int(message[2])
         side = message[1]
+
+        self.world().init(self._impl._team_name, side, unum, False)
+
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)

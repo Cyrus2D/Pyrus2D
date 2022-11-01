@@ -10,7 +10,7 @@ from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.visual_sensor import VisualSensor
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import UNUM_UNKNOWN, GameModeType
+from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
 from lib.math.soccer_math import *
 from typing import List
 
@@ -35,18 +35,25 @@ class WorldModel:
         self._self_unum: int = None
         self._team_name: str = ""
         self._our_side: SideID = SideID.NEUTRAL
-        self._our_players = [PlayerObject() for _ in range(11)]
+        self._our_players_array:list[PlayerObject] = [None for _ in range(12)]
+        self._their_players_array:list[PlayerObject] = [None for _ in range(12)]
+        self._their_players:list[PlayerObject] = []
+        self._our_players:list[PlayerObject] = []
+
         self._teammates_from_ball: List[PlayerObject] = []
         self._opponents_from_ball: List[PlayerObject] = []
         self._teammates_from_self: List[PlayerObject] = []
         self._opponents_from_self: List[PlayerObject] = []
-        self._their_players = [PlayerObject() for _ in range(11)]
+        
         self._unknown_players = [PlayerObject() for _ in range(22)]
+        
+        self._self: SelfObject = SelfObject()
+        
         self._ball: BallObject = BallObject()
         self._prev_ball: BallObject = None
-        self._time: GameTime = GameTime(0, 0)
+        
         self._intercept_table: InterceptTable = InterceptTable()
-        self._game_mode: GameMode = GameMode()
+        self._game_mode: GameMode = GameMode(game_mode=GameModeType.BeforeKickOff)
         self._our_goalie_unum: int = 0
         self._their_goalie_unum: int = 0
         self._last_kicker_side: SideID = SideID.NEUTRAL
@@ -71,28 +78,60 @@ class WorldModel:
         
         self._localizer: Localizer = Localizer()
         
-        self._sense_body_time: GameTime = None
+        self._time: GameTime = GameTime()
+        self._sense_body_time: GameTime = GameTime()
+        self._see_time: GameTime = GameTime()
+        self._decision_time: GameTime = GameTime()
+        
+        self._our_team_name: str = None
+        
+        self._our_player_type: int = [HETERO_DEFAULT for _ in range(11)]
+        self._their_player_type: int = [HETERO_DEFAULT for _ in range(11)]
+        
+        self._last_set_play_start_time: GameTime = GameTime()
+        self._set_play_count: int = 0
+        
+        self._our_recovery: list[float] = [1 for _ in range(11)]
+        self._our_stamina_capacity: list[float] = [ServerParam.i().stamina_capacity() for _ in range(11)]
+        
+        self._all_players: list[PlayerObject] = []
+    
+    def init(self,
+             team_name: str,
+             side: SideID,
+             unum: int,
+             is_goalie: bool):
+        self._our_team_name = team_name
+        self._our_side = side
+        if is_goalie:
+            self._our_goalie_unum = unum
+        
+        self.self().init(side, unum, is_goalie)
+        self.self().set_player_type(self._player_types[HETERO_DEFAULT])
+        self._self_unum = unum
+            
 
     def ball(self) -> BallObject:
         return self._ball
 
     def self(self) -> SelfObject:
-        if self.self_unum():
-            return self._our_players[self._self_unum - 1]
-        else:
-            return None
+        return self._self
 
     def our_side(self):
         return SideID.RIGHT if self._our_side == 'r' else SideID.LEFT if self._our_side == 'l' else SideID.NEUTRAL
 
     def our_player(self, unum):
-        return self._our_players[unum - 1]
+        if 1 <= unum <= 11:
+            return self._our_players_array[unum]
+        return None
 
     def their_player(self, unum):
-        return self._their_players[unum - 1]
+        if 1 <= unum <= 11:
+            return self._their_players_array[unum]
+        return None
 
     def time(self):
-        return self._time.copy()
+        return self._time
 
     def parse(self, message):
         if message.find("fullstate") is not -1:
@@ -318,6 +357,9 @@ class WorldModel:
 
     def last_kicker_side(self) -> SideID:
         return self._last_kicker_side
+    
+    def see_time(self):
+        return self._see_time
 
     def exist_kickable_opponents(self):
         return self._exist_kickable_opponents
@@ -420,7 +462,6 @@ class WorldModel:
         self._opponents_from_ball.clear()
         self._opponents_from_self.clear()
 
-        self._all_players.clear()
         self._our_players.clear()
         self._their_players.clear()
 
@@ -855,6 +896,7 @@ class WorldModel:
         self._opponents = list(filter(self._opponents, key=player_valid_check))
     
     def update_player_type(self):
+        pass
         
         
     def update_after_see(self,
@@ -880,7 +922,7 @@ class WorldModel:
         self.localize_self(see, body, act, current_time)
         self.localize_ball(see, act)
         self.localize_players(see)
-        self.update_player_type()
+        self.update_player_type() # TODO IMP FUNC
 
     def update_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
         if self._sense_body_time == current_time:
@@ -900,5 +942,152 @@ class WorldModel:
         
         if self.time() != current_time:
             self.update(act, current_time)
-                    
+    
+    def update_game_mode(self, game_mode: GameMode, current_time: GameTime):
+        pk_mode = game_mode.is_penalty_kick_mode()
+        if not pk_mode and self._game_mode.type() is not  GameModeType.PlayOn:
+            if game_mode.type() != self.game_mode().type():
+                self._last_set_play_start_time = current_time.copy()
+                self._set_play_count = 0
+            
+            if game_mode.type().is_goal_kick():
+                self._ball.update_only_vel(Vector2D(0, 0), 0)
+        SP = ServerParam.i()
+        if game_mode.type() is GameModeType.BeforeKickOff:
+            normal_time = (SP.actual_half_time() * SP.nr_normal_halfs()
+                                if SP.half_time() > 0 and SP.nr_normal_halfs() > 0
+                                else 0)
+            if current_time.cycle() < normal_time:
+                for i in range(1,12):
+                    self._our_recovery[i] = 1
+                    self._our_stamina_capacity[i] = SP.stamina_capacity()
+            else:
+                for i in range(1,12):
+                    self._our_stamina_capacity[i] = SP.stamina_capacity()
+        
+        self._game_mode = game_mode.copy()
+        if pk_mode:
+            pass # TODO PENALTY
+    
+    def create_set_player(self,
+                          players: list[PlayerObject],
+                          players_from_self: list[PlayerObject],
+                          players_from_ball: list[PlayerObject],
+                          self_pos: Vector2D,
+                          ball_pos: Vector2D):
+        for p in players:
+            p.update_self_ball_related(self_pos, ball_pos)
+            players_from_self.append(p)
+            players_from_ball.append(p)
+    
+    def update_kickables(self):
+        for p in self._teammates_from_ball:
+            if p.is_ghost() or p.is_tackling() or p.pos_count() > self.ball().pos_count():
+                continue
+            
+            if p.is_kickable(0):
+                self._kickable_teammate = p
+                break
+        for p in self._opponents_from_ball:
+            if p.is_ghost() or p.is_tackling() or p.pos_count() >= 10:
+                continue
+            
+            if p.dist_from_ball() > 5:
+                break
+            
+            if p.is_kickable(0):
+                self._kickable_opponent = p
+                break
+        
+    
+    def update_player_state_cache(self):
+        if not self.self().pos_valid() or not self.ball().pos_valid():
+            return
+        
+        self.create_player_set(self._teammates,
+                               self._teammates_from_self,
+                               self._teammates_from_ball,
+                               self.self().pos(),
+                               self.ball().pos())
+        self.create_player_set(self._opponents,
+                               self._opponents_from_self,
+                               self._opponents_from_ball,
+                               self.self().pos(),
+                               self.ball().pos())
+        self.create_player_set(self._unknown_players,
+                               self._opponents_from_self,
+                               self._opponents_from_ball,
+                               self.self().pos(),
+                               self.ball().pos())
+        
+        self._teammates_from_ball.sort(key=lambda p: p.dist_from_ball())
+        self._opponents_from_ball.sort(key=lambda p: p.dist_from_ball())
+        
+        self._teammates_from_self.sort(key=lambda p: p.dist_from_self())
+        self._opponents_from_self.sort(key=lambda p: p.dist_from_self())
+        
+        # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
+        # self.estimate_goalie() # TODO IMP FUNC?!
+        
+        self._all_players.append(self.self())
+        self._our_players.append(self.self())
+        self._our_players_array[self.self().unum()] = self.self()
+        
+        for p in self._teammates:
+            self._all_players.append(p)
+            self._our_players.append(p)
+            if p.unum() != UNUM_UNKNOWN:
+                self._our_players_array[p.unum()] = p
+        for p in self._opponents:
+            self._all_players.append(p)
+            self._their_players.append(p)
+            if p.unum() != UNUM_UNKNOWN:
+                self._their_players_array[p.unum()] = p
+        
+        self.update_kickables()
+    
+    def update_intercept_table(self):
+        self.intercept_table().update(self)
+        
+    
+    def update_just_before_decision(self, act: ActionEffector, current_time: GameTime):
+        if self.time() == current_time:
+            return
+        
+        # TODO UPDATES BY HEAR
+        # TODO UPDATE BALL BY COLLISION
+        
+        self.ball().update_by_game_mode(self.game_mode())
+        self.ball().update_self_related(self.self(), self._prev_ball)
+        
+        self.self().update_ball_info(self.ball())
+        
+        self.update_player_state_cache()
+        
+        # TODO update player cards and player types
+        # TODO update players collision
+        # TODO update lines
+        
+        # self.update_last_kicker() # TODO IMP FUNC
+        self.update_intercept_table()
+        
+        # TODO update maybe kickable teammates
+        
+        self.self().update_kickable_state(self.ball(),
+                                          self.intercept_table().self_reach_cycle(),
+                                          self.intercept_table().teammate_reach_cycle(),
+                                          self.intercept_table().opponent_reach_cycle())
+    
+    def update_just_after_decision(self, act: ActionEffector):
+        self._decision_time = self.time().copy()
+        if act.change_view_command():
+            self.self().set_view_mode(act.change_view_command().width(),
+                                      act.change_view_command().quality())
+        if act.pointto_command():
+            self.self().set_pointto(act.pointto_pos(),
+                                    self.time())
+        # TODO ATTENTIONTO
+        
+        
+        
         

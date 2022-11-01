@@ -9,7 +9,7 @@ class StaminaModel:
     def __init__(self, stamina=None, effort=None, recovery=None, capacity=None):
         SP = ServerParam.i()
         self._stamina: float = float(stamina) if stamina else SP.stamina_max()
-        self._effort: float = float(effort) if effort else SP.effort_init()
+        self._effort: float = float(effort) if effort else SP.default_effort_max()
         self._recovery: float = float(recovery) if recovery else SP.recover_init()
         self._capacity: float = float(capacity) if capacity else -1
 

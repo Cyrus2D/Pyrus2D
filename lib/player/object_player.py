@@ -33,8 +33,6 @@ class PlayerObject(Object):
         self._card: Card = Card.NO_CARD
         self._kickable: bool = False  # TODO does it change?
         self._kickrate: float = 0.0
-        self._dist_from_ball: float = 0.0
-        self._angle_from_ball: AngleDeg = AngleDeg(0.0)
         self._face: float = 0
         
         self._pos_history: list[Vector2D] = []
@@ -82,8 +80,6 @@ class PlayerObject(Object):
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
         self._kickable: bool = False
         self._kickrate: float = 0.0
-        self._dist_from_ball: float = 0.0
-        self._angle_from_ball: float = 0.0
 
     # update other data
     def _update_more_with_full_state(self, wm):
@@ -200,7 +196,7 @@ class PlayerObject(Object):
         return self._unum
 
     def effort(self):  # TODO update effort
-        return SP.i().effort_init()
+        return SP.i().default_effort_max()
 
     def dash_rate(self):
         return self.effort() * self.player_type().dash_power_rate()
@@ -228,10 +224,6 @@ class PlayerObject(Object):
 
     def body_count(self):
         return self._body_count
-
-    def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
-        self._view_width = vw.copy()
-        self._view_quality = vq.copy()
 
     def get_safety_dash_power(self, dash_power):
         return self.stamina_model().get_safety_dash_power(self.player_type(),
@@ -346,5 +338,11 @@ class PlayerObject(Object):
                 self._tackle_count = 0
         elif player.rpos_.r2() > SP.visible_distance()**2:
             self._tackle_count = 1000
-            
-        
+    
+    def update_self_ball_related(self,
+                                 self_pos: Vector2D,
+                                 ball_pos: Vector2D):
+        self._dist_from_self = (self.pos() - self_pos).dist()
+        self._angle_from_self = (self.pos() - self_pos).th()
+        self._dist_from_ball = (self.pos() - ball_pos).dist()
+        self._angle_from_ball = (self.pos() - ball_pos).th()

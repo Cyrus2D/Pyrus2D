@@ -108,7 +108,7 @@ class TrainerAgent(SoccerAgent):
             ServerParam.i().parse(message)
         elif message.find("see_global") is not -1 or message.find("player_type") is not -1:
             self._full_world.parse(message)
-            dlog._time = self.world().time()
+            dlog._time = self.world().time().copy()
         elif message.find("think") is not -1:
             self._impl._think_received = True
         elif message.find("(ok") is not -1:
