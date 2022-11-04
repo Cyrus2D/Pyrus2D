@@ -3,7 +3,7 @@ from lib.rcsc.types import SideID, GameModeType
 
 
 class GameMode:
-    def __init__(self, game_mode: GameModeType = None, time=GameTime()):
+    def __init__(self, game_mode: GameModeType = GameModeType.BeforeKickOff, time=GameTime()):
         self._game_mode: GameModeType = game_mode
         self._mode_name: str = None
         self._side: SideID = None
@@ -87,6 +87,7 @@ class GameMode:
         return self.is_teams_set_play(our_side)
 
     def update(self, mode: str, current_time: GameTime):
+        mode = mode[:mode.find(')')]
         n_under_line = len(mode.split("_"))
         game_mode: GameModeType = None
         if mode.startswith("goal_l"):
@@ -117,12 +118,20 @@ class GameMode:
     def is_server_cycle_stopped_mode(self):
         return self._game_mode in [
             GameModeType.BeforeKickOff,
-            GameModeType.AfterGoal_,
-            GameModeType.OffSide_,
-            GameModeType.FoulCharge_,
-            GameModeType.FoulPush_,
-            GameModeType.FreeKickFault_,
-            GameModeType.BackPass_,
-            GameModeType.CatchFault_,
-            GameModeType.IllegalDefense_,
+            GameModeType.AfterGoal_Left,
+            GameModeType.AfterGoal_Right,
+            GameModeType.OffSide_Left,
+            GameModeType.OffSide_Right,
+            GameModeType.Foul_Charge_Left,
+            GameModeType.Foul_Charge_Right,
+            GameModeType.Foul_Push_Left,
+            GameModeType.Foul_Push_Right,
+            GameModeType.Free_Kick_Fault_Left,
+            GameModeType.Free_Kick_Fault_Right,
+            GameModeType.Back_Pass_Left,
+            GameModeType.Back_Pass_Right,
+            GameModeType.CatchFault_Left,
+            GameModeType.CatchFault_Right,
+            GameModeType.IllegalDefense_Left,
+            GameModeType.IllegalDefense_Right,
         ]

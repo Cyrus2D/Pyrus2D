@@ -631,7 +631,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._max_neck_angle = float(dic["maxneckang"])
         self._max_neck_moment = dic["maxneckmoment"]
         self._max_power = float(dic["maxpower"])
-        self._min_moment = dic["minmoment"]
+        self._min_moment = float(dic["minmoment"])
         self._min_neck_angle = float(dic["minneckang"])
         self._min_neck_moment = dic["minneckmoment"]
         self._min_power = float(dic["minpower"])

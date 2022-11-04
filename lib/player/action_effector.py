@@ -13,12 +13,16 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType, ViewQuality, ViewWidth
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    from lib.player.player_agent import PlayerAgent
+
+
 
 class ActionEffector:
     def __init__(self, agent) -> None:
-        from lib.player.player_agent import PlayerAgent
-
-        self._agent: PlayerAgent = agent
+        self._agent: 'PlayerAgent' = agent
 
         self._body_command: PlayerBodyCommand = None
         self._neck_command: PlayerTurnNeckCommand = None
@@ -148,7 +152,7 @@ class ActionEffector:
             self._command_counter[CommandType.ATTENTIONTO.value] =   body.attentionto_count()
     
     @staticmethod
-    def conserve_dash_power(wm, power, rel_dir):
+    def conserve_dash_power(wm: 'WorldModel', power, rel_dir):
         dlog.add_text(Level.ACTION, f"(conserved dash power) power={power}")
 
         SP = ServerParam.i()
@@ -166,10 +170,12 @@ class ActionEffector:
                                                 accel_angle=accel_angle,
                                                 accel_mag=accel_mag)
         
-        power = accel_mag / wm.self().dashRate() / dir_rate
+        power = accel_mag / wm.self().dash_rate() / dir_rate
         power = SP.normalize_dash_power(power)
         
         dlog.add_text(Level.ACTION, f"(conserved dash power) conserved power={power}")
+
+        return power
         
     def set_kick(self, power: float, rel_dir: Union[AngleDeg, float]):
         wm = self._agent.world()

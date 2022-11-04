@@ -7,8 +7,11 @@ from lib.player.soccer_action import *
 from lib.math.soccer_math import *
 from lib.player.templates import PlayerAgent
 # from lib.player.player_agent import PlayerAgent
-from lib.player.world_model import WorldModel
 from lib.rcsc.server_param import ServerParam
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 """
   \ class Body_StopBall
   \ brief stop the ball, possible as.
@@ -32,7 +35,7 @@ class StopBall(BodyAction):
     """
 
     def execute(self, agent: PlayerAgent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
         if not wm.self().is_kickable():
             return False
         if not wm.ball().velValid():  # Always true until NFS nice :)
@@ -60,7 +63,7 @@ class StopBall(BodyAction):
 
     def calcAccel(self, agent):
 
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
 
         safety_dist = wm.self().player_type().player_size() + ServerParam.i().ball_size() + 0.1
 

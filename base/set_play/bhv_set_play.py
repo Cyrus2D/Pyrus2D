@@ -26,7 +26,9 @@ class Bhv_SetPlay:
             nearest_tm = 0
             for i in range(1, 12):
                 tm: PlayerObject = wm.our_player(i)
-                if tm.unum() is i:
+                if tm is None:
+                    continue
+                if tm.unum() == i:
                     dist = tm.pos().dist(wm.ball().pos())
                     if dist < nearest_tm_dist:
                         nearest_tm_dist = dist

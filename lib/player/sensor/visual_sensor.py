@@ -368,7 +368,12 @@ class VisualSensor:
 
         for key, value in object_data.items():
             types = VisualSensor.ObjectType
-            obj_type = types(key[0])
+            t: str = key[0]
+            if t in ['P', 'B', 'L']:
+                t = t.lower()
+            obj_type = types(t)
+            
+            value = value.strip(")")
 
             if obj_type == types.Obj_Marker or obj_type == types.Obj_Goal:
                 self._markers.append(VisualSensor.MarkerT.parse_string(

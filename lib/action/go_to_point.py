@@ -1,11 +1,13 @@
 # from lib.player.player_agent import *
-from lib.player.world_model import *
 from lib.rcsc.server_param import ServerParam as SP
 import lib.math.soccer_math as smath
 from lib.player.templates import *
 from lib.math.geom_2d import *
 
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    
 class GoToPoint:
     _dir_thr: float
 
@@ -24,7 +26,7 @@ class GoToPoint:
             agent.do_turn(0)
             return True
 
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
         inertia_point: Vector2D = wm.self().inertia_point(self._cycle)
         target_rel: Vector2D = self._target - inertia_point
 
@@ -45,7 +47,7 @@ class GoToPoint:
         return False
 
     def do_turn(self, agent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
 
         inertia_pos: Vector2D = wm.self().inertia_point(self._cycle)
         target_rel: Vector2D = self._target - inertia_pos
@@ -69,7 +71,7 @@ class GoToPoint:
         return agent.do_turn(turn_moment)
 
     def do_dash(self, agent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
 
         inertia_pos: Vector2D = wm.self().inertia_point(self._cycle)
         target_rel: Vector2D = self._target - inertia_pos
@@ -102,7 +104,7 @@ class GoToPoint:
         return agent.do_dash(dash_power)
 
     def check_collision(self, agent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
 
         collision_dist = wm.self().player_type().player_size() + SP.i().goal_post_radius() + 0.2
 

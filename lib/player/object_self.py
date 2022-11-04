@@ -202,7 +202,7 @@ class SelfObject(PlayerObject):
         self._pos = pos.copy()
         self._seen_pos = pos.copy()
         self._face = face
-        self._body = face - self._neck
+        self._body = AngleDeg(face) - self._neck
 
         self._pos_count = 0
         self._seen_pos_count = 0

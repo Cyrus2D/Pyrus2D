@@ -90,11 +90,11 @@ class AngleDeg:
         self.normal()
         return self
 
-    def __add__(self, other):
+    def __add__(self, other) -> float:
         if type(other) == AngleDeg:
-            new_angle_deg = AngleDeg(self._degree + other.degree())
+            new_angle_deg = AngleDeg(self._degree + other.degree()).degree()
         else:
-            new_angle_deg = AngleDeg(self._degree + other)
+            new_angle_deg = AngleDeg(self._degree + other).degree()
         return new_angle_deg
 
     def __sub__(self, other):

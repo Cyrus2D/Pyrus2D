@@ -1,6 +1,5 @@
 from logging import Logger
 from lib.action.intercept_table import InterceptTable
-from lib.player.action_effector import ActionEffector
 from lib.player.localizer import Localizer
 from lib.player.object_player import *
 from lib.player.object_ball import *
@@ -13,6 +12,11 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
 from lib.math.soccer_math import *
 from typing import List
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.action_effector import ActionEffector
+    
 
 def player_accuracy_value(p: PlayerObject):
     value: int = 0
@@ -84,6 +88,7 @@ class WorldModel:
         self._decision_time: GameTime = GameTime()
         
         self._our_team_name: str = None
+        self._their_team_name: str = None
         
         self._our_player_type: int = [HETERO_DEFAULT for _ in range(11)]
         self._their_player_type: int = [HETERO_DEFAULT for _ in range(11)]
@@ -429,7 +434,7 @@ class WorldModel:
     def self_unum(self):
         return self._self_unum
 
-    def update(self, act: ActionEffector, current_time: GameTime):
+    def update(self, act: 'ActionEffector', current_time: GameTime):
         if self._time == current_time:
             print(f"(update) player({self.self_unum()}) called twice.")
             return
@@ -484,7 +489,7 @@ class WorldModel:
             p.update()
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
     
-    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: ActionEffector, rpos: Vector2D) -> tuple[Vector2D, int]:
+    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D) -> tuple[Vector2D, int]:
         SP = ServerParam.i()
 
         if self.self().has_sensed_collision():
@@ -557,6 +562,7 @@ class WorldModel:
                     return vel, 1000
                 else:
                     return vel, 3
+        return Vector2D.invalid(), 1000
                 
 
 
@@ -564,7 +570,7 @@ class WorldModel:
     def localize_self(self,
                       see:VisualSensor,
                       body: BodySensor,
-                      act: ActionEffector,
+                      act: 'ActionEffector',
                       current_time: GameTime):
         angle_face = self._localizer.estimate_self_face(see)
         if angle_face is None:
@@ -580,7 +586,7 @@ class WorldModel:
         if my_pos.is_valid():
             self.self().update_pos_by_see(my_pos, angle_face, current_time)
         
-    def localize_ball(self, see: VisualSensor, act: ActionEffector):
+    def localize_ball(self, see: VisualSensor, act: 'ActionEffector'):
         SP = ServerParam.i()
         if not self.self().face_valid():
             return
@@ -892,8 +898,8 @@ class WorldModel:
         for p in all_teammates[10:] + all_opponents[11:]:
             p.forgot()
         
-        self._teammates = list(filter(self._teammates, key=player_valid_check))
-        self._opponents = list(filter(self._opponents, key=player_valid_check))
+        self._teammates = list(filter(player_valid_check, self._teammates))
+        self._opponents = list(filter(player_valid_check, self._opponents))
     
     def update_player_type(self):
         pass
@@ -902,7 +908,7 @@ class WorldModel:
     def update_after_see(self,
                          see: VisualSensor,
                          body: BodySensor,
-                         act: ActionEffector,
+                         act: 'ActionEffector',
                          current_time: GameTime):
         if self._time != current_time:
             self.update(act, current_time)
@@ -924,7 +930,7 @@ class WorldModel:
         self.localize_players(see)
         self.update_player_type() # TODO IMP FUNC
 
-    def update_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
+    def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
             print(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             return
@@ -1050,7 +1056,7 @@ class WorldModel:
         self.intercept_table().update(self)
         
     
-    def update_just_before_decision(self, act: ActionEffector, current_time: GameTime):
+    def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() == current_time:
             return
         
@@ -1078,7 +1084,7 @@ class WorldModel:
                                           self.intercept_table().teammate_reach_cycle(),
                                           self.intercept_table().opponent_reach_cycle())
     
-    def update_just_after_decision(self, act: ActionEffector):
+    def update_just_after_decision(self, act: 'ActionEffector'):
         self._decision_time = self.time().copy()
         if act.change_view_command():
             self.self().set_view_mode(act.change_view_command().width(),

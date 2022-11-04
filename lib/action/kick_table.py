@@ -9,11 +9,15 @@ import functools
 
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.player.world_model import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.math.soccer_math import *
 from lib.rcsc.game_time import *
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    
 
 """
       \ brief compare operation function
@@ -432,7 +436,7 @@ class _KickTable:
       \ param world  reference to the WorldModel
      """
 
-    def update_state(self, world: WorldModel):
+    def update_state(self, world: 'WorldModel'):
 
         if KickTable.S_UPDATE_TIME == world.time():
             return
@@ -446,7 +450,7 @@ class _KickTable:
       \ param world  reference to the WorldModel
      """
 
-    def create_state_cache(self, world: WorldModel):
+    def create_state_cache(self, world: 'WorldModel'):
 
         param = ServerParam.i()
         pitch = Rect2D(Vector2D(- param.pitch_half_length(), - param.pitch_half_width()), Size2D(param.pitch_length(),
@@ -542,7 +546,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def check_collision_after_release(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def check_collision_after_release(self, world: 'WorldModel', target_point: Vector2D, first_speed):
 
         self_type = world.self().player_type()
 
@@ -590,7 +594,7 @@ class _KickTable:
     """
 
     @staticmethod
-    def check_interfere_at(world: WorldModel,
+    def check_interfere_at(world: 'WorldModel',
                            # cycle,  # not needed
                            state: State):
         # cycle += 0  Check need
@@ -683,7 +687,7 @@ class _KickTable:
 
     def check_interfere_after_release(self, *args):  # , **kwargs):):
         if len(args) == 3:
-            world: WorldModel = args[0]
+            world: 'WorldModel' = args[0]
             target_point: Vector2D = args[1]
             first_speed: float = args[2]
             self.check_interfere_after_release(world, target_point, first_speed, 1, self._current_state)
@@ -695,7 +699,7 @@ class _KickTable:
 
                     self.check_interfere_after_release(world, target_point, first_speed, i + 2, state)
         elif len(args) == 5:
-            world: WorldModel = args[0]
+            world: 'WorldModel' = args[0]
             target_point: Vector2D = args[1]
             first_speed: float = args[2]
             cycle: int = args[3]
@@ -778,7 +782,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulate_one_step(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def simulate_one_step(self, world: 'WorldModel', target_point: Vector2D, first_speed):
         if self._current_state.flag_ & SELF_COLLISION:
             return False
 
@@ -829,7 +833,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulate_two_step(self, world: WorldModel, target_point: Vector2D, first_speed):
+    def simulate_two_step(self, world: 'WorldModel', target_point: Vector2D, first_speed):
         max_power = ServerParam.i().max_power()
         accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
@@ -932,7 +936,7 @@ class _KickTable:
       \ param first_speed required first speed
      """
 
-    def simulate_three_step(self, world: WorldModel,
+    def simulate_three_step(self, world: 'WorldModel',
                             target_point: Vector2D,
                             first_speed):
 

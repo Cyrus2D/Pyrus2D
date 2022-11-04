@@ -14,7 +14,11 @@ from lib.player.soccer_action import BodyAction
 from lib.rcsc.game_time import GameTime
 from lib.player.templates import PlayerAgent
 from lib.rcsc.server_param import ServerParam
-from lib.player.world_model import WorldModel
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    
 """
   \ struct KeepPoint
   \ brief keep point info
@@ -68,7 +72,7 @@ class HoldBall(BodyAction):
     """
 
     def execute(self, agent: PlayerAgent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
         if not wm.self().is_kickable():
             dlog.add_text(Level.KICK, "not kickable")
             return False
@@ -99,7 +103,7 @@ class HoldBall(BodyAction):
     """
 
     def avoidOpponent(self, agent: PlayerAgent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
         point = self.searchKeepPoint(wm)
         if not point.is_valid():
             dlog.add_text(Level.KICK, "avoidOpponent() no candidate point")
@@ -117,7 +121,7 @@ class HoldBall(BodyAction):
       \ return estimated best keep point. if no point, is returned.
      """
 
-    def searchKeepPoint(self, wm: WorldModel):
+    def searchKeepPoint(self, wm: 'WorldModel'):
         s_last_update_time = GameTime(0, 0)
         s_keep_points = []
         s_best_keep_point = KeepPoint()
@@ -135,7 +139,7 @@ class HoldBall(BodyAction):
       \ param keep_points reference to the variable container
      """
 
-    def createKeepPoints(self, wm: WorldModel, candidates):
+    def createKeepPoints(self, wm: 'WorldModel', candidates):
         param = ServerParam.i()
 
         max_pitch_x = param.pitch_half_length() - 0.2
@@ -237,7 +241,7 @@ class HoldBall(BodyAction):
       \ param keep_points reference to the variable container
      """
 
-    def evaluateKeepPoints(self, wm: WorldModel, keep_points):
+    def evaluateKeepPoints(self, wm: 'WorldModel', keep_points):
         for it in keep_points:
             it.score_ = self.evaluateKeepPoint(wm, it.pos_)
             if it.score_ < DEFAULT_SCORE:
@@ -251,7 +255,7 @@ class HoldBall(BodyAction):
       \ param keep_point keep point value
     """
 
-    def evaluateKeepPoint(self, wm: WorldModel,
+    def evaluateKeepPoint(self, wm: 'WorldModel',
                           keep_point: Vector2D):
         penalty_area = Rect2D(Vector2D(ServerParam.i().their_penalty_area_line_x(),
                                        - ServerParam.i().penalty_area_half_width()),

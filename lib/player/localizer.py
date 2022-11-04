@@ -1,4 +1,5 @@
 from lib.math.angle_deg import AngleDeg
+from lib.math.math_values import DEG2RAD
 from lib.math.vector_2d import Vector2D
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
@@ -160,9 +161,9 @@ class Localizer:
         return angle
     
     def estimate_self_face(self, see: VisualSensor):
-        face = self.get_face_dir_by_line()
+        face = self.get_face_dir_by_line(see.lines())
         if face is None:
-            face = self.get_face_dir_by_markers()
+            face = self.get_face_dir_by_markers(see.markers())
         
         return face                
 
@@ -198,7 +199,7 @@ class Localizer:
         
         rvel = Vector2D.invalid()
         if ball.has_vel_:
-            rvel = Vector2D(ball.dist_chng_, AngleDeg.deg2rad() * ball.dir_chng_ * ball.dist_)
+            rvel = Vector2D(ball.dist_chng_, DEG2RAD * ball.dir_chng_ * ball.dist_)
             rvel.rotate(ball.dir_)
         
         return rpos, rvel
@@ -218,7 +219,7 @@ class Localizer:
         
         if seen_player.has_vel_:
             player.vel_ = Vector2D(seen_player.dist_chng_,
-                                   AngleDeg.deg2rad() * seen_player.dir_chng_ * seen_player.dist_)
+                                   DEG2RAD * seen_player.dir_chng_ * seen_player.dist_)
             player.vel_.rotate(seen_player.dir_)
             player.vel_ += self_vel
         else:
@@ -230,7 +231,7 @@ class Localizer:
             
             player.has_face_ = True
             player.body_ = AngleDeg.normalize_angle(seen_player.body_ + self_face)
-            player.face_ = AngleDeg.normalize_angle(seen_player.face + self_face)
+            player.face_ = AngleDeg.normalize_angle(seen_player.face_ + self_face)
         
         player.pointto_ = False
         if seen_player.arm_ != VisualSensor.DIR_ERR:

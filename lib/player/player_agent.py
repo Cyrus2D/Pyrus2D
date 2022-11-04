@@ -100,7 +100,7 @@ class PlayerAgent(SoccerAgent):
             cycle = int(cycle)
             
             if sender == "referee":
-                self.hear_referee_parser(self, message)            
+                self.hear_referee_parser(message)            
         
         def hear_referee_parser(self, message: str):
             mode = message.split(" ")[-1].strip(")")
@@ -309,13 +309,16 @@ class PlayerAgent(SoccerAgent):
 
     def debug_client(self) -> DebugClient:
         return self._debug_client
+    
+    def effector(self):
+        return self._effector
 
     def action(self):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
         
-        self.world().update_just_before_decision()
+        self.world().update_just_before_decision(self._effector, self._impl._current_time)
         # TODO FULL STATE
         
         self._effector.reset() # TODO IMP FUNC

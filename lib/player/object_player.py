@@ -1,6 +1,5 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.player.action_effector import ActionEffector
 from lib.player.localizer import Localizer
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.player_type import PlayerType
@@ -10,6 +9,10 @@ from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam as SP
 from lib.rcsc.types import UNUM_UNKNOWN, SideID, Card, ViewQuality, ViewWidth
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.localizer import Localizer
+
 
 # from lib.player.templates import *
 
@@ -18,7 +21,7 @@ class PlayerObject(Object):
     POS_COUNT_THR = 30
     VEL_COUNT_THR = 5
     
-    def __init__(self, side: SideID = None, player = None):
+    def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()
         self._unum: int = 0
         self._side: SideID = SideID.NEUTRAL
@@ -46,14 +49,14 @@ class PlayerObject(Object):
         
         if side is not None and player is not None:
             self._side = side
-            self._unum = player._unum
-            self._goalie = player._goalie
-            self._pos = player._pos
+            self._unum = player.unum_
+            self._goalie = player.goalie_
+            self._pos = player.pos_
             self._pos_count = 0
-            self._seen_pos = player._seen_pos
+            self._seen_pos = player.pos_
             self._seen_pos_count = 0
             
-            if player._unum != UNUM_UNKNOWN:
+            if player.unum_ != UNUM_UNKNOWN:
                 self._unum_count = 0
             
 
