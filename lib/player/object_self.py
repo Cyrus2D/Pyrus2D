@@ -170,7 +170,7 @@ class SelfObject(PlayerObject):
         
     def update_vel_dir_after_see(self, sense: BodySensor, current_time: GameTime):
         if sense.time() != current_time:
-            print("(update vel dir after see) sense time does not match current time")
+            debug_print("(update vel dir after see) sense time does not match current time")
             return
         
         if self.face_count() == 0:
@@ -219,7 +219,7 @@ class SelfObject(PlayerObject):
     
     def update_after_sense_body(self, body: BodySensor, act:ActionEffector, current_time:GameTime):
         if self._sense_body_time == current_time:
-            print(f"(self update after see) called twice at {current_time}")
+            debug_print(f"(self update after see) called twice at {current_time}")
             return
         
         self._sense_body_time = current_time.copy()

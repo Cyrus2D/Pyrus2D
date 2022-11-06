@@ -1,4 +1,5 @@
 import socket
+from lib.debug.debug_print import debug_print
 
 MAX_BUFF_SIZE = 8192
 
@@ -27,7 +28,7 @@ class IPAddress:
 class UDPSocket:
     def __init__(self, ip_address: IPAddress):
         self._ip: IPAddress = ip_address
-        print(self._ip)
+        debug_print(self._ip)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.settimeout(3)  # TODO isn't this risky?!?!?
         self._receive_first_message = False

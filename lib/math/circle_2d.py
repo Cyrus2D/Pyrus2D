@@ -9,6 +9,7 @@ from lib.math.line_2d import Line2D
 from lib.math.triangle_2d import Triangle2D
 import math
 from lib.math.math_values import *
+from lib.debug.debug_print import debug_print
 
 
 """
@@ -249,8 +250,8 @@ class Circle2D:
         return center.dist2(point) < center.dist2(p0) - EPSILON * EPSILON
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -262,7 +263,7 @@ class Circle2D:
 
 def test():
     c = Circle2D()
-    print(c)
+    debug_print(c)
 
 
 if __name__ == "__main__":

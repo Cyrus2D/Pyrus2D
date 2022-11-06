@@ -1,7 +1,7 @@
 import datetime as dt
 import inspect
 
-FILE_LINE_NUMBER = True
+FILE_LINE_NUMBER = False # SLows the runtime!
 TIME = False
 
 def debug_print(message: str):

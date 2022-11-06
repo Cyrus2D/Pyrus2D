@@ -5,6 +5,7 @@ from base.generator_action import KickAction, ShootAction
 from base.generator_dribble import BhvDribbleGen
 from base.generator_pass import BhvPassGen
 from base.generator_shoot import BhvShhotGen
+from lib.debug.debug_print import debug_print
 
 
 class BhvKick:
@@ -31,7 +32,7 @@ class BhvKick:
             best_action: KickAction = max(action_candidates)
 
             target = best_action.target_ball_pos
-            print(best_action)
+            debug_print(best_action)
             agent.debug_client().set_target(target)
             agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
             SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)

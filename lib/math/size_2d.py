@@ -4,6 +4,7 @@
 """
 
 import math
+from lib.debug.debug_print import debug_print
 
 
 class Size2D:
@@ -78,8 +79,8 @@ class Size2D:
         return self._length > 0.0 and self._width > 0.0
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):

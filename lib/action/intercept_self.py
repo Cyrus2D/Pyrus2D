@@ -15,6 +15,7 @@ from lib.player.stamina_model import StaminaModel
 from lib.player.templates import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
+from lib.debug.debug_print import debug_print
 
 control_area_buf = 0.15
 
@@ -239,7 +240,7 @@ class SelfIntercept:
         forward_accel_rel: Vector2D = max_forward_accel.rotated_vector(-dash_angle)
         back_accel_rel: Vector2D = max_back_accel.rotated_vector(-dash_angle)
         dash_rate = me.dash_rate() * SP.dash_dir_rate(dash_dir.degree())
-        # print(
+        # debug_print(
         # f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel} ,_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel} , _____ max_back_accel={max_back_accel} rel={back_accel_rel}")
         dlog.add_text(Level.INTERCEPT,
                       f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel}")
@@ -356,7 +357,7 @@ class SelfIntercept:
         min_power = 10000
 
         x_step = (backward_trap_accel_x - forward_trap_accel_x) / 5
-        # print("forward_trap_accel_x:", forward_trap_accel_x, "| backward_trap_accel_x :", backward_trap_accel_x,
+        # debug_print("forward_trap_accel_x:", forward_trap_accel_x, "| backward_trap_accel_x :", backward_trap_accel_x,
         #       "| X_step :",
         #       x_step)
         for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x + 0.01, x_step):

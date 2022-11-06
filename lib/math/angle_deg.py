@@ -1,5 +1,6 @@
 import math
 from lib.math.math_values import *
+from lib.debug.debug_print import debug_print
 
 
 class AngleDeg:
@@ -216,17 +217,17 @@ class AngleDeg:
 def test():
     a = AngleDeg(30)
     b = AngleDeg(60)
-    print(a + b)
+    debug_print(a + b)
     c = (a + b)
-    print(c.sin())
-    print(c.tan())
+    debug_print(c.sin())
+    debug_print(c.tan())
 
-    print(AngleDeg.atan2_deg(10, 5))
+    debug_print(AngleDeg.atan2_deg(10, 5))
 
     x = AngleDeg(-10)
     y = (-x)
-    print(y)
-    print(-x)
+    debug_print(y)
+    debug_print(-x)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from typing import Union
 from lib.math.angle_deg import AngleDeg
 from lib.math.math_values import *
 import math
+from lib.debug.debug_print import debug_print
 
 
 class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
@@ -43,7 +44,6 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
     """
 
     def assign(self, __x=None, __y=None, v = None):
-        print(v)
         if v:
           self._x = v._x
           self._y = v._y
@@ -448,8 +448,8 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
         return v1.outerProduct(v2)
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -463,11 +463,11 @@ def test():
     a = Vector2D(1, 1)
     b = Vector2D(10, 10)
     a.set_length(10)
-    print(a)
+    debug_print(a)
     c = (a + b)
-    print(c)
+    debug_print(c)
     a.set_polar(10, AngleDeg(45))
-    print(c.th())
+    debug_print(c.th())
 
 
 if __name__ == "__main__":

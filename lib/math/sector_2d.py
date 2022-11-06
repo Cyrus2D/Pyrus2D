@@ -7,6 +7,7 @@ from lib.math.region_2d import Region2D
 from lib.math.vector_2d import Vector2D
 from lib.math.angle_deg import AngleDeg
 from lib.math.math_values import *
+from lib.debug.debug_print import debug_print
 
 
 class Sector2D(Region2D):
@@ -147,8 +148,8 @@ class Sector2D(Region2D):
         return (2.0 * self.max_r * PI) * (div / 360.0)
 
     """
-     \ brief make a logical print.
-     \ return print_able str
+     \ brief make a logical debug_print.
+     \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -160,7 +161,7 @@ class Sector2D(Region2D):
 
 def test():
     a = Sector2D()
-    print(a)
+    debug_print(a)
 
 
 if __name__ == "__main__":

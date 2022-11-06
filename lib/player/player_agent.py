@@ -25,6 +25,7 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
 from lib.rcsc.types import GameModeType, ViewWidth
+from lib.debug.debug_print import debug_print
 
 
 class PlayerAgent(SoccerAgent):
@@ -57,7 +58,7 @@ class PlayerAgent(SoccerAgent):
             self._agent._full_world._team_name = "Pyrus"
 
             if self._agent._client.send_message(com.str()) <= 0:
-                print("ERROR failed to connect to server")
+                debug_print("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
@@ -138,7 +139,7 @@ class PlayerAgent(SoccerAgent):
                     self._current_time.assign(new_time, 0)
 
                     if new_time - 1 != old_time.cycle():
-                        print(f"player_n({self._agent.world().self_unum()}):"
+                        debug_print(f"player_n({self._agent.world().self_unum()}):"
                               f"last server time was wrong maybe")
                 else:
                     if by_sense_body:
@@ -154,7 +155,7 @@ class PlayerAgent(SoccerAgent):
                     dlog.add_text(Level.LEVEL_ANY, f"Cycle {new_time}-0 " + '-' * 20)
 
                     if new_time - 1 != old_time.cycle():
-                        print(f"player_n({self._agent.world().self_unum()}):"
+                        debug_print(f"player_n({self._agent.world().self_unum()}):"
                               f"last server time was wrong maybe")
 
                     if (self._last_decision_time.stopped_cycle() == 0
@@ -181,7 +182,7 @@ class PlayerAgent(SoccerAgent):
         # TODO check for config.host not empty
 
         if not self._client.connect_to(IPAddress('localhost', 6000)):
-            print("ERROR failed to connect to server")
+            debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
 
@@ -191,7 +192,7 @@ class PlayerAgent(SoccerAgent):
     def handle_exit(self):
         if self._client.is_server_alive():
             self._impl.send_bye_command()
-        print(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
+        debug_print(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
 
     def handle_message(self):
         self.run()
@@ -217,15 +218,15 @@ class PlayerAgent(SoccerAgent):
                 if self._impl.think_received():
                     last_time_rec = time.time()
                     break
-            print(self._impl._think_received)
+            debug_print(self._impl._think_received)
 
             if not self._client.is_server_alive():
-                print("Pyrus Agent : Server Down")
-                # print("Pyrus Agent", self._world.self_unum(), ": Server Down")
+                debug_print("Pyrus Agent : Server Down")
+                # debug_print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
 
             if self._impl.think_received():
-                print("GOING TO ACTION")
+                debug_print("GOING TO ACTION")
                 self.action()
                 self.debug_players()
                 self._impl._think_received = False
@@ -239,7 +240,7 @@ class PlayerAgent(SoccerAgent):
             dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.1, color=Color(string="black"), fill=True)
 
     def parse_message(self, message):
-        print(f"MSG: {message}")
+        debug_print(f"MSG: {message}")
         if message.find("(init") != -1:
             self.parse_init(message)
         elif message.find("server_param") != -1:
@@ -249,9 +250,9 @@ class PlayerAgent(SoccerAgent):
 
             # TODO make function for these things
             if KickTable.instance().create_tables():
-                print("KICKTABLE CREATE")
+                debug_print("KICKTABLE CREATE")
             else:
-                print("KICKTABLE Faild")
+                debug_print("KICKTABLE Faild")
         elif message.find("(see") != -1:
             self._impl.sense_visual_parser(message)
         elif message.find("(hear") != -1:
@@ -265,35 +266,35 @@ class PlayerAgent(SoccerAgent):
 
     def do_dash(self, power, angle=0):
         if self.world().self().is_frozen():
-            print(f"(do dash) player({self._world.self_unum()} is frozen!")
+            debug_print(f"(do dash) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_dash(power, float(angle)))
         return True
 
     def do_turn(self, angle):
         if self.world().self().is_frozen():
-            print(f"(do turn) player({self._world.self_unum()} is frozen!")
+            debug_print(f"(do turn) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_turn(float(angle)))
         return True
 
     def do_move(self, x, y):
         if self.world().self().is_frozen():
-            print(f"(do move) player({self._world.self_unum()} is frozen!")
+            debug_print(f"(do move) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_move(x, y))
         return True
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
         if self.world().self().is_frozen():
-            print(f"(do kick) player({self._world.self_unum()} is frozen!")
+            debug_print(f"(do kick) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_kick(power, rel_dir))
         return True
 
     def do_tackle(self, power_or_dir: float, foul: bool):  # TODO : tons of work
         if self.world().self().is_frozen():
-            print(f"(do tackle) player({self._world.self_unum()} is frozen!")
+            debug_print(f"(do tackle) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_tackle(power_or_dir, foul))
         return True
@@ -351,5 +352,5 @@ class PlayerAgent(SoccerAgent):
         side = message[1]
 
         self.world().init(self._impl._team_name, side, unum, False)
-        print(f"INITIALIZING DLOG: {self._impl._team_name}-player {side} {unum}")
+        debug_print(f"INITIALIZING DLOG: {self._impl._team_name}-player {side} {unum}")
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)

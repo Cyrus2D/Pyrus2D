@@ -9,6 +9,7 @@ from lib.math.vector_2d import Vector2D
 from lib.math.angle_deg import AngleDeg
 import math
 from lib.math.math_values import *
+from lib.debug.debug_print import debug_print
 
 
 class Segment2D:
@@ -421,8 +422,8 @@ class Segment2D:
         return projection.is_valid() and p.equalsWeakly(projection)
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -437,11 +438,11 @@ def test():
     origin = Vector2D(0, 0)
     terminal = Vector2D(10, 10)
     seg = Segment2D(origin, terminal)
-    print(seg)
+    debug_print(seg)
     seg.assign(1.0, 2.0, 3, 4)
-    print(seg)
+    debug_print(seg)
     seg.assign(origin, 10, AngleDeg(53.1301023541559835905))
-    print(seg)
+    debug_print(seg)
 
 
 if __name__ == "__main__":

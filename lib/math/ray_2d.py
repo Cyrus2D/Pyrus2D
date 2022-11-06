@@ -8,6 +8,7 @@
 from lib.math.line_2d import Line2D
 from lib.math.vector_2d import Vector2D
 from lib.math.angle_deg import AngleDeg
+from lib.debug.debug_print import debug_print
 
 
 class Ray2D:
@@ -104,8 +105,8 @@ class Ray2D:
             return tmp_sol
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
         origin point + direction Angle Deg
     """
 
@@ -116,11 +117,11 @@ class Ray2D:
 def test():
     pass
     # a = Ray2D(Vector2D(5, 10), Vector2D(10, 10))
-    # print(a)
+    # debug_print(a)
     # b = Ray2D(Vector2D(0, 0), AngleDeg(45))
-    # print(b)
+    # debug_print(b)
     # c = Ray2D(a._origin, b.dir())
-    # print(c)
+    # debug_print(c)
 
 
 if __name__ == "__main__":

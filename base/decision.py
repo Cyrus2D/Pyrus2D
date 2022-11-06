@@ -3,10 +3,11 @@ from base.set_play.bhv_set_play import Bhv_SetPlay
 from lib.player.templates import *
 from base.bhv_kick import BhvKick
 from base.bhv_move import BhvMove
+from lib.debug.debug_print import debug_print
 
 
 def get_decision(agent):
-    print("Decisioning...")
+    debug_print("Decisioning...")
     wm: WorldModel = agent.world()
     st = StrategyFormation().i()
     st.update(wm)

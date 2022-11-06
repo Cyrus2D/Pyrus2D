@@ -11,6 +11,7 @@ from lib.math.angle_deg import AngleDeg
 from lib.math.line_2d import Line2D
 from lib.math.math_values import *
 import math
+from lib.debug.debug_print import debug_print
 
 """
     The model and naming rules are depend on soccer simulator environment
@@ -721,8 +722,8 @@ class Rect2D(Region2D):
         return Rect2D(args)
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -737,11 +738,11 @@ def test():
     origin = Vector2D(0, 0)
     terminal = Vector2D(10, 10)
     seg = Segment2D(origin, terminal)
-    print(seg)
+    debug_print(seg)
     seg.assign(1.0, 2.0, 3, 4)
-    print(seg)
+    debug_print(seg)
     seg.assign(origin, 10, AngleDeg(53.1301023541559835905))
-    print(seg)
+    debug_print(seg)
 
 
 if __name__ == "__main__":

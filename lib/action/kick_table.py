@@ -13,6 +13,8 @@ from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.math.soccer_math import *
 from lib.rcsc.game_time import *
+from lib.debug.debug_print import debug_print
+
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -314,7 +316,7 @@ def calc_max_velocity(target_angle: AngleDeg,
 
 
 class _KickTable:
-    PRINT_DEBUG: bool = False  # PRINTs IN KICKTABLE
+    debug_print_DEBUG: bool = False  # debug_prints IN KICKTABLE
 
     def __init__(self):
         self._player_size = 0.0
@@ -1142,8 +1144,8 @@ class _KickTable:
 
         if len(self._state_list) == 0:
             dlog.add_text(Level.KICK, 'there isnt any state list')
-            # if _KickTable.PRINT_DEBUG:
-            #     print("False , Len  == 0")
+            # if _KickTable.debug_print_DEBUG:
+            #     debug_print("False , Len  == 0")
             return False
 
         target_speed = bound(0.0,
@@ -1168,39 +1170,39 @@ class _KickTable:
                 and self.simulate_one_step(world,
                                            target_point,
                                            target_speed)):
-            if _KickTable.PRINT_DEBUG:
-                print("simulate() found 1 step")
+            if _KickTable.debug_print_DEBUG:
+                debug_print("simulate() found 1 step")
                 dlog.add_text(Level.KICK, "simulate() found 1 step")
         if (max_step >= 2
                 and self.simulate_two_step(world,
                                            target_point,
                                            target_speed)):
-            if _KickTable.PRINT_DEBUG:
-                print("simulate() found 2 step")
+            if _KickTable.debug_print_DEBUG:
+                debug_print("simulate() found 2 step")
                 dlog.add_text(Level.KICK, "simulate() found 2 step")
         if (max_step >= 3
                 and self.simulate_three_step(world,
                                              target_point,
                                              target_speed)):
-            if _KickTable.PRINT_DEBUG:
-                print("simulate() found 3 step")
+            if _KickTable.debug_print_DEBUG:
+                debug_print("simulate() found 3 step")
                 dlog.add_text(Level.KICK, "simulate() found 3 step")
 
         self.evaluate(target_speed, speed_thr)
         dlog.add_text(Level.KICK, "candidate number:{}".format(len(self._candidates)))
         if not self._candidates:
-            # if _KickTable.PRINT_DEBUG:
-            #     print("False -> candidates len == ", len(self._candidates))
+            # if _KickTable.debug_print_DEBUG:
+            #     debug_print("False -> candidates len == ", len(self._candidates))
             rtn_list = [False, sequence]
             return rtn_list
         sequence = max(self._candidates, key=functools.cmp_to_key(sequence_cmp))  # TODO : CMP Check
-        if _KickTable.PRINT_DEBUG or True:
-            print("_______________________candidates_AE_________________________")
+        if _KickTable.debug_print_DEBUG or True:
+            debug_print("_______________________candidates_AE_________________________")
             for tmp in self._candidates:
-                print(tmp)
+                debug_print(tmp)
                 dlog.add_text(Level.KICK,
                               f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
-            print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
+            debug_print("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
                   " & tar speed eps is",
                   target_speed - EPS)
         rtn_list = [sequence.speed_ >= target_speed - EPS, sequence]

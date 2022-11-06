@@ -11,6 +11,7 @@ from lib.math.size_2d import Size2D
 from lib.math.line_2d import Line2D
 from lib.math.segment_2d import Segment2D
 import math
+from lib.debug.debug_print import debug_print
 
 
 class XLessEqual:
@@ -154,7 +155,7 @@ class Polygon2D(Region2D):
         #
         # make virtual half line
         #
-        # print(r.right()) -> maxX
+        # debug_print(r.right()) -> maxX
         line = Segment2D(p, Vector2D(p.x() + ((r.right() - r.left() + r.bottom() - r.top())
                                               + (self._vertices[0] - p).r()) * 3.0,
                                      p.y()))
@@ -370,8 +371,8 @@ class Polygon2D(Region2D):
         return new_points
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -381,11 +382,11 @@ class Polygon2D(Region2D):
 def test():
     p = Polygon2D([Vector2D(0, 0), Vector2D(0, 4), Vector2D(4, 4), Vector2D(4, 0)])
     v = [Vector2D(2, 2), Vector2D(5, 5)]
-    print(p)
-    print(p.isClockwise(), p.isCounterclockwise())
-    print(p.doubleSignedArea(), p.area())
-    print(p.getBoundingBox())
-    print(p.contains(v[0]), p.contains(v[1]))
+    debug_print(p)
+    debug_print(p.isClockwise(), p.isCounterclockwise())
+    debug_print(p.doubleSignedArea(), p.area())
+    debug_print(p.getBoundingBox())
+    debug_print(p.contains(v[0]), p.contains(v[1]))
 
 
 if __name__ == "__main__":

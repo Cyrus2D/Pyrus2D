@@ -1,6 +1,7 @@
 from scipy.spatial import Delaunay
 from lib.math.geom_2d import *
 from enum import Enum
+from lib.debug.debug_print import debug_print
 
 
 class FormationType(Enum):
@@ -105,9 +106,9 @@ class Formation:
         return self._path
 
 # f = Formation('base/formations-dt/before-kick-off.conf')
-# print(len(f._balls))
-# print(len(f._players))
-# print(f._formation_type)
+# debug_print(len(f._balls))
+# debug_print(len(f._players))
+# debug_print(f._formation_type)
 # f.update(Vector2D(20, 16))
-# print(f._formation_type)
-# print(f._target_players)
+# debug_print(f._formation_type)
+# debug_print(f._target_players)

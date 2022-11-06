@@ -23,7 +23,7 @@ vec1 = Vector2D() # create Vector with default value.
 vec2 = Vector2D(20,30) # create Vector with 20 , 30 value directly.
 l = Line2D(vec1,vec2) # create line from 2 points.
 c = Circle2D(3,3,5) # create circle with center point and radius value.
-print(c.intersection(line=l)) #  calculate the intersection with straight line.
+debug_print(c.intersection(line=l)) #  calculate the intersection with straight line.
 ```
 
 ## Contributing

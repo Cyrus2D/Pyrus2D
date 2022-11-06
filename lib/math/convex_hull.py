@@ -11,6 +11,7 @@ from lib.math.polygon_2d import Polygon2D
 from lib.math.vector_2d import Vector2D
 from lib.math.segment_2d import Segment2D
 from math_values import *
+from lib.debug.debug_print import debug_print
 
 
 """
@@ -361,8 +362,8 @@ class ConvexHull:
         return Polygon2D(self._vertices)
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -372,7 +373,7 @@ class ConvexHull:
 def test():
     v = [Vector2D(), Vector2D(1, 1), Vector2D(0, 1)]
     c = ConvexHull(v)
-    print(c)
+    debug_print(c)
 
 
 if __name__ == "__main__":

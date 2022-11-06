@@ -15,6 +15,7 @@ from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSe
     TrainerChangeModeCommand
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
+from lib.debug.debug_print import debug_print
 
 
 class TrainerAgent(SoccerAgent):
@@ -31,7 +32,7 @@ class TrainerAgent(SoccerAgent):
             com = TrainerInitCommand(15)
 
             if self._agent._client.send_message(com.str()) <= 0:
-                print("ERROR failed to connect to server")
+                debug_print("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
@@ -64,7 +65,7 @@ class TrainerAgent(SoccerAgent):
         # TODO check for config.host not empty
 
         if not self._client.connect_to(IPAddress('localhost', 6001)):
-            print("ERROR failed to connect to server")
+            debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
 
@@ -92,8 +93,8 @@ class TrainerAgent(SoccerAgent):
                     break
 
             if not self._client.is_server_alive():
-                print("Pyrus Agent : Server Down")
-                # print("Pyrus Agent", self._world.self_unum(), ": Server Down")
+                debug_print("Pyrus Agent : Server Down")
+                # debug_print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
 
             if self._impl.think_received:

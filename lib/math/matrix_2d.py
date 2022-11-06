@@ -19,6 +19,7 @@
 from lib.math.vector_2d import Vector2D
 from lib.math.angle_deg import AngleDeg
 import math
+from lib.debug.debug_print import debug_print
 
 class Matrix2D:
     """
@@ -312,8 +313,8 @@ class Matrix2D:
             return mat_tmp.__imul__(args[0])
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -323,7 +324,7 @@ class Matrix2D:
 
 def test():
     a = Matrix2D()
-    print(a)
+    debug_print(a)
 
 
 if __name__ == "__main__":

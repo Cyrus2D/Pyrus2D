@@ -415,8 +415,8 @@ class Triangle2D(Region2D):
         return False
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
     """
 
     def __repr__(self):
@@ -430,7 +430,7 @@ class Triangle2D(Region2D):
 
 def test():
     tri = Triangle2D()
-    print(tri)
+    debug_print(tri)
 
 
 if __name__ == "__main__":

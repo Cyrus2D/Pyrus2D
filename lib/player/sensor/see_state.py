@@ -4,6 +4,7 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import ViewWidth, ViewQuality
+from lib.debug.debug_print import debug_print
 
 DEBUG: bool = True
 
@@ -97,7 +98,7 @@ class SeeState:
 
         new_timing: Timing = self._get_next_timing(vw, vq)
         if new_timing == Timing.TIME_NOSYNCH:
-            print(f"time: {see_time}, invalid view width. no synchronization...")
+            debug_print(f"time: {see_time}, invalid view width. no synchronization...")
 
         dlog.add_text(Level.SYSTEM, f"see state: (update by seee) see update,"
                                     f"last time: {self._last_timing},"
@@ -171,7 +172,7 @@ class SeeState:
                 self._cycles_till_next_see = 1
                 self._synch_type = SynchType.SYNCH_EVERY
             elif new_width == ViewWidth.NARROW:
-                print(f"{self._current_time} SeeState. TIME_0_00. Narrow is illegal.")
+                debug_print(f"{self._current_time} SeeState. TIME_0_00. Narrow is illegal.")
                 self._synch_type = SynchType.SYNCH_NO
             dlog.add_text(Level.SYSTEM,
                           f"see state (setViewMode) 00:{new_width}: cycle = {self._cycles_till_next_see}")
@@ -196,7 +197,7 @@ class SeeState:
                 self._cycles_till_next_see = 3
                 self._synch_type = SynchType.SYNCH_WIDE
             elif new_width == ViewWidth.NORMAL:
-                print(f"{self._current_time} SeeState. TIME_22_5. Normal is illegal.")
+                debug_print(f"{self._current_time} SeeState. TIME_22_5. Normal is illegal.")
                 self._synch_type = SynchType.SYNCH_NO
             elif new_width == ViewWidth.NARROW:
                 self._cycles_till_next_see = 1
@@ -232,7 +233,7 @@ class SeeState:
 
         if next_width == ViewWidth.WIDE:
             return True
-        print("see state (can_change_view) unexpected reeach...")
+        debug_print("see state (can_change_view) unexpected reeach...")
         return True
 
     def cycles_till_next_see(self):

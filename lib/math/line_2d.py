@@ -9,6 +9,7 @@ from lib.math.vector_2d import Vector2D
 from lib.math.angle_deg import AngleDeg
 import math
 from lib.math.math_values import *
+from lib.debug.debug_print import debug_print
 
 
 class Line2D:
@@ -218,15 +219,15 @@ class Line2D:
     @staticmethod
     def perpendicular_bisector(point1, point2):
         if math.fabs(point2.x - point1.x) < EPSILON and math.fabs(point2.y - point1.y) < EPSILON:
-            print("Error : points have same coordinate values")
+            debug_print("Error : points have same coordinate values")
             tmp_vec = Vector2D(point1.x + 1, point2.y)
             return Line2D(p1=point1, p2=tmp_vec)
         tmp = (point2.x * point2.x - point1.x * point1.x + point2.y * point2.y - point1.y * point1.y) * -0.5
         return Line2D(a=point2.x - point1.x, b=point2.y - point1.y, c=tmp)
 
     """
-      \ brief make a logical print.
-      \ return print_able str
+      \ brief make a logical debug_print.
+      \ return debug_print_able str
         aX + bY + c = 0
     """
 
@@ -238,7 +239,7 @@ class Line2D:
 
 def test():
     a = Line2D(1, 1)
-    print(a)
+    debug_print(a)
 
 
 if __name__ == "__main__":

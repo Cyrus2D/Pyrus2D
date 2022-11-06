@@ -1,5 +1,6 @@
 from lib.debug.logger import dlog
 from lib.parser.parser_message_params import MessageParamsParser
+from lib.debug.debug_print import debug_print
 
 """"
     (fullstate <time>
@@ -110,4 +111,4 @@ class PlayerMessageParser:
 # a =PlayerMessageParser()
 # d = a.parse(msg)
 # for p in d['players']:
-#     print(p['unum'], p['stamina'])
+#     debug_print(p['unum'], p['stamina'])
