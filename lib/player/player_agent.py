@@ -5,6 +5,7 @@ import time
 from lib.action.kick_table import KickTable
 from base.decision import get_decision
 from lib.debug.level import Level
+from lib.debug.color import Color
 from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.player.action_effector import ActionEffector
@@ -44,6 +45,8 @@ class PlayerAgent(SoccerAgent):
             
             self._game_mode: GameMode = GameMode()
             self._server_cycle_stopped: bool = True
+            
+            dlog._time = self._current_time
 
         def send_init_command(self):
             # TODO check reconnection
@@ -124,7 +127,7 @@ class PlayerAgent(SoccerAgent):
                 self._server_cycle_stopped = True
 
         def parse_cycle_info(self, msg: str, by_sense_body: bool):
-            cycle = int(msg.split(' ')[1].strip(')('))
+            cycle = int(msg.split(' ')[1].removesuffix(')\x00'))
             self.update_current_time(cycle, by_sense_body)
 
         def update_current_time(self, new_time: int, by_sense_body: bool):
@@ -232,6 +235,8 @@ class PlayerAgent(SoccerAgent):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
                 dlog.add_circle(Level.WORLD, 1, center=p.pos())
+        if self.world().ball().pos_valid():
+            dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.1, color=Color(string="black"), fill=True)
 
     def parse_message(self, message):
         print(f"MSG: {message}")
@@ -254,7 +259,7 @@ class PlayerAgent(SoccerAgent):
         elif message.find("fullstate") != -1 or message.find("player_type") != -1 or message.find(
                 "sense_body") != -1 or message.find("(init") != -1:
             self._full_world.parse(message)
-            dlog._time = self.world().time().copy()
+            # dlog._time = self.world().time().copy()
         elif message.find("think") != -1:
             self._impl._think_received = True
 
@@ -346,5 +351,5 @@ class PlayerAgent(SoccerAgent):
         side = message[1]
 
         self.world().init(self._impl._team_name, side, unum, False)
-
-        dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self.world().team_name()}-{unum}.log", logging.DEBUG)
+        print(f"INITIALIZING DLOG: {self._impl._team_name}-player {side} {unum}")
+        dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)

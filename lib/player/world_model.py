@@ -100,6 +100,7 @@ class WorldModel:
         self._our_stamina_capacity: list[float] = [ServerParam.i().stamina_capacity() for _ in range(11)]
         
         self._all_players: list[PlayerObject] = []
+        
     
     def init(self,
              team_name: str,
@@ -139,16 +140,16 @@ class WorldModel:
         return self._time
 
     def parse(self, message):
-        if message.find("fullstate") is not -1:
+        if message.find("fullstate") != -1:
             self.fullstate_parser(message)
             self.update()
-        if message.find("(init") is not -1:
+        if message.find("(init") != -1:
             self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
-        elif message.find("sense_body") is not -1:
+        elif message.find("sense_body") != -1:
             pass
-        elif message.find("init") is not -1:
+        elif message.find("init") != -1:
             pass
 
     def fullstate_parser(self, message):
@@ -247,7 +248,7 @@ class WorldModel:
         self._offside_line_x = new_line
         self._offside_line_count = count
 
-    def update(self):
+    def update_xx(self):
         if self.time().cycle() < 1:
             return  # TODO check
         self._update_players()
@@ -525,7 +526,8 @@ class WorldModel:
                 and self.self().last_move(1).is_valid()):
                 
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
-                ball_move += sum([self.self().last_move(i) for i in range(2)])
+                for i in range(2):
+                    ball_move += self.self().last_move(i)
                 vel = ball_move * (SP.ball_decay()**2/(1+SP.ball_decay()))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r() 
@@ -550,7 +552,10 @@ class WorldModel:
                 and self.self().last_move(2).is_valid()):
                 
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
-                ball_move += sum([self.self().last_move(i) for i in range(3)])
+                # ball_move += sum([self.self().last_move(i) for i in range(3)])# TODO NOT WORKING WHY?!?!
+                for i in range(3):
+                    ball_move += self.self().last_move(i)
+                    
                 vel = ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r()
@@ -902,8 +907,23 @@ class WorldModel:
         self._opponents = list(filter(player_valid_check, self._opponents))
     
     def update_player_type(self):
-        pass
+        for p in self._teammates:
+            unum = p.unum() - 1
+            if 0 <= unum < 11:
+                p.set_player_type(self._player_types[self._our_player_type[unum]])
+            else:
+                p.set_player_type(self._player_types[HETERO_DEFAULT])
         
+        for p in self._opponents:
+            unum = p.unum() - 1
+            if 0 <= unum < 11:
+                p.set_player_type(self._player_types[self._their_player_type[unum]])
+            else:
+                p.set_player_type(self._player_types[HETERO_DEFAULT])
+        
+        for p in self._unknown_players:
+            p.set_player_type(self._player_types[HETERO_DEFAULT]) 
+            
         
     def update_after_see(self,
                          see: VisualSensor,
@@ -1010,17 +1030,17 @@ class WorldModel:
         if not self.self().pos_valid() or not self.ball().pos_valid():
             return
         
-        self.create_player_set(self._teammates,
+        self.create_set_player(self._teammates,
                                self._teammates_from_self,
                                self._teammates_from_ball,
                                self.self().pos(),
                                self.ball().pos())
-        self.create_player_set(self._opponents,
+        self.create_set_player(self._opponents,
                                self._opponents_from_self,
                                self._opponents_from_ball,
                                self.self().pos(),
                                self.ball().pos())
-        self.create_player_set(self._unknown_players,
+        self.create_set_player(self._unknown_players,
                                self._opponents_from_self,
                                self._opponents_from_ball,
                                self.self().pos(),
@@ -1033,7 +1053,7 @@ class WorldModel:
         self._opponents_from_self.sort(key=lambda p: p.dist_from_self())
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
-        # self.estimate_goalie() # TODO IMP FUNC?!
+        self.estimate_goalie() # TODO IMP FUNC?!
         
         self._all_players.append(self.self())
         self._our_players.append(self.self())
@@ -1052,13 +1072,113 @@ class WorldModel:
         
         self.update_kickables()
     
+    def estimate_goalie(self):
+        our_goalie: PlayerObject = None
+        their_goalie: PlayerObject = None
+
+        if self.self().goalie():
+            our_goalie = self.self()
+        else:
+            for p in self._teammates:
+                if p.goalie():
+                    our_goalie = p
+        for p in self._opponents:
+            if p.goalie():
+                their_goalie = p
+        
+        if our_goalie and our_goalie.unum() != self.our_goalie_unum():
+            self._our_goalie_unum = our_goalie.unum()
+        
+        if their_goalie and their_goalie.unum() != self._their_goalie_unum:
+            self._their_goalie_unum = their_goalie.unum()
+        
+        if (self.game_mode().type() is GameModeType.BeforeKickOff
+            or self.game_mode().type().is_after_goal()):
+            return
+        
+        if our_goalie is None and len(self._teammates) >= 9:
+            self.estimate_our_goalie()
+        if their_goalie is None and len(self._teammates) >= 10 and len(self._opponents) >= 11:
+            self.estimate_their_goalie()
+    
+    def estimate_their_goalie(self):
+        candidate: PlayerObject = None
+        max_x: float = 0
+        second_max_x: float = 0    
+        for p in self._opponents:
+            x = p.pos().x()
+            
+            if x < second_max_x:
+                second_max_x = x
+                
+                if second_max_x < max_x:
+                    max_x, second_max_x = second_max_x, max_x
+                    candidate = p
+        
+        from_unknown = False
+        for p in self._unknown_players:
+            x = p.pos().x()
+            
+            if x < second_max_x:
+                second_max_x = x
+                
+                if second_max_x < max_x:
+                    max_x, second_max_x = second_max_x, max_x
+                    candidate = p
+                    from_unknown = True
+        
+        if candidate is not None and second_max_x > max_x - 10:
+            candidate.set_team(self.their_side(),
+                               self._their_goalie_unum,
+                               True)
+            
+            if from_unknown:
+                self._opponents.append(candidate)
+                self._unknown_players.remove(candidate)        
+    
+    def estimate_our_goalie(self):
+        candidate: PlayerObject = None
+        min_x: float = 0
+        second_min_x: float = 0    
+        for p in self._teammates:
+            x = p.pos().x()
+            
+            if x < second_min_x:
+                second_min_x = x
+                
+                if second_min_x < min_x:
+                    min_x, second_min_x = second_min_x, min_x
+                    candidate = p
+        
+        from_unknown = False
+        for p in self._unknown_players:
+            x = p.pos().x()
+            
+            if x < second_min_x:
+                second_min_x = x
+                
+                if second_min_x < min_x:
+                    min_x, second_min_x = second_min_x, min_x
+                    candidate = p
+                    from_unknown = True
+        
+        if candidate is not None and second_min_x > min_x + 10:
+            candidate.set_team(self.our_side(),
+                               self._our_goalie_unum,
+                               True)
+            
+            if from_unknown:
+                self._teammates.append(candidate)
+                self._unknown_players.remove(candidate)
+            
+    
     def update_intercept_table(self):
         self.intercept_table().update(self)
         
     
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
-        if self.time() == current_time:
-            return
+        if self.time() != current_time:
+            self.update(act, current_time)
         
         # TODO UPDATES BY HEAR
         # TODO UPDATE BALL BY COLLISION
@@ -1069,6 +1189,7 @@ class WorldModel:
         self.self().update_ball_info(self.ball())
         
         self.update_player_state_cache()
+        self.update_player_type()
         
         # TODO update player cards and player types
         # TODO update players collision

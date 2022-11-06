@@ -23,8 +23,8 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
                  theta: Union[AngleDeg, float] = None,
                  vector2d=None):
         if x is not None and y is not None:
-            self._x = x
-            self._y = y
+            self._x: float = x
+            self._y: float = y
         elif r is not None and theta is not None:
           self.set_polar(r, float(theta))    
         elif vector2d is not None:
@@ -57,7 +57,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
      \ return X coordinate
     """
 
-    def x(self):
+    def x(self) -> float:
         return self._x
 
     """
@@ -65,7 +65,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
       \ return Y coordinate
     """
 
-    def y(self):
+    def y(self) -> float:
         return self._y
 
     """

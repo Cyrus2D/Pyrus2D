@@ -26,7 +26,7 @@ class SideID(Enum):
 
 
 class MarkerID(Enum):
-    Goal_L = 1  # 1
+    Goal_L = 0  # 1
     Goal_R = 1  # 1
 
     Flag_C = 2

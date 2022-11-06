@@ -72,7 +72,7 @@ class ActionEffector:
 
     def check_command_count(self, body: BodySensor):
         wm = self._agent.world()
-        if body.kick_count() == self._command_counter[CommandType.KICK.value]:
+        if body.kick_count() != self._command_counter[CommandType.KICK.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
@@ -82,7 +82,7 @@ class ActionEffector:
             self._kick_accel_error = 0
             self._command_counter[CommandType.KICK.value] = body.kick_count()
 
-        if body.turn_count() == self._command_counter[CommandType.TURN.value]:
+        if body.turn_count() != self._command_counter[CommandType.TURN.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
@@ -92,7 +92,7 @@ class ActionEffector:
             self._turn_error = 0
             self._command_counter[CommandType.TURN.value] = body.turn_count()
 
-        if body.dash_count() == self._command_counter[CommandType.DASH.value]:
+        if body.dash_count() != self._command_counter[CommandType.DASH.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
@@ -102,7 +102,7 @@ class ActionEffector:
             self._dash_power = 0
             self._dash_dir = 0
             self._command_counter[CommandType.DASH.value] = body.dash_count()
-        if body.move_count() == self._command_counter[CommandType.MOVE.value]:
+        if body.move_count() != self._command_counter[CommandType.MOVE.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
@@ -110,7 +110,7 @@ class ActionEffector:
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._move_pos = Vector2D(0, 0)
             self._command_counter[CommandType.MOVE.value] = body.move_count()
-        if body.catch_count() == self._command_counter[CommandType.CATCH.value]:
+        if body.catch_count() != self._command_counter[CommandType.CATCH.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
@@ -118,7 +118,7 @@ class ActionEffector:
             self._last_body_commands[0] = CommandType.ILLEGAL
             # self._catch_time = GameTime()
             self._command_counter[CommandType.CATCH.value] = body.catch_count()
-        if body.tackle_count() == self._command_counter[CommandType.TACKLE.value]:
+        if body.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
             if body.charged_expires() == 0:
                 print(
                     f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
@@ -129,25 +129,25 @@ class ActionEffector:
             self._tackle_foul = False
             self._command_counter[CommandType.TACKLE.value] = body.tackle_count()
         
-        if body.turn_neck_count() == self._command_counter[CommandType.TURN_NECK.value]:
+        if body.turn_neck_count() != self._command_counter[CommandType.TURN_NECK.value]:
             print(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
             self._command_counter[CommandType.TURN_NECK.value] =   body.turn_neck_count()
             self._done_turn_neck = False
             self._turn_neck_moment = 0
 
-        if body.change_view_count() == self._command_counter[CommandType.CHANGE_VIEW.value]:
+        if body.change_view_count() != self._command_counter[CommandType.CHANGE_VIEW.value]:
             print(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
             self._command_counter[CommandType.CHANGE_VIEW.value] =   body.change_view_count()
 
-        if body.say_count() == self._command_counter[CommandType.SAY.value]:
+        if body.say_count() != self._command_counter[CommandType.SAY.value]:
             print(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
             self._command_counter[CommandType.SAY.value]  = body.say_count()
 
-        if body.pointto_count() == self._command_counter[CommandType.POINTTO.value]:
+        if body.pointto_count() != self._command_counter[CommandType.POINTTO.value]:
             print(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
             self._command_counter[CommandType.POINTTO.value]  = body.pointto_count()
 
-        if body.attentionto_count() == self._command_counter[CommandType.ATTENTIONTO.value]:
+        if body.attentionto_count() != self._command_counter[CommandType.ATTENTIONTO.value]:
             print(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             self._command_counter[CommandType.ATTENTIONTO.value] =   body.attentionto_count()
     

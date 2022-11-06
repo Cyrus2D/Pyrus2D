@@ -108,7 +108,7 @@ class SeeState:
     def set_new_cycle(self, new_time: GameTime):
         if new_time == self._current_time:
             return
-        self._current_time = new_time
+        self._current_time = new_time.copy()
 
         self._cycles_till_next_see -= 1
         if self._cycles_till_next_see < 0:

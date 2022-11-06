@@ -193,7 +193,7 @@ class BhvDribbleGen(BhvKickGen):
 
         for o in range(12):
             opp: PlayerObject = wm.their_player(o)
-            if opp.unum() == 0:
+            if opp is None or opp.unum() == 0:
                 if debug_dribble:
                     dlog.add_text(Level.DRIBBLE, "###OPP {} is ghost".format(o))
                 continue

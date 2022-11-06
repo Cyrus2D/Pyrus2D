@@ -19,6 +19,8 @@ class Bhv_Block:
         block_pos = Vector2D(0, 0)
         for unum in range(1, 12):
             tm = wm.our_player(unum)
+            if tm is None:
+                continue
             if tm.unum() < 1:
                 continue
             for c in range(1, 40):

@@ -29,8 +29,8 @@ class VisualSensor:
 
     class PolarT:
         def __init__(self) -> None:
-            self.dist_ = VisualSensor.DIST_ERR
-            self.dir_ = VisualSensor.DIR_ERR
+            self.dist_: float = VisualSensor.DIST_ERR
+            self.dir_: float = VisualSensor.DIR_ERR
 
         def reset(self):
             self.dist_ = VisualSensor.DIST_ERR

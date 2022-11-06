@@ -48,7 +48,7 @@ class BodySensor:
         self._card: Card = Card.NO_CARD
 
     def parse(self, msg: str, current_time: GameTime):
-        self._current = current_time
+        self._current = current_time.copy()
 
         r = msg.split(' ')
 

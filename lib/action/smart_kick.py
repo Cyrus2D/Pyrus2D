@@ -42,7 +42,7 @@ class SmartKick(BodyAction):
                 print("----- NotKickable -----")
                 dlog.add_text(Level.KICK, "not kickable")
             return False
-        if not wm.ball().velValid():
+        if not wm.ball().vel_valid():
             if SmartKick.PRINT_DEBUG:
                 print("-- NonValidBall -> StopBall --")
                 dlog.add_text(Level.KICK, "unknown ball vel")

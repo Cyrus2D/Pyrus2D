@@ -1,12 +1,17 @@
 from lib.debug.logger import dlog, Level, Color
 from lib.math.geom_2d import *
 import lib.math.soccer_math as smath
-from lib.player.templates import *
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
 import time
 from base.generator_action import ShootAction, BhvKickGen
 from lib.action.kick_table import calc_max_velocity
+from lib.rcsc.types import GameModeType
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
 
 debug_shoot = False
@@ -14,7 +19,7 @@ max_shoot_time = 0
 
 
 class BhvShhotGen(BhvKickGen):
-    def generator(self, wm: WorldModel) -> ShootAction:
+    def generator(self, wm: 'WorldModel') -> ShootAction:
         global max_shoot_time
         start_time = time.time()
         self.total_count = 0
@@ -48,10 +53,10 @@ class BhvShhotGen(BhvKickGen):
         # dlog.add_text(Level.PASS, 'time:{} max is {}'.format(end_time - start_time, max_shoot_time))
         return self.candidates[0]
 
-    def create_shoot(self, wm: WorldModel, target_point: Vector2D):
+    def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
         ball_move_angle = (target_point - wm.ball().pos()).th()
         goalie = wm.get_opponent_goalie()
-        if goalie.unum() > 0 and 5 < goalie.pos_count() < 30:
+        if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count() < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
             dlog.add_text(Level.SHOOT, "#shoot {} didnt see goalie".format(self.total_count))
             return
@@ -86,7 +91,7 @@ class BhvShhotGen(BhvKickGen):
 
             first_ball_speed += 0.3
 
-    def check_shoot(self, wm: WorldModel, target_point: Vector2D, first_ball_speed, ball_move_angle: AngleDeg, ball_move_dist):
+    def check_shoot(self, wm: 'WorldModel', target_point: Vector2D, first_ball_speed, ball_move_angle: AngleDeg, ball_move_dist):
         sp = SP.i()
 
 
@@ -147,7 +152,7 @@ class BhvShhotGen(BhvKickGen):
         self.candidates.append(course)
         return True
 
-    def maybe_goalie_catch(self, goalie: PlayerObject, course: ShootAction, wm: WorldModel):
+    def maybe_goalie_catch(self, goalie: 'PlayerObject', course: ShootAction, wm: 'WorldModel'):
         penalty_area = Rect2D(Vector2D(SP.i().their_penalty_area_line_x(), -SP.i().penalty_area_half_width()),
                               Size2D(SP.i().penalty_area_length(), SP.i().penalty_area_width()))
         CONTROL_AREA_BUF = 0.15
@@ -208,7 +213,7 @@ class BhvShhotGen(BhvKickGen):
                 course.goalie_never_reach_ = False
         return False
 
-    def opponent_can_reach(self, opponent, course: ShootAction, wm: WorldModel):
+    def opponent_can_reach(self, opponent, course: ShootAction, wm: 'WorldModel'):
         sp = SP.i()
         ptype = opponent.player_type()
         control_area = ptype.kickable_area()
@@ -261,7 +266,7 @@ class BhvShhotGen(BhvKickGen):
 
         return False
 
-    def evaluate_courses(self, wm: WorldModel):
+    def evaluate_courses(self, wm: 'WorldModel'):
         y_dist_thr2 = pow(8.0, 2)
 
         sp = SP.i()

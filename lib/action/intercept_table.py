@@ -13,6 +13,8 @@ from lib.rcsc.types import GameModeType
 
 
 class InterceptTable:
+    DEBUG = True
+    
     def __init__(self):
         self._last_update_time: GameTime = GameTime(-10, -100)
         self._max_cycle: int = 30
@@ -55,20 +57,27 @@ class InterceptTable:
         return self._second_opponent_reach_cycle
 
     def update(self, wm: WorldModel):
-        # if self._last_update_time == wm.time(): # TODO uncomment it
-        #     dlog.add_text(Level.INTERCEPT, "intercept updated befor :| it called agein")
+        if InterceptTable.DEBUG:
+            dlog.add_text(Level.INTERCEPT, f"(intercept update) started {'#'*20}")
+            
+        if self._last_update_time == wm.time(): # TODO uncomment it
+            if InterceptTable.DEBUG:
+                dlog.add_text(Level.INTERCEPT, "(intercept update) intercept updated before! it called agein")
+            return
 
         self._last_update_time = wm.time().copy()
         self.clear()
 
         if wm.game_mode().type() == GameModeType.TimeOver or \
                 wm.game_mode().type() == GameModeType.BeforeKickOff:
+            if InterceptTable.DEBUG:
+                dlog.add_text(Level.INTERCEPT, "(intercept update) GAMEMODE RETURN")
             return
 
         if not wm.self().pos().is_valid() or not wm.ball().pos().is_valid():
-            dlog.add_text(Level.INTERCEPT, "self pos or ball pos is not valid")
+            dlog.add_text(Level.INTERCEPT, "(intercept update) self pos or ball pos is not valid")
             return
-
+        
         self.create_ball_cache(wm)
         self.predict_self(wm)
         self.predict_opponent(wm)

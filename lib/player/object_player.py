@@ -43,6 +43,7 @@ class PlayerObject(Object):
         self._body_count: int = 1000
         self._face_count:int = 1000
         self._pointto_count: int = 1000
+        self._unum_count: int = 1000
         self._kicking = False
 
         self._tackle_count: int = 1000
@@ -178,8 +179,10 @@ class PlayerObject(Object):
     def set_kickable(self, ika: bool):
         self._kickable = ika
 
-    def is_kickable(self):
-        return self._kickable
+    def is_kickable(self, buf=0.05):
+        if self.player_type() is None:
+            return self.dist_from_ball() < ServerParam.i().kickable_area()
+        return self.dist_from_ball() < self.player_type().kickable_area() - buf
 
     def kick_rate(self):
         return self._kickrate
@@ -316,7 +319,7 @@ class PlayerObject(Object):
         self._seen_pos_count = 0
         
         if player.has_angle():
-            self._body = player.body_
+            self._body = AngleDeg(player.body_)
             self._face = player.face_
             self._body_count = 0
             self._face_count = 0
@@ -345,7 +348,12 @@ class PlayerObject(Object):
     def update_self_ball_related(self,
                                  self_pos: Vector2D,
                                  ball_pos: Vector2D):
-        self._dist_from_self = (self.pos() - self_pos).dist()
+        self._dist_from_self = (self.pos() - self_pos).r()
         self._angle_from_self = (self.pos() - self_pos).th()
-        self._dist_from_ball = (self.pos() - ball_pos).dist()
+        self._dist_from_ball = (self.pos() - ball_pos).r()
         self._angle_from_ball = (self.pos() - ball_pos).th()
+    
+    def set_team(self, side: SideID, unum: int, goalie: bool):
+        self._side = side
+        self._unum = unum
+        self._goalie = goalie

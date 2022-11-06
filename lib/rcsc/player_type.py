@@ -223,9 +223,9 @@ class PlayerType:
             dash_move += Vector2D.polar2vector(accel_mag, accel_angle)
             if dash_move.r2() > self.player_speed_max2():
                 rel_vel = vel.rotated_vector(-accel_angle)
-                max_dash_x = (self.player_speed_max2() - rel_vel.y**2)**0.5
-                return True, (max_dash_x - rel_vel.x)
-            return False, accel_angle
+                max_dash_x = (self.player_speed_max2() - rel_vel.y()**2)**0.5
+                return True, (max_dash_x - rel_vel.x())
+            return False, accel_mag
 
     def can_over_speed_max(self, dash_power: float, effort: float):
         return (abs(dash_power) * self.dash_power_rate() * effort

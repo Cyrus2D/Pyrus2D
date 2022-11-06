@@ -572,7 +572,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._ball_size = float(dic["ball_size"])
         self._ball_speed_max = float(dic["ball_speed_max"])
         self._ball_weight = dic["ball_weight"]
-        self._catch_ban_cycle = dic["catch_ban_cycle"]
+        self._catch_ban_cycle = int(dic["catch_ban_cycle"])
         self._catch_probability = dic["catch_probability"]
         self._catch_area_l = float(dic["catchable_area_l"])
         self._catch_area_w = float(dic["catchable_area_w"])

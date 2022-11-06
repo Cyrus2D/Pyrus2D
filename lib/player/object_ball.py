@@ -9,6 +9,7 @@ from lib.rcsc.types import GameModeType
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.object_self import SelfObject
+    from lib.player.object_ball import BallObject
     from lib.player.action_effector import ActionEffector
 
 
@@ -207,9 +208,7 @@ class BallObject(Object):
             self._seen_pos.assign(0, 0)
             self._seen_pos_count = 0
 
-    def update_self_related(self, player: 'SelfObject' , prev):
-        prev: BallObject = None
-
+    def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):
         if self.rpos_count() == 0:
             self._dist_from_self = self.rpos().r()
             self._angle_from_self = self.rpos().th()

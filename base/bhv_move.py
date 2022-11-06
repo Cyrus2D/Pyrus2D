@@ -4,15 +4,25 @@ from lib.action.intercept import Intercept
 from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
-from lib.player.templates import *
 from base.bhv_block import Bhv_Block
+from lib.math.vector_2d import Vector2D
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+    from lib.player.world_model import WorldModel
 
 class BhvMove:
     def __init__(self):
         pass
 
-    def execute(self, agent: PlayerAgent):
-        wm: WorldModel = agent.world()
+    def execute(self, agent: 'PlayerAgent'):
+        wm: 'WorldModel' = agent.world()
+        
+        GoToPoint(Vector2D(30, 20), 1, 100).execute(agent)
+        return True        
+
         # intercept
         self_min = wm.intercept_table().self_reach_cycle()
         tm_min = wm.intercept_table().teammate_reach_cycle()

@@ -49,6 +49,8 @@ class BhvPassGen(BhvKickGen):
         for unum in range(1, 12):
             if unum == wm.self().unum():
                 continue
+            if wm.our_player(unum) is None:
+                continue
             if wm.our_player(unum).unum() == 0:
                 continue
             if wm.our_player(unum).pos_count() > 10:
@@ -372,7 +374,7 @@ class BhvPassGen(BhvKickGen):
         min_opp = 0
         for unum in range(12):
             opp = wm.their_player(unum)
-            if opp.unum() == 0:
+            if opp is None or opp.unum() == 0:
                 continue
             step = self.predict_opponent_reach_step(wm, unum, first_ball_pos, first_ball_vel, ball_move_angle,
                                                     receive_point, max_cycle, description)
