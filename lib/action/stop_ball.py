@@ -38,7 +38,7 @@ class StopBall(BodyAction):
         wm: 'WorldModel' = agent.world()
         if not wm.self().is_kickable():
             return False
-        if not wm.ball().velValid():  # Always true until NFS nice :)
+        if not wm.ball().vel_valid():  # Always true until NFS nice :)
             required_accel = wm.self().vel() - (wm.self().pos() - wm.ball().pos())
             kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5

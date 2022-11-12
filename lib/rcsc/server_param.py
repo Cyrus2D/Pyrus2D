@@ -645,8 +645,8 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._player_size = float(dic["player_size"])
         self._player_speed_max = float(dic["player_speed_max"])
         self._player_weight = dic["player_weight"]
-        self._point_to_ban = dic["point_to_ban"]
-        self._point_to_duration = dic["point_to_duration"]
+        self._point_to_ban = int(dic["point_to_ban"])
+        self._point_to_duration = int(dic["point_to_duration"])
         self._player_port = dic["port"]
         self._player_rand_factor_l = dic["prand_factor_l"]
         self._player_rand_factor_r = dic["prand_factor_r"]

@@ -4,7 +4,7 @@ import inspect
 FILE_LINE_NUMBER = False # SLows the runtime!
 TIME = False
 
-def debug_print(message: str):
+def debug_print(*messages):
         
     prefix = ""
     
@@ -17,6 +17,13 @@ def debug_print(message: str):
         outer_frame = inspect.getouterframes(current_frame, 1)
         prefix += f"{outer_frame[1].filename} {outer_frame[1].lineno}: "
     
+    message = ""
+    for m in messages:
+        message += f"{m} "
+    
+    if len(message) > 0:
+        message = message[:-1]
+
     print(f"{prefix}{message}")
     
     

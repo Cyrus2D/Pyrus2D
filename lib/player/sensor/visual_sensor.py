@@ -42,10 +42,11 @@ class VisualSensor:
             pass
 
         def __repr__(self) -> str:
-            res = ""
+            res = "{"
             for k, v in self.__dict__.items():
-                res += f"{k}: {v}\n"
-            return res[:-1]
+                res += f"{k}:{v},"
+            res = res[:-1] + "}"
+            return res
 
     class MoveableT(PolarT):
         def __init__(self) -> None:

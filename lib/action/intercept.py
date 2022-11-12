@@ -22,6 +22,9 @@ class Intercept:
 
     def execute(self, agent: PlayerAgent):
         wm = agent.world()
+        
+        if not wm.ball().pos_valid():
+            return False
 
         if self.do_kickable_opponent_check(agent):
             return True

@@ -1,18 +1,21 @@
 from lib.debug.logger import dlog, Level, Color
 from lib.math.geom_2d import *
 import lib.math.soccer_math as smath
-from lib.player.templates import *
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
 import time
 from base.generator_action import BhvKickGen, KickActionType, KickAction
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 debug_dribble = False
 max_dribble_time = 0
 
 
 class BhvDribbleGen(BhvKickGen):
-    def generator(self, wm: WorldModel):
+    def generator(self, wm: 'WorldModel'):
         global max_dribble_time
         start_time = time.time()
         self.generate_simple_dribble(wm)
@@ -33,7 +36,7 @@ class BhvDribbleGen(BhvKickGen):
         dlog.add_text(Level.DRIBBLE, 'time:{} max is {}'.format(end_time - start_time, max_dribble_time))
         return self.candidates
 
-    def generate_simple_dribble(self, wm: WorldModel):
+    def generate_simple_dribble(self, wm: 'WorldModel'):
         angle_div = 16
         angle_step = 360.0 / angle_div
 
@@ -78,7 +81,7 @@ class BhvDribbleGen(BhvKickGen):
                     dlog.add_text(Level.DRIBBLE, '#dash angle:{} turn:{}'.format(dash_angle, n_turn))
             self.simulate_kick_turns_dashes(wm, dash_angle, n_turn)
 
-    def simulate_kick_turns_dashes(self, wm, dash_angle, n_turn):
+    def simulate_kick_turns_dashes(self, wm: 'WorldModel', dash_angle, n_turn):
         max_dash = 8
         min_dash = 2
 
@@ -151,7 +154,7 @@ class BhvDribbleGen(BhvKickGen):
                                       self.index, ball_trap_pos, kick_power, kick_accel, first_vel))
                     self.debug_list.append((self.index, ball_trap_pos, False))
 
-    def create_self_cache(self, wm: WorldModel, dash_angle, n_turn, n_dash, self_cache):
+    def create_self_cache(self, wm: 'WorldModel', dash_angle, n_turn, n_dash, self_cache):
         sp = SP.i()
         ptype = wm.self().player_type()
 
@@ -187,7 +190,7 @@ class BhvDribbleGen(BhvKickGen):
                 stamina_model.simulate_dash(ptype, dash_power)
                 self_cache.append(Vector2D(vector2d=my_pos))
 
-    def check_opponent(self, wm: WorldModel, ball_trap_pos: Vector2D, dribble_step: int):
+    def check_opponent(self, wm: 'WorldModel', ball_trap_pos: Vector2D, dribble_step: int):
         sp = SP.i()
         ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos()).th()
 

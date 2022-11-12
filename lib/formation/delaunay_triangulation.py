@@ -2,7 +2,8 @@ from scipy.spatial import Delaunay
 from lib.math.geom_2d import *
 from enum import Enum
 from lib.debug.debug_print import debug_print
-
+from lib.rcsc.server_param import ServerParam
+from lib.math.soccer_math import min_max
 
 class FormationType(Enum):
     Static = 's'
@@ -66,12 +67,21 @@ class Formation:
                                     Vector2D(self._balls[tri[2]][0], self._balls[tri[2]][1])), tri[0], tri[1], tri[2]]
             self._triangles.append(tmp)
 
-    def update(self, B):
+    def update(self, B:Vector2D):
+        SP = ServerParam.i()
         if self._formation_type == FormationType.Static:
             return
         ids = []
+        
+        point = B.copy()
+        if point.absX() > SP.pitch_half_length():
+            point._x = min_max(-SP.pitch_half_length(), point.x(), +SP.pitch_half_length())
+        if point.absY() > SP.pitch_half_width():
+            point._y = min_max(-SP.pitch_half_width(), point.y(), +SP.pitch_half_width())
+        
+        debug_print(f"(formation update) ballpos={B.is_valid()} {B}")
         for tri in self._triangles:
-            if tri[0].contains(B):
+            if tri[0].contains(point):
                 ids = [tri[1], tri[2], tri[3]]
                 break
         Pa = Vector2D(self._balls[ids[0]][0], self._balls[ids[0]][1])

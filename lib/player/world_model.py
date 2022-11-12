@@ -35,6 +35,7 @@ def player_valid_check(p: PlayerObject):
     return p.pos_valid()
 
 class WorldModel:
+    DEBUG = True
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = None
@@ -618,6 +619,10 @@ class WorldModel:
         gvel = Vector2D.invalid()
         vel_count = 1000
         
+        if WorldModel.DEBUG:
+            dlog.add_text(Level.WORLD, f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count()}")
+            dlog.add_text(Level.WORLD, f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
+        
         if rvel.is_valid() and self.self().vel_valid():
             gvel = self.self().vel() + rvel
             vel_count = 0
@@ -942,7 +947,7 @@ class WorldModel:
 
         if self._their_team_name is None and see.their_team_name() is not None:
             self._their_team_name = see.their_team_name() # TODO their team name
-            dlog.add_text(f"(update after see) their team name set to {self._their_team_name}")
+            dlog.add_text(Level.WORLD, f"(update after see) their team name set to {self._their_team_name}")
         
         # TODO FULL STATE TIME CHECK
         

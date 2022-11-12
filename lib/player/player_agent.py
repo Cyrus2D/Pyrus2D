@@ -235,9 +235,9 @@ class PlayerAgent(SoccerAgent):
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
-                dlog.add_circle(Level.WORLD, 1, center=p.pos())
+                dlog.add_circle(Level.WORLD, 1, center=p.pos(), color=Color(string='blue'))
         if self.world().ball().pos_valid():
-            dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.1, color=Color(string="black"), fill=True)
+            dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.5, color=Color(string="blue"), fill=True)
 
     def parse_message(self, message):
         debug_print(f"MSG: {message}")
@@ -341,10 +341,18 @@ class PlayerAgent(SoccerAgent):
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
-        self._client.send_message(PlayerSendCommands.all_to_str(commands))
+        message = self.make_commands(commands)
+
+        self._client.send_message(message)
         self._debug_client.write_all(self.world(), None)  # TODO add action effector
         dlog.flush()
         self._last_body_command = []
+    
+    def make_commands(self, commands):
+        self._effector.update_after_actions()
+
+        message = PlayerSendCommands.all_to_str(commands)
+        return message
 
     def parse_init(self, message):
         message = message.split(" ")

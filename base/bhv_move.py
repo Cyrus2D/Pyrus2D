@@ -1,6 +1,8 @@
 from lib.action.go_to_point import GoToPoint
 from base.strategy_formation import StrategyFormation
 from lib.action.intercept import Intercept
+from lib.action.turn_to_ball import TurnToBall
+from lib.action.turn_to_point import TurnToPoint
 from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
@@ -20,9 +22,6 @@ class BhvMove:
     def execute(self, agent: 'PlayerAgent'):
         wm: 'WorldModel' = agent.world()
         
-        GoToPoint(Vector2D(30, 20), 1, 100).execute(agent)
-        return True        
-
         # intercept
         self_min = wm.intercept_table().self_reach_cycle()
         tm_min = wm.intercept_table().teammate_reach_cycle()
@@ -36,12 +35,12 @@ class BhvMove:
 
         if (not wm.exist_kickable_teammates()
                 and (self_min <= 5
-                     or (self_min <= tm_min
-                         and self_min < opp_min + 5))):
+                    or (self_min <= tm_min
+                        and self_min < opp_min + 5))):
             dlog.add_text(Level.BLOCK, "INTERCEPTING")
             agent.debug_client().add_message('intercept')
-            Intercept().execute(agent)
-            return True
+            if Intercept().execute(agent):
+                return True
 
         if opp_min < min(tm_min, self_min):
             if Bhv_Block().execute(agent):
@@ -58,5 +57,10 @@ class BhvMove:
         if dist_thr < 1.0:
             dist_thr = 1.0
 
-        GoToPoint(target, dist_thr, dash_power).execute(agent)
-        return True
+        if wm.ball().pos_valid() and GoToPoint(target, dist_thr, dash_power).execute(agent):
+            return True
+        elif TurnToBall().execute(agent):
+            return True
+        else:
+            return TurnToPoint(Vector2D(0,0)).execute(agent)
+            

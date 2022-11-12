@@ -184,6 +184,7 @@ class PlayerType:
         return cycle
 
     def kick_rate(self, ball_dist, dir_diff):
+        debug_print(f"(player type kick rate) kick_power_rate={self.kick_power_rate()}")
         return (self.kick_power_rate() * (1.0 - 0.25 * math.fabs(dir_diff) / 180.0 - (
                 0.25 * (ball_dist - SP.i().ball_size() - self.player_size()) / self.kickable_margin())))
 

@@ -4,7 +4,7 @@ from lib.player_command.player_command import PlayerCommand, CommandType
 class PlayerBodyCommand(PlayerCommand):
     body_commands = []
 
-    def type(self):
+    def type(self) -> CommandType:
         pass
 
     def str(self):

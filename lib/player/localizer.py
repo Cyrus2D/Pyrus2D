@@ -120,17 +120,16 @@ class Localizer:
         self._landmark_map[MarkerID.Goal_R] = Vector2D( +pitch_half_l, 0.0 )
 
     def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT]):
-        angle: float = None
         if len(markers) < 2:
-            return angle
+            return None
         
         marker1 = self._landmark_map.get(markers[0])
         if marker1 is None:
-            return angle
+            return None
         
         marker2 = self._landmark_map.get(markers[-1])
         if marker2 is None:
-            return angle
+            return None
         
         rpos1 = Vector2D.polar2vector(markers[0].dist_, markers[0].dir_)
         rpos2 = Vector2D.polar2vector(markers[-1].dist_, markers[-1].dir_)
@@ -185,8 +184,10 @@ class Localizer:
             return None
         
         pos: Vector2D = Vector2D(0,0)
-        n_consider = min(5, len(markers))
-        for marker in markers[:n_consider]:
+        n_consider = 0
+        for marker in markers:
+            if n_consider >= 5:
+                continue
             if marker.id_ is VisualSensor.ObjectType.Obj_Unknown:
                 continue
             marker_pos = self._landmark_map[marker.id_]
@@ -204,6 +205,7 @@ class Localizer:
                 dlog.add_circle(Level.WORLD, center=estimated_pos, r=0.25, fill=True, color=Color(string="red"))
             
             pos += estimated_pos
+            n_consider += 1
         
 
         pos /= n_consider
@@ -217,6 +219,7 @@ class Localizer:
     def localize_ball_relative(self,
                                see: VisualSensor,
                                self_face: float) -> tuple[Vector2D, Vector2D]:
+        self_face = float(self_face)
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(localize ball relative) started {'#'*20}")
 
@@ -224,8 +227,11 @@ class Localizer:
         if len(see.balls()) == 0:
             return None, None
         
+        
         ball = see.balls()[0]
-        rpos = Vector2D(r=ball.dist_, theta=ball.dir_ + self_face)
+        global_dir = float(ball.dir_) + self_face
+
+        rpos = Vector2D(r=ball.dist_, theta=global_dir)
 
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(localize ball relative) ball: t={ball.dist_}, t={ball.dir_}")
@@ -235,10 +241,11 @@ class Localizer:
         rvel = Vector2D.invalid()
         if ball.has_vel_:
             rvel = Vector2D(ball.dist_chng_, DEG2RAD * ball.dir_chng_ * ball.dist_)
-            rvel.rotate(ball.dir_)
+            rvel.rotate(global_dir)
             if Localizer.DEBUG:
                 dlog.add_text(Level.WORLD, f"(localize ball relative) has_vel")
                 dlog.add_text(Level.WORLD, f"(localize ball relative) vel={rvel}")
+                dlog.add_text(Level.WORLD, f"(localize ball relative) ball={ball}")
         
         return rpos, rvel
 
@@ -248,17 +255,20 @@ class Localizer:
                         self_pos: Vector2D,
                         self_vel: Vector2D
                         ) -> PlayerT:
+        self_face = float(self_face)
         player = Localizer.PlayerT()
         player.unum_ = seen_player.unum_
         player.goalie_ = seen_player.goalie_
         
-        player.rpos_ = Vector2D(r=seen_player.dist_, theta=float(seen_player.dir_) + float(self_face))
+        global_dir = float(seen_player.dir_) + self_face
+        
+        player.rpos_ = Vector2D(r=seen_player.dist_, theta=global_dir)
         player.pos_ = self_pos + player.rpos_
         
         if seen_player.has_vel_:
             player.vel_ = Vector2D(seen_player.dist_chng_,
                                    DEG2RAD * seen_player.dir_chng_ * seen_player.dist_)
-            player.vel_.rotate(seen_player.dir_)
+            player.vel_.rotate(global_dir)
             player.vel_ += self_vel
         else:
             player.vel_.invalidate()

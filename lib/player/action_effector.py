@@ -369,3 +369,29 @@ class ActionEffector:
         
         self._done_turn_neck = False
         # TODO SAY MESSAGE
+    
+    def update_after_actions(self):
+        self._last_body_commands[1] = self._last_body_commands[0]
+        self._last_action_time = self._agent.world().time().copy()
+        
+        if self._body_command:
+            self._last_body_commands[0] = self._body_command.type()
+            if self._last_body_commands[0] is CommandType.CATCH:
+                self._catch_time = self._agent.world().time().copy()
+            
+            self.inc_command_type(self._body_command.type())
+            self._body_command = None
+        
+        if self._neck_command:
+            self._done_turn_neck = True
+            self.inc_command_type(CommandType.TURN_NECK)
+            self._neck_command = None
+        
+        if self._change_view_command:
+            self.inc_command_type(CommandType.CHANGE_VIEW)
+            self._change_view_command = None
+        
+        if self._pointto_command:
+            self.inc_command_type(CommandType.POINTTO)
+            self._pointto_command = None
+        # TODO ATTENTION AND SAY COMMANDS

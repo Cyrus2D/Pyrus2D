@@ -71,9 +71,12 @@ NEAR_SIDE_RATE = 0.3  # < kickable margin rate for the near side sub-target
 MID_RATE = 0.5  # < kickable margin rate for the middle distance sub-target
 FAR_SIDE_RATE = 0.7  # < kickable margin rate for the far side sub-target
 MAX_DEPTH = 2
-STATE_DIVS_NEAR = 8
-STATE_DIVS_MID = 12
-STATE_DIVS_FAR = 15
+# STATE_DIVS_NEAR = 8
+# STATE_DIVS_MID = 12
+# STATE_DIVS_FAR = 15
+STATE_DIVS_NEAR = 4
+STATE_DIVS_MID = 8
+STATE_DIVS_FAR = 8
 NUM_STATE = STATE_DIVS_NEAR + STATE_DIVS_MID + STATE_DIVS_FAR
 
 DEST_DIR_DIVS: int = 72  # step: 5 degree
@@ -857,7 +860,7 @@ class _KickTable:
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
 
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r() / (
-                param.ball_speed_max() * param.player_decay()))
+                param.ball_speed_max() * param.default_player_decay()))
         # my_final_pos = world.self().pos() + world.self().vel() + world.self().vel() * self_type.player_decay()
 
         success_count = 0

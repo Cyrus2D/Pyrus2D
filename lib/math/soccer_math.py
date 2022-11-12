@@ -95,7 +95,7 @@ def can_over_speed_max(dash_power, dprate, effort, decay, speed_max):
 """
 
 
-def inertia_n_step_travel(initial_vel, n_step, decay):
+def inertia_n_step_travel(initial_vel, n_step, decay) -> Vector2D:
     tmp = Vector2D(initial_vel.x(), initial_vel.y())
     tmp *= ((1.0 - math.pow(decay, n_step)) / (1.0 - decay))
     return tmp
@@ -143,7 +143,7 @@ def inertia_n_step_distance(initial_speed, n_step, decay):
 """
 
 
-def inertia_final_travel(initial_vel: Vector2D, decay):
+def inertia_final_travel(initial_vel: Vector2D, decay) ->Vector2D:
     tmp = Vector2D(initial_vel.x(), initial_vel.y())
     tmp /= (1.0 - decay)
     return tmp

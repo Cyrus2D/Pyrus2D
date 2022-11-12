@@ -77,7 +77,7 @@ class HoldBall(BodyAction):
             dlog.add_text(Level.KICK, "not kickable")
             return False
 
-        if not wm.ball().velValid():
+        if not wm.ball().vel_valid():
             return StopBall().execute(agent)
 
         if self.keepReverse(agent):
@@ -269,7 +269,7 @@ class HoldBall(BodyAction):
 
         my_next = wm.self().pos() + wm.self().vel()
         if len(wm.opponents_from_ball()) == 0:
-            return
+            return score
         for o in wm.opponents_from_ball():
             if o is None or o.player_type() is None:
                 continue

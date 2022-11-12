@@ -11,10 +11,12 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import SideID, ViewQuality, ViewWidth
+from lib.debug.debug_print import debug_print
 
 
 class SelfObject(PlayerObject):
     FACE_COUNT_THR = 5
+    DEBUG = True
     
     def __init__(self):
         super().__init__()
@@ -85,6 +87,9 @@ class SelfObject(PlayerObject):
     
     def is_kicking(self):
         return self._kicking
+    
+    def is_kickable(self):
+        return self._kickable
     
     def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
         self._view_width = vw.copy()
@@ -329,6 +334,10 @@ class SelfObject(PlayerObject):
         
         SP = ServerParam.i()
         ptype = self.player_type()
+        
+        if SelfObject.DEBUG:
+            debug_print(f"(self obj update ball_info) player_type_id={ptype.id()}")
+            debug_print(f"(self obj update ball_info) kickable_area={ptype.kickable_area()}")
 
         if ball.dist_from_self() <= ptype.kickable_area():
             buff = 0.055
@@ -341,6 +350,10 @@ class SelfObject(PlayerObject):
             
             self._kickrate = ptype.kick_rate(ball.dist_from_self(),
                                              (ball.angle_from_self() - self.body()).degree())
+            debug_print(f"(self object update ball info) kickrate={self._kick_rate}")
+            debug_print(f"(self object update ball info) ball2self_dist={ball.dist_from_self()}")
+            debug_print(f"(self object update ball info) ball2self_angle={ball.angle_from_self()}")
+            debug_print(f"(self object update ball info) body={self.body()}")
         
         if self._last_catch_time.cycle() + SP.catch_ban_cycle() <= self._time.cycle():
             self._catch_probability = ptype.get_catch_probability(self.pos(), self.body(), ball.pos(), 0.055, 0.5) # TODO IMP FUNC
