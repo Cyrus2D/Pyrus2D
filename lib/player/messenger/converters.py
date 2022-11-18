@@ -21,6 +21,8 @@ def convert_to_int(msg: str)  -> Union[int, None]:
     if msg == '':
         return None
     
+    msg = msg[::-1]
+    
     n_chars = len(chars)
     digit = len(msg) - 1
     

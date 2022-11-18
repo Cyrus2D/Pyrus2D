@@ -47,12 +47,12 @@ class WorldModel:
         self._their_players:list[PlayerObject] = []
         self._our_players:list[PlayerObject] = []
 
-        self._teammates_from_ball: List[PlayerObject] = []
-        self._opponents_from_ball: List[PlayerObject] = []
-        self._teammates_from_self: List[PlayerObject] = []
-        self._opponents_from_self: List[PlayerObject] = []
+        self._teammates_from_ball: list[PlayerObject] = []
+        self._opponents_from_ball: list[PlayerObject] = []
+        self._teammates_from_self: list[PlayerObject] = []
+        self._opponents_from_self: list[PlayerObject] = []
         
-        self._unknown_players = [PlayerObject() for _ in range(22)]
+        self._unknown_players: list[PlayerObject] = []
         
         self._self: SelfObject = SelfObject()
         
@@ -1226,7 +1226,7 @@ class WorldModel:
         if player.unum_ == UNUM_UNKNOWN:
             return
         
-        side = self.our_side() if player.unum_ // 11 else self.their_side()
+        side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
         unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
         
         if side == self.our_side() and unum == self.self().unum():
