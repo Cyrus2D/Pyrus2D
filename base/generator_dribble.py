@@ -9,6 +9,7 @@ from base.generator_action import BhvKickGen, KickActionType, KickAction
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
 debug_dribble = False
 max_dribble_time = 0
@@ -195,7 +196,7 @@ class BhvDribbleGen(BhvKickGen):
         ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos()).th()
 
         for o in range(12):
-            opp: PlayerObject = wm.their_player(o)
+            opp: 'PlayerObject' = wm.their_player(o)
             if opp is None or opp.unum() == 0:
                 if debug_dribble:
                     dlog.add_text(Level.DRIBBLE, "###OPP {} is ghost".format(o))

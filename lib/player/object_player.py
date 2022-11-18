@@ -357,3 +357,36 @@ class PlayerObject(Object):
         self._side = side
         self._unum = unum
         self._goalie = goalie
+    
+    def update_by_hear(self, 
+                       side: SideID,
+                       unum: int,
+                       goalie: bool,
+                       pos: Vector2D,
+                       body: float):
+        
+        self._heard_pos = pos.copy()
+        self._heard_pos_count = 0
+        self._ghost_count = 0
+
+        if side is not SideID.NEUTRAL:
+            self._side = side
+        
+        if unum != UNUM_UNKNOWN and self._unum_count > 0:
+            self._unum = unum
+        
+        self._goalie = goalie
+        
+        if self._unum_count > 2:
+            self._unum_count = 2
+            
+        if (self._seen_pos_count >= 2
+            or (self._seen_pos_count > 0 and self.dist_from_self() > 20)):
+            self._pos = pos.copy()    
+            self._pos_count = 1
+        
+        if body != -360:
+            if self._body_count >= 2:
+                self._body = body
+                self._body_count = 1
+        

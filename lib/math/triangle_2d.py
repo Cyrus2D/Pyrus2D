@@ -12,6 +12,8 @@ from lib.math.line_2d import Line2D
 from lib.math.math_values import *
 import math
 
+from lib.debug.debug_print import debug_print
+
 
 class Triangle2D(Region2D):
     """

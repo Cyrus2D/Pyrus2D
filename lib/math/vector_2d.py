@@ -246,7 +246,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
       \ return squared distance to 'other'
     """
 
-    def dist2(self, other):
+    def dist2(self, other: 'Vector2D'):
         return math.pow(self._x - other.x(), 2) + math.pow(self._y - other.y(), 2)
 
     """
@@ -255,7 +255,7 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
       \ return distance to 'p'
     """
 
-    def dist(self, other):
+    def dist(self, other: 'Vector2D'):
         return math.sqrt(self.dist2(other))
 
     """

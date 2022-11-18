@@ -1,6 +1,7 @@
 from logging import Logger
 from lib.action.intercept_table import InterceptTable
 from lib.player.localizer import Localizer
+from lib.player.messenger.messenger import Messenger
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
@@ -92,8 +93,8 @@ class WorldModel:
         self._our_team_name: str = None
         self._their_team_name: str = None
         
-        self._our_player_type: int = [HETERO_DEFAULT for _ in range(11)]
-        self._their_player_type: int = [HETERO_DEFAULT for _ in range(11)]
+        self._our_players_type: list[int] = [HETERO_DEFAULT for _ in range(11)]
+        self._their_players_type: list[int] = [HETERO_DEFAULT for _ in range(11)]
         
         self._last_set_play_start_time: GameTime = GameTime()
         self._set_play_count: int = 0
@@ -916,14 +917,14 @@ class WorldModel:
         for p in self._teammates:
             unum = p.unum() - 1
             if 0 <= unum < 11:
-                p.set_player_type(self._player_types[self._our_player_type[unum]])
+                p.set_player_type(self._player_types[self._our_players_type[unum]])
             else:
                 p.set_player_type(self._player_types[HETERO_DEFAULT])
         
         for p in self._opponents:
             unum = p.unum() - 1
             if 0 <= unum < 11:
-                p.set_player_type(self._player_types[self._their_player_type[unum]])
+                p.set_player_type(self._player_types[self._their_players_type[unum]])
             else:
                 p.set_player_type(self._player_types[HETERO_DEFAULT])
         
@@ -1220,7 +1221,68 @@ class WorldModel:
             self.self().set_pointto(act.pointto_pos(),
                                     self.time())
         # TODO ATTENTIONTO
+    
+    def update_player_by_hear(self, player: Messenger.Player):
+        if player.unum_ == UNUM_UNKNOWN:
+            return
         
+        side = self.our_side() if player.unum_ // 11 else self.their_side()
+        unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
         
+        if side == self.our_side() and unum == self.self().unum():
+            return
         
+        target_player: PlayerObject = None
+        unknown: PlayerObject = None
+        players = self._teammates if side == self.our_side() else self._opponents
+        for p in players:
+            if p.unum() == unum:
+                target_player = p
+                break
+        
+        min_dist = 1000
+        if target_player is None:
+            for p in players:
+                if p.unum() != UNUM_UNKNOWN and p.unum() != unum:
+                    continue
+                
+                d = p.pos().dist(player.pos_)
+                if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    min_dist = d
+                    target_player = p
+            
+            for p in self._unknown_players:
+                d = p.pos().dist(player.pos_)
+                if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    min_dist = d
+                    target_player = p
+                    unknown = p
+        if target_player:
+            target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
+
+            if unknown:
+                players.append(unknown)
+                self._unknown_players.remove(unknown)
+        
+        else:
+            target_player = PlayerObject()
+            if side == self.our_side():
+                self._teammates.append(target_player)
+            else:
+                
+                self._opponents.append(target_player)
+            target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
+        
+        if target_player:
+            if side == self.our_side():
+                if 1 <= unum <= 11:
+                    target_player.set_player_type(self._player_types[self._our_players_type[unum-1]])
+                else:
+                    target_player.set_player_type(self._player_types[HETERO_DEFAULT])
+            else:
+                if 1 <= unum <= 11:
+                    target_player.set_player_type(self._player_types[self._their_players_type[unum-1]])
+                else:
+                    target_player.set_player_type(self._player_types[HETERO_DEFAULT])
+                
         

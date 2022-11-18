@@ -661,7 +661,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._recv_step = dic["recv_step"]
         self._coach_say_count_max = dic["say_coach_cnt_max"]
         self._coach_say_msg_size = dic["say_coach_msg_size"]
-        self._player_say_msg_size = dic["say_msg_size"]
+        self._player_say_msg_size = int(dic["say_msg_size"])
         self._send_comms = dic["send_comms"]
         self._send_step = dic["send_step"]
         self._coach_send_vi_step = dic["send_vi_step"]

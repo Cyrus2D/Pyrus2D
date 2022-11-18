@@ -12,6 +12,7 @@ from lib.math.vector_2d import Vector2D
 from lib.math.segment_2d import Segment2D
 from math_values import *
 from lib.debug.debug_print import debug_print
+import math
 
 
 """
