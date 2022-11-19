@@ -1,10 +1,15 @@
 from lib.math.vector_2d import Vector2D
+from lib.player.action_effector import ActionEffector
+from lib.player.messenger.ball_pos_vel_messenger import BallPosVelMessenger
+from lib.player.messenger.messenger import Messenger
 from lib.player.object_player import PlayerObject
+from lib.player.object_ball import BallObject
 from lib.player.world_model import WorldModel
 from lib.player.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import SideID
 
-def test_player_pos_unum_test():
+def test():
     wm_sender = WorldModel()
     wm_reciever = WorldModel()
     
@@ -26,20 +31,47 @@ def test_player_pos_unum_test():
     wm_sender._our_players_array[5] = player
     wm_sender._teammates.append(player)
     wm_reciever._teammates.append(player2)
+
+    ball = BallObject()
+    ball._pos = Vector2D(3, 4)
+    ball._vel = Vector2D(2, -2)
+
+    wm_sender._ball = ball
+
+    ball2 = BallObject()
+    ball2._pos = Vector2D(0, 0)
+    ball2._vel = Vector2D(0, 0)
+
+    ball2._pos_count = 10
+    ball2._vel_count = 10
+
+    wm_reciever._ball = ball2
     
+    wm_sender._time = GameTime(10, 0)    
+    wm_reciever._time = GameTime(10, 0)    
+    wm_reciever._messenger_memory._time = GameTime(10)
+    wm_reciever._messenger_memory._ball_time = GameTime(10)
+    wm_reciever._messenger_memory._player_time = GameTime(10)
     
     print(wm_sender._teammates)
     print(wm_reciever._teammates)
+    print(wm_sender._ball)
+    print(wm_reciever._ball)
     
     
     
-    msg = PlayerPosUnumMessenger(5).encode(wm_sender)
+    msg = Messenger.encode_all(wm_sender, [PlayerPosUnumMessenger(5), BallPosVelMessenger()])
     print(msg)
     
-    PlayerPosUnumMessenger(message=msg).decode(wm_reciever, 4)
+    Messenger.decode_all(wm_reciever._messenger_memory, msg, 4, wm_reciever.time())
+    wm_reciever.update_ball_by_haer(ActionEffector())
+    wm_reciever.update_players_by_hear()
     
     print(wm_sender._teammates)
     print(wm_reciever._teammates)
+    print(wm_sender._ball)
+    print(wm_reciever._ball)
+
     
 if __name__ == "__main__":
-    test_player_pos_unum_test()
+    test()

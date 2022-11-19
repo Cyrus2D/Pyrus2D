@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class ActionEffector:
-    def __init__(self, agent) -> None:
+    def __init__(self, agent=None) -> None:
         self._agent: 'PlayerAgent' = agent
 
         self._body_command: PlayerBodyCommand = None

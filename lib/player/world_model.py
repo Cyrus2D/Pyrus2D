@@ -2,6 +2,7 @@ from logging import Logger
 from lib.action.intercept_table import InterceptTable
 from lib.player.localizer import Localizer
 from lib.player.messenger.messenger import Messenger
+from lib.player.messenger.messenger_memory import MessengerMemory
 from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
@@ -103,6 +104,8 @@ class WorldModel:
         self._our_stamina_capacity: list[float] = [ServerParam.i().stamina_capacity() for _ in range(11)]
         
         self._all_players: list[PlayerObject] = []
+        
+        self._messenger_memory: MessengerMemory = MessengerMemory()
         
     
     def init(self,
@@ -1187,7 +1190,8 @@ class WorldModel:
         if self.time() != current_time:
             self.update(act, current_time)
         
-        # TODO UPDATES BY HEAR
+        self.update_ball_by_hear(act)
+        self.update_players_by_hear()        
         # TODO UPDATE BALL BY COLLISION
         
         self.ball().update_by_game_mode(self.game_mode())
@@ -1222,67 +1226,108 @@ class WorldModel:
                                     self.time())
         # TODO ATTENTIONTO
     
-    def update_player_by_hear(self, player: Messenger.Player):
-        if player.unum_ == UNUM_UNKNOWN:
+    def update_players_by_hear(self):
+        # TODO FULLSTATTE MODE CHECK
+        
+        if self._messenger_memory.player_time() != self.time() or len(self._messenger_memory.players()) == 0:
             return
         
-        side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
-        unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
-        
-        if side == self.our_side() and unum == self.self().unum():
-            return
-        
-        target_player: PlayerObject = None
-        unknown: PlayerObject = None
-        players = self._teammates if side == self.our_side() else self._opponents
-        for p in players:
-            if p.unum() == unum:
-                target_player = p
-                break
-        
-        min_dist = 1000
-        if target_player is None:
-            for p in players:
-                if p.unum() != UNUM_UNKNOWN and p.unum() != unum:
-                    continue
-                
-                d = p.pos().dist(player.pos_)
-                if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
-                    min_dist = d
-                    target_player = p
-            
-            for p in self._unknown_players:
-                d = p.pos().dist(player.pos_)
-                if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
-                    min_dist = d
-                    target_player = p
-                    unknown = p
-        if target_player:
-            target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
+        for player in self._messenger_memory.players():
 
-            if unknown:
-                players.append(unknown)
-                self._unknown_players.remove(unknown)
-        
-        else:
-            target_player = PlayerObject()
-            if side == self.our_side():
-                self._teammates.append(target_player)
-            else:
+            if player.unum_ == UNUM_UNKNOWN:
+                return
+            
+            side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
+            unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
+            
+            if side == self.our_side() and unum == self.self().unum():
+                return
+            
+            target_player: PlayerObject = None
+            unknown: PlayerObject = None
+            players = self._teammates if side == self.our_side() else self._opponents
+            for p in players:
+                if p.unum() == unum:
+                    target_player = p
+                    break
+            
+            min_dist = 1000
+            if target_player is None:
+                for p in players:
+                    if p.unum() != UNUM_UNKNOWN and p.unum() != unum:
+                        continue
+                    
+                    d = p.pos().dist(player.pos_)
+                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                        min_dist = d
+                        target_player = p
                 
-                self._opponents.append(target_player)
-            target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
-        
-        if target_player:
-            if side == self.our_side():
-                if 1 <= unum <= 11:
-                    target_player.set_player_type(self._player_types[self._our_players_type[unum-1]])
-                else:
-                    target_player.set_player_type(self._player_types[HETERO_DEFAULT])
+                for p in self._unknown_players:
+                    d = p.pos().dist(player.pos_)
+                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                        min_dist = d
+                        target_player = p
+                        unknown = p
+            if target_player:
+                target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
+
+                if unknown:
+                    players.append(unknown)
+                    self._unknown_players.remove(unknown)
+            
             else:
-                if 1 <= unum <= 11:
-                    target_player.set_player_type(self._player_types[self._their_players_type[unum-1]])
+                target_player = PlayerObject()
+                if side == self.our_side():
+                    self._teammates.append(target_player)
                 else:
-                    target_player.set_player_type(self._player_types[HETERO_DEFAULT])
+                    
+                    self._opponents.append(target_player)
+                target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
+            
+            if target_player:
+                if side == self.our_side():
+                    if 1 <= unum <= 11:
+                        target_player.set_player_type(self._player_types[self._our_players_type[unum-1]])
+                    else:
+                        target_player.set_player_type(self._player_types[HETERO_DEFAULT])
+                else:
+                    if 1 <= unum <= 11:
+                        target_player.set_player_type(self._player_types[self._their_players_type[unum-1]])
+                    else:
+                        target_player.set_player_type(self._player_types[HETERO_DEFAULT])
                 
+    
+    def update_ball_by_haer(self, act: 'ActionEffector'):
+        # TODO CHECK FULLSTATE MODE
+
+        if self._messenger_memory.ball_time() != self.time() or len(self._messenger_memory.balls()) == 0:
+            return
         
+        heared_pos = Vector2D.invalid()
+        heared_vel = Vector2D.invalid()
+
+        min_dist = 1000
+        for ball in self._messenger_memory.balls():
+
+            sender: PlayerObject = None
+            for player in self._teammates:
+                if player.unum() == ball.sender_:
+                    sender = player
+                    break
+            
+            if sender:
+                dist = sender.pos().dist(self.ball().pos())
+                if dist < min_dist:
+                    min_dist = dist
+                    heared_pos = ball.pos_
+                    
+                    if ball.vel_.is_valid():
+                        heared_vel = ball.vel_
+            elif min_dist > 900:
+                min_dist = 900
+                heared_pos = ball.pos_
+                if ball.vel_.is_valid():
+                        heared_vel = ball.vel_
+
+        if heared_pos.is_valid():
+            self._ball.update_by_hear(act, min_dist, heared_pos, heared_vel)

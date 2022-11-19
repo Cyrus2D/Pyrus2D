@@ -2,6 +2,8 @@ from lib.debug.level import Level
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.messenger.messenger import Messenger
+from lib.player.messenger.messenger_memory import MessengerMemory
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.debug.logger import dlog
 
@@ -16,14 +18,14 @@ class PlayerPosUnumMessenger(Messenger):
     def __init__(self, unum: int = None, message:str=None) -> None:
         super().__init__()
         self._size = Messenger.SIZES[Messenger.Types.PLAYER_POS_VEL_UNUM]
-        self._header = 'P'
+        self._header = Messenger.Types.PLAYER_POS_VEL_UNUM.value
         
         if message:
-            self._pos: Vector2D = None
             self._unum: int = None
             self._message = message
         else:
             self._unum: int = unum
+            self._message = None
     
     def encode(self, wm: 'WorldModel') -> str:
         if not 1 <= self._unum <= 22:
@@ -52,7 +54,7 @@ class PlayerPosUnumMessenger(Messenger):
 
         return self._header + converters.convert_to_words(val, self._size - 1)
     
-    def decode(self, wm: 'WorldModel', sender: int) -> None:
+    def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
         SP = ServerParam.i()
 
         val = converters.convert_to_int(self._message[1:])
@@ -70,6 +72,6 @@ class PlayerPosUnumMessenger(Messenger):
         
         dlog.add_text(Level.SENSOR, f"(PlayerPosUnumMessenger decode) receive a player. unum={unum}, pos={pos}")
 
-        wm.update_player_by_hear(Messenger.Player(sender, unum, pos))
+        messenger_memory.add_player(sender, unum, pos, current_time)
     
         

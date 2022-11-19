@@ -22,6 +22,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._ghost_count: int  = 1000
         self._heard_pos_count: int = 1000
         self._heard_pos: Vector2D = Vector2D.invalid()
+        self._heard_vel: Vector2D = Vector2D.invalid()
 
 
     def pos(self) -> Vector2D:

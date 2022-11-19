@@ -27,6 +27,8 @@ class Vector2D:  # TODO maybe give some bugs because of x and _x and x()
             self._x: float = x
             self._y: float = y
         elif r is not None and theta is not None:
+          self._x: float = 0
+          self._y: float = 0
           self.set_polar(r, float(theta))    
         elif vector2d is not None:
             self._x = vector2d._x

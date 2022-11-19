@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 from lib.math.vector_2d import Vector2D
+from lib.player.messenger.messenger_memory import MessengerMemory
+from lib.rcsc.game_time import GameTime
 
 from lib.rcsc.server_param import ServerParam
 if TYPE_CHECKING:
@@ -10,28 +12,15 @@ if TYPE_CHECKING:
 class Messenger:
     class Types(Enum):
         BALL_POS_VEL_MESSAGE = 'b'
-        PLAYER_POS_VEL_UNUM = 'p'
+        PLAYER_POS_VEL_UNUM = 'P'
         NONE = ''
     
-    class Player:
-        def __init__(self,
-                     sender:int=0,
-                     unum:int=0,
-                     pos:Vector2D=Vector2D(),
-                     body:float=-360,
-                     stamina:float=-1) -> None:
-            self.sender_: int = sender
-            self.unum_: int = unum
-            self.pos_: Vector2D = pos
-            self.body_: float = body
-            self.stamina_: float = stamina
+   
     
     SIZES: dict[Types, int] = {
         Types.BALL_POS_VEL_MESSAGE: 6,
         Types.PLAYER_POS_VEL_UNUM: 4, # TODO CHECK SIZE
     }
-    
-
     
     def __init__(self) -> None:
         self._type: Messenger.Types = Messenger.Types.NONE
@@ -42,7 +31,7 @@ class Messenger:
     def encode(self, wm: 'WorldModel') -> str:
         pass
     
-    def decode(self, wm: 'WorldModel') -> None:
+    def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
         pass
     
     def size(self):
@@ -67,13 +56,15 @@ class Messenger:
                 break
             
             all_messages += enc
+            size += len(enc)
+        return all_messages
     
     @staticmethod
-    def decode_all(wm: 'WorldModel', messages: str):
+    def decode_all(messenger_memory: MessengerMemory, messages: str, sender: int, current_time: GameTime):
         from lib.player.messenger.ball_pos_vel_messenger import BallPosVelMessenger
         from lib.player.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
 
-        classes: dict[Messenger.Types, type['Messenger']] = {
+        messenger_classes: dict[Messenger.Types, type['Messenger']] = {
             Messenger.Types.BALL_POS_VEL_MESSAGE: BallPosVelMessenger,
             Messenger.Types.PLAYER_POS_VEL_UNUM: PlayerPosUnumMessenger,
         }
@@ -85,7 +76,7 @@ class Messenger:
 
             message = messages[index: index+message_size]
             
-            Messenger.classes[message_type](message=message).decode(wm)
+            messenger_classes[message_type](message=message).decode(messenger_memory, sender, current_time)
             index += message_size
             
             

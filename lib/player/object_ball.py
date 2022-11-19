@@ -227,4 +227,56 @@ class BallObject(Object):
             else:
                 self._dist_from_self = 1000
                 self._angle_from_self = AngleDeg(0)
+    
+    def update_by_hear(self,
+                       act: 'ActionEffector',
+                       sender_to_ball_dist: float,
+                       heard_pos: Vector2D,
+                       heard_vel: Vector2D,
+                       is_pass: bool = False):
+        self._heard_pos =heard_pos.copy()
+        self._heard_vel = heard_vel.copy()
+        self._heard_pos_count = 0
+        self._heard_vel_count = 0
+        
+        if act.last_body_command() == CommandType.KICK:
+            return
+        
+        dist_diff = heard_pos.dist(self.pos())
+        if is_pass and heard_vel.is_valid() and self.seen_vel_count() > 0:
+            if self.seen_pos_count() > 0:
+                self._pos = heard_pos.copy()
+                self._pos_count = 1
+            self._vel = heard_vel.copy()
+            self._vel_count = 1
+            return
+        
+        if (self._ghost_count == 1 and self.pos_count() == 1 and dist_diff < 3) or self.ghost_count() > 1:
+            self._pos = heard_pos.copy()
+            self._pos_count = 1
+            
+            if heard_vel.is_valid():
+                self._vel = heard_vel.copy()
+                self._vel_count =1
+            return
+        
+        if self.pos_count() >= 5 or (self.pos_count() >= 2
+                                     and (dist_diff > sender_to_ball_dist *0.05 + 1
+                                          or sender_to_ball_dist < self._dist_from_self *0.95)):
+            self._pos = heard_pos.copy()
+            self._pos_count = 1
+            
+            if heard_vel.is_valid():
+                self._vel = heard_vel.copy()
+                self._vel_count =1
+            return
+        
+        if self.pos_count() > 0 and sender_to_ball_dist+ 1 < ServerParam.i().visible_distance() < self.dist_from_self():
+            self._pos = heard_pos.copy()
+            self._pos_count = 1
+            
+            if heard_vel.is_valid():
+                self._vel = heard_vel.copy()
+                self._vel_count =1
+            return
                 
