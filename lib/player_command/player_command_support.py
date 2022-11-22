@@ -50,15 +50,11 @@ class PlayerChangeViewCommand(PlayerSupportCommand):
 
 
 class PlayerSayCommand(PlayerSupportCommand):
-    def __init__(self, msg: str, version: float):
+    def __init__(self, msg: str):
         self._msg = msg
-        self._version = version
 
     def str(self):
-        tmp = self._msg
-        if self._version >= 8:
-            tmp = '"' + self._msg + '"'
-        return f"(say {tmp})"
+        return f'(say "{self._msg}")'
 
     def type(self):
         return CommandType.SAY
@@ -87,10 +83,10 @@ class PlayerPointtoCommand(PlayerSupportCommand):
 
 
 class PlayerAttentiontoCommand(PlayerSupportCommand):
-    class SideType(Enum):
-        OUR = auto()
-        OPP = auto()
-        NONE = auto()
+    class SideType(Enum): # TODO SIDE ID
+        OUR = 'our'
+        OPP = 'opp'
+        NONE = 'none'
 
     def __init__(self, side=SideType.NONE, unum=0):
         self._side: PlayerAttentiontoCommand.SideType = side
@@ -101,9 +97,7 @@ class PlayerAttentiontoCommand(PlayerSupportCommand):
 
     def str(self):
         if self._side != PlayerAttentiontoCommand.SideType.NONE:
-            return f"(attentionto " + (f"our {self._unum})"
-                                       if self._side == PlayerAttentiontoCommand.SideType.OUR
-                                       else f"opp {self._unum})")
+            return f"(attentionto {self._side.value} {self._unum})"
         else:
             return "(attentionto off)"
 

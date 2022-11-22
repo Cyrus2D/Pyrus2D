@@ -1,3 +1,5 @@
+from lib.debug.level import Level
+from lib.debug.logger import dlog
 from lib.math.soccer_math import *
 from lib.player.object import *
 from lib.player_command.player_command import CommandType
@@ -18,6 +20,8 @@ if TYPE_CHECKING:
 
 
 class BallObject(Object):
+    DEBUG= True
+    
     VEL_COUNT_THR = 10
     POS_COUNT_THR = 10
     RPOS_COUNT_THR = 5
@@ -234,6 +238,10 @@ class BallObject(Object):
                        heard_pos: Vector2D,
                        heard_vel: Vector2D,
                        is_pass: bool = False):
+        if BallObject.DEBUG:
+            dlog.add_text(Level.SENSOR, f"(update ball by hear) prior_pos={self.pos()} new_pos={heard_pos}")
+            dlog.add_text(Level.SENSOR, f"(update ball by hear) prior_vel={self.vel()} new_pos={heard_vel}")
+
         self._heard_pos =heard_pos.copy()
         self._heard_vel = heard_vel.copy()
         self._heard_pos_count = 0

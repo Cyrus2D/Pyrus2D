@@ -16,17 +16,15 @@ from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
-from lib.player_command.player_command_body import PlayerTurnCommand, PlayerDashCommand, PlayerMoveCommand, \
-    PlayerKickCommand, PlayerTackleCommand
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
-from lib.rcsc.types import GameModeType, ViewWidth
+from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.debug.debug_print import debug_print
-
+from lib.player.messenger.messenger import Messenger
 
 class PlayerAgent(SoccerAgent):
     class Impl:
@@ -307,6 +305,31 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command.append(self._effector.set_change_view(width))
         return True
     
+    def add_say_message(self, message: Messenger):
+        self._effector.add_say_message(message)
+    
+    def do_attentionto(self, side: SideID, unum: int):
+        if side is SideID.NEUTRAL:
+            debug_print("(player agent do attentionto) side is neutral!")
+            return
+        
+        if unum == UNUM_UNKNOWN or not (1<= unum <= 11):
+            debug_print(f"(player agent do attentionto) unum is not in range! unum={unum}")
+            return
+        
+        if self.world().our_side() == side and self.world().self().unum() == unum:
+            debug_print(f"(player agent do attentionto) attentioning to self!")
+            return
+        
+        if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
+            debug_print(f"(player agent do attentionto) already attended to the player!")
+            return
+        
+        self._last_body_command.append(self._effector.set_attentionto(side, unum))
+    
+    def do_attentionto_off(self):
+        self._last_body_command.append(self._effector.set_attentionto_off())
+
     def world(self) -> WorldModel:
         return self._world
 
@@ -336,7 +359,7 @@ class PlayerAgent(SoccerAgent):
         self._impl._see_state.set_view_mode(self.world().self().view_width(),
                                             self.world().self().view_quality())
         
-        commands = self._last_body_command
+        commands = self._last_body_command + [self._effector.make_say_message_command(self.world())]
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:
@@ -347,6 +370,7 @@ class PlayerAgent(SoccerAgent):
         self._debug_client.write_all(self.world(), None)  # TODO add action effector
         dlog.flush()
         self._last_body_command = []
+        self._effector.clear_all_commands()
     
     def make_commands(self, commands):
         self._effector.update_after_actions()

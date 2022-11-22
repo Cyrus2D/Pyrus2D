@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
 
 class PlayerObject(Object):
+    DEBUG = True
+    
     POS_COUNT_THR = 30
     VEL_COUNT_THR = 5
     
@@ -364,6 +366,9 @@ class PlayerObject(Object):
                        goalie: bool,
                        pos: Vector2D,
                        body: float):
+        
+        if PlayerObject.DEBUG:
+            dlog.add_text(Level.SENSOR, f"(update player by hear) unum={unum} prior_pos={self.pos()} new_pos={pos}")
         
         self._heard_pos = pos.copy()
         self._heard_pos_count = 0

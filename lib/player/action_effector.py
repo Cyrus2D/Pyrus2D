@@ -4,14 +4,15 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
+from lib.player.messenger.messenger import Messenger
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
 from lib.player_command.player_command_body import PlayerBodyCommand, PlayerCatchCommand, PlayerDashCommand, PlayerKickCommand, PlayerMoveCommand, PlayerTackleCommand, PlayerTurnCommand
-from lib.player_command.player_command_support import PlayerChangeViewCommand, PlayerPointtoCommand, PlayerTurnNeckCommand
+from lib.player_command.player_command_support import PlayerAttentiontoCommand, PlayerChangeViewCommand, PlayerPointtoCommand, PlayerSayCommand, PlayerTurnNeckCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import GameModeType, ViewQuality, ViewWidth
+from lib.rcsc.types import GameModeType, SideID, ViewQuality, ViewWidth
 from lib.debug.debug_print import debug_print
 
 from typing import TYPE_CHECKING
@@ -29,6 +30,8 @@ class ActionEffector:
         self._neck_command: PlayerTurnNeckCommand = None
         self._pointto_command: PlayerPointtoCommand = None
         self._change_view_command: PlayerChangeViewCommand = None
+        self._say_command: PlayerSayCommand = None
+        self._attentionto_command: PlayerAttentiontoCommand = None
         
         self._command_counter: list[int] = [0 for _ in range(len(CommandType))]
         self._last_body_commands: list[CommandType] = [CommandType.ILLEGAL for _ in range(2)]
@@ -55,7 +58,8 @@ class ActionEffector:
         self._turn_neck_moment: float = 0
         self._done_turn_neck: bool = False
 
-        # self._say_message: str = ''
+        self._say_message: str = ''
+        self._messages: list[Messenger] = []
 
         self._pointto_pos: Vector2D = Vector2D(0, 0)
     
@@ -368,8 +372,8 @@ class ActionEffector:
             self._last_body_commands[i] = None
         
         self._done_turn_neck = False
-        # TODO SAY MESSAGE
-    
+        self._say_message = ""
+
     def update_after_actions(self):
         self._last_body_commands[1] = self._last_body_commands[0]
         self._last_action_time = self._agent.world().time().copy()
@@ -394,4 +398,43 @@ class ActionEffector:
         if self._pointto_command:
             self.inc_command_type(CommandType.POINTTO)
             self._pointto_command = None
-        # TODO ATTENTION AND SAY COMMANDS
+        
+        if self._say_command:
+            self.inc_command_type(CommandType.SAY)
+            self._say_command = None
+        
+        if self._attentionto_command:
+            self.inc_command_type(CommandType.ATTENTIONTO)
+            self._attentionto_command = None
+    
+    def clear_all_commands(self):
+        self._body_command = None
+        self._neck_command = None
+        self._change_view_command = None
+        self._pointto_command = None
+        self._attentionto_command = None
+        self._say_command = None
+        self._messages.clear()
+    
+    def add_say_message(self, message: Messenger):
+        if message:
+            self._messages.append(message)
+    
+    def make_say_message_command(self, wm: 'WorldModel') -> str:
+        return Messenger.encode_all(wm, self._messages)
+    
+    def set_attentionto(self, side: SideID, unum: int):
+        SIDE = PlayerAttentiontoCommand.SideType
+        new_side = SIDE.NONE
+        if side == self._agent.world().our_side():
+            new_side = SIDE.OUR
+        elif side == self._agent.world().their_side():
+            new_side = SIDE.OPP
+        else:
+            new_side = SIDE.NONE
+        self._attentionto_command = PlayerAttentiontoCommand(new_side, unum)
+        return self._attentionto_command
+    
+    def set_attentionto_off(self):
+        self._attentionto_command = PlayerAttentiontoCommand()
+        return self._attentionto_command

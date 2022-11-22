@@ -397,4 +397,11 @@ class SelfObject(PlayerObject):
             
         if opponent_reach_cycle > 0:
             self._foul_probability = 0
-            
+    
+    def attentionto_side(self):
+        return self._attentionto_side
+        
+    def attentionto_unum(self):
+        return self._attentionto_unum
+        
+    
