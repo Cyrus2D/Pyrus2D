@@ -1,4 +1,3 @@
-from lib.player.templates import *
 from lib.action.smart_kick import SmartKick
 from typing import List
 from base.generator_action import KickAction, ShootAction
@@ -7,13 +6,17 @@ from base.generator_pass import BhvPassGen
 from base.generator_shoot import BhvShhotGen
 from lib.debug.debug_print import debug_print
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+
 
 class BhvKick:
     def __init__(self):
         pass
 
     def execute(self, agent):
-        wm: WorldModel = agent.world()
+        wm: 'WorldModel' = agent.world()
         shoot_candidate: ShootAction = BhvShhotGen().generator(wm)
         if shoot_candidate:
             agent.debug_client().set_target(shoot_candidate.target_point)

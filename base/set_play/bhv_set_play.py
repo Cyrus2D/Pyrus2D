@@ -3,6 +3,11 @@ from base.strategy_formation import *
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.action.go_to_point import *
+from lib.rcsc.types import GameModeType
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.object_player import PlayerObject
 
 
 class Bhv_SetPlay:
@@ -25,7 +30,7 @@ class Bhv_SetPlay:
             nearest_tm_dist = 1000
             nearest_tm = 0
             for i in range(1, 12):
-                tm: PlayerObject = wm.our_player(i)
+                tm: 'PlayerObject' = wm.our_player(i)
                 if tm is None:
                     continue
                 if tm.unum() == i:
@@ -78,8 +83,8 @@ class Bhv_SetPlay:
 
         dlog.add_text(Level.TEAM, f"(is kicker) kicker_unum={kicker_unum}, second_kicker_unum={second_kicker_unum}")
 
-        kicker: PlayerObject = None
-        second_kicker: PlayerObject = None
+        kicker: 'PlayerObject' = None
+        second_kicker: 'PlayerObject' = None
 
         if kicker_unum != 0:
             kicker = wm.our_player(kicker_unum)

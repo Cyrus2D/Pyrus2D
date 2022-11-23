@@ -10,8 +10,12 @@ from lib.debug.logger import dlog
 from lib.math.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
-from lib.player.templates import PlayerAgent, WorldModel
 from lib.rcsc.server_param import ServerParam
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+    from lib.player.world_model import WorldModel
 
 
 class Intercept:
@@ -20,7 +24,7 @@ class Intercept:
         self._save_recovery = save_recovery
         self._face_point = face_point
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         wm = agent.world()
         
         if not wm.ball().pos_valid():
@@ -96,7 +100,7 @@ class Intercept:
                                     best_intercept)
 
     def do_kickable_opponent_check(self,
-                                   agent: PlayerAgent) -> bool:
+                                   agent: 'PlayerAgent') -> bool:
         wm = agent.world()
         if wm.ball().dist_from_self() < 2 and wm.exist_kickable_opponents():
             opp: PlayerObject = wm.opponents_from_ball()[0]
@@ -122,7 +126,7 @@ class Intercept:
                     return True
         return False
 
-    def get_best_intercept(self, wm: WorldModel,
+    def get_best_intercept(self, wm: 'WorldModel',
                            table: InterceptTable) -> InterceptInfo:
         SP = ServerParam.i()
         cache = table.self_cache()
@@ -321,7 +325,7 @@ class Intercept:
         return cache[0]
 
     def do_wait_turn(self,
-                     agent: PlayerAgent,
+                     agent: 'PlayerAgent',
                      target_point: Vector2D,
                      info: InterceptInfo):
         wm = agent.world()
@@ -393,7 +397,7 @@ class Intercept:
         return True
 
     def do_inertia_dash(self,
-                        agent: PlayerAgent,
+                        agent: 'PlayerAgent',
                         target_point: Vector2D,
                         info: InterceptInfo):
         wm = agent.world()

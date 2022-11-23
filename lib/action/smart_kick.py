@@ -7,13 +7,16 @@ from lib.player.soccer_action import *
 from lib.action.kick_table import KickTable, Sequence
 from lib.action.stop_ball import StopBall
 from lib.action.hold_ball import HoldBall
-from lib.player.templates import PlayerAgent
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.rcsc.server_param import ServerParam
 from lib.math.soccer_math import *
 from lib.debug.debug_print import debug_print
 
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
 
 #  from lib.player.player_agent import *
 # from lib.math.soccer_math import *
@@ -35,7 +38,7 @@ class SmartKick(BodyAction):
         # result kick sequence holder
         self._sequence = Sequence()
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         dlog.add_text(Level.KICK, "Body_SmartKick")
         wm = agent.world()
         if not wm.self().is_kickable():

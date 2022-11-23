@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from lib.player.localizer import Localizer
 
 
-# from lib.player.templates import *
 
 
 class PlayerObject(Object):

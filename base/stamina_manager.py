@@ -1,9 +1,12 @@
-from lib.player.templates import WorldModel
 from lib.rcsc.server_param import ServerParam as SP
 import lib.math.soccer_math as smath
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
-def get_normal_dash_power(wm: WorldModel):
+
+def get_normal_dash_power(wm: 'WorldModel'):
     s_recover_mode = False
 
     if wm.self().stamina_model().capacity_is_empty():

@@ -1,8 +1,12 @@
 from lib.formation.delaunay_triangulation import *
-from lib.player.templates import *
 import os
 from enum import Enum
 
+from lib.rcsc.types import GameModeType
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 class Situation(Enum):
     OurSetPlay_Situation = 0,
@@ -29,7 +33,7 @@ class _StrategyFormation:
         self.current_situation = Situation.Offense_Situation
         self.current_formation = self.offense_formation
 
-    def update(self, wm: WorldModel):
+    def update(self, wm: 'WorldModel'):
         if wm.game_mode().type() is GameModeType.PlayOn:
             self.current_situation = Situation.Offense_Situation # Todo add deffense situation
         else:

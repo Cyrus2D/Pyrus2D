@@ -1,6 +1,11 @@
 from lib.math.geom_2d import *
 import socket
-from lib.player.templates import *
+
+from lib.rcsc.types import Card, SideID
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 # TODO add player
 # class PlayerPrinter {
@@ -123,7 +128,7 @@ class DebugClient:
     def close(self):
         pass
 
-    def to_str( self, world: WorldModel, effector ):
+    def to_str( self, world: 'WorldModel', effector ):
         ostr = '((debug (format-version 3)) (time ' + str(world.time().cycle()) + ')'
         ostr_player = ''
         ostr_ball = ''

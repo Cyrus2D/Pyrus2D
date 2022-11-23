@@ -1,5 +1,10 @@
+from enum import Enum
 from lib.math.geom_2d import *
-from lib.player.templates import *
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
 
 class KickActionType(Enum):
@@ -59,9 +64,9 @@ class BhvKickGen:
         self.index = 0
         self.debug_list = []
 
-    def can_opponent_cut_ball(self, wm: WorldModel, ball_pos, cycle):
+    def can_opponent_cut_ball(self, wm: 'WorldModel', ball_pos, cycle):
         for unum in range(1, 12):
-            opp: PlayerObject = wm.their_player(unum)
+            opp: 'PlayerObject' = wm.their_player(unum)
             if opp.unum() == 0:
                 continue
             opp_cycle = opp.pos().dist(ball_pos) - opp.player_type().kickable_area()

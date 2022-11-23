@@ -1,10 +1,12 @@
 from lib.math.geom_2d import *
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.player_type import PlayerType
-from lib.player.templates import *
 from lib.rcsc.game_mode import GameModeType
 from lib.action.kick_table import calc_max_velocity
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 class Tools:
     @staticmethod
@@ -30,7 +32,7 @@ class Tools:
         return n_turn
 
     @staticmethod
-    def predict_kick_count(wm: WorldModel, kicker, first_ball_speed, ball_move_angle: AngleDeg):
+    def predict_kick_count(wm: 'WorldModel', kicker, first_ball_speed, ball_move_angle: AngleDeg):
         if wm.game_mode().type() != GameModeType.PlayOn and not wm.game_mode().is_penalty_kick_mode():
             return 1
 
@@ -53,7 +55,7 @@ class Tools:
             return max( 1, int(target_to_player.absY() / player_speed_max))
 
     @staticmethod
-    def get_nearest_teammate_unum(wm: WorldModel, position: Vector2D, unums=[x for x in range(1, 12)]):
+    def get_nearest_teammate_unum(wm: 'WorldModel', position: Vector2D, unums=[x for x in range(1, 12)]):
         unum = 0
         min_dist2 = 1000
         for i in unums:

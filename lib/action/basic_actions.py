@@ -4,22 +4,26 @@
 """
 
 from lib.player.soccer_action import *
-from lib.player.templates import PlayerAgent
 from lib.math.soccer_math import *
 from lib.rcsc.server_param import ServerParam
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+
+
 
 """
   \ class Body_TurnToPoint
   \ brief turn only body to point
 """
 
-
 class TurnToPoint:
     def __init__(self, point: Vector2D, cycle: int = 1):
         self._point = point
         self._cycle = cycle
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         me = agent.world().self()
 
         if not me.pos().is_valid():
@@ -45,7 +49,7 @@ class TurnToAngle(BodyAction):
         super().__init__()
         self._angle = angle
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         me = agent.world().self()
 
         # if not me.faceValid(): TODO : fullstate
@@ -67,7 +71,7 @@ class TurnToBall(BodyAction):
         super().__init__()
         self._cycle = cycle
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         if not agent.world().ball().posValid():
             return False
 
@@ -89,7 +93,7 @@ class TackleToPoint(BodyAction):
         self._min_prob = min_prob
         self._min_speed = min_speed
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         wm = agent.world()
         sp = ServerParam.i()
 
@@ -134,7 +138,7 @@ class Neck_TurnToRelative(NeckAction):
         super().__init__(NeckActions)
         self._rel_angle = rel_angle
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         return agent.do_turn_neck(self._rel_angle - agent.world().self().neck())
 
 
@@ -149,7 +153,7 @@ class Neck_TurnToPoint(NeckAction):  # TODO : effector
         super().__init__(NeckActions)
         self._points = points
 
-    # def execute(self, agent: PlayerAgent):
+    # def execute(self, agent: 'PlayerAgent'):
     #     next_pos = agent.effector().queuedNextSelfPos()
     #     next_body = agent.effector().queuedNextSelfBody()
     #     next_view_width = agent.effector().queuedNextViewWidth().width() * 0.5
@@ -177,7 +181,7 @@ class ArmOff(ArmAction):
       \ return True if action is performed
     """
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         if agent.world().self().arm_movable() > 0:
             return False
         return agent.doPointtoOff()

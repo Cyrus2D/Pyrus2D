@@ -12,17 +12,20 @@ from lib.math.vector_2d import Vector2D
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.player.stamina_model import StaminaModel
-from lib.player.templates import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.debug.debug_print import debug_print
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 control_area_buf = 0.15
 
 
 class SelfIntercept:
     def __init__(self, wm, ball_cache):
-        self._wm: WorldModel = wm
+        self._wm: 'WorldModel' = wm
         self._ball_cache = ball_cache
 
         self._max_short_step = 5
@@ -65,7 +68,7 @@ class SelfIntercept:
 
     def predict_no_dash(self, self_cache) -> bool:
         SP = ServerParam.i()
-        wm: WorldModel = self._wm
+        wm: 'WorldModel' = self._wm
         me: PlayerObject = wm.self()
 
         my_next: Vector2D = me.pos() + me.vel()
@@ -134,7 +137,7 @@ class SelfIntercept:
         tmp_cache = []
 
         SP = ServerParam.i()
-        wm: WorldModel = self._wm
+        wm: 'WorldModel' = self._wm
         ball: BallObject = wm.ball()
         me: PlayerObject = wm.self()
         ptype: PlayerType = me.player_type()

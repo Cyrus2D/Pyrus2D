@@ -4,11 +4,14 @@ from lib.action.intercept import Intercept
 from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
-from lib.player.templates import *
 from lib.math.soccer_math import *
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+
 class Bhv_Block:
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         wm = agent.world()
         opp_min = wm.intercept_table().opponent_reach_cycle()
         ball_pos = wm.ball().inertia_point(opp_min)

@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from lib.player.action_effector import ActionEffector
 
 
-# from lib.player.templates import *
 
 
 

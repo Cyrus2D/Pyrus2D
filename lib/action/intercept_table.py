@@ -6,11 +6,13 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
-from lib.player.templates import WorldModel
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 class InterceptTable:
     DEBUG = True
@@ -56,7 +58,7 @@ class InterceptTable:
     def second_opponent_reach_cycle(self):
         return self._second_opponent_reach_cycle
 
-    def update(self, wm: WorldModel):
+    def update(self, wm: 'WorldModel'):
         if InterceptTable.DEBUG:
             dlog.add_text(Level.INTERCEPT, f"(intercept update) started {'#'*20}")
             
@@ -183,7 +185,7 @@ class InterceptTable:
         self._self_reach_cycle = min_cycle
         self._self_exhaust_reach_cycle = exhaust_min_cycle
 
-    def predict_opponent(self, wm: WorldModel):
+    def predict_opponent(self, wm: 'WorldModel'):
         opponents = wm.opponents_from_ball()
 
         if wm.exist_kickable_opponents():
@@ -233,7 +235,7 @@ class InterceptTable:
         if self._fastest_opponent is not None and min_cycle < 1000:
             self._opponent_reach_cycle = min_cycle
 
-    def predict_teammate(self, wm: WorldModel):
+    def predict_teammate(self, wm: 'WorldModel'):
         teammates = wm.teammates_from_ball()
 
         if wm.exist_kickable_teammates():

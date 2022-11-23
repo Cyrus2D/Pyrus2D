@@ -1,8 +1,10 @@
 from enum import Enum
 
 from lib.network.udp_socket import IPAddress, UDPSocket
-from lib.player.templates import SoccerAgent
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.soccer_agent import SoccerAgent
 
 class ClientMode(Enum):
     offline = 0
@@ -29,7 +31,7 @@ class BasicClient:
 
         agent.handle_exit()
 
-    def run_online(self, agent: SoccerAgent):
+    def run_online(self, agent: 'SoccerAgent'):
         if not agent.handle_start() or not self.is_server_alive():
             agent.handle_exit()
             return

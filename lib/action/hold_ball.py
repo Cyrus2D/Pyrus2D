@@ -10,14 +10,13 @@ from lib.math.soccer_math import *
 from lib.action.stop_ball import StopBall
 from lib.action.basic_actions import TurnToPoint
 from lib.player.soccer_action import BodyAction
-# from lib.player.player_agent import PlayerAgent
 from lib.rcsc.game_time import GameTime
-from lib.player.templates import PlayerAgent
 from lib.rcsc.server_param import ServerParam
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.player_agent import PlayerAgent
     
 """
   \ struct KeepPoint
@@ -71,7 +70,7 @@ class HoldBall(BodyAction):
       \ return True if action is performed
     """
 
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
         wm: 'WorldModel' = agent.world()
         if not wm.self().is_kickable():
             dlog.add_text(Level.KICK, "not kickable")
@@ -102,7 +101,7 @@ class HoldBall(BodyAction):
           \ return True if action is performed
     """
 
-    def avoidOpponent(self, agent: PlayerAgent):
+    def avoidOpponent(self, agent: 'PlayerAgent'):
         wm: 'WorldModel' = agent.world()
         point = self.searchKeepPoint(wm)
         if not point.is_valid():
@@ -371,7 +370,7 @@ class HoldBall(BodyAction):
       \ return True if action is performed
     """
 
-    def turnToPoint(self, agent: PlayerAgent):
+    def turnToPoint(self, agent: 'PlayerAgent'):
         param = ServerParam.i()
         max_pitch_x = param.pitch_half_length() - 0.2
         max_pitch_y = param.pitch_half_width() - 0.2
@@ -418,7 +417,7 @@ class HoldBall(BodyAction):
       \ return True if action is performed
     """
 
-    def keepFront(self, agent: PlayerAgent):
+    def keepFront(self, agent: 'PlayerAgent'):
         param = ServerParam.i()
         max_pitch_x = param.pitch_half_length() - 0.2
         max_pitch_y = param.pitch_half_width() - 0.2
@@ -456,7 +455,7 @@ class HoldBall(BodyAction):
       \ param  agent itself
     """
 
-    def keepReverse(self, agent: PlayerAgent):
+    def keepReverse(self, agent: 'PlayerAgent'):
         if not self._kick_target_point.is_valid():
             return False
 

@@ -1,19 +1,23 @@
 from lib.debug.logger import dlog, Level, Color
 from lib.math.geom_2d import *
 import lib.math.soccer_math as smath
-from lib.player.templates import *
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
 import time
 from base.generator_action import KickAction, KickActionType, BhvKickGen
 
+from typing import TYPE_CHECKING
+
+from lib.rcsc.types import GameModeType
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
 
 debug_pass = False
 max_pass_time = 0
 
 
 class BhvPassGen(BhvKickGen):
-    def generator(self, wm: WorldModel):
+    def generator(self, wm: 'WorldModel'):
         global max_pass_time
         self.best_pass = None
         start_time = time.time()
@@ -44,7 +48,7 @@ class BhvPassGen(BhvKickGen):
         dlog.add_text(Level.PASS, 'time:{} max is {}'.format(end_time - start_time, max_pass_time))
         return self.candidates
 
-    def update_receivers(self, wm: WorldModel):
+    def update_receivers(self, wm: 'WorldModel'):
         sp = SP.i()
         for unum in range(1, 12):
             if unum == wm.self().unum():
@@ -64,7 +68,7 @@ class BhvPassGen(BhvKickGen):
             self.receivers.append(unum)
         self.receivers = sorted(self.receivers, key=lambda unum: wm.our_player(unum).pos().x(), reverse=True)
 
-    def generate_direct_pass(self, wm: WorldModel, t):
+    def generate_direct_pass(self, wm: 'WorldModel', t):
         sp = SP.i()
         min_receive_step = 3
         max_direct_pass_dist = 0.8 * smath.inertia_final_distance(sp.ball_speed_max(), sp.ball_decay())
@@ -125,7 +129,7 @@ class BhvPassGen(BhvKickGen):
                          max_receive_ball_speed, ball_move_dist,
                          ball_move_angle, "D")
 
-    def generate_lead_pass(self, wm: WorldModel, t):
+    def generate_lead_pass(self, wm: 'WorldModel', t):
         sp = SP.i()
         our_goal_dist_thr2 = pow(16.0, 2)
         min_receive_step = 4
@@ -225,7 +229,7 @@ class BhvPassGen(BhvKickGen):
                                  ball_move_dist, ball_move_angle,
                                  'L')
 
-    def generate_through_pass(self, wm: WorldModel, t):
+    def generate_through_pass(self, wm: 'WorldModel', t):
         pass
 
     def predict_receiver_reach_step(self, receiver, pos: Vector2D, use_penalty, pass_type):
@@ -255,7 +259,7 @@ class BhvPassGen(BhvKickGen):
         n_step = n_turn + n_dash if n_turn == 0 else n_turn + n_dash + 1
         return n_step
 
-    def create_pass(self, wm: WorldModel, receiver, receive_point: Vector2D,
+    def create_pass(self, wm: 'WorldModel', receiver, receive_point: Vector2D,
                     min_step, max_step, min_first_ball_speed, max_first_ball_speed,
                     min_receive_ball_speed, max_receive_ball_speed,
                     ball_move_dist, ball_move_angle: AngleDeg, description):
@@ -367,7 +371,7 @@ class BhvPassGen(BhvKickGen):
             if min_step + 3 <= step:
                 break
 
-    def predict_opponents_reach_step(self, wm: WorldModel, first_ball_pos: Vector2D, first_ball_speed,
+    def predict_opponents_reach_step(self, wm: 'WorldModel', first_ball_pos: Vector2D, first_ball_speed,
                                      ball_move_angle: AngleDeg, receive_point: Vector2D, max_cycle, description):
         first_ball_vel = Vector2D.polar2vector(first_ball_speed, ball_move_angle)
         min_step = 1000
@@ -383,7 +387,7 @@ class BhvPassGen(BhvKickGen):
                 min_opp = unum
         return min_step, min_opp
 
-    def predict_opponent_reach_step(self, wm: WorldModel, unum, first_ball_pos: Vector2D, first_ball_vel: Vector2D,
+    def predict_opponent_reach_step(self, wm: 'WorldModel', unum, first_ball_pos: Vector2D, first_ball_vel: Vector2D,
                                     ball_move_angle: AngleDeg, receive_point: Vector2D, max_cycle, description):
         sp = SP.i()
         CONTROL_AREA_BUF = 0.15

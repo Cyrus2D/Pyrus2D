@@ -4,13 +4,16 @@ from lib.math.angle_deg import AngleDeg
 from lib.math.soccer_math import bound, inertia_n_step_point
 from lib.math.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
-from lib.player.templates import WorldModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+
 
 class PlayerIntercept:
-    def __init__(self, wm: WorldModel, ball_cache):
+    def __init__(self, wm: 'WorldModel', ball_cache):
         self._wm = wm
         self._ball_cache = ball_cache
 

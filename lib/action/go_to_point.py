@@ -1,7 +1,6 @@
 # from lib.player.player_agent import *
 from lib.rcsc.server_param import ServerParam as SP
 import lib.math.soccer_math as smath
-from lib.player.templates import *
 from lib.math.geom_2d import *
 
 from typing import TYPE_CHECKING
