@@ -13,11 +13,11 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._dist_from_ball:float = 0
         self._angle_from_ball: AngleDeg = AngleDeg(0)
 
-        self._pos_count: int = 0  # TODO maybe 10000
-        self._seen_pos_count: int = 0  # TODO maybe 10000
+        self._pos_count: int = 1000
+        self._seen_pos_count: int = 1000
         self._seen_pos: Vector2D = Vector2D.invalid()
-        self._vel_count: int = 0  # TODO maybe 10000
-        self._seen_vel_count: int = 0  # TODO maybe 10000
+        self._vel_count: int = 1000
+        self._seen_vel_count: int = 1000
         self._seen_vel: Vector2D = Vector2D.invalid()
         self._ghost_count: int  = 1000
         self._heard_pos_count: int = 1000
@@ -44,7 +44,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         return self._seen_pos_count
 
     def seen_pos(self):
-        return self._pos.copy()  # TODO should be written again
+        return self._pos.copy()
 
     def vel_count(self):
         return self._vel_count
@@ -53,7 +53,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         return self._seen_vel_count
 
     def seen_vel(self):
-        return self._vel.copy()  # TODO should be written again
+        return self._vel.copy() 
     
     def heard_pos_count(self):
         return self._heard_pos_count

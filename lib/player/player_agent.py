@@ -29,7 +29,6 @@ from lib.player.messenger.messenger import Messenger
 class PlayerAgent(SoccerAgent):
     class Impl:
         def __init__(self, agent):
-            # TODO so many things....
             self._agent: PlayerAgent = agent
             self._think_received = False
             self._current_time: GameTime = GameTime()
@@ -305,7 +304,7 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command.append(self._effector.set_kick(power, rel_dir))
         return True
 
-    def do_tackle(self, power_or_dir: float, foul: bool):  # TODO : tons of work
+    def do_tackle(self, power_or_dir: float, foul: bool):
         if self.world().self().is_frozen():
             debug_print(f"(do tackle) player({self._world.self_unum()} is frozen!")
             return False
@@ -365,7 +364,7 @@ class PlayerAgent(SoccerAgent):
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
         # TODO FULL STATE
         
-        self._effector.reset() # TODO IMP FUNC
+        self._effector.reset()
         
 
         get_decision(self)

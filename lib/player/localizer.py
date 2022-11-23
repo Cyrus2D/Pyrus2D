@@ -197,7 +197,7 @@ class Localizer:
                 dlog.add_circle(Level.WORLD, center=marker_pos, r=0.25, fill=True, color=Color(string="black"))
 
             
-            global_dir = marker.dir_ + self_face # TODO + BODY?
+            global_dir = marker.dir_ + self_face
             estimated_pos = marker_pos - Vector2D(r=marker.dist_, theta=global_dir)
             
             if Localizer.DEBUG:

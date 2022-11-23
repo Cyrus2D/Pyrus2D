@@ -23,7 +23,7 @@ class Messenger:
     
     SIZES: dict[Types, int] = {
         Types.BALL_POS_VEL_MESSAGE: 6,
-        Types.PLAYER_POS_VEL_UNUM: 4, # TODO CHECK SIZE
+        Types.PLAYER_POS_VEL_UNUM: 4,
     }
     
     def __init__(self) -> None:

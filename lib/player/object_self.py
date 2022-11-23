@@ -76,6 +76,9 @@ class SelfObject(PlayerObject):
     def face(self):
         return self._face
     
+    def is_frozen(self):
+        return self._tackle_expires > 0 or self._charge_expires > 0
+    
     def face_valid(self):
         return self._face_count < SelfObject.FACE_COUNT_THR
     
@@ -356,7 +359,7 @@ class SelfObject(PlayerObject):
             debug_print(f"(self object update ball info) body={self.body()}")
         
         if self._last_catch_time.cycle() + SP.catch_ban_cycle() <= self._time.cycle():
-            self._catch_probability = ptype.get_catch_probability(self.pos(), self.body(), ball.pos(), 0.055, 0.5) # TODO IMP FUNC
+            self._catch_probability = ptype.get_catch_probability(self.pos(), self.body(), ball.pos(), 0.055, 0.5)
         
         player2ball = (ball.pos() - self.pos()).rotated_vector(-self.body())
         tackle_dist = SP.tackle_dist() if player2ball.x() > 0 else SP.tackle_back_dist()

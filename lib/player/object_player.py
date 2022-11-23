@@ -36,7 +36,7 @@ class PlayerObject(Object):
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
-        self._kickable: bool = False  # TODO does it change?
+        self._kickable: bool = False 
         self._kickrate: float = 0.0
         self._face: float = 0
         
@@ -216,19 +216,19 @@ class PlayerObject(Object):
         return 0.25
 
     def is_tackling(self):
-        return False  # TODO 
+        return self._tackle 
 
     def tackle_count(self):
-        return 0  # TODO 
+        return self._tackle_count
 
     def face_count(self):
         return 0
 
     def is_frozen(self):
-        return False  # TODO 
+        return False 
 
     def is_ghost(self):
-        return False  # TODO should 
+        return self._ghost_count > 0
 
     def body_count(self):
         return self._body_count

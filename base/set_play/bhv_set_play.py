@@ -53,7 +53,7 @@ class Bhv_SetPlay:
                 wm.game_mode().mode_name() == "goal_kick" and \
                 wm.game_mode().side() == wm.our_side():
             return True
-        st = StrategyFormation().i()  # TODO Instance?!!?
+        st = StrategyFormation().i()
         kicker_unum = 0
         min_dist2 = 1000000
         second_kicker_unum = 0

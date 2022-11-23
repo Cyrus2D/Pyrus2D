@@ -83,7 +83,7 @@ class PlayerPointtoCommand(PlayerSupportCommand):
 
 
 class PlayerAttentiontoCommand(PlayerSupportCommand):
-    class SideType(Enum): # TODO SIDE ID
+    class SideType(Enum):
         OUR = 'our'
         OPP = 'opp'
         NONE = 'none'

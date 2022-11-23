@@ -255,7 +255,7 @@ class WorldModel:
         self._offside_line_x = new_line
         self._offside_line_count = count
 
-    def update_xx(self):
+    def update_xx(self): # TODO REMOVE IT
         if self.time().cycle() < 1:
             return  # TODO check
         self._update_players()
@@ -559,7 +559,6 @@ class WorldModel:
                 and self.self().last_move(2).is_valid()):
                 
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
-                # ball_move += sum([self.self().last_move(i) for i in range(3)])# TODO NOT WORKING WHY?!?!
                 for i in range(3):
                     ball_move += self.self().last_move(i)
                     
@@ -951,7 +950,7 @@ class WorldModel:
         dlog.add_text(Level.WORLD, f"{'*'*20} Update by See {'*'*20}")
 
         if self._their_team_name is None and see.their_team_name() is not None:
-            self._their_team_name = see.their_team_name() # TODO their team name
+            self._their_team_name = see.their_team_name()
             dlog.add_text(Level.WORLD, f"(update after see) their team name set to {self._their_team_name}")
         
         # TODO FULL STATE TIME CHECK
@@ -959,7 +958,7 @@ class WorldModel:
         self.localize_self(see, body, act, current_time)
         self.localize_ball(see, act)
         self.localize_players(see)
-        self.update_player_type() # TODO IMP FUNC
+        self.update_player_type()
 
     def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
@@ -1064,7 +1063,7 @@ class WorldModel:
         self._opponents_from_self.sort(key=lambda p: p.dist_from_self())
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
-        self.estimate_goalie() # TODO IMP FUNC?!
+        self.estimate_goalie()
         
         self._all_players.append(self.self())
         self._our_players.append(self.self())
