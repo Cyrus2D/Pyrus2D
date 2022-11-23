@@ -392,6 +392,6 @@ class PlayerObject(Object):
         
         if body != -360:
             if self._body_count >= 2:
-                self._body = body
+                self._body = AngleDeg(body)
                 self._body_count = 1
         

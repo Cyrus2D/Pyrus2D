@@ -76,7 +76,7 @@ class PlayerAgent(SoccerAgent):
             self._agent._effector.check_command_count(self._body)
             self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
         
-        def sense_visual_parser(self, message: str):
+        def visual_parser(self, message: str):
             self.parse_cycle_info(message, False)
             
             self._visual.parse(message,
@@ -101,8 +101,23 @@ class PlayerAgent(SoccerAgent):
             )
             cycle = int(cycle)
             
-            if sender == "referee":
-                self.hear_referee_parser(message)            
+            if sender[0].isnumeric() or sender[0] == '-': # PLAYER MESSAGE
+                self.hear_player_parser(message)
+            elif sender == "referee":
+                self.hear_referee_parser(message)
+        
+        def hear_player_parser(self, message):
+            data = message.strip('()').split(' ')
+            if len(data) < 6:
+                debug_print("(hear player parser) message format is not matched!")
+                return
+            player_message = message.split('"')[1]
+            sender = int(data[4])
+
+            Messenger.decode_all(self._agent.world()._messenger_memory,
+                                 player_message,
+                                 sender,
+                                 self._current_time)
         
         def hear_referee_parser(self, message: str):
             mode = message.split(" ")[-1].strip(")")
@@ -252,7 +267,7 @@ class PlayerAgent(SoccerAgent):
             else:
                 debug_print("KICKTABLE Faild")
         elif message.find("(see") != -1:
-            self._impl.sense_visual_parser(message)
+            self._impl.visual_parser(message)
         elif message.find("(hear") != -1:
             self._impl.hear_parser(message)
         elif message.find("fullstate") != -1 or message.find("player_type") != -1 or message.find(
@@ -322,7 +337,7 @@ class PlayerAgent(SoccerAgent):
             return
         
         if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
-            debug_print(f"(player agent do attentionto) already attended to the player!")
+            debug_print(f"(player agent do attentionto) already attended to the player! unum={unum}")
             return
         
         self._last_body_command.append(self._effector.set_attentionto(side, unum))
@@ -359,7 +374,10 @@ class PlayerAgent(SoccerAgent):
         self._impl._see_state.set_view_mode(self.world().self().view_width(),
                                             self.world().self().view_quality())
         
-        commands = self._last_body_command + [self._effector.make_say_message_command(self.world())]
+        message_command = self._effector.make_say_message_command(self.world())
+        if message_command:
+            self._last_body_command.append(message_command)
+        commands = self._last_body_command
         # if self.world().our_side() == SideID.RIGHT:
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         if self._is_synch_mode:

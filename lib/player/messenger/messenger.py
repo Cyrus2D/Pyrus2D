@@ -1,5 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING
+from lib.debug.level import Level
+from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
 from lib.player.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
@@ -10,6 +12,8 @@ if TYPE_CHECKING:
     
     
 class Messenger:
+    DEBUG = True
+    
     class Types(Enum):
         BALL_POS_VEL_MESSAGE = 'b'
         PLAYER_POS_VEL_UNUM = 'P'
@@ -48,12 +52,18 @@ class Messenger:
         for i, message in enumerate(messages):
             enc = message.encode(wm)
             
+            if not enc:
+                continue
+            
             if len(enc) + size > max_message_size:
                 print("(Messenger encode all) out of limitation. Deny other messages.")
                 print("denied messages are:")
                 for denied in messages[i:]:
                     print(denied)
                 break
+            
+            if Messenger.DEBUG:
+                dlog.add_text(Level.ACTION, f"(encode all messages) a message added, msg={message}, encoded={enc}")
             
             all_messages += enc
             size += len(enc)

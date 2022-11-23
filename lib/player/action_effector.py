@@ -72,6 +72,9 @@ class ActionEffector:
     def pointto_pos(self):
         return self._pointto_pos
     
+    def attentionto_command(self):
+        return self._attentionto_command
+    
     def inc_command_type(self, type: CommandType):
         self._command_counter[type.value] += 1
 
@@ -420,8 +423,15 @@ class ActionEffector:
         if message:
             self._messages.append(message)
     
-    def make_say_message_command(self, wm: 'WorldModel') -> str:
-        return Messenger.encode_all(wm, self._messages)
+    def make_say_message_command(self, wm: 'WorldModel'):
+        if len(self._messages) == 0:
+            return None
+
+        say_command =  PlayerSayCommand(Messenger.encode_all(wm, self._messages))
+        if len(say_command.message()) == 0:
+            return None
+        
+        return say_command
     
     def set_attentionto(self, side: SideID, unum: int):
         SIDE = PlayerAttentiontoCommand.SideType

@@ -19,7 +19,7 @@ def get_decision(agent: 'PlayerAgent'):
     st = StrategyFormation().i()
     st.update(wm)
     
-    if wm.self().unum() == 5:
+    if wm.self().unum() == 5: # TODO REMOVE IT
         agent.add_say_message(BallPosVelMessenger())
         agent.add_say_message(PlayerPosUnumMessenger(9))
     else:

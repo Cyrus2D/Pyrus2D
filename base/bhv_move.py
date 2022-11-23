@@ -59,8 +59,7 @@ class BhvMove:
 
         if wm.ball().pos_valid() and GoToPoint(target, dist_thr, dash_power).execute(agent):
             return True
-        elif TurnToBall().execute(agent):
+        if TurnToBall().execute(agent):
             return True
-        else:
-            return TurnToPoint(Vector2D(0,0)).execute(agent)
+        return TurnToPoint(Vector2D(0,0)).execute(agent)
             

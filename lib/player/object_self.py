@@ -403,5 +403,9 @@ class SelfObject(PlayerObject):
         
     def attentionto_unum(self):
         return self._attentionto_unum
+    
+    def set_attentionto(self, side: SideID, unum: int):
+        self._attentionto_side = side
+        self._attentionto_unum = unum   
         
     

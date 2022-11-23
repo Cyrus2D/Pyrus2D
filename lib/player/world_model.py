@@ -9,6 +9,7 @@ from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParse
 from lib.player.object_self import SelfObject
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player_command.player_command_support import PlayerAttentiontoCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
@@ -1224,7 +1225,17 @@ class WorldModel:
         if act.pointto_command():
             self.self().set_pointto(act.pointto_pos(),
                                     self.time())
-        # TODO ATTENTIONTO
+        
+        attention = act.attentionto_command()
+        if attention:
+            if attention.is_on():
+                if attention.side() == PlayerAttentiontoCommand.SideType.OUR:
+                    self.self().set_attentionto(self.our_side(), attention.number())
+                else:
+                    self.self().set_attentionto(self.their_side(), attention.number())
+            else:
+                self.self().set_attentionto(SideID.NEUTRAL, 0)
+
     
     def update_players_by_hear(self):
         # TODO FULLSTATTE MODE CHECK
@@ -1297,7 +1308,7 @@ class WorldModel:
                         target_player.set_player_type(self._player_types[HETERO_DEFAULT])
                 
     
-    def update_ball_by_haer(self, act: 'ActionEffector'):
+    def update_ball_by_hear(self, act: 'ActionEffector'):
         # TODO CHECK FULLSTATE MODE
 
         if self._messenger_memory.ball_time() != self.time() or len(self._messenger_memory.balls()) == 0:

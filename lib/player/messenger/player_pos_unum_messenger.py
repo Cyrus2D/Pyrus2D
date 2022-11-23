@@ -1,3 +1,4 @@
+from lib.debug.debug_print import debug_print
 from lib.debug.level import Level
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
@@ -29,14 +30,15 @@ class PlayerPosUnumMessenger(Messenger):
     
     def encode(self, wm: 'WorldModel') -> str:
         if not 1 <= self._unum <= 22:
-            print(f"(player pos unum messenger encode) unum is out of limit. unum={self._unum}")
+            debug_print(f"(player pos unum messenger encode) unum is out of limit. unum={self._unum}")
             return ""
 
         unum = self._unum % 11
         player = wm.our_player(unum) if self._unum // 11 == 0 else wm.their_player(unum)
         
         if player is None:
-            print(f"(player pos unum messenger encode) player is None. unum={self._unum}")
+            debug_print(f"(player pos unum messenger encode) player is None. unum={self._unum}")
+            return None
         
         SP = ServerParam.i()
         
@@ -74,4 +76,6 @@ class PlayerPosUnumMessenger(Messenger):
 
         messenger_memory.add_player(sender, unum, pos, current_time)
     
+    def __repr__(self) -> str:
+        return "player pos unum msg"
         

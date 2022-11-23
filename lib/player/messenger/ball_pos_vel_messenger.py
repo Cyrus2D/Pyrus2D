@@ -83,5 +83,7 @@ class BallPosVelMessenger(Messenger):
         
         messenger_memory.add_ball(sender, pos, vel, current_time)
 
+    def __repr__(self) -> str:
+        return "ball pos vel msg"
 
         
