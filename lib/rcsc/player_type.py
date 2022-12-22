@@ -1,5 +1,5 @@
 from lib.parser.parser_message_params import MessageParamsParser
-from lib.rcsc.server_param import ServerParam as SP
+from lib.rcsc.server_param import ServerParam as SP # TODO SP.i()?!?!
 import lib.math.soccer_math as smath
 from lib.math.geom_2d import *
 
@@ -319,4 +319,12 @@ class PlayerType:
                 return (1 - fail_prob) * SP.i().catch_probability()
         
         return 0
+
+    def get_one_step_stamina_consumption(self):
+        return self.get_dash_power_to_keep_max_speed(self.effort_max()) - self.stamina_inc_max()
+    
+    def get_dash_power_to_keep_max_speed(self, effort: float):
+        required_power = self.player_speed_max() * (1-self.player_decay())
+        required_power /= effort*self.dash_power_rate()
+        return min(required_power, SP.i().max_dash_power())
         

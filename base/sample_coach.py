@@ -3,6 +3,11 @@ from lib.debug.debug_print import debug_print
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.types import HETERO_DEFAULT, HETERO_UNKNOWN
 
+def real_speed_max(lhs: PlayerType, rhs: PlayerType) -> bool:
+    if abs(lhs.real_speed_max() - rhs.real_speed_max()) < 0.005:
+        return lhs.cycles_to_reach_max_speed() < rhs.cycles_to_reach_max_speed()
+    return lhs.real_speed_max() > rhs.real_speed_max() 
+
 class SampleCoach(CoachAgent):
     def __init__(self):
         super().__init__()
@@ -68,7 +73,7 @@ class SampleCoach(CoachAgent):
         if len(candidates) == 0:
             return HETERO_UNKNOWN
         
-        candidates.sort(key=real_speed_max) # TODO IMP FUNC
+        candidates.sort(key=real_speed_max)
         
         best_type: PlayerType = None
         max_speed = 0
