@@ -17,6 +17,9 @@ class SideID(Enum):
     LEFT = 'l'
     NEUTRAL = 'n'
     RIGHT = 'r'
+    
+    def invert(self):
+        return SideID.RIGHT if self == SideID.LEFT else SideID.LEFT if self != SideID.NEUTRAL else SideID.NEUTRAL
 
 
 """

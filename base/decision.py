@@ -3,8 +3,8 @@ from base.set_play.bhv_set_play import Bhv_SetPlay
 from base.bhv_kick import BhvKick
 from base.bhv_move import BhvMove
 from lib.debug.debug_print import debug_print
-from lib.player.messenger.ball_pos_vel_messenger import BallPosVelMessenger
-from lib.player.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
+from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
+from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
 from lib.rcsc.types import GameModeType
 
 from typing import TYPE_CHECKING

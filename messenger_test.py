@@ -1,11 +1,11 @@
 from lib.math.vector_2d import Vector2D
 from lib.player.action_effector import ActionEffector
-from lib.player.messenger.ball_pos_vel_messenger import BallPosVelMessenger
-from lib.player.messenger.messenger import Messenger
+from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
+from lib.messenger.messenger import Messenger
 from lib.player.object_player import PlayerObject
 from lib.player.object_ball import BallObject
 from lib.player.world_model import WorldModel
-from lib.player.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
+from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import SideID
 

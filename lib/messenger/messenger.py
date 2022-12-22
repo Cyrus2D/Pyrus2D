@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.math.vector_2d import Vector2D
-from lib.player.messenger.messenger_memory import MessengerMemory
+from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
 
 from lib.rcsc.server_param import ServerParam
@@ -71,8 +71,8 @@ class Messenger:
     
     @staticmethod
     def decode_all(messenger_memory: MessengerMemory, messages: str, sender: int, current_time: GameTime):
-        from lib.player.messenger.ball_pos_vel_messenger import BallPosVelMessenger
-        from lib.player.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
+        from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
+        from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
 
         messenger_classes: dict[Messenger.Types, type['Messenger']] = {
             Messenger.Types.BALL_POS_VEL_MESSAGE: BallPosVelMessenger,

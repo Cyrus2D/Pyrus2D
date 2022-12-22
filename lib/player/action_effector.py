@@ -4,7 +4,7 @@ from lib.debug.logger import dlog
 from lib.math.angle_deg import AngleDeg
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
-from lib.player.messenger.messenger import Messenger
+from lib.messenger.messenger import Messenger
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
 from lib.player_command.player_command_body import PlayerBodyCommand, PlayerCatchCommand, PlayerDashCommand, PlayerKickCommand, PlayerMoveCommand, PlayerTackleCommand, PlayerTurnCommand

@@ -5,7 +5,7 @@ from lib.player.basic_client import BasicClient
 import sys
 
 
-def main(team_name="Pyrus", goalie=False):
+def main(team_name="Pyrus"):
     agent = SampleTrainer()
     client = BasicClient()
     agent.init(client)
@@ -16,6 +16,5 @@ def main(team_name="Pyrus", goalie=False):
 
 if __name__ == "__main__":
     goalie = False
-    if len(sys.argv) > 1 and sys.argv[1] == "g":
-        goalie = True
-    main(goalie=goalie)
+    # if len(sys.argv) > 1 and sys.argv[1] == "g":
+    main()

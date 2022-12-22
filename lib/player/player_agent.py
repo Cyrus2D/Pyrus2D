@@ -24,7 +24,7 @@ from lib.rcsc.server_param import ServerParam
 from lib.player.debug_client import DebugClient
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.debug.debug_print import debug_print
-from lib.player.messenger.messenger import Messenger
+from lib.messenger.messenger import Messenger
 
 class PlayerAgent(SoccerAgent):
     class Impl:

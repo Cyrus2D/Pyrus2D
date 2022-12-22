@@ -600,8 +600,8 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._effort_min = dic["effort_min"]
         self._kickoff_offside = dic["forbid_kick_off_offside"]
         self._free_kick_faults = dic["free_kick_faults"]
-        self._freeform_send_period = dic["freeform_send_period"]
-        self._freeform_wait_period = dic["freeform_wait_period"]
+        self._freeform_send_period = int(dic["freeform_send_period"])
+        self._freeform_wait_period = int(dic["freeform_wait_period"])
         self._fullstate_l = dic["fullstate_l"]
         self._fullstate_r = dic["fullstate_r"]
         self._game_log_compression = dic["game_log_compression"]
@@ -659,7 +659,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._recover_dec_thr = float(dic["recover_dec_thr"])
         self._recover_min = float(dic["recover_min"])
         self._recv_step = dic["recv_step"]
-        self._coach_say_count_max = dic["say_coach_cnt_max"]
+        self._coach_say_count_max = int(dic["say_coach_cnt_max"])
         self._coach_say_msg_size = dic["say_coach_msg_size"]
         self._player_say_msg_size = int(dic["say_msg_size"])
         self._send_comms = dic["send_comms"]

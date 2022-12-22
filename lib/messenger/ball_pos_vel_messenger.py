@@ -1,11 +1,11 @@
 from lib.math.soccer_math import min_max
 from lib.math.vector_2d import Vector2D
-from lib.player.messenger.messenger import Messenger
-from lib.player.messenger.messenger_memory import MessengerMemory
+from lib.messenger.messenger import Messenger
+from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
-import lib.player.messenger.converters as converters
+import lib.messenger.converters as converters
 
 from typing import TYPE_CHECKING
 
