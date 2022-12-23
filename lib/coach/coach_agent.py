@@ -7,7 +7,8 @@ from lib.messenger.messenger import Messenger
 from lib.network.udp_socket import IPAddress
 from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent
-from lib.player_command.coach_command import CoachChangePlayerTypeCommand, CoachCommand, CoachDoneCommand, CoachEyeCommand, CoachFreeFormMessageCommand, CoachInitCommand, CoachSendCommands, CoachTeamnameCommand
+from lib.player_command.coach_command import CoachChangePlayerTypeCommand, CoachCommand, CoachDoneCommand, CoachEyeCommand, CoachLookCommand, \
+    CoachFreeFormMessageCommand, CoachInitCommand, CoachSendCommands, CoachTeamnameCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
@@ -48,11 +49,13 @@ class CoachAgent(SoccerAgent):
             self._agent.init_dlog(message)
             self._agent.do_eye(True)
         
-        def see_parser(self, message):
-            self.parse_cycle_info(message, True)
+        def see_parser(self, message: str):
+            if not message.startswith("(player_type"):
+                self.parse_cycle_info(message, True)
 
-            self._agent._world.parse(message)
-            dlog._time = self.world().time().copy()
+            self._agent.world().parse(message)
+            self._agent.world().update_after_see(self._current_time)
+            dlog._time = self._agent.world().time().copy()
             
         def parse_cycle_info(self, message: str, by_see_global: bool):
             cycle = int(message.split(' ')[1])
@@ -112,7 +115,7 @@ class CoachAgent(SoccerAgent):
             if n == 4:
                 pass
             elif n == 3:
-                unum, type = int(data[1]), int(data[2])
+                unum, type = int(data[1]), int(data[2].removesuffix(')\x00'))
                 self._agent.world().change_player_type(self._agent.world().our_side(), unum, type)
             elif n == 2:
                 unum = int(data[1])
@@ -152,7 +155,6 @@ class CoachAgent(SoccerAgent):
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
-                debug_print(f"CM: {message}, {server_address}")
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
@@ -175,11 +177,13 @@ class CoachAgent(SoccerAgent):
     def parse_message(self, message):
         if message.find("(init") != -1: # TODO Use startwith instead of find
             self._impl.analyze_init(message)
-        if message.find("server_param") != -1:
+        elif message.find("(server_param") != -1:
             ServerParam.i().parse(message)
+        elif message.find("(player_param") != -1:
+            pass # TODO 
         elif message.find("(change_player_type") != -1:
             self._impl.analyze_change_player_type(message)
-        elif message.find("see_global") != -1 or message.find("(player_type") != -1:
+        elif message.find("(see") != -1 or message.find("(player_type") != -1:
             self._impl.see_parser(message)
         elif message.find("(hear") != -1:
             self._impl.hear_parser(message)
@@ -204,7 +208,6 @@ class CoachAgent(SoccerAgent):
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         commands.append(CoachDoneCommand())
         for com in commands:
-            debug_print(f"CMS: {com.str()}")
             self._client.send_message(com.str())
         dlog.flush()
         self._last_body_command = []
@@ -222,6 +225,9 @@ class CoachAgent(SoccerAgent):
 
     def do_eye(self, on: bool):
         self._client.send_message(CoachEyeCommand(on).str())
+    
+    def do_look(self):
+        self._client.send_message(CoachLookCommand().str())
     
     def do_change_player_type(self, unum: int, type: int):
         if not 1 <= unum <= 11:

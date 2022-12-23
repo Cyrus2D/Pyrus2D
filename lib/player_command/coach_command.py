@@ -51,8 +51,18 @@ class CoachInitCommand(CoachCommand):
         
         if len(self._coach_name) > 0:
             s += f" {self._coach_name}"
-        s += f" ({self._version}))"
+        s += f" (version {self._version}))"
         return s
+
+class CoachLookCommand(CoachCommand):
+    def __init__(self):
+        return
+    
+    def type(self):
+        return CoachCommand.Type.LOOK
+    
+    def str(self):
+        return "(look)"
 
 class CoachEyeCommand(CoachCommand):
     def __init__(self, on: bool):

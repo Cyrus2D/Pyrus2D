@@ -17,7 +17,7 @@ class GlobalWorldModel:
         self._their_players: list[GlobalPlayerObject] = [GlobalPlayerObject() for _ in range(11)]
         self._unknown_player: list[GlobalPlayerObject] = [GlobalPlayerObject() for _ in range(22)]
         self._ball: GlobalBallObject = GlobalBallObject()
-        self._time: GameTime = GameTime(0, 0)
+        self._time: GameTime = GameTime(-1, 0)
         self._game_mode: GameMode = GameMode()
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._yellow_card_left: list[bool] = [False for _ in range(11)]
@@ -63,6 +63,9 @@ class GlobalWorldModel:
 
     def time(self):
         return self._time.copy()
+    
+    def available_player_type_id(self):
+        return self._available_player_type_id
 
     def parse(self, message):
         if message.find("see_global") is not -1:
@@ -77,7 +80,6 @@ class GlobalWorldModel:
     def fullstate_parser(self, message):
         parser = GlobalFullStateWorldMessageParser()
         parser.parse(message)
-        self._time._cycle = int(parser.dic()['time'])
         self._team_name_l = parser.dic()['teams']['team_left']
         self._team_name_r = parser.dic()['teams']['team_right']
 
@@ -107,6 +109,9 @@ class GlobalWorldModel:
         message = message.split(" ")
         self._self_unum = int(message[2])
         self._our_side = message[1]
+    
+    def update_after_see(self, current_time: GameTime):
+        self._time = current_time.copy()
 
     def player_type_parser(self, message):
         new_player_type = PlayerType()

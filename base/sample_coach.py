@@ -1,3 +1,4 @@
+import functools
 from lib.coach.coach_agent import CoachAgent
 from lib.debug.debug_print import debug_print
 from lib.rcsc.player_type import PlayerType
@@ -43,7 +44,7 @@ class SampleCoach(CoachAgent):
         
         self.subsititute_to(1, HETERO_DEFAULT)
         for pt in candidates:
-            if pt.id == HETERO_DEFAULT:
+            if pt.id() == HETERO_DEFAULT:
                 candidates.remove(pt)
                 break
         
@@ -73,7 +74,7 @@ class SampleCoach(CoachAgent):
         if len(candidates) == 0:
             return HETERO_UNKNOWN
         
-        candidates.sort(key=real_speed_max)
+        candidates.sort(key=functools.cmp_to_key(real_speed_max))
         
         best_type: PlayerType = None
         max_speed = 0

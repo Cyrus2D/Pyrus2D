@@ -160,7 +160,9 @@ class PlayerType:
             #
             speed *= self.player_decay()
 
-    def cycles_to_reach_max_speed(self, dash_power):
+    def cycles_to_reach_max_speed(self, dash_power=None):
+        if dash_power is None:
+            return self._cycles_to_reach_max_speed
         accel = math.fabs(dash_power) * self.dash_power_rate() * self.effort_max()
         speed_max = accel / (1.0 - self.player_decay())
         if speed_max > self.player_speed_max():
