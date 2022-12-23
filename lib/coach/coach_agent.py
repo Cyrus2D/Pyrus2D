@@ -8,6 +8,8 @@ from lib.network.udp_socket import IPAddress
 from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent
 from lib.player_command.coach_command import CoachChangePlayerTypeCommand, CoachCommand, CoachDoneCommand, CoachEyeCommand, CoachFreeFormMessageCommand, CoachInitCommand, CoachSendCommands, CoachTeamnameCommand
+from lib.rcsc.game_mode import GameMode
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.debug.debug_print import debug_print
 from lib.rcsc.types import HETERO_DEFAULT, HETERO_UNKNOWN, GameModeType
@@ -19,7 +21,11 @@ class CoachAgent(SoccerAgent):
         def __init__(self, agent):
             # TODO so many things....
             self._agent: CoachAgent = agent
-            self._think_received = True
+            self._think_received:bool = True
+            self._server_cycle_stopped: bool = True
+            self._current_time: GameTime = GameTime(-1, 0)
+            self._game_mode: GameMode = GameMode()
+            
 
         def send_init_command(self):
             # TODO check reconnection
@@ -34,7 +40,7 @@ class CoachAgent(SoccerAgent):
         def send_bye_command(self):
             self._agent._client.set_server_alive(False)
 
-        @property
+        @property # TODO REMOVE PROPERTY
         def think_received(self):
             return self._think_received
 
@@ -42,8 +48,30 @@ class CoachAgent(SoccerAgent):
             self._agent.init_dlog(message)
             self._agent.do_eye(True)
         
+        def see_parser(self, message):
+            self.parse_cycle_info(message, True)
+
+            self._agent._world.parse(message)
+            dlog._time = self.world().time().copy()
+            
+        def parse_cycle_info(self, message: str, by_see_global: bool):
+            cycle = int(message.split(' ')[1])
+            self.update_current_time(cycle, by_see_global)
+        
+        def update_current_time(self, new_time: int, by_see_global: bool):
+            if self._server_cycle_stopped:
+                if new_time != self._current_time.cycle():
+                    self._current_time.assign(new_time, 0)
+                else:
+                    if by_see_global:
+                        self._current_time.assign(self._current_time.cycle(),
+                                                  self._current_time.stopped_cycle() + 1)
+            else:
+                self._current_time.assign(new_time, 0)                    
+            
         def hear_parser(self, message: str):
             self.parse_cycle_info(message, False)
+
             _, cycle, sender = tuple(
                 message.split(" ")[:3]
             )
@@ -56,6 +84,13 @@ class CoachAgent(SoccerAgent):
 
         def hear_player_parser(self, message):
             pass
+        
+        def update_server_status(self):
+            if self._server_cycle_stopped:
+                self._server_cycle_stopped = False
+            
+            if self._game_mode.is_server_cycle_stopped_mode():
+                self._server_cycle_stopped = True
         
         def hear_referee_parser(self, message: str):
             mode = message.split(" ")[-1].strip(")")
@@ -100,7 +135,7 @@ class CoachAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6001)):
+        if not self._client.connect_to(IPAddress('localhost', 6002)):
             debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
@@ -117,6 +152,7 @@ class CoachAgent(SoccerAgent):
                 self._client.recv_message(message_and_address)
                 message = message_and_address[0]
                 server_address = message_and_address[1]
+                debug_print(f"CM: {message}, {server_address}")
                 if len(message) != 0:
                     self.parse_message(message.decode())
                 elif time.time() - last_time_rec > 3:
@@ -129,7 +165,6 @@ class CoachAgent(SoccerAgent):
 
             if not self._client.is_server_alive():
                 debug_print("Pyrus Agent : Server Down")
-                # debug_print("Pyrus Agent", self._world.self_unum(), ": Server Down")
                 break
 
             if self._impl.think_received:
@@ -138,22 +173,19 @@ class CoachAgent(SoccerAgent):
             # TODO elif for not sync mode
 
     def parse_message(self, message):
-        if message.find("(init") is not -1: # TODO Use startwith instead of find
+        if message.find("(init") != -1: # TODO Use startwith instead of find
             self._impl.analyze_init(message)
-        if message.find("server_param") is not -1:
+        if message.find("server_param") != -1:
             ServerParam.i().parse(message)
-        elif message.find("(hear"):
-            self._impl.analyze_hear(message)
-        elif message.find("(change_player_type") is not -1:
+        elif message.find("(change_player_type") != -1:
             self._impl.analyze_change_player_type(message)
-        elif message.find("see_global") is not -1 or message.find("(player_type") is not -1:
-            self._world.parse(message)
-            dlog._time = self.world().time().copy()
+        elif message.find("see_global") != -1 or message.find("(player_type") != -1:
+            self._impl.see_parser(message)
         elif message.find("(hear") != -1:
             self._impl.hear_parser(message)
-        elif message.find("think") is not -1:
+        elif message.find("think") != -1:
             self._impl._think_received = True
-        elif message.find("(ok") is not -1:
+        elif message.find("(ok") != -1:
             self._client.send_message(CoachDoneCommand().str())
 
     def init_dlog(self, message):
@@ -172,6 +204,7 @@ class CoachAgent(SoccerAgent):
         # PlayerCommandReverser.reverse(commands) # unused :\ # its useful :) # nope not useful at all :(
         commands.append(CoachDoneCommand())
         for com in commands:
+            debug_print(f"CMS: {com.str()}")
             self._client.send_message(com.str())
         dlog.flush()
         self._last_body_command = []

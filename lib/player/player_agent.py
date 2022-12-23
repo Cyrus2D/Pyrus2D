@@ -32,7 +32,6 @@ class PlayerAgent(SoccerAgent):
             self._agent: PlayerAgent = agent
             self._think_received = False
             self._current_time: GameTime = GameTime()
-            self._server_cycle_stopped: bool = False
             self._last_decision_time: GameTime = GameTime()
 
             self._body = BodySensor()

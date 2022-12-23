@@ -29,9 +29,10 @@ class GlobalWorldModel:
         self._freeform_allowed_count: int = ServerParam.i().coach_say_count_max()  
         self._freeform_send_count: int = 0
         
-        self._subsititute_count: dict[SideID, int] = 0
-        self._subsititute_count[SideID.LEFT] = 0
-        self._subsititute_count[SideID.RIGHT] = 0
+        self._subsititute_count: dict[SideID, int] = {
+            SideID.LEFT: 0,
+            SideID.RIGHT: 0
+        }
         
         self._our_player_type_id: list[int] = [HETERO_DEFAULT for _ in range(11)]
         self._their_player_type_id: list[int] = [HETERO_DEFAULT for _ in range(11)]
