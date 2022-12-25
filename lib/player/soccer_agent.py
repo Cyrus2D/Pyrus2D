@@ -8,8 +8,10 @@ class SoccerAgent:
 
     def init(self,
              client: BasicClient,
+             goalie: bool = False,
              argv: list = None) -> bool:
         self._client = client
+        self._goalie = goalie
 
     def init_impl(self,
                   cmd_parser: CmdLineParser) -> bool:

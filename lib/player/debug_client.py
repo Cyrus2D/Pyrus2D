@@ -3,6 +3,8 @@ import socket
 
 from lib.rcsc.types import Card, SideID
 
+import team_config
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
@@ -96,8 +98,8 @@ class DebugClient:
         self._on = True
         self._connected = True
         self._socket = self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._ip = 'localhost'
-        self._port = 6032
+        self._ip = team_config.HOST
+        self._port = team_config.DEBUG_CLIENT_PORT
 
         self._server_log = None
 
@@ -114,7 +116,7 @@ class DebugClient:
         self._rectangles = []
         self._circles = []
 
-    def connect(self, hostname='localhost', port=6032):
+    def connect(self, hostname=team_config.HOST, port=team_config.DEBUG_CLIENT_PORT):
         pass
 
     def open(self, log_dir, teamname, unum):

@@ -15,6 +15,8 @@ from lib.rcsc.server_param import ServerParam
 from lib.debug.debug_print import debug_print
 from lib.rcsc.types import HETERO_DEFAULT, HETERO_UNKNOWN, GameModeType
 
+import team_config
+
 # TODO PLAYER PARAMS?
 
 class CoachAgent(SoccerAgent):
@@ -32,7 +34,7 @@ class CoachAgent(SoccerAgent):
             # TODO check reconnection
 
             # TODO make config class for these data
-            com = CoachInitCommand("Pyrus", 15) # TODO CONFIG
+            com = CoachInitCommand(team_config.TEAM_NAME, 15)
 
             if self._agent._client.send_message(com.str()) <= 0:
                 debug_print("ERROR failed to connect to server")
@@ -118,8 +120,8 @@ class CoachAgent(SoccerAgent):
                 unum, type = int(data[1]), int(data[2].removesuffix(')\x00'))
                 self._agent.world().change_player_type(self._agent.world().our_side(), unum, type)
             elif n == 2:
-                unum = int(data[1])
-                self._agent.world().change_player_type(self._agent.world().their_side()(), unum, HETERO_UNKNOWN)
+                unum = int(data[1].removesuffix(')\x00'))
+                self._agent.world().change_player_type(self._agent.world().their_side(), unum, HETERO_UNKNOWN)
 
     def __init__(self):
         super().__init__()
@@ -138,7 +140,7 @@ class CoachAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6002)):
+        if not self._client.connect_to(IPAddress(team_config.HOST, team_config.COACH_PORT)):
             debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
@@ -157,6 +159,8 @@ class CoachAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
+                    last_time_rec = time.time()
+                    break
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
@@ -166,7 +170,7 @@ class CoachAgent(SoccerAgent):
                     break
 
             if not self._client.is_server_alive():
-                debug_print("Pyrus Agent : Server Down")
+                debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
             if self._impl.think_received:
@@ -185,6 +189,7 @@ class CoachAgent(SoccerAgent):
             self._impl.analyze_change_player_type(message)
         elif message.find("(see") != -1 or message.find("(player_type") != -1:
             self._impl.see_parser(message)
+            self._impl._think_received = True
         elif message.find("(hear") != -1:
             self._impl.hear_parser(message)
         elif message.find("think") != -1:

@@ -5,7 +5,7 @@ from lib.player.basic_client import BasicClient
 import sys
 
 
-def main(team_name="Pyrus"):
+def main():
     agent = SampleTrainer()
     client = BasicClient()
     agent.init(client)

@@ -66,7 +66,7 @@ class PlayerMessageParser:
             msg = message[seek: next_seek].strip(" ()").split(" ")
             k = -1
             kk = 0
-            if msg[3] == 'g':
+            if msg[3] == 'g' or msg[3] == 'goalie)':
                 k = 0
             player_dic = {
                 "unum": msg[2].strip("()"),

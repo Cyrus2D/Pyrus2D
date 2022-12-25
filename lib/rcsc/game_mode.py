@@ -88,6 +88,9 @@ class GameMode:
 
     def update(self, mode: str, current_time: GameTime):
         mode = mode[:mode.find(')')]
+        if mode.startswith("yellow") or mode.startswith("red"):
+            return False
+        
         n_under_line = len(mode.split("_"))
         game_mode: GameModeType = None
         if mode.startswith("goal_l"):
@@ -101,6 +104,7 @@ class GameMode:
         
         if game_mode is None:
             game_mode = GameModeType(mode)
+        return True
         
         if (self._game_mode.is_goalie_catch_ball()
             and game_mode.is_free_kick()

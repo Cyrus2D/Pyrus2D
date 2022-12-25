@@ -4,6 +4,8 @@ from lib.debug.debug_print import debug_print
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.types import HETERO_DEFAULT, HETERO_UNKNOWN
 
+import team_config
+
 def real_speed_max(lhs: PlayerType, rhs: PlayerType) -> bool:
     if abs(lhs.real_speed_max() - rhs.real_speed_max()) < 0.005:
         return lhs.cycles_to_reach_max_speed() < rhs.cycles_to_reach_max_speed()
@@ -59,8 +61,8 @@ class SampleCoach(CoachAgent):
         
     def subsititute_to(self, unum, type):
         if self.world().time().cycle() > 0 and self.world().our_subsititute_count() >= 3: # TODO PLAYER PARAM
-            print(f"(sample coach subsititute to) WARNING: {'PYRUS'} coach: over the substitution max."
-                  f"cannot change player({unum}) to {type}") # TODO TEAMNAME CONF
+            print(f"(sample coach subsititute to) WARNING: {team_config.TEAM_NAME} coach: over the substitution max."
+                  f"cannot change player({unum}) to {type}")
             return
         
         if type not in self.world().available_player_type_id(): # IMP FUNC
@@ -91,7 +93,7 @@ class SampleCoach(CoachAgent):
                 continue
             
             if candidate.cycles_to_reach_max_speed() == min_cycle:
-                if candidate.get_one_step_stamina_consumption() < best_type.get_one_step_stamina_consumption(): # TODO IMP FUNC
+                if candidate.get_one_step_stamina_consumption() < best_type.get_one_step_stamina_consumption():
                     best_type = candidate
                     max_speed = best_type.real_speed_max()
         

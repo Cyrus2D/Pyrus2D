@@ -18,3 +18,8 @@ build/
 binary/
 
 test.py
+
+*.txt
+log
+.gitignore
+test-log

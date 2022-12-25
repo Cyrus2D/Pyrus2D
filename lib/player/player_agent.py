@@ -26,6 +26,8 @@ from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.debug.debug_print import debug_print
 from lib.messenger.messenger import Messenger
 
+import team_config
+
 class PlayerAgent(SoccerAgent):
     class Impl:
         def __init__(self, agent):
@@ -38,9 +40,10 @@ class PlayerAgent(SoccerAgent):
             
             self._visual: VisualSensor = VisualSensor()
             self._see_state: SeeState = SeeState()
-            self._team_name = "Pyrus" # TODO REMOVE IT
+            self._team_name = team_config.TEAM_NAME
             
             self._game_mode: GameMode = GameMode()
+            super().__init__()
             self._server_cycle_stopped: bool = True
             
             dlog._time = self._current_time
@@ -48,10 +51,9 @@ class PlayerAgent(SoccerAgent):
         def send_init_command(self):
             # TODO check reconnection
 
-            # TODO make config class for these data
-            com = PlayerInitCommand("Pyrus", 15, False)
+            com = PlayerInitCommand(team_config.TEAM_NAME, 15, self._agent._goalie)
             # TODO set team name from config
-            self._agent._full_world._team_name = "Pyrus"
+            self._agent._full_world._team_name = team_config.TEAM_NAME
 
             if self._agent._client.send_message(com.str()) <= 0:
                 debug_print("ERROR failed to connect to server")
@@ -104,13 +106,18 @@ class PlayerAgent(SoccerAgent):
             elif sender == "referee":
                 self.hear_referee_parser(message)
         
-        def hear_player_parser(self, message):
+        def hear_player_parser(self, message:str):
+            if message.find('"') == -1:
+                return
             data = message.strip('()').split(' ')
             if len(data) < 6:
                 debug_print("(hear player parser) message format is not matched!")
                 return
             player_message = message.split('"')[1]
+            if not data[4].isdigit():
+                return
             sender = int(data[4])
+            
 
             Messenger.decode_all(self._agent.world()._messenger_memory,
                                  player_message,
@@ -119,7 +126,8 @@ class PlayerAgent(SoccerAgent):
         
         def hear_referee_parser(self, message: str):
             mode = message.split(" ")[-1].strip(")")
-            self._game_mode.update(mode, self._current_time)
+            if not self._game_mode.update(mode, self._current_time)
+                return
             
             # TODO CARDS AND OTHER STUFF
             
@@ -192,7 +200,7 @@ class PlayerAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6000)):
+        if not self._client.connect_to(IPAddress(team_config.HOST, team_config.PLAYER_PORT)):
             debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
@@ -222,6 +230,8 @@ class PlayerAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
+                    last_time_rec = time.time()
+                    break
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
@@ -232,15 +242,23 @@ class PlayerAgent(SoccerAgent):
             debug_print(self._impl._think_received)
 
             if not self._client.is_server_alive():
-                debug_print("Pyrus Agent : Server Down")
-                # debug_print("Pyrus Agent", self._world.self_unum(), ": Server Down")
+                debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
+                
+            debug_print(f"ct, lt, st: {self._impl._current_time}, {self._impl._last_decision_time}, {self.world().see_time()}")
+            debug_print(f"sm={ServerParam.i().synch_mode()}")
 
             if self._impl.think_received():
                 debug_print("GOING TO ACTION")
                 self.action()
                 self.debug_players()
                 self._impl._think_received = False
+            elif not ServerParam.i().synch_mode():
+                if (self._impl._last_decision_time != self._impl._current_time
+                    and self.world().see_time() == self._impl._current_time):
+                    
+                    debug_print("GOING TO ACTION")
+                    self.action()
             # TODO elif for not sync mode
 
     def debug_players(self):
@@ -251,7 +269,6 @@ class PlayerAgent(SoccerAgent):
             dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.5, color=Color(string="blue"), fill=True)
 
     def parse_message(self, message):
-        debug_print(f"MSG: {message}")
         if message.find("(init") != -1:
             self.parse_init(message)
         elif message.find("server_param") != -1:

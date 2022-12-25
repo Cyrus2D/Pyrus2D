@@ -14,6 +14,8 @@ from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
 from lib.debug.debug_print import debug_print
 
+import team_config
+
 
 class TrainerAgent(SoccerAgent):
     class Impl:
@@ -61,7 +63,7 @@ class TrainerAgent(SoccerAgent):
 
         # TODO check for config.host not empty
 
-        if not self._client.connect_to(IPAddress('localhost', 6001)):
+        if not self._client.connect_to(IPAddress(team_config.HOST, team_config.TRAINER_PORT)):
             debug_print("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
@@ -80,6 +82,8 @@ class TrainerAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
+                    last_time_rec = time.time()
+                    break
                 elif time.time() - last_time_rec > 3:
                     ("TIME")
                     self._client.set_server_alive(False)
@@ -90,8 +94,7 @@ class TrainerAgent(SoccerAgent):
                     break
 
             if not self._client.is_server_alive():
-                debug_print("Pyrus Agent : Server Down")
-                # debug_print("Pyrus Agent", self._world.self_unum(), ": Server Down")
+                debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
             if self._impl.think_received:
@@ -104,8 +107,9 @@ class TrainerAgent(SoccerAgent):
             self._impl.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
-        elif message.find("see_global") is not -1 or message.find("player_type") is not -1:
+        elif message.find("(see") is not -1 or message.find("(player_type") is not -1:
             self._full_world.parse(message)
+            self._impl._think_received = False
             dlog._time = self.world().time().copy()
         elif message.find("think") is not -1:
             self._impl._think_received = True
