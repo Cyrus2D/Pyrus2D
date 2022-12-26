@@ -18,8 +18,9 @@ class SelfObject(PlayerObject):
     FACE_COUNT_THR = 5
     DEBUG = True
     
-    def __init__(self):
+    def __init__(self, player: PlayerObject = None):
         super().__init__()
+
         self._time: GameTime = GameTime()
         self._sense_body_time: GameTime = GameTime()
 
@@ -60,7 +61,29 @@ class SelfObject(PlayerObject):
         self._last_move: Vector2D = Vector2D(0,0)
         self._last_moves: list[Vector2D] = [Vector2D(0,0) for _ in range(4)]
         
+        self._kickable = False
+        
         self._arm_movable: int = 0
+        if player:
+            self._unum = player._unum
+            self._pos = player._pos
+            self._vel = player._vel
+            self._side = player._side
+            self._body = player._body
+            self._neck = player._neck
+            self._goalie = player._goalie
+            self._player_type_id = player._player_type_id
+            self._stamina_model = player._stamina_model
+            self._kick = player._kick
+            self._tackle = player._tackle
+            self._charged = player._charged
+            self._card = player._card
+            self._card = player._card
+            self._kickrate = player._kickrate
+            self._rpos_count = 0
+            self._vel_count = 0
+            self._pos_count = 0
+            self._body_count = 0
     
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side

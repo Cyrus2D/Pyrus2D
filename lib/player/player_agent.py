@@ -77,6 +77,8 @@ class PlayerAgent(SoccerAgent):
             self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
         
         def visual_parser(self, message: str):
+            if ServerParam.i().is_fullstate(self._agent.world().our_side()):
+                return
             self.parse_cycle_info(message, False)
             
             self._visual.parse(message,
@@ -126,7 +128,7 @@ class PlayerAgent(SoccerAgent):
         
         def hear_referee_parser(self, message: str):
             mode = message.split(" ")[-1].strip(")")
-            if not self._game_mode.update(mode, self._current_time)
+            if not self._game_mode.update(mode, self._current_time):
                 return
             
             # TODO CARDS AND OTHER STUFF
@@ -258,8 +260,7 @@ class PlayerAgent(SoccerAgent):
                     and self.world().see_time() == self._impl._current_time):
                     
                     debug_print("GOING TO ACTION")
-                    self.action()
-            # TODO elif for not sync mode
+                    self.action() # TODO CHECK
 
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
@@ -268,28 +269,22 @@ class PlayerAgent(SoccerAgent):
         if self.world().ball().pos_valid():
             dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.5, color=Color(string="blue"), fill=True)
 
-    def parse_message(self, message):
-        if message.find("(init") != -1:
+    def parse_message(self, message: str):
+        if message.startswith("(init"):
             self.parse_init(message)
-        elif message.find("server_param") != -1:
+        if message.startswith("(server_param"):
             ServerParam.i().parse(message)
-        elif message.find("sense_body") != -1:
+        if message.startswith("(sense_body"):
             self._impl.sense_body_parser(message)
-
-            # TODO make function for these things
-            if KickTable.instance().create_tables():
-                debug_print("KICKTABLE CREATE")
-            else:
-                debug_print("KICKTABLE Faild")
-        elif message.find("(see") != -1:
+            KickTable.instance().create_tables()
+        if message.startswith("(see"):
             self._impl.visual_parser(message)
-        elif message.find("(hear") != -1:
+        if message.startswith("(hear"):
             self._impl.hear_parser(message)
-        elif message.find("fullstate") != -1 or message.find("player_type") != -1 or message.find(
-                "sense_body") != -1 or message.find("(init") != -1:
-            self._full_world.parse(message)
+        if message.startswith("(fullstate") or message.startswith("(player_type") or message.startswith("(sense_body") or message.startswith("(init"):
+            self._world.parse(message)
             # dlog._time = self.world().time().copy()
-        elif message.find("think") != -1:
+        if message.startswith("(think"):
             self._impl._think_received = True
 
     def do_dash(self, power, angle=0):
@@ -376,6 +371,7 @@ class PlayerAgent(SoccerAgent):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
+        
         
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
         # TODO FULL STATE

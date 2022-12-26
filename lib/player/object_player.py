@@ -12,6 +12,7 @@ from lib.rcsc.types import UNUM_UNKNOWN, SideID, Card, ViewQuality, ViewWidth
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.localizer import Localizer
+    from lib.player.world_model import WorldModel
 
 
 
@@ -28,14 +29,13 @@ class PlayerObject(Object):
         self._side: SideID = SideID.NEUTRAL
         self._body: AngleDeg = AngleDeg(0)
         self._goalie: bool = False
-        self._player_type: PlayerType = None
+        self._player_type: PlayerType = PlayerType()
         self._player_type_id: int = None
         self._pointto_angle: float = 0
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
-        self._kickable: bool = False 
         self._kickrate: float = 0.0
         self._face: float = 0
         
@@ -83,49 +83,16 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        self._kickable: bool = False
         self._kickrate: float = 0.0
-
+        self._rpos_count = 0
+        self._vel_count = 0
+        self._pos_count = 0
+        self._body_count = 0
+        self._ghost_count = 0
+        
     # update other data
     def _update_more_with_full_state(self, wm):
-        ball = wm.ball()
-        self._kickable = False
-        self._kickrate = 0.0
-
-        self._dist_from_ball = ball.pos().dist(self._pos)
-        self._angle_from_ball = (self._pos - wm.ball().pos()).th() + AngleDeg(180.0)
-
-        dlog.add_text(Level.KICK, f"_dist_from_ball={self._dist_from_ball}")
-        # -----------------------------------------------------
-        # check kickable
-
-        if self._dist_from_ball <= self._player_type.kickable_area():
-            buf = 0.055
-            if self._dist_from_ball <= self.player_type().kickable_area() - buf:
-                self._kickable = True
-
-            self._kickrate = kick_rate(self._dist_from_ball,
-                                       (self._angle_from_ball - self._body).degree(),
-                                       self.player_type().kick_power_rate(),
-                                       SP.i().ball_size(),
-                                       self.player_type().player_size(),
-                                       self.player_type().kickable_margin())
-        dlog.add_text(Level.KICK, f"_kickable={self._kickable}")
-
-        # relative pos
-
-        #
-        # # kickable
-        # if self.player_type() is not None:  # TODO its wrong
-        #     if self.pos().dist(wm.ball().pos()) < self.player_type().kickable_area():
-        #         self._kickable = True
-        #     else:
-        #         self._kickable = False
-        #
-        # # dist from ball
-        # self._dist_from_ball = self.pos().dist(wm.ball().pos())
-
-        # def update_ball_info(self, wm):
+        self._rpos = self.pos() - wm.self().pos()
 
     def reverse_more(self):
         self._body.reverse()
@@ -242,7 +209,7 @@ class PlayerObject(Object):
     def pos_valid(self):
         return self.pos_count() < PlayerObject.POS_COUNT_THR
 
-    def update(self):
+    def update(self, wm: 'WorldModel'):
         self._pos_history = [self._pos] + self._pos_history
         if len(self._pos_history) > 100:
             self._pos_history = self._pos_history[:-1]
@@ -250,6 +217,7 @@ class PlayerObject(Object):
         if self.vel_valid():
             self._pos += self.vel()
         
+
         self._unum_count = min(1000, self._unum_count + 1)
         self._pos_count = min(1000, self._pos_count + 1)
         self._seen_pos_count = min(1000, self._seen_pos_count + 1)

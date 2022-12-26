@@ -45,10 +45,13 @@ class BallObject(Object):
         data = string.split(" ")
         self._pos = Vector2D(float(data[0]), float(data[1]))
         self._vel = Vector2D(float(data[2]), float(data[3]))
+        self._rpos_count = 0
+        self._vel_count = 0
+        self._pos_count = 0
+        self._ghost_count = 0
 
     def _update_more_with_full_state(self, wm):
-        self._dist_from_self = wm.self().pos().dist(self._pos)
-        self._angle_from_self = (wm.self().pos() - self._pos).th()
+        self._rpos = self.pos() - wm.self().pos()
 
     def dist_from_self(self):
         return self._dist_from_self

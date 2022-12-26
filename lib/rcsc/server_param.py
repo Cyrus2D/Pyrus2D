@@ -1,6 +1,7 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
 from lib.math.soccer_math import *
+from lib.rcsc.types import SideID
 # import lib.math.soccer_math as smath
 
 DEFAULT_MAX_PLAYER = 11
@@ -1434,6 +1435,11 @@ class _ServerParam:  # TODO specific TYPES and change them
     def actual_half_time(self):
 
         return self._half_time * 10
+    
+    def is_fullstate(self, side: SideID):
+        if side == SideID.LEFT:
+            return self.fullstate_l()
+        return self.fullstate_r()
 
 # TODO we can use function, instance instance class
 # like:

@@ -66,13 +66,13 @@ class dlog:
                  end: Vector2D = None,
                  color: Color = Color(string="red")):
         if x1 is not None:
-            dlog._commands += f"{dlog._time} {level.value} l {x1} {y1} {x2} {y2} {color}\n"
+            dlog._commands += f"{dlog._time.cycle()} {level.value} l {x1} {y1} {x2} {y2} {color}\n"
         elif start is not None:
             dlog.add_line(level, start.x(), start.y(), end.x(), end.y(), color=color)
 
     @staticmethod
     def add_text(level: Level = Level.LEVEL_ANY, message: str = ""):
-        dlog._commands += f"{dlog._time} {level.value} M {message}\n"  # TODO flush if message size is so large like 8192 and bigger
+        dlog._commands += f"{dlog._time.cycle()} {level.value} M {message}\n"  # TODO flush if message size is so large like 8192 and bigger
 
     @staticmethod
     def add_circle(level: Level = Level.LEVEL_ANY,
@@ -84,7 +84,7 @@ class dlog:
                    fill: bool = False,
                    color: Color = Color(string='red'), ):
         if cx is not None:
-            dlog._commands += f"{dlog._time} {level.value} {'C' if fill else 'c'} {cx} {cy} {r} {color}\n"
+            dlog._commands += f"{dlog._time.cycle()} {level.value} {'C' if fill else 'c'} {cx} {cy} {r} {color}\n"
         elif center is not None:
             dlog.add_circle(level, r, center._x, center._y, color=color, fill=fill)
         elif cicle is not None:
@@ -97,7 +97,7 @@ class dlog:
                   pos: Vector2D = None,
                   color: Color = Color(string='red')):
         if x is not None:
-            dlog._commands += f"{dlog._time} {level.value} p {x} {y} {color}"
+            dlog._commands += f"{dlog._time.cycle()} {level.value} p {x} {y} {color}"
         elif pos is not None:
             dlog.add_point(level, pos.x(), pos.y(), color=color)
 
@@ -106,12 +106,12 @@ class dlog:
                     x,
                     y,
                     msg):
-        dlog._commands += f"{dlog._time} {level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
+        dlog._commands += f"{dlog._time.cycle()} {level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
 
     # {color}\n
     @staticmethod
     def flush():
-        debug_print(f"dlog time = {dlog._time}")
+        debug_print(f"dlog time = {dlog._time.cycle()}")
         if dlog._time is None or dlog._time.cycle() == 0:
             return
         dlog.debug(dlog._commands)

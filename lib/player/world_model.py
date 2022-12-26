@@ -149,7 +149,6 @@ class WorldModel:
     def parse(self, message):
         if message.find("fullstate") != -1:
             self.fullstate_parser(message)
-            self.update()
         if message.find("(init") != -1:
             self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
@@ -168,20 +167,28 @@ class WorldModel:
         # TODO vmode counters and arm
 
         self._ball.init_str(parser.dic()['b'])
+        self._teammates.clear()
+        self._opponents.clear()
+        self._unknown_players.clear()
 
         for player_dic in parser.dic()['players']:
             player = PlayerObject()
             player.init_dic(player_dic)
             player.set_player_type(self._player_types[player.player_type_id()])
             if player.side().value == self._our_side:
-                self._our_players[player.unum() - 1] = player
+                if player.unum() == self._self_unum:
+                    self._self = SelfObject(player)
+                self._teammates.append(player)
             elif player.side() == SideID.NEUTRAL:
-                self._unknown_players[player.unum() - 1] = player
+                self._unknown_players.append(player)
             else:
-                self._their_players[player.unum() - 1] = player
-        if self.self().side() == SideID.RIGHT:
+                self._opponents.append(player)
+        if self._our_side == SideID.RIGHT:
             self.reverse()
-
+        
+        for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
+            o._update_more_with_full_state(self)
+        
         # debug_print(self)
 
     def __repr__(self):
@@ -357,6 +364,12 @@ class WorldModel:
 
     def opponents_from_ball(self):
         return self._opponents_from_ball
+    
+    def teammates_from_self(self):
+        return self._teammates_from_self
+    
+    def opponents_from_self(self):
+        return self._opponents_from_self
 
     def _set_teammates_from_ball(self):
         self._teammates_from_ball = []
@@ -373,6 +386,9 @@ class WorldModel:
     
     def see_time(self):
         return self._see_time
+    
+    def sense_body_time(self):
+        return self._sense_body_time
 
     def exist_kickable_opponents(self):
         return self._exist_kickable_opponents
@@ -486,15 +502,15 @@ class WorldModel:
             self._unknown_players.clear()
         
         for p in self._teammates:
-            p.update()
+            p.update(self)
         self._teammates = list(filter(lambda p: p.pos_count() < 30,self._teammates))
 
         for p in self._opponents:
-            p.update()
+            p.update(self)
         self._opponents = list(filter(lambda p: p.pos_count() < 30,self._opponents))
         
         for p in self._unknown_players:
-            p.update()
+            p.update(self)
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
     
     def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D) -> tuple[Vector2D, int]:
@@ -994,11 +1010,11 @@ class WorldModel:
                                 if SP.half_time() > 0 and SP.nr_normal_halfs() > 0
                                 else 0)
             if current_time.cycle() < normal_time:
-                for i in range(1,12):
+                for i in range(11):
                     self._our_recovery[i] = 1
                     self._our_stamina_capacity[i] = SP.stamina_capacity()
             else:
-                for i in range(1,12):
+                for i in range(11):
                     self._our_stamina_capacity[i] = SP.stamina_capacity()
         
         self._game_mode = game_mode.copy()
@@ -1038,7 +1054,9 @@ class WorldModel:
     
     def update_player_state_cache(self):
         if not self.self().pos_valid() or not self.ball().pos_valid():
+            debug_print("##########UPSC INVALID")
             return
+        debug_print("##########UPSC VALID")
         
         self.create_set_player(self._teammates,
                                self._teammates_from_self,
@@ -1189,6 +1207,8 @@ class WorldModel:
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
+            
+        debug_print("########UJBD")
         
         self.update_ball_by_hear(act)
         self.update_players_by_hear()        

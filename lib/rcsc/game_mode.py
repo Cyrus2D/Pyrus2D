@@ -104,7 +104,6 @@ class GameMode:
         
         if game_mode is None:
             game_mode = GameModeType(mode)
-        return True
         
         if (self._game_mode.is_goalie_catch_ball()
             and game_mode.is_free_kick()
@@ -118,6 +117,7 @@ class GameMode:
             self._side = self._game_mode.side()
         
         self._time = current_time.copy()
+        return True
     
     def is_server_cycle_stopped_mode(self):
         return self._game_mode in [
