@@ -5,7 +5,7 @@ from base.bhv_move import BhvMove
 from lib.debug.debug_print import debug_print
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
-from lib.rcsc.types import GameModeType
+from lib.rcsc.types import GameModeType, ViewWidth
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -18,6 +18,8 @@ def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
     st.update(wm)
+    
+    agent.do_change_view(ViewWidth.WIDE)
     
     if wm.self().unum() == 5: # TODO REMOVE IT
         agent.add_say_message(BallPosVelMessenger())

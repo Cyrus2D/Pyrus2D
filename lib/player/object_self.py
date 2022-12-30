@@ -118,8 +118,8 @@ class SelfObject(PlayerObject):
         return self._kickable
     
     def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
-        self._view_width = vw.copy()
-        self._view_quality = vq.copy()
+        self._view_width = vw
+        self._view_quality = vq
     
     def update(self, act: ActionEffector, current_time: GameTime):
         if self._time == current_time:

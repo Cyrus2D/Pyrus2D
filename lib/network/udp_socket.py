@@ -1,6 +1,8 @@
 import socket
 from lib.debug.debug_print import debug_print
 
+import team_config
+
 MAX_BUFF_SIZE = 8192
 
 
@@ -30,7 +32,7 @@ class UDPSocket:
         self._ip: IPAddress = ip_address
         debug_print(self._ip)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.settimeout(3)  # TODO isn't this risky?!?!?
+        self._sock.settimeout(team_config.SOCKET_INTERVAL)
         self._receive_first_message = False
 
     def send_msg(self, msg: str):

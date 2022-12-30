@@ -81,7 +81,7 @@ class SeeState:
                 dlog.add_text(Level.SYSTEM, "see_state: update after see: estimated synch, but duplicated")
         else:
             self.set_new_cycle(see_time)
-            self._last_see_time = see_time
+            self._last_see_time = see_time.copy()
             self._current_see_count = 1
 
         if vq == ViewQuality.LOW:
@@ -92,9 +92,9 @@ class SeeState:
             dlog.add_text(Level.SYSTEM, "see state: update by see: but no synch")
             return
 
-        if self._cycles_till_next_see > 0:
-            self._cycles_till_next_see = 0
-            self.set_view_mode(vw, vq)
+        # if self._cycles_till_next_see > 0:
+        self._cycles_till_next_see = 0
+        self.set_view_mode(vw, vq)
 
         new_timing: Timing = self._get_next_timing(vw, vq)
         if new_timing == Timing.TIME_NOSYNCH:

@@ -40,7 +40,7 @@ class PlayerChangeViewCommand(PlayerSupportCommand):
         return CommandType.CHANGE_VIEW
 
     def str(self):
-        return f"(change_view {self._width}" + (f" {self._quality})" if not SeeState.synch_see_mode() else ")")
+        return f"(change_view {self._width.value}" + (f" {self._quality.value})" if not SeeState.synch_see_mode() else ")")
 
     def width(self):
         return self._width

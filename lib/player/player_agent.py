@@ -1,4 +1,3 @@
-from itertools import cycle
 import logging
 import time
 
@@ -28,6 +27,9 @@ from lib.messenger.messenger import Messenger
 
 import team_config
 
+def get_time_msec():
+    return int(time.time()*1000)
+
 class PlayerAgent(SoccerAgent):
     class Impl:
         def __init__(self, agent):
@@ -45,6 +47,8 @@ class PlayerAgent(SoccerAgent):
             self._game_mode: GameMode = GameMode()
             super().__init__()
             self._server_cycle_stopped: bool = True
+            
+            self._body_time_stamp:int = None
             
             dlog._time = self._current_time
 
@@ -65,6 +69,8 @@ class PlayerAgent(SoccerAgent):
             self._agent._client.set_server_alive(False)
 
         def sense_body_parser(self, message: str):
+            self._body_time_stamp = get_time_msec()
+            
             self.parse_cycle_info(message, True)
 
             dlog.add_text(Level.SENSOR, "Receive body sensor")
@@ -185,6 +191,53 @@ class PlayerAgent(SoccerAgent):
 
         def think_received(self):
             return self._think_received
+        
+        def is_decision_time(self, msec_from_sense: int, timeout_count: int):
+            SP = ServerParam.i()
+            
+            if SP.synch_mode():
+                debug_print("A")
+                return False
+            
+            if msec_from_sense < 0:
+                debug_print("B")
+                return False
+            
+            if self._last_decision_time == self._current_time:
+                debug_print("C")
+                return False
+            
+            if self._agent.world().self().unum() == UNUM_UNKNOWN:
+                debug_print("D")
+                return False
+            
+            if self._agent.world().see_time() == self._current_time:
+                debug_print("F")
+                return True
+            
+            wait_thr:int = (team_config.WAIT_TIME_THR_SYNCH_VIEW
+                            if self._see_state.is_synch()
+                            else team_config.WAIT_TIME_THR_NOSYNCH_VIEW)
+            
+            if self._last_decision_time == self._agent.world().sense_body_time() and timeout_count <= 2:
+                debug_print("G")
+                return False
+            
+            if SeeState.synch_see_mode() and SP.synch_see_offset() > wait_thr and msec_from_sense >= 0:
+                debug_print("H")
+                return True
+            
+            if self._see_state.is_synch() and self._see_state.cycles_till_next_see() > 0:
+                debug_print("I")
+                return True
+            
+            if msec_from_sense >= wait_thr * SP.slow_down_factor():
+                debug_print("J")
+                return True
+            debug_print("K")
+            return False
+            
+            
 
     def __init__(self):
         super().__init__()
@@ -223,6 +276,8 @@ class PlayerAgent(SoccerAgent):
 
     def run(self):
         last_time_rec = time.time()
+        waited_msec:int = 0
+        timeout_count:int = 0
         while True:
             message_and_address = []
             message_count = 0
@@ -232,8 +287,12 @@ class PlayerAgent(SoccerAgent):
                 server_address = message_and_address[1]
                 if len(message) != 0:
                     self.parse_message(message.decode())
+
                     last_time_rec = time.time()
+                    waited_msec = 0
+                    timeout_count = 0
                     break
+
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
@@ -241,7 +300,10 @@ class PlayerAgent(SoccerAgent):
                 if self._impl.think_received():
                     last_time_rec = time.time()
                     break
-            debug_print(self._impl._think_received)
+                
+                waited_msec+= team_config.SOCKET_INTERVAL
+                timeout_count += 1
+                self.handle_timeout(timeout_count, waited_msec)
 
             if not self._client.is_server_alive():
                 debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
@@ -251,7 +313,7 @@ class PlayerAgent(SoccerAgent):
             debug_print(f"sm={ServerParam.i().synch_mode()}")
 
             if self._impl.think_received():
-                debug_print("GOING TO ACTION")
+                debug_print("GOING TO ACTION THINK")
                 self.action()
                 self.debug_players()
                 self._impl._think_received = False
@@ -259,8 +321,17 @@ class PlayerAgent(SoccerAgent):
                 if (self._impl._last_decision_time != self._impl._current_time
                     and self.world().see_time() == self._impl._current_time):
                     
-                    debug_print("GOING TO ACTION")
+                    debug_print("GOING TO ACTION SEE")
                     self.action() # TODO CHECK
+    
+    def handle_timeout(self, timeout_count: int, waited_msec: int):
+        msec_from_sense = -1
+        if self._impl._body_time_stamp:
+            msec_from_sense = get_time_msec() - self._impl._body_time_stamp
+        
+        if self._impl.is_decision_time(msec_from_sense, timeout_count):
+            debug_print("GOING TO ACTION TIMEOUT")
+            self.action()
 
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
@@ -372,6 +443,8 @@ class PlayerAgent(SoccerAgent):
                 or self.world().self().unum() != self.world().self_unum()):
             return
         
+        debug_print(f"###################CYCLE{self.world().time().cycle()}")
+        debug_print(f"cycle_till_next_see={self._impl._see_state.cycles_till_next_see()}")
         
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
         # TODO FULL STATE
@@ -380,6 +453,8 @@ class PlayerAgent(SoccerAgent):
         
 
         get_decision(self)
+        
+        self._impl._last_decision_time = self._impl._current_time.copy()
         
         self.world().update_just_after_decision(self._effector)
         self._impl._see_state.set_view_mode(self.world().self().view_width(),
