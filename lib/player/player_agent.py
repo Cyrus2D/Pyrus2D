@@ -437,6 +437,9 @@ class PlayerAgent(SoccerAgent):
     
     def effector(self):
         return self._effector
+    
+    def action_impl(self):
+        pass
 
     def action(self):
         if (self.world().self_unum() is None
@@ -452,7 +455,7 @@ class PlayerAgent(SoccerAgent):
         self._effector.reset()
         
 
-        get_decision(self)
+        self.action_impl()
         
         self._impl._last_decision_time = self._impl._current_time.copy()
         

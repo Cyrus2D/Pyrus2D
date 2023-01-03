@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from base.sample_player import SamplePlayer
 from lib.player.basic_client import BasicClient
 from lib.player.player_agent import PlayerAgent
 import sys
@@ -10,7 +11,7 @@ def main(unum, goalie=False):
         sys.stdout = open(f"player-{unum}-log.txt", 'w')
         sys.stderr = open(f"player-{unum}-error.txt", 'w')
     
-    agent = PlayerAgent()
+    agent = SamplePlayer()
     client = BasicClient()
     agent.init(client, goalie)
 
