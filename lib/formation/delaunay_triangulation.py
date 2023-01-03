@@ -74,9 +74,9 @@ class Formation:
         ids = []
         
         point = B.copy()
-        if point.absX() > SP.pitch_half_length():
+        if point.abs_x() > SP.pitch_half_length():
             point._x = min_max(-SP.pitch_half_length(), point.x(), +SP.pitch_half_length())
-        if point.absY() > SP.pitch_half_width():
+        if point.abs_y() > SP.pitch_half_width():
             point._y = min_max(-SP.pitch_half_width(), point.y(), +SP.pitch_half_width())
         
         debug_print(f"(formation update) ballpos={B.is_valid()} {B}")

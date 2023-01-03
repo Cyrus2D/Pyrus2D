@@ -29,7 +29,7 @@ class BhvShhotGen(BhvKickGen):
         goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos()) * 0.042)
         goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos()) * 0.042)
 
-        if wm.self().pos().x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos().absY() < SP.i().goal_half_width():
+        if wm.self().pos().x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos().abs_y() < SP.i().goal_half_width():
             goal_l._x = wm.self().pos().x() + 1.5
             goal_r._x = wm.self().pos().x() + 1.5
 
@@ -125,7 +125,7 @@ class BhvShhotGen(BhvKickGen):
             if opp.pos().x() < opponent_x_thr:
                 dlog.add_text(Level.SHOOT, '## opp {} can not, xthr')
                 continue
-            if opp.pos().absY() > opponent_y_thr:
+            if opp.pos().abs_y() > opponent_y_thr:
                 dlog.add_text(Level.SHOOT, '## opp {} can not, ythr')
                 continue
 
@@ -293,7 +293,7 @@ class BhvShhotGen(BhvKickGen):
 
             y_rate = 1.0
             if it.target_point.dist2(wm.ball().pos()) > y_dist_thr2:
-                y_dist = max(0.0, it.target_point.absY() - 4.0 )
+                y_dist = max(0.0, it.target_point.abs_y() - 4.0 )
                 y_rate = math.exp(-pow(y_dist, 2.0) / (2.0 * pow( sp.goal_half_width() - 1.5, 2)))
 
             score *= goalie_rate

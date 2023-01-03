@@ -131,7 +131,7 @@ class SelfIntercept:
         return (wm.self().goalie() and
                 wm.last_kicker_side() != wm.our_side() and
                 ball_next.x() < x_limit and
-                ball_next.absY() < abs_y_limit)
+                ball_next.abs_y() < abs_y_limit)
 
     def predict_one_dash(self, self_cache):
         tmp_cache = []
@@ -254,7 +254,7 @@ class SelfIntercept:
         dlog.add_text(Level.INTERCEPT,
                       f"_____ max_back_accel={max_back_accel} rel={back_accel_rel}")
 
-        if ball_rel.absY() > control_buf or \
+        if ball_rel.abs_y() > control_buf or \
                 Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
             return False
 
@@ -347,7 +347,7 @@ class SelfIntercept:
 
         # y diff is longer than best dist.
         # just put the ball on player's side
-        if next_ball_rel.absY() > best_ctrl_dist_forward:  # TODO FIX COMPLEX
+        if next_ball_rel.abs_y() > best_ctrl_dist_forward:  # TODO FIX COMPLEX
             return next_ball_rel.x() / dash_rate
         # if next_ball_rel.y()**2 > best_ctrl_dist_forward**2:
         #     return next_ball_rel.x() / dash_rate
@@ -392,7 +392,7 @@ class SelfIntercept:
         pen_area_y = SP.penalty_area_half_width() - 0.5
 
         ball_to_self = (me.pos() - ball.pos()).rotated_vector(-ball.vel().th())
-        min_cycle = int(ceil((ball_to_self.absY() - ptype.kickable_area())
+        min_cycle = int(ceil((ball_to_self.abs_y() - ptype.kickable_area())
                              / ptype.real_speed_max()))
 
         if min_cycle >= max_loop:
@@ -565,7 +565,7 @@ class SelfIntercept:
 
             my_move = my_pos - me.pos()
             if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
-                    my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).absX():
+                    my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).abs_x():
                 mode = (InterceptInfo.Mode.EXHAUST
                         if stamina_model.recovery() < me.stamina_model().recovery()
                            and not stamina_model.capacity_is_empty()
@@ -823,7 +823,7 @@ class SelfIntercept:
         # calc y distance from ball line
         ball_to_self = me.pos() - ball.pos()
         ball_to_self.rotate(-ball.vel().th())
-        start_cycle = int(ceil((ball_to_self.absY()
+        start_cycle = int(ceil((ball_to_self.abs_y()
                                 - ptype.kickable_area()
                                 - 0.2)
                                / ptype.real_speed_max()))
@@ -840,8 +840,8 @@ class SelfIntercept:
             ball_pos += ball_vel
             ball_vel *= SP.ball_decay()
 
-            if ball_pos.absX() > SP.pitch_half_length() + 10 or \
-                    ball_pos.absY() > SP.pitch_half_width() + 10:
+            if ball_pos.abs_x() > SP.pitch_half_length() + 10 or \
+                    ball_pos.abs_y() > SP.pitch_half_width() + 10:
                 break
 
             goalie_mode = self.is_goalie_mode(ball_pos)

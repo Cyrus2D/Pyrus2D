@@ -307,8 +307,8 @@ class SelfObject(PlayerObject):
                 
                 if (estimate_vel.r() > 0.01
                     and body.speed_mag() < estimate_vel.r() *0.2
-                    and (estimate_vel.absX() < 0.08 or estimate_vel.x() * self._vel.x() < 0)
-                    and (estimate_vel.absY() < 0.08 or estimate_vel.y() * self._vel.y() < 0)):
+                    and (estimate_vel.abs_x() < 0.08 or estimate_vel.x() * self._vel.x() < 0)
+                    and (estimate_vel.abs_y() < 0.08 or estimate_vel.y() * self._vel.y() < 0)):
                     
                     self._collision_estimated = True
             
@@ -390,10 +390,10 @@ class SelfObject(PlayerObject):
         foul_fail_prob = 1
         
         if tackle_dist > 1e-5:
-            tackle_fail_prob = ((player2ball.absX()/tackle_dist)**SP.tackle_exponent()
-                                    + (player2ball.absY()/SP.tackle_width())**SP.tackle_exponent())
-            foul_fail_prob = ((player2ball.absX()/tackle_dist)**SP.foul_exponent()
-                                    + (player2ball.absY()/SP.tackle_width())**SP.foul_exponent())
+            tackle_fail_prob = ((player2ball.abs_x()/tackle_dist)**SP.tackle_exponent()
+                                    + (player2ball.abs_y()/SP.tackle_width())**SP.tackle_exponent())
+            foul_fail_prob = ((player2ball.abs_x()/tackle_dist)**SP.foul_exponent()
+                                    + (player2ball.abs_y()/SP.tackle_width())**SP.foul_exponent())
             
         if tackle_fail_prob < 1:
             self._tackle_probability = 1 - tackle_fail_prob
@@ -417,7 +417,7 @@ class SelfObject(PlayerObject):
 
             min_cycle = min(self_reach_cycle, teammate_reach_cycle, opponent_reach_cycle)
             ball_pos = ball.inertia_point(min_cycle)
-            if ball_pos.absX() > ServerParam.i().pitch_half_length() or ball_pos.absY() > ServerParam.i().pitch_half_width():
+            if ball_pos.abs_x() > ServerParam.i().pitch_half_length() or ball_pos.abs_y() > ServerParam.i().pitch_half_width():
                 self._kickable = True
                 return
             

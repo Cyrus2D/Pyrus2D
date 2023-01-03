@@ -15,6 +15,9 @@ from pyrusgeom.soccer_math import *
 from pyrusgeom.ray_2d import Ray2D
 from pyrusgeom.circle_2d import Circle2D
 from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.rect_2d import Rect2D
+from pyrusgeom.size_2d import Size2D
+from pyrusgeom.math_values import EPSILON
 from lib.rcsc.game_time import *
 from lib.debug.debug_print import debug_print
 
@@ -480,7 +483,7 @@ class _KickTable:
         else:
             dir_div = STATE_DIVS_FAR
 
-        self._current_state.index_ = (rint(dir_div * rint(angle.degree() + 180.0) / 360.0))
+        self._current_state.index_ = (round(dir_div * round(angle.degree() + 180.0) / 360.0))
         if self._current_state.index_ >= dir_div:
             self._current_state.index_ = 0
 
@@ -656,9 +659,9 @@ class _KickTable:
             #
             tackle_dist = ServerParam.i().tackle_dist() if player_2_pos.x() > 0.0 else ServerParam.i().tackle_back_dist()
             if tackle_dist > EPSILON:
-                tackle_prob = (pow(player_2_pos.absX() / tackle_dist,
+                tackle_prob = (pow(player_2_pos.abs_x() / tackle_dist,
                                    ServerParam.i().tackle_exponent()) + pow(
-                    player_2_pos.absY() / ServerParam.i().tackle_width(),
+                    player_2_pos.abs_y() / ServerParam.i().tackle_width(),
                     ServerParam.i().tackle_exponent()))
                 if tackle_prob < 1.0 and 1.0 - tackle_prob > 0.7:  # success probability
                     flag |= TACKLEABLE
@@ -670,11 +673,11 @@ class _KickTable:
                          * player_type.dash_power_rate()
                          * player_type.effort_max())
 
-            if player_2_pos.absY() < control_area and (
-                    player_2_pos.absX() < max_accel or (player_2_pos + Vector2D(max_accel, 0.0)).r() < control_area or (
+            if player_2_pos.abs_y() < control_area and (
+                    player_2_pos.abs_x() < max_accel or (player_2_pos + Vector2D(max_accel, 0.0)).r() < control_area or (
                     player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area):
                 flag |= NEXT_KICKABLE
-            elif (player_2_pos.absY() < ServerParam.i().tackle_width() * 0.7
+            elif (player_2_pos.abs_y() < ServerParam.i().tackle_width() * 0.7
                   and player_2_pos.x() > 0.0
                   and player_2_pos.x() - max_accel < ServerParam.i().tackle_dist() - 0.3):
                 flag |= NEXT_TACKLEABLE
@@ -764,9 +767,9 @@ class _KickTable:
 
                     tackle_dist = ServerParam.i().tackle_dist() if player_2_pos.x() > 0.0 else ServerParam.i().tackle_back_dist()
                     if tackle_dist > EPSILON:
-                        tackle_prob = (pow(player_2_pos.absX() / tackle_dist,
+                        tackle_prob = (pow(player_2_pos.abs_x() / tackle_dist,
                                            ServerParam.i().tackle_exponent()) + pow(
-                            player_2_pos.absY() / ServerParam.i().tackle_width(),
+                            player_2_pos.abs_y() / ServerParam.i().tackle_width(),
                             ServerParam.i().tackle_exponent()))
                         if tackle_prob < 1.0 and 1.0 - tackle_prob > 0.8:  # success probability
                             state.flag_ |= MAYBE_RELEASE_INTERFERE
@@ -774,13 +777,13 @@ class _KickTable:
                     max_accel = (ServerParam.i().max_dash_power()
                                  * player_type.dash_power_rate()
                                  * player_type.effort_max()) * 0.8
-                    if (player_2_pos.absY() < control_area - 0.1
-                            and (player_2_pos.absX() < max_accel
+                    if (player_2_pos.abs_y() < control_area - 0.1
+                            and (player_2_pos.abs_x() < max_accel
                                  or (player_2_pos + Vector2D(max_accel, 0.0)).r() < control_area - 0.25
                                  or (player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area - 0.25)):
                         state.flag_ |= MAYBE_RELEASE_INTERFERE
 
-                    elif (player_2_pos.absY() < ServerParam.i().tackle_width() * 0.7
+                    elif (player_2_pos.abs_y() < ServerParam.i().tackle_width() * 0.7
                           and player_2_pos.x() - max_accel < ServerParam.i().tackle_dist() - 0.5):
                         state.flag_ |= MAYBE_RELEASE_INTERFERE
 
@@ -975,7 +978,7 @@ class _KickTable:
 
         target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
         angle_deg = target_rel_angle.degree() + 180.0
-        target_angle_index = rint(DEST_DIR_DIVS * (angle_deg / 360.0))
+        target_angle_index = round(DEST_DIR_DIVS * (angle_deg / 360.0))
         if target_angle_index >= DEST_DIR_DIVS:
             target_angle_index = 0
 

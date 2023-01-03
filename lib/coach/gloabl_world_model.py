@@ -220,13 +220,13 @@ class GlobalWorldModel:
         if self.our_side() is SideID.NEUTRAL:
             return
         
-        self._our_player_type_used_count = [0 for _ in range(player_types)]
+        self._our_player_type_used_count = [0 for _ in range(18)]
         for i in range(11):
             pt = self._our_player_type_id[i]
             if pt != HETERO_UNKNOWN:
                 self._our_player_type_used_count[pt] += 1
         
-        self._their_player_type_used_count = [0 for _ in range(player_types)]
+        self._their_player_type_used_count = [0 for _ in range(18)]
         for i in range(11):
             pt = self._their_player_type_id[i]
             if pt != HETERO_UNKNOWN:

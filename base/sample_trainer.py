@@ -20,7 +20,7 @@ class SampleTrainer(TrainerAgent):
 
         wm = self.world()
         ballpos = wm.ball().pos()
-        if ballpos.absX() > 10 or ballpos.absY() > 10:
+        if ballpos.abs_x() > 10 or ballpos.abs_y() > 10:
             for i in range(1, 12):
                 self.do_move_player(wm.team_name_l(), i, Vector2D(-40, i * 5 - 30))
             self.do_move_ball(Vector2D(0, 0), Vector2D(0, 0))

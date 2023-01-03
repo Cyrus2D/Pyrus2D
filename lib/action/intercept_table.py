@@ -143,7 +143,7 @@ class InterceptTable:
                 # ball stopped
                 break
 
-            if ball_pos.absX() > pitch_max_x or ball_pos.absY() > pitch_max_y:
+            if ball_pos.abs_x() > pitch_max_x or ball_pos.abs_y() > pitch_max_y:
                 # out of pitch
                 break
 

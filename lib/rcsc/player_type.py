@@ -278,13 +278,13 @@ class PlayerType:
         
         ball_rel_min_angle = ball_rel.rotated_vector(-SP.i().min_catch_angle())
         if (0 < ball_rel_min_angle.x() < self.reliable_catch_length()  - dist_buf
-            and ball_rel_min_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            and ball_rel_min_angle.abs_y() < SP.i().catch_area_w() * 0.5 - dist_buf):
 
             return SP.i().catch_probability()
         
         ball_rel_max_angle = ball_rel.rotated_vector(-SP.i().max_catch_angle())
         if (0 < ball_rel_max_angle.x() < self.reliable_catch_length()  - dist_buf
-            and ball_rel_max_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            and ball_rel_max_angle.abs_y() < SP.i().catch_area_w() * 0.5 - dist_buf):
 
             return SP.i().catch_probability()
         
@@ -300,7 +300,7 @@ class PlayerType:
             return self.get_catch_probability(dist=ball_dist+dist_buf)
         
         if (0 < ball_rel_min_angle.x() < self.max_catch_length()  - dist_buf
-            and ball_rel_min_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            and ball_rel_min_angle.abs_y() < SP.i().catch_area_w() * 0.5 - dist_buf):
             
             fail_prob = (ball_rel_min_angle.x - catch_length_min_x + dist_buf) / (catch_stretch_length_x*2)
             if fail_prob < 0:
@@ -311,7 +311,7 @@ class PlayerType:
                 return (1 - fail_prob) * SP.i().catch_probability()
             
         if (0 < ball_rel_max_angle.x() < self.max_catch_length()  - dist_buf
-            and ball_rel_max_angle.absY() < SP.i().catch_area_w() * 0.5 - dist_buf):
+            and ball_rel_max_angle.abs_y() < SP.i().catch_area_w() * 0.5 - dist_buf):
             
             fail_prob = (ball_rel_max_angle.x - catch_length_min_x + dist_buf) / (catch_stretch_length_x*2)
             if fail_prob < 0:

@@ -54,7 +54,7 @@ class BhvDribbleGen(BhvKickGen):
                     dlog.add_text(Level.DRIBBLE, '#dash angle:{} cancel is not safe1'.format(dash_angle))
                 continue
 
-            if wm.self().pos().x() < -36.0 and wm.self().pos().absY() < 20.0 and dash_angle.abs() > 45.0:
+            if wm.self().pos().x() < -36.0 and wm.self().pos().abs_y() < 20.0 and dash_angle.abs() > 45.0:
                 if debug_dribble:
                     dlog.add_text(Level.DRIBBLE, '#dash angle:{} cancel is not safe2'.format(dash_angle))
                 continue
@@ -102,9 +102,9 @@ class BhvDribbleGen(BhvKickGen):
 
         for n_dash in range(max_dash, min_dash - 1, -1):
             self.index += 1
-            ball_trap_pos = self_cache[n_turn + n_dash] + trap_rel
+            ball_trap_pos:Vector2D = self_cache[n_turn + n_dash] + trap_rel
 
-            if ball_trap_pos.absX() > max_x or ball_trap_pos.absY() > max_y:
+            if ball_trap_pos.abs_x() > max_x or ball_trap_pos.abs_y() > max_y:
                 if debug_dribble:
                     dlog.add_text(Level.DRIBBLE,
                                   '#index:{} target:{} our of field'.format(self.index, ball_trap_pos))
@@ -212,7 +212,7 @@ class BhvDribbleGen(BhvKickGen):
             control_area = (sp._catchable_area
                             if opp.goalie()
                                and ball_trap_pos.x() > sp.their_penalty_area_line_x()
-                               and ball_trap_pos.absY() < sp.penalty_area_half_width()
+                               and ball_trap_pos.abs_y() < sp.penalty_area_half_width()
                             else ptype.kickable_area())
 
             opp_pos = opp.inertia_point( dribble_step )

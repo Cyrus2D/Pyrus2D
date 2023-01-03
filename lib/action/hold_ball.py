@@ -13,6 +13,9 @@ from lib.action.basic_actions import TurnToPoint
 from lib.player.soccer_action import BodyAction
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
+from pyrusgeom.rect_2d import Rect2D
+from pyrusgeom.size_2d import Size2D
+from pyrusgeom.line_2d import Line2D
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -171,8 +174,8 @@ class HoldBall(BodyAction):
 
             # near side point
             near_pos = my_next + unit_pos.set_length_vector(near_dist)
-            if (near_pos.absX() < max_pitch_x
-                    and near_pos.absY() < max_pitch_y):
+            if (near_pos.abs_x() < max_pitch_x
+                    and near_pos.abs_y() < max_pitch_y):
                 ball_move = near_pos - wm.ball().pos()
                 kick_accel = ball_move - wm.ball().vel()
 
@@ -186,8 +189,8 @@ class HoldBall(BodyAction):
                                                     DEFAULT_SCORE))
             # middle point
             mid_pos = my_next + unit_pos.set_length_vector(mid_dist)
-            if (mid_pos.absX() < max_pitch_x
-                    and mid_pos.absY() < max_pitch_y):
+            if (mid_pos.abs_x() < max_pitch_x
+                    and mid_pos.abs_y() < max_pitch_y):
                 ball_move = mid_pos - wm.ball().pos()
                 kick_accel = ball_move - wm.ball().vel()
                 kick_power = kick_accel.r() / wm.self().kick_rate()
@@ -212,8 +215,8 @@ class HoldBall(BodyAction):
 
             # far side point
             far_pos = my_next + unit_pos.set_length_vector(far_dist)
-            if (far_pos.absX() < max_pitch_x
-                    and far_pos.absY() < max_pitch_y):
+            if (far_pos.abs_x() < max_pitch_x
+                    and far_pos.abs_y() < max_pitch_y):
                 ball_move = far_pos - wm.ball().pos()
                 kick_accel = ball_move - wm.ball().vel()
                 kick_power = kick_accel.r() / wm.self().kick_rate()
@@ -332,9 +335,9 @@ class HoldBall(BodyAction):
             #
             tackle_dist = param.tackle_dist() if (player_2_pos.x() > 0.0) else param.tackle_back_dist()
             if tackle_dist > 1.0e-5:
-                tackle_prob = (pow(player_2_pos.absX() / tackle_dist,
+                tackle_prob = (pow(player_2_pos.abs_x() / tackle_dist,
                                    param.tackle_exponent())
-                               + pow(player_2_pos.absY() / param.tackle_width(),
+                               + pow(player_2_pos.abs_y() / param.tackle_width(),
                                      param.tackle_exponent()))
                 if (tackle_prob < 1.0
                         and 1.0 - tackle_prob > 0.7):  # success probability
@@ -347,13 +350,13 @@ class HoldBall(BodyAction):
                          * player_type.dash_power_rate()
                          * player_type.effort_max())
 
-            if (player_2_pos.absY() < control_area
+            if (player_2_pos.abs_y() < control_area
                     and player_2_pos.x() > 0.0
-                    and (player_2_pos.absX() < max_accel
+                    and (player_2_pos.abs_x() < max_accel
                          or (player_2_pos - Vector2D(max_accel, 0.0)).r() < control_area + 0.1)):
                 # next kickable
                 score -= 20.0
-            elif (player_2_pos.absY() < param.tackle_width() * 0.7
+            elif (player_2_pos.abs_y() < param.tackle_width() * 0.7
                   and player_2_pos.x() > 0.0
                   and player_2_pos.x() - max_accel < param.tackle_dist() - 0.25):
                 score -= 10.0
@@ -380,8 +383,8 @@ class HoldBall(BodyAction):
         my_next = wm.self().pos() + wm.self().vel()
         ball_next = wm.ball().pos() + wm.ball().vel()
 
-        if (ball_next.absX() > max_pitch_x
-                or ball_next.absY() > max_pitch_y):
+        if (ball_next.abs_x() > max_pitch_x
+                or ball_next.abs_y() > max_pitch_y):
             return False
 
         my_noise = wm.self().vel().r() * param.player_rand()
@@ -431,8 +434,8 @@ class HoldBall(BodyAction):
 
         front_pos = my_next + Vector2D.polar2vector(front_keep_dist, wm.self().body())
 
-        if (front_pos.absX() > max_pitch_x
-                or front_pos.absY() > max_pitch_y):
+        if (front_pos.abs_x() > max_pitch_x
+                or front_pos.abs_y() > max_pitch_y):
             return False
 
         ball_move = front_pos - wm.ball().pos()
@@ -491,8 +494,8 @@ class HoldBall(BodyAction):
             keep_pos = my_inertia + Vector2D.polar2vector(keep_dist, keep_angle)
 
             keep_dist -= 0.05
-            if (keep_pos.absX() > max_pitch_x
-                    or keep_pos.absY() > max_pitch_y):
+            if (keep_pos.abs_x() > max_pitch_x
+                    or keep_pos.abs_y() > max_pitch_y):
                 continue
 
             ball_move = keep_pos - wm.ball().pos()

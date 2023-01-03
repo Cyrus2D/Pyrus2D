@@ -173,14 +173,14 @@ class Intercept:
             ball_pos = wm.ball().inertia_point(cycle)
             ball_vel = wm.ball().vel() * SP.ball_decay() ** cycle
 
-            if ball_pos.absX() > max_pitch_x or \
-                    ball_pos.absY() > max_pitch_y:
+            if ball_pos.abs_x() > max_pitch_x or \
+                    ball_pos.abs_y() > max_pitch_y:
                 continue
 
             if (wm.self().goalie()
                     and wm.last_kicker_side() != wm.our_side()
                     and ball_pos.x() < penalty_x - 1
-                    and ball_pos.absY() < penalty_y - 1
+                    and ball_pos.abs_y() < penalty_y - 1
                     and cycle < opp_min - 1):
                 if ((cache[i].turn_cycle() == 0
                      and cache[i].ball_dist() < wm.self().player_type().catchable_area() * 0.5)
@@ -267,7 +267,7 @@ class Intercept:
         fastest_vel = wm.ball().vel() * SP.ball_decay() ** cache[0].reach_cycle()
 
         if ((fastest_pos.x() > -33
-             or fastest_pos.absY() > 20)
+             or fastest_pos.abs_y() > 20)
                 and (cache[0].reach_cycle() >= 10
                      or fastest_vel.r() < 1.2)):
             return cache[0]
@@ -384,7 +384,7 @@ class Intercept:
 
         faced_rel = target_point - my_inertia
         faced_rel.rotate(face_angle)
-        if faced_rel.absY() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
+        if faced_rel.abs_y() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
             return False
 
         dlog.add_text(Level.INTERCEPT,
@@ -421,7 +421,7 @@ class Intercept:
             buf = 0.3
             if info.reach_cycle() >= 8:
                 buf = 0
-            elif target_rel.absY() > ptype.kickable_area() - 0.25:
+            elif target_rel.abs_y() > ptype.kickable_area() - 0.25:
                 buf = 0
             elif target_rel.x() < 0:
                 if info.reach_cycle() >= 3:
@@ -429,7 +429,7 @@ class Intercept:
             elif target_rel.x() < 0.3:
                 if info.reach_cycle() >= 3:
                     buf = 0.5
-            elif target_rel.absY() < 0.5:
+            elif target_rel.abs_y() < 0.5:
                 if info.reach_cycle() >= 3:
                     buf = 0.5
                 if info.reach_cycle() == 2:
@@ -450,7 +450,7 @@ class Intercept:
         if (wm.ball().seen_pos_count() <= 2
                 and wm.ball().vel().r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
                 and info.dash_angle().abs() < 5
-                and target_rel.absX() < (ptype.kickable_area()
+                and target_rel.abs_x() < (ptype.kickable_area()
                                          + ptype.dash_rate(wm.self().effort())
                                          * ServerParam.i().max_dash_power()
                                          * 0.8)):
@@ -470,7 +470,7 @@ class Intercept:
                 used_power = wm.self().get_safety_dash_power(used_power)
 
         if (info.reach_cycle() >= 4
-                and (target_rel.absX() < 0.5
+                and (target_rel.abs_x() < 0.5
                      or abs(used_power) < 5)):
             my_inertia = wm.self().inertia_point(info.reach_cycle())
             face_point = self._face_point

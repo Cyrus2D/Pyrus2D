@@ -52,7 +52,7 @@ class Tools:
         if target_to_player.x() < -1.0:
             return -1
         else:
-            return max( 1, int(target_to_player.absY() / player_speed_max))
+            return max( 1, int(target_to_player.abs_y() / player_speed_max))
 
     @staticmethod
     def get_nearest_teammate_unum(wm: 'WorldModel', position: Vector2D, unums=[x for x in range(1, 12)]):

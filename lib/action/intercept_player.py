@@ -32,7 +32,7 @@ class PlayerIntercept:
         min_cycle = 0
         ball_to_player = player_pos - wm.ball().pos()
         ball_to_player.rotate(-wm.ball().vel().th())
-        min_cycle = int(floor(ball_to_player.absY()
+        min_cycle = int(floor(ball_to_player.abs_y()
                               / player_type.real_speed_max()))
 
         if player.is_tackling():
@@ -51,8 +51,8 @@ class PlayerIntercept:
             ball_pos: Vector2D = self._ball_cache[cycle]
             control_area = (player_type.catchable_area()
                             if (player.goalie()
-                                and ball_pos.absX() > penalty_x_abs
-                                and ball_pos.absY() < penalty_y_abs)
+                                and ball_pos.abs_x() > penalty_x_abs
+                                and ball_pos.abs_y() < penalty_y_abs)
                             else player_type.kickable_area())
 
             if (control_area + player_type.real_speed_max() * (cycle + pos_count) + 0.5
@@ -86,8 +86,8 @@ class PlayerIntercept:
 
         control_area = (player_type.catchable_area()
                         if (player.goalie()
-                            and ball_pos.absX() > penalty_x_abs
-                            and ball_pos.absY() < penalty_y_abs)
+                            and ball_pos.abs_x() > penalty_x_abs
+                            and ball_pos.abs_y() < penalty_y_abs)
                         else player_type.kickable_area())
 
         n_turn = self.predict_turn_cycle(100,

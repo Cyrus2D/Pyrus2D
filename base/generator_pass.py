@@ -77,7 +77,7 @@ class BhvPassGen(BhvKickGen):
         min_direct_pass_dist = receiver.player_type().kickable_area() * 2.2
         if receiver.pos().x() > sp.pitch_half_length() - 1.5 \
                 or receiver.pos().x() < -sp.pitch_half_length() + 5.0 \
-                or receiver.pos().absY() > sp.pitch_half_width() - 1.5:
+                or receiver.pos().abs_y() > sp.pitch_half_width() - 1.5:
             if debug_pass:
                 dlog.add_text(Level.PASS, '#DPass to {} {}, out of field'.format(t, receiver.pos()))
             return
@@ -106,7 +106,7 @@ class BhvPassGen(BhvKickGen):
 
         if wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right] \
                 and receive_point.x < sp.our_penalty_area_line_x() + 1.0 \
-                and receive_point.absY() < sp.penalty_area_half_width() + 1.0:
+                and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
             if debug_pass:
                 dlog.add_text(Level.PASS,
                               '#DPass to {} {}, in penalty area in goal kick mode'.format(t, receiver.pos()))
@@ -176,7 +176,7 @@ class BhvPassGen(BhvKickGen):
                 move_dist_penalty_step = int(player_line_dist * 0.3)
                 if receive_point.x() > sp.pitch_half_length() - 3.0 \
                         or receive_point.x() < -sp.pitch_half_length() + 5.0 \
-                        or receive_point.absY() > sp.pitch_half_width() - 3.0:
+                        or receive_point.abs_y() > sp.pitch_half_width() - 3.0:
                     if debug_pass:
                         dlog.add_text(Level.PASS, '#LPass to {} {}, out of field'.format(t, receive_point))
                     continue
@@ -189,7 +189,7 @@ class BhvPassGen(BhvKickGen):
 
                 if wm.game_mode().type() in [GameModeType.GoalKick_Right, GameModeType.GoalKick_Left] \
                         and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
-                        and receive_point.absY() < sp.penalty_area_half_width() + 1.0:
+                        and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
                     if debug_pass:
                         dlog.add_text(Level.PASS, '#LPass to {} {}, in penalty area'.format(t, receive_point))
                     return
