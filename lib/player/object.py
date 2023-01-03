@@ -1,4 +1,4 @@
-from lib.math.geom_2d import *
+from pyrusgeom.geom_2d import *
 
 
 class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of the value, the reference is enough

@@ -1,7 +1,8 @@
+from lib.debug.debug_print import debug_print
 from lib.parser.parser_message_params import MessageParamsParser
 from lib.rcsc.server_param import ServerParam as SP # TODO SP.i()?!?!
-import lib.math.soccer_math as smath
-from lib.math.geom_2d import *
+import pyrusgeom.soccer_math as smath
+from pyrusgeom.geom_2d import *
 
 
 class PlayerType:

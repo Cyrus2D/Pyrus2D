@@ -4,7 +4,7 @@ from lib.action.intercept_self import SelfIntercept
 from lib.debug.color import Color
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam

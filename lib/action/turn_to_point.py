@@ -1,4 +1,4 @@
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

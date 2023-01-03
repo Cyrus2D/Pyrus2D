@@ -13,7 +13,7 @@ from lib.player_command.player_command_support import PlayerAttentiontoCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 from typing import List
 from lib.debug.debug_print import debug_print
 

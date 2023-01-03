@@ -7,7 +7,7 @@ from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
 from base.bhv_block import Bhv_Block
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 
 from typing import TYPE_CHECKING
 

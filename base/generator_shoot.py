@@ -1,6 +1,6 @@
 from lib.debug.logger import dlog, Level, Color
-from lib.math.geom_2d import *
-import lib.math.soccer_math as smath
+from pyrusgeom.geom_2d import *
+import pyrusgeom.soccer_math as smath
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
 import time

@@ -4,7 +4,7 @@
 """
 
 from lib.player.soccer_action import *
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 from lib.rcsc.server_param import ServerParam
 
 from typing import TYPE_CHECKING

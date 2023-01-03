@@ -1,8 +1,8 @@
 from math import floor
 
-from lib.math.angle_deg import AngleDeg
-from lib.math.soccer_math import bound, inertia_n_step_point
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.soccer_math import bound, inertia_n_step_point
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam

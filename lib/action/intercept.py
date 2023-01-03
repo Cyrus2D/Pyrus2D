@@ -7,8 +7,8 @@ from lib.action.intercept_table import InterceptTable
 from lib.debug.color import Color
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.rcsc.server_param import ServerParam
 

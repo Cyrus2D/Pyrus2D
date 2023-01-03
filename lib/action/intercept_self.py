@@ -4,11 +4,11 @@ from math import ceil
 from lib.action.intercept_info import InterceptInfo
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.angle_deg import AngleDeg
-from lib.math.line_2d import Line2D
-from lib.math.segment_2d import Segment2D
-from lib.math.soccer_math import bound, frange, calc_first_term_geom_series, min_max
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.line_2d import Line2D
+from pyrusgeom.segment_2d import Segment2D
+from pyrusgeom.soccer_math import bound, calc_first_term_geom_series, min_max
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
 from lib.player.stamina_model import StaminaModel
@@ -155,8 +155,10 @@ class SelfIntercept:
                           if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
                           else dash_angle_step * int(180 / dash_angle_step) - 1)
         dlog.add_text(Level.INTERCEPT, f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
-
-        for dirr in frange(min_dash_angle, max_dash_angle, dash_angle_step):
+        
+        n_steps = int((max_dash_angle - min_dash_angle)/ dash_angle_step)
+        dirs = [min_dash_angle + d*dash_angle_step for d in range(n_steps)]
+        for dirr in dirs:
             dash_angle: AngleDeg = me.body() + SP.discretize_dash_angle(SP.normalize_dash_angle(dirr))
             dash_rate: float = me.dash_rate() * SP.dash_dir_rate(dirr)
             dlog.add_text(Level.INTERCEPT, f"self pred one dash dir={dirr}, angle={dash_angle}, dash_rate={dash_rate}")
@@ -363,7 +365,8 @@ class SelfIntercept:
         # debug_print("forward_trap_accel_x:", forward_trap_accel_x, "| backward_trap_accel_x :", backward_trap_accel_x,
         #       "| X_step :",
         #       x_step)
-        for accel_x in frange(forward_trap_accel_x, backward_trap_accel_x + 0.01, x_step):
+        accels = [forward_trap_accel_x + a*x_step for a in range(5)]
+        for accel_x in accels:
             if (0 <= accel_x < max_forward_accel_x) or \
                     (max_back_accel_x < accel_x < 0):
                 power = accel_x / dash_rate
@@ -490,7 +493,10 @@ class SelfIntercept:
                           else dash_angle_step * int(180 / dash_angle_step) - 1)
 
         target_angle = (ball_pos - my_inertia).th()
-        for dirr in frange(min_dash_angle, max_dash_angle, dash_angle_step):
+        
+        n_steps = int((max_dash_angle - min_dash_angle)/ dash_angle_step)
+        dirs = [min_dash_angle + d*dash_angle_step for d in range(n_steps)]
+        for dirr in dirs:
             if abs(dirr) < 1:
                 continue
 

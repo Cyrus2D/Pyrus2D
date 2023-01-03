@@ -1,9 +1,9 @@
 from scipy.spatial import Delaunay
-from lib.math.geom_2d import *
+from pyrusgeom.geom_2d import *
 from enum import Enum
 from lib.debug.debug_print import debug_print
 from lib.rcsc.server_param import ServerParam
-from lib.math.soccer_math import min_max
+from pyrusgeom.soccer_math import min_max
 
 class FormationType(Enum):
     Static = 's'

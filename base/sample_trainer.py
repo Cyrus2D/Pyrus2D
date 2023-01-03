@@ -1,6 +1,6 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.trainer_agent import TrainerAgent
 from lib.rcsc.types import GameModeType
 

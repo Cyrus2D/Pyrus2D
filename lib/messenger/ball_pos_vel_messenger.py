@@ -1,5 +1,5 @@
-from lib.math.soccer_math import min_max
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.soccer_math import min_max
+from pyrusgeom.vector_2d import Vector2D
 from lib.messenger.messenger import Messenger
 from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime

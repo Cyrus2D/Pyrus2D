@@ -4,7 +4,7 @@ from lib.action.intercept import Intercept
 from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

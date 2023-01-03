@@ -6,7 +6,7 @@ from base.decision import get_decision
 from lib.debug.level import Level
 from lib.debug.color import Color
 from lib.debug.logger import dlog
-from lib.math.angle_deg import AngleDeg
+from pyrusgeom.angle_deg import AngleDeg
 from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState

@@ -1,6 +1,6 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 from lib.player.object import *
 from lib.player_command.player_command import CommandType
 from lib.rcsc.game_mode import GameMode

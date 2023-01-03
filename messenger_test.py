@@ -1,4 +1,4 @@
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 from lib.player.action_effector import ActionEffector
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.messenger import Messenger

@@ -1,5 +1,5 @@
 from enum import Enum
-from lib.math.geom_2d import *
+from pyrusgeom.geom_2d import *
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

@@ -1,4 +1,4 @@
-from lib.math.geom_2d import *
+from pyrusgeom.geom_2d import *
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.game_mode import GameModeType

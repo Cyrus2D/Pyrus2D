@@ -6,7 +6,8 @@ import functools
 
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
+from pyrusgeom.angle_deg import AngleDeg
 from lib.action.stop_ball import StopBall
 from lib.action.basic_actions import TurnToPoint
 from lib.player.soccer_action import BodyAction
@@ -162,7 +163,8 @@ class HoldBall(BodyAction):
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
         current_speed_rate = 0.5 + 0.5 * (wm.ball().vel().r() / (param.ball_speed_max() * param.ball_decay()))
 
-        for d in frange(-180.0, 180.0, dir_step):
+        angles = [-180 + a*dir_step for a in range(dir_divs)]
+        for d in angles:
             angle = AngleDeg(d)
             dir_diff = (angle - wm.self().body()).abs()
             unit_pos = Vector2D.polar2vector(1.0, angle)

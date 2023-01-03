@@ -1,6 +1,6 @@
-from lib.math.angle_deg import AngleDeg
-from lib.math.math_values import DEG2RAD
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.math_values import DEG2RAD
+from pyrusgeom.vector_2d import Vector2D
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
 from lib.player.sensor.visual_sensor import VisualSensor

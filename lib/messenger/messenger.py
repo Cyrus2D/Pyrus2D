@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.vector_2d import Vector2D
 from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
 

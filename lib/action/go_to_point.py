@@ -1,7 +1,7 @@
 # from lib.player.player_agent import *
 from lib.rcsc.server_param import ServerParam as SP
-import lib.math.soccer_math as smath
-from lib.math.geom_2d import *
+import pyrusgeom.soccer_math as smath
+from pyrusgeom.geom_2d import *
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

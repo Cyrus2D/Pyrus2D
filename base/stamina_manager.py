@@ -1,5 +1,5 @@
 from lib.rcsc.server_param import ServerParam as SP
-import lib.math.soccer_math as smath
+import pyrusgeom.soccer_math as smath
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

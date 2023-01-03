@@ -1,5 +1,5 @@
-from lib.math.angle_deg import AngleDeg
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.vector_2d import Vector2D
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import SideID, Card

@@ -1,4 +1,4 @@
-from lib.math.geom_2d import *
+from pyrusgeom.geom_2d import *
 import socket
 
 from lib.rcsc.types import Card, SideID

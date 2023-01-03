@@ -1,7 +1,7 @@
 from enum import Enum, unique, auto
 
-from lib.math.angle_deg import AngleDeg
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.vector_2d import Vector2D
 from lib.rcsc.types import GameModeType
 from lib.debug.debug_print import debug_print
 

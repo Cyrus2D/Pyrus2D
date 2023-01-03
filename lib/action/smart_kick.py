@@ -10,7 +10,7 @@ from lib.action.hold_ball import HoldBall
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.rcsc.server_param import ServerParam
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 from lib.debug.debug_print import debug_print
 
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 #  from lib.player.player_agent import *
-# from lib.math.soccer_math import *
+# from pyrusgeom.soccer_math import *
 
 
 class SmartKick(BodyAction):

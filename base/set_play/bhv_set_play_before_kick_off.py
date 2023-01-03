@@ -1,6 +1,6 @@
 from lib.debug.level import Level
 from lib.debug.logger import dlog
-from lib.math.angle_deg import AngleDeg
+from pyrusgeom.angle_deg import AngleDeg
 from base.strategy_formation import StrategyFormation
 
 class Bhv_BeforeKickOff:

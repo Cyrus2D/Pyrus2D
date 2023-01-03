@@ -1,7 +1,7 @@
 from enum import Enum
 
-from lib.math.angle_deg import AngleDeg
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.vector_2d import Vector2D
 
 
 class InterceptInfo:

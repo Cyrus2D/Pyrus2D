@@ -2,8 +2,8 @@ import logging
 import time
 
 from lib.debug.logger import dlog
-from lib.math.angle_deg import AngleDeg
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.vector_2d import Vector2D
 from lib.network.udp_socket import IPAddress
 from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent

@@ -11,7 +11,10 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
+from pyrusgeom.ray_2d import Ray2D
+from pyrusgeom.circle_2d import Circle2D
+from pyrusgeom.angle_deg import AngleDeg
 from lib.rcsc.game_time import *
 from lib.debug.debug_print import debug_print
 
@@ -277,13 +280,13 @@ def calc_max_velocity(target_angle: AngleDeg,
     desired_ray = Ray2D(Vector2D(0.0, 0.0), target_angle)
     next_reachable_circle = Circle2D(ball_vel, max_accel)
 
-    num = next_reachable_circle.intersection(ray=desired_ray)
-    vel1 = num[1]
-    vel2 = num[2]
-    if num[0] == 0:
+    num = next_reachable_circle.intersection(desired_ray)
+    if len(num) == 0:
         return Vector2D(0.0, 0.0)
-
-    if num[0] == 1:
+    
+    vel1 = num[0]
+    
+    if len(num) == 1:
         if vel1.r2() > ball_speed_max2:
             # next inertia ball point is within reachable circle.
             if next_reachable_circle.contains(Vector2D(0.0, 0.0)):
@@ -296,6 +299,7 @@ def calc_max_velocity(target_angle: AngleDeg,
 
         return vel1
 
+    vel2 = num[1]
     #
     # num == 2
     #   ball reachable circle does not contain the current ball pos.

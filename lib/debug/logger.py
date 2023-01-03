@@ -2,8 +2,8 @@ import logging
 
 from lib.debug.color import Color
 from lib.debug.level import Level
-from lib.math.circle_2d import Circle2D
-from lib.math.vector_2d import Vector2D
+from pyrusgeom.circle_2d import Circle2D
+from pyrusgeom.vector_2d import Vector2D
 from lib.rcsc.game_time import GameTime
 from lib.debug.debug_print import debug_print
 

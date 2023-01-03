@@ -1,8 +1,8 @@
 from lib.parser.parser_message_params import MessageParamsParser
 import math
-from lib.math.soccer_math import *
+from pyrusgeom.soccer_math import *
 from lib.rcsc.types import SideID
-# import lib.math.soccer_math as smath
+# import pyrusgeom.soccer_math as smath
 
 DEFAULT_MAX_PLAYER = 11
 DEFAULT_PITCH_LENGTH = 105.0
