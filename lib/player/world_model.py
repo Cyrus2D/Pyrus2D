@@ -9,6 +9,7 @@ from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParse
 from lib.player.object_self import SelfObject
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player.view_area import ViewArea
 from lib.player_command.player_command_support import PlayerAttentiontoCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
@@ -39,6 +40,10 @@ def player_valid_check(p: PlayerObject):
 
 class WorldModel:
     DEBUG = True
+    
+    DIR_CONF_DIVS = 72
+    DIR_STEP = 360. / DIR_CONF_DIVS
+    
     def __init__(self):
         self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = None
@@ -107,6 +112,8 @@ class WorldModel:
         self._all_players: list[PlayerObject] = []
         
         self._messenger_memory: MessengerMemory = MessengerMemory()
+
+        self._dir_count:list[int] = [1000 for _ in range(WorldModel.DIR_CONF_DIVS)] 
         
     
     def init(self,
@@ -512,6 +519,8 @@ class WorldModel:
         for p in self._unknown_players:
             p.update(self)
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
+
+        self._dir_count = [c+1 for c in self._dir_count]
     
     def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D) -> tuple[Vector2D, int]:
         SP = ServerParam.i()
@@ -975,6 +984,14 @@ class WorldModel:
         self.localize_ball(see, act)
         self.localize_players(see)
         self.update_player_type()
+        
+        if self.self().pos_count() <= 10 and self.self().view_quality() is ViewQuality.HIGH:
+            varea = ViewArea(self.self().view_width().width(),
+                             self.self().pos(),
+                             self.self().face(),
+                             current_time)
+            # self.check_ghost(varea) # TODO 
+            self.update_dir_count(varea)
 
     def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
@@ -1361,3 +1378,43 @@ class WorldModel:
 
         if heared_pos.is_valid():
             self._ball.update_by_hear(act, min_dist, heared_pos, heared_vel)
+
+    def update_dir_count(self, varea: ViewArea):
+        dir_buf = (WorldModel.DIR_STEP*0.5+1
+                   if self.self().last_move().is_valid()
+                   and self.self().last_move().r() > 0.5
+                   else WorldModel.DIR_STEP * 0.5)
+
+        left_limit = varea.angle() - varea.viewWidth() *0.5 + dir_buf
+        right_limit = varea.angle() + varea.viewWidth() *0.5 - dir_buf
+        
+        left_dir = varea.angle() - varea.viewWidth() *0.5
+        idx = int((left_dir.degree() - 0.5 + 180)/WorldModel.DIR_STEP)
+        
+        dir = AngleDeg(-180 + WorldModel.DIR_STEP*idx)
+        while dir.is_left_of(left_limit):
+            dir += WorldModel.DIR_STEP
+            idx += 1
+            if idx > WorldModel.DIR_CONF_DIVS:
+                idx = 0
+        
+        
+        while dir.is_left_of(right_limit):
+            idx = int((dir.degree() - 0.5 + 180) / WorldModel.DIR_STEP)
+            if idx > WorldModel.DIR_CONF_DIVS - 1:
+                debug_print(f"{self.team_name()}({self.self().unum()}) DIR CONF overflow! idx={idx}")
+                idx = WorldModel.DIR_CONF_DIVS - 1
+            elif idx < 0:
+                debug_print(f"{self.team_name()}({self.self().unum()}) DIR CONF downflow! idx={idx}")
+                idx = 0
+            self._dir_count[idx] = 0
+            dir += WorldModel.DIR_STEP
+    
+    def dir_count(self, angle: Union[AngleDeg, float]):
+        angle = float(angle)
+        
+        idx = int((angle - 0.5 + 180) / WorldModel.DIR_STEP)
+        if not 0 <= idx < WorldModel.DIR_CONF_DIVS:
+            debug_print(f"(world model dir conf) index out of range! idx={idx}")
+            idx = 0
+        return self._dir_count[idx]

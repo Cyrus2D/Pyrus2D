@@ -398,3 +398,14 @@ class ViewWidth(Enum):
 
     def __repr__(self):
         return self.value
+    
+    def width(self):
+        if self is ViewWidth.NARROW:
+            return 60.
+        if self is ViewWidth.NORMAL:
+            return 120.
+        if self is ViewWidth.WIDE:
+            return 180.
+        return 0.
+
+        
