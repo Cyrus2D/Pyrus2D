@@ -34,7 +34,7 @@ class CoachAgent(SoccerAgent):
             # TODO check reconnection
 
             # TODO make config class for these data
-            com = CoachInitCommand(team_config.TEAM_NAME, 15)
+            com = CoachInitCommand(team_config.TEAM_NAME, team_config.COACH_VERSION)
 
             if self._agent._client.send_message(com.str()) <= 0:
                 debug_print("ERROR failed to connect to server")

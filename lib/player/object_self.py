@@ -219,7 +219,8 @@ class SelfObject(PlayerObject):
             self._seen_vel_count = 0
             
             if not self._collision_estimated:
-                self._last_move.assign(v=self._vel/self.player_type().player_decay())
+                new_last_move = self._vel/self.player_type().player_decay()
+                self._last_move.assign(new_last_move.x(), new_last_move.y())
     
     def update_pos_by_see(self, pos: Vector2D, face: float, current_time: GameTime):
         self._time = current_time.copy()
@@ -228,7 +229,8 @@ class SelfObject(PlayerObject):
             and self._seen_pos_count == 1
             and (self._collision_estimated
                  or not self._last_move.is_valid())):
-            self._last_move.assign(v=self._pos - self._seen_pos)
+            new_last_move = self._pos - self._seen_pos
+            self._last_move.assign(new_last_move.x(), new_last_move.y())
 
         self._pos = pos.copy()
         self._seen_pos = pos.copy()
@@ -319,7 +321,8 @@ class SelfObject(PlayerObject):
                 self._pointto_count = 1000
             
             if not self._collision_estimated:
-                self._last_move.assign(v=self._vel / self.player_type().player_decay())
+                new_last_move=self._vel / self.player_type().player_decay()
+                self._last_move.assign(new_last_move.x(), new_last_move.y())
             else:
                 self._last_move.invalidate()
             

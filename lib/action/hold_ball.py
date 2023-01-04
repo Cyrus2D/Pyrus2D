@@ -318,7 +318,7 @@ class HoldBall(BodyAction):
             # check opponent body line
             #
 
-            opp_line = Line2D(origin=opp_next, angle=opp_body)
+            opp_line = Line2D(p=opp_next, a=opp_body)
             line_dist = opp_line.dist(keep_point)
             if line_dist < control_area:
 

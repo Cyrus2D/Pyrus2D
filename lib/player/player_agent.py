@@ -55,7 +55,7 @@ class PlayerAgent(SoccerAgent):
         def send_init_command(self):
             # TODO check reconnection
 
-            com = PlayerInitCommand(team_config.TEAM_NAME, 15, self._agent._goalie)
+            com = PlayerInitCommand(team_config.TEAM_NAME, team_config.PLAYER_VERSION, self._agent._goalie)
             # TODO set team name from config
             self._agent._full_world._team_name = team_config.TEAM_NAME
 

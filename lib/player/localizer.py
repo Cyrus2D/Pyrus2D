@@ -198,7 +198,7 @@ class Localizer:
 
             
             global_dir = marker.dir_ + self_face
-            estimated_pos = marker_pos - Vector2D(r=marker.dist_, theta=global_dir)
+            estimated_pos = marker_pos - Vector2D(r=marker.dist_, a=global_dir)
             
             if Localizer.DEBUG:
                 dlog.add_text(Level.WORLD, f"(localize self) estimated-pos={estimated_pos}")
@@ -231,7 +231,7 @@ class Localizer:
         ball = see.balls()[0]
         global_dir = float(ball.dir_) + self_face
 
-        rpos = Vector2D(r=ball.dist_, theta=global_dir)
+        rpos = Vector2D(r=ball.dist_, a=global_dir)
 
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(localize ball relative) ball: t={ball.dist_}, t={ball.dir_}")
@@ -262,7 +262,7 @@ class Localizer:
         
         global_dir = float(seen_player.dir_) + self_face
         
-        player.rpos_ = Vector2D(r=seen_player.dist_, theta=global_dir)
+        player.rpos_ = Vector2D(r=seen_player.dist_, a=global_dir)
         player.pos_ = self_pos + player.rpos_
         
         if seen_player.has_vel_:

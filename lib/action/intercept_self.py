@@ -478,7 +478,7 @@ class SelfIntercept:
 
         body_angle = me.body() + 180 if back_dash else me.body()
         my_inertia = me.inertia_point(cycle)
-        target_line = Line2D(origin=ball_pos, angle=body_angle)
+        target_line = Line2D(p=ball_pos, a=body_angle)
 
         if target_line.dist(my_inertia) < control_area - 0.4:
             return
@@ -597,7 +597,7 @@ class SelfIntercept:
         max_omni_dash = min(2, cycle)
 
         body_angle = me.body() + 180 if back_dash else me.body()
-        target_line = Line2D(origin=ball_pos, angle=body_angle)
+        target_line = Line2D(p=ball_pos, a=body_angle)
         my_inertia = me.inertia_point(cycle)
 
         if target_line.dist(my_inertia) < control_area - 0.4:

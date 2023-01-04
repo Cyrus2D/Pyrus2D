@@ -169,12 +169,12 @@ class BhvDribbleGen(BhvKickGen):
         my_pos += my_vel
         my_vel *= ptype.player_decay()
 
-        self_cache.append(Vector2D(vector2d=my_pos))
+        self_cache.append(Vector2D(my_pos))
 
         for i in range(n_turn):
             my_pos += my_vel
             my_vel *= ptype.player_decay()
-            self_cache.append(Vector2D(vector2d=my_pos))
+            self_cache.append(Vector2D(my_pos))
             stamina_model.simulate_waits(ptype, 1 + n_turn)
 
         unit_vec = Vector2D.polar2vector(1.0, dash_angle)
@@ -189,7 +189,7 @@ class BhvDribbleGen(BhvKickGen):
                 my_vel *= ptype.player_decay()
 
                 stamina_model.simulate_dash(ptype, dash_power)
-                self_cache.append(Vector2D(vector2d=my_pos))
+                self_cache.append(Vector2D(my_pos))
 
     def check_opponent(self, wm: 'WorldModel', ball_trap_pos: Vector2D, dribble_step: int):
         sp = SP.i()
