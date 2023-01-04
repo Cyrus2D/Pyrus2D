@@ -4,10 +4,14 @@ from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.action.go_to_point import *
 from lib.rcsc.types import GameModeType
+from base.generator_action import KickAction
+from base.generator_pass import BhvPassGen
+from lib.action.smart_kick import SmartKick
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.object_player import PlayerObject
+    from lib.player.player_agent import PlayerAgent
 
 
 class Bhv_SetPlay:
@@ -15,7 +19,10 @@ class Bhv_SetPlay:
         # nothing to say :)
         pass
 
-    def execute(self, agent):
+    def execute(self, agent: 'PlayerAgent'):
+        if self.kick(agent):
+            return True
+        
         dlog.add_text(Level.TEAM, "Bhv_SetPlay")
         wm: WorldModel = agent.world()
         game_mode = wm.game_mode().type()
@@ -121,3 +128,21 @@ class Bhv_SetPlay:
                 dlog.add_text(Level.TEAM, "(is kicker) self (2)")
                 return True
         return kicker.unum() == wm.self().unum()
+    
+    def kick(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        if wm.self().is_kickable():
+            action_candidates: list[KickAction] = []
+            action_candidates += BhvPassGen().generator(wm)
+            if len(action_candidates) == 0:
+                return False
+
+            best_action: KickAction = max(action_candidates)
+
+            target = best_action.target_ball_pos
+            debug_print(best_action)
+            agent.debug_client().set_target(target)
+            agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+            SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
+            return True
+        return False
