@@ -60,9 +60,8 @@ class BodyAction(AbstractAction):
 
 
 class NeckAction(AbstractAction):
-    def __init__(self, NeckActions: list):
+    def __init__(self):
         super().__init__()
-        self._NeckAction = NeckActions
 
     def execute(self, agent):
         pass

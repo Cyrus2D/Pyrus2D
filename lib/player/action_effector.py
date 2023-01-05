@@ -448,3 +448,11 @@ class ActionEffector:
     def set_attentionto_off(self):
         self._attentionto_command = PlayerAttentiontoCommand()
         return self._attentionto_command
+    
+    def queued_next_self_body(self) -> AngleDeg:
+        pass
+    
+    def queued_next_view_width(self) -> ViewWidth:
+        pass
+    def queued_next_self_pos(self) -> Vector2D:
+        pass

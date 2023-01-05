@@ -1418,3 +1418,12 @@ class WorldModel:
             debug_print(f"(world model dir conf) index out of range! idx={idx}")
             idx = 0
         return self._dir_count[idx]
+    
+    def teammates(self):
+        return self._teammates
+    
+    def opponents(self):
+        return self._opponents
+    
+    def all_players(self):
+        return self._all_players
