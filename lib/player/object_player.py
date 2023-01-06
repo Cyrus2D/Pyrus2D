@@ -361,4 +361,6 @@ class PlayerObject(Object):
             if self._body_count >= 2:
                 self._body = AngleDeg(body)
                 self._body_count = 1
-        
+    
+    def is_self(self):
+        return False

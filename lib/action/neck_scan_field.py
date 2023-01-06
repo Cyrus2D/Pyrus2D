@@ -23,9 +23,9 @@ class NeckScanField(NeckAction):
         ef = agent.effector()
         
         if (NeckScanField._last_calc_time == wm.time()
-            and NeckScanField._last_calc_view_width != ef.queued_next_view_width()): # TODO IMP FUNC
+            and NeckScanField._last_calc_view_width != ef.queued_next_view_width()):
             
-            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck()) # TODO IMP FUNC
+            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck())
             return True
         
         existed_ghost = False
@@ -50,7 +50,7 @@ class NeckScanField(NeckAction):
                 and wm.ball().dist_from_self() < wm.self().player_type().player_size() + 0.15
             )
         )
-        angle = self.calc_angle_default(agent, consider_patch) # TODO IMP FUNC
+        angle = self.calc_angle_default(agent, consider_patch)
         
         if consider_patch and (AngleDeg(angle) - wm.self().face()).abs() < 5:
             angle = self.calc_angle_default(agent, False)

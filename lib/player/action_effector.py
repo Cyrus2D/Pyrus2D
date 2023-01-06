@@ -450,9 +450,25 @@ class ActionEffector:
         return self._attentionto_command
     
     def queued_next_self_body(self) -> AngleDeg:
-        pass
+        next_angle = self._agent.world().self().body()
+        if self._body_command and self._body_command.type() is CommandType.TURN:
+            moment = self.get_turn_info()
+            next_angle += moment
+        return next_angle
     
     def queued_next_view_width(self) -> ViewWidth:
-        pass
+        if self._change_view_command:
+            return self._change_view_command.width()
+        return self._agent.world().self().view_width()
+    
     def queued_next_self_pos(self) -> Vector2D:
-        pass
+        me = self._agent.world().self()
+        vel = me.vel()
+        if self._body_command and self._body_command.type() is CommandType.DASH:
+            accel, _ = self.get_dash_info()
+            vel += accel
+            
+            tmp = vel.r()
+            if tmp > me.player_type().player_speed_max():
+                vel *= me.player_type().player_speed_max() / tmp
+        return me.pos() + vel

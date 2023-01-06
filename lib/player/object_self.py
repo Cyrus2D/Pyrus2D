@@ -437,4 +437,5 @@ class SelfObject(PlayerObject):
         self._attentionto_side = side
         self._attentionto_unum = unum   
         
-    
+    def is_self(self):
+        return False
