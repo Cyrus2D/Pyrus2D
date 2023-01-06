@@ -1,3 +1,4 @@
+from lib.action.neck_scan_players import NeckScanPlayers
 from lib.player.player_agent import PlayerAgent
 from lib.player.soccer_action import NeckAction
 from lib.rcsc.game_time import GameTime
@@ -35,7 +36,7 @@ class NeckScanField(NeckAction):
                 break
         
         if not existed_ghost:
-            angle = NeckScanPlayers.get_best_angle(agent) # TODO IMP FUNC
+            angle = NeckScanPlayers.get_best_angle(agent)
             if angle != NeckScanField.INVALID_ANGLE:
                 NeckScanField._cached_target_angle = angle
                 agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_nest_self_body() - wm.self().neck())
