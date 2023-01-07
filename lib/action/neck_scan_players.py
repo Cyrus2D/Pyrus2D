@@ -1,17 +1,60 @@
 from math import exp
-from lib.player.player_agent import PlayerAgent
+from lib.action.neck_scan_field import NeckScanField
+from lib.debug.debug_print import debug_print
 from lib.player.soccer_action import NeckAction
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.player.world_model import WorldModel
 
 from pyrusgeom.soccer_math import bound
 from pyrusgeom.geom_2d import Vector2D, AngleDeg
 
+from typing import TYPE_CHECKING
+
+from lib.rcsc.types import ViewWidth
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+
 class NeckScanPlayers(NeckAction):
     INVALID_ANGLE = -360.0
     
+    _last_calc_time = GameTime(0, 0)
+    _last_calc_view_width = ViewWidth.NORMAL
+    _cached_target_angle = 0.0
+    _last_calc_min_neck_angle = 0.
+    _last_calc_max_neck_angle = 0.
+    
+    def __init__(self, min_neck_angle: float=INVALID_ANGLE, max_neck_angle: float= INVALID_ANGLE):
+        super().__init__()
+        
+        self._min_neck_angle = min_neck_angle
+        self._max_neck_angle = max_neck_angle
+        
+    def execute(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        ef = agent.effector()
+
+        if (NeckScanPlayers._last_calc_time != wm.time()
+            or NeckScanPlayers._last_calc_view_width != ef.queued_next_view_width()
+            or abs(NeckScanPlayers._last_calc_min_neck_angle - self._min_neck_angle) > 1.0e-3
+            or abs(NeckScanPlayers._last_calc_max_neck_angle - self._max_neck_angle) > 1.0e-3):
+            
+            NeckScanPlayers._last_calc_time = wm.time().copy()
+            NeckScanPlayers._last_calc_view_width = ef.queued_next_view_width()
+            NeckScanPlayers._last_calc_min_neck_angle = self._min_neck_angle
+            NeckScanPlayers._last_calc_max_neck_angle = self._max_neck_angle
+            
+            NeckScanPlayers._cached_target_angle = NeckScanPlayers.get_best_angle(agent, self._min_neck_angle, self._max_neck_angle)
+        
+        if NeckScanPlayers._cached_target_angle == NeckScanPlayers.INVALID_ANGLE:
+            return NeckScanField().execute(agent)
+        
+        target_angle = AngleDeg(NeckScanPlayers._cached_target_angle)
+        agent.do_turn_neck(target_angle - ef.queued_next_self_body().degree() - wm.self().neck().degree())
+        return True
+    
     @staticmethod
-    def get_best_angle(agent: PlayerAgent, min_neck_angle: float= INVALID_ANGLE, max_neck_angle:float = INVALID_ANGLE):
+    def get_best_angle(agent: 'PlayerAgent', min_neck_angle: float= INVALID_ANGLE, max_neck_angle:float = INVALID_ANGLE):
         wm = agent.world()
         
         if len(wm.all_players()) < 22:
@@ -62,6 +105,7 @@ class NeckScanPlayers(NeckAction):
         reduced_left_angle = left_angle + 5.
         reduced_right_angle = right_angle - 5.
         
+        debug_print(f"ALL PLAYERS: {len(wm.all_players())}")
         for p in wm.all_players():
             if p.is_self():
                 continue
@@ -82,7 +126,7 @@ class NeckScanPlayers(NeckAction):
             pos_count += 1
             
             if our_ball:
-                if p.side() == wm.our_side() and (p.pos().x() > wm.ball().pos().x - 10 or p.pos().x() > 30):
+                if p.side() == wm.our_side() and (p.pos().x() > wm.ball().pos().x() - 10 or p.pos().x() > 30):
                     pos_count *=2
             
             base_val = pos_count**2

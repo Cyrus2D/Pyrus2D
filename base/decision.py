@@ -2,6 +2,8 @@ from base.strategy_formation import StrategyFormation
 from base.set_play.bhv_set_play import Bhv_SetPlay
 from base.bhv_kick import BhvKick
 from base.bhv_move import BhvMove
+from lib.action.neck_scan_field import NeckScanField
+from lib.action.neck_scan_players import NeckScanPlayers
 from lib.debug.debug_print import debug_print
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
@@ -19,7 +21,8 @@ def get_decision(agent: 'PlayerAgent'):
     st = StrategyFormation().i()
     st.update(wm)
     
-    agent.do_change_view(ViewWidth.WIDE)
+    # agent.do_change_view(ViewWidth.WIDE)
+    NeckScanPlayers().execute(agent)
     
     if wm.self().unum() == 5: # TODO REMOVE IT
         agent.add_say_message(BallPosVelMessenger())

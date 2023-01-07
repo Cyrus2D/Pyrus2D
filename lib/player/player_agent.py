@@ -196,23 +196,18 @@ class PlayerAgent(SoccerAgent):
             SP = ServerParam.i()
             
             if SP.synch_mode():
-                debug_print("A")
                 return False
             
             if msec_from_sense < 0:
-                debug_print("B")
                 return False
             
             if self._last_decision_time == self._current_time:
-                debug_print("C")
                 return False
             
             if self._agent.world().self().unum() == UNUM_UNKNOWN:
-                debug_print("D")
                 return False
             
             if self._agent.world().see_time() == self._current_time:
-                debug_print("F")
                 return True
             
             wait_thr:int = (team_config.WAIT_TIME_THR_SYNCH_VIEW
@@ -220,21 +215,16 @@ class PlayerAgent(SoccerAgent):
                             else team_config.WAIT_TIME_THR_NOSYNCH_VIEW)
             
             if self._last_decision_time == self._agent.world().sense_body_time() and timeout_count <= 2:
-                debug_print("G")
                 return False
             
             if SeeState.synch_see_mode() and SP.synch_see_offset() > wait_thr and msec_from_sense >= 0:
-                debug_print("H")
                 return True
             
             if self._see_state.is_synch() and self._see_state.cycles_till_next_see() > 0:
-                debug_print("I")
                 return True
             
             if msec_from_sense >= wait_thr * SP.slow_down_factor():
-                debug_print("J")
                 return True
-            debug_print("K")
             return False
             
             

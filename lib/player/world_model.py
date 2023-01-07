@@ -498,6 +498,7 @@ class WorldModel:
         self._opponents_from_ball.clear()
         self._opponents_from_self.clear()
 
+        self._all_players.clear()
         self._our_players.clear()
         self._their_players.clear()
 

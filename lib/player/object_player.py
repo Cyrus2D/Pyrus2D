@@ -37,7 +37,7 @@ class PlayerObject(Object):
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
         self._kickrate: float = 0.0
-        self._face: float = 0
+        self._face: AngleDeg = AngleDeg(0)
         
         self._pos_history: list[Vector2D] = []
 
@@ -289,18 +289,18 @@ class PlayerObject(Object):
         
         if player.has_angle():
             self._body = AngleDeg(player.body_)
-            self._face = player.face_
+            self._face = AngleDeg(player.face_)
             self._body_count = 0
             self._face_count = 0
         elif last_seen_pos_count <= 2 and last_seen_move.r2() > 0.2**2:
             self._body = last_seen_move.th()
             self._body_count = max(0, last_seen_pos_count - 1)
-            self._face = 0
+            self._face = AngleDeg(0)
             self._face_count = 1000
         elif self.vel_valid() and self.vel().r2() > 0.2**2:
             self._body = self.vel().th()
             self._body_count = self.vel_count()
-            self._face = 0
+            self._face = AngleDeg(0)
             self._face_count = 1000
             
         if player.is_pointing() and self._pointto_count >= SP.point_to_ban():

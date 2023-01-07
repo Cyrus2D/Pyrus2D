@@ -1,5 +1,4 @@
-from lib.action.neck_scan_players import NeckScanPlayers
-from lib.player.player_agent import PlayerAgent
+from lib.debug.debug_print import debug_print
 from lib.player.soccer_action import NeckAction
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
@@ -7,6 +6,11 @@ from lib.rcsc.types import GameModeType, ViewWidth
 from lib.player.world_model import WorldModel
 
 from pyrusgeom.geom_2d import AngleDeg, Rect2D, Size2D, Vector2D
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.player_agent import PlayerAgent
+    
 
 
 class NeckScanField(NeckAction):
@@ -16,10 +20,11 @@ class NeckScanField(NeckAction):
     _last_calc_view_width = ViewWidth.NORMAL
     _cached_target_angle = 0.0
     
-    def __init__(self, NeckActions: list):
-        super().__init__(NeckActions)
+    def __init__(self):
+        super().__init__()
     
-    def execute(self, agent: PlayerAgent):
+    def execute(self, agent: 'PlayerAgent'):
+        from lib.action.neck_scan_players import NeckScanPlayers
         wm = agent.world()
         ef = agent.effector()
         
@@ -28,6 +33,16 @@ class NeckScanField(NeckAction):
             
             agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck())
             return True
+        
+        NeckScanField._last_calc_time = wm.time().copy()
+        NeckScanField._last_calc_view_width = ef.queued_next_view_width()
+
+        angle = self.calc_angle_for_wide_pitch_edge(agent)
+        if angle != NeckScanField.INVALID_ANGLE:
+            NeckScanField._cached_target_angle = angle
+            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck())
+            return True
+            
         
         existed_ghost = False
         for p in wm.all_players():
@@ -57,11 +72,11 @@ class NeckScanField(NeckAction):
             angle = self.calc_angle_default(agent, False)
         
         NeckScanField._cached_target_angle = angle
-        agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_nest_self_body() - wm.self().neck())
+        agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body().degree() - wm.self().neck().degree())
         
         return True
     
-    def calc_angle_default(self, agent: PlayerAgent, consider_patch: bool):
+    def calc_angle_default(self, agent: 'PlayerAgent', consider_patch: bool):
         SP = ServerParam.i()
         pitch_rect = Rect2D(
             Vector2D( -SP.pitch_half_length(), -SP.pitch_half_width()),
@@ -95,7 +110,7 @@ class NeckScanField(NeckAction):
         dir_count:list[int] = []
         
         for _ in range(size_of_view_width):
-            dir_count += wm.dir_count(tmp_angle)
+            dir_count.append(wm.dir_count(tmp_angle))
             tmp_angle += WorldModel.DIR_STEP
         
         max_count_sum = 0
@@ -132,6 +147,41 @@ class NeckScanField(NeckAction):
             tmp_angle += WorldModel.DIR_STEP
             dir_count.append(wm.dir_count(tmp_angle))
             
+            debug_print(f"nsf cad: {add_dir} > {scan_range}")
+            
             if add_dir > scan_range:
                 break
         return sol_angle.degree()
+
+    def calc_angle_for_wide_pitch_edge(self, agent: 'PlayerAgent'):
+        SP = ServerParam.i()
+        wm = agent.world()
+        ef = agent.effector()
+
+        if ef.queued_next_view_width() is not ViewWidth.WIDE:
+            return NeckScanField.INVALID_ANGLE
+        
+        gt = wm.game_mode().type()
+        if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self() > 2:
+            return NeckScanField.INVALID_ANGLE
+        
+        next_self_pos = wm.self().pos() + wm.self().vel()
+        pitch_x_thr = SP.pitch_half_length() - 15.
+        pitch_y_thr = SP.pitch_half_width() - 10. # TODO WIDTH MAYBE(it was on librcsc tho...)
+        
+        target_angle = NeckScanField.INVALID_ANGLE
+
+        if next_self_pos.abs_y() > pitch_y_thr:
+            target_pos = Vector2D(SP.pitch_half_length() - 7., 0.)
+            target_pos.set_x(min(target_pos.x(), target_pos.x() * 0.7 *next_self_pos.x() * 0.3))
+            
+            if next_self_pos.abs_y() > pitch_y_thr:
+                target_angle = (target_pos - next_self_pos).th().degree()
+        
+        if next_self_pos.abs_x() > pitch_x_thr:
+            target_pos = Vector2D(SP.pitch_half_length() *0.5, 0)
+            
+            if next_self_pos.abs_x() > pitch_x_thr:
+                target_angle = (target_pos - next_self_pos).th().degree()
+        
+        return target_angle

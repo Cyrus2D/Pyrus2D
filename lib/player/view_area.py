@@ -8,7 +8,7 @@ class ViewArea:
     def __init__(self,
                  view_width: float = -1,
                  origin: Vector2D = None,
-                 angle: AngleDeg = 0,
+                 angle: AngleDeg = AngleDeg(0),
                  time: GameTime = GameTime(-1, 0)) -> None:
         self._view_width: float = view_width
         self._origin: Vector2D = origin if origin is not None else Vector2D.invalid()

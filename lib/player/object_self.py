@@ -194,8 +194,8 @@ class SelfObject(PlayerObject):
 
     def update_angle_by_see(self, face: float, current_time: GameTime):
         self._time = current_time.copy()
-        self._face = face
-        self._body = face - self._neck.degree()
+        self._face = AngleDeg(face)
+        self._body = AngleDeg(face - self._neck.degree())
         self._body_count = 0
         self._face_count = 0
         
@@ -234,7 +234,7 @@ class SelfObject(PlayerObject):
 
         self._pos = pos.copy()
         self._seen_pos = pos.copy()
-        self._face = face
+        self._face = AngleDeg(face)
         self._body = AngleDeg(face) - self._neck
 
         self._pos_count = 0
