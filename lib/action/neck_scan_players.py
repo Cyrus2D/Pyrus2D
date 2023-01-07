@@ -1,6 +1,8 @@
 from math import exp
 from lib.action.neck_scan_field import NeckScanField
 from lib.debug.debug_print import debug_print
+from lib.debug.level import Level
+from lib.debug.logger import dlog
 from lib.player.soccer_action import NeckAction
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
@@ -16,6 +18,8 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 class NeckScanPlayers(NeckAction):
+    DEBUG = True
+    
     INVALID_ANGLE = -360.0
     
     _last_calc_time = GameTime(0, 0)
@@ -33,6 +37,9 @@ class NeckScanPlayers(NeckAction):
     def execute(self, agent: 'PlayerAgent'):
         wm = agent.world()
         ef = agent.effector()
+        
+        if NeckScanPlayers.DEBUG:
+            dlog.add_text(Level.WORLD, f"(NSP exe) last={NeckScanPlayers._last_calc_time}|wm-time={wm.time()}")
 
         if (NeckScanPlayers._last_calc_time != wm.time()
             or NeckScanPlayers._last_calc_view_width != ef.queued_next_view_width()
@@ -58,6 +65,8 @@ class NeckScanPlayers(NeckAction):
         wm = agent.world()
         
         if len(wm.all_players()) < 22:
+            if NeckScanPlayers.DEBUG:
+                dlog.add_text(Level.WORLD, f"(NSP GBA) all players are less than 22, n={len(wm.all_players())}")
             return NeckScanPlayers.INVALID_ANGLE    
         
         SP = ServerParam.i()
@@ -81,6 +90,11 @@ class NeckScanPlayers(NeckAction):
             right_angle = next_self_body + (dir + (view_half_width - 0.01))
             
             score = NeckScanPlayers.calculate_score(wm, next_self_pos, left_angle, right_angle) # TODO IMP FUNC
+
+            if NeckScanPlayers.DEBUG:
+                debug_print("## BEST ANGLE")
+                dlog.add_text(Level.WORLD, f"body={next_self_body}|dir={dir}|score={score}")    
+                
             if score > best_score:
                 best_dir = dir
                 best_score = score

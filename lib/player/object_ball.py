@@ -289,4 +289,14 @@ class BallObject(Object):
                 self._vel = heard_vel.copy()
                 self._vel_count =1
             return
-                
+    
+    def set_ghost(self):
+        if self._ghost_count > 0:
+            self._pos_count = 1000
+            self._rpos_count = 1000
+            self._lost_count = 0
+            self._ghost_count += 1
+            
+            self._dist_from_self = 1000
+        else:
+            self._ghost_count = 1

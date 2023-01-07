@@ -105,7 +105,7 @@ class BhvPassGen(BhvKickGen):
             return
 
         if wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right] \
-                and receive_point.x < sp.our_penalty_area_line_x() + 1.0 \
+                and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
                 and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
             if debug_pass:
                 dlog.add_text(Level.PASS,

@@ -364,3 +364,6 @@ class PlayerObject(Object):
     
     def is_self(self):
         return False
+    
+    def set_ghost(self):
+        self._ghost_count += 1

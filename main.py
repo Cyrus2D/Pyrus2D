@@ -5,8 +5,6 @@ import base.main_coach as main_c
 import multiprocessing as mp
 import team_config
 
-def f(**keyargs):
-    print("KIR")
 
 parser = argparse.ArgumentParser(description='Start the Team. Runs the players and the coach.')
 
@@ -57,7 +55,7 @@ goalie.start()
 
 players.append(goalie)
 
-for i in range(2,12):
+for i in range(2,11):
     proc = mp.Process(target=main_p.main, args=(i,False))
     proc.start()
     players.append(proc)

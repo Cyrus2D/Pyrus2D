@@ -1,4 +1,5 @@
 from logging import Logger
+from turtle import pos
 from lib.action.intercept_table import InterceptTable
 from lib.player.localizer import Localizer
 from lib.messenger.messenger import Messenger
@@ -991,7 +992,7 @@ class WorldModel:
                              self.self().pos(),
                              self.self().face(),
                              current_time)
-            # self.check_ghost(varea) # TODO 
+            self.check_ghost(varea) # TODO 
             self.update_dir_count(varea)
 
     def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
@@ -1428,3 +1429,59 @@ class WorldModel:
     
     def all_players(self):
         return self._all_players
+
+    def check_ghost(self, varea: ViewArea):
+        SP = ServerParam.i()
+
+        angle_buf = 5.
+        
+        if self.ball().rpos_count() > 0 and self.ball().pos_valid():
+            ball_vis_dist2 = (
+                SP.visible_distance()
+                - (self.self().vel().r() / self.self().player_type().player_decay()) * 0.1
+                - (self.ball().vel().r() / SP.ball_decay()) * 0.05
+                - (0.12 * min(4, self.ball().pos_count()))
+                - 0.25
+            )**2
+            
+            if varea.contains(self.ball().pos(), angle_buf, ball_vis_dist2):
+                self._ball.set_ghost()
+        
+        vis_dist2 = (
+            SP.visible_distance()
+            - (self.self().vel().r() / self.self().player_type().player_decay()) * 0.1
+            - 0.25
+            )**2
+        
+        removing_teammates = []
+        for p in self._teammates:
+            if p.pos_count() > 0 and varea.contains(p.pos(), angle_buf, vis_dist2):
+                if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
+                    removing_teammates.append(p)
+                    continue
+                p.set_ghost()
+        for p in removing_teammates:
+            self._teammates.remove(p)
+        
+        removing_opponents = []
+        for p in self._opponents:
+            if p.pos_count() > 0 and varea.contains(p.pos(), 1., vis_dist2):
+                if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
+                    removing_opponents.append(p)
+                    continue
+                p.set_ghost()
+        for p in removing_opponents:
+            self._opponents.remove(p)
+        
+        removing_unknown_players = []
+        for p in self._unknown_players:
+            if p.pos_count() > 0 and varea.contains(p.pos(), 1., vis_dist2):
+                if p.dist_from_self() < 40 *1.06 and p.is_ghost():
+                    removing_unknown_players.append(p)
+                    continue
+                p.set_ghost()
+        for p in removing_unknown_players:
+            self._unknown_players.remove(p)
+        
+        
+        
