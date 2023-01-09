@@ -161,10 +161,6 @@ class WorldModel:
             self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
-        elif message.find("sense_body") != -1:
-            pass
-        elif message.find("init") != -1:
-            pass
 
     def fullstate_parser(self, message):
         parser = FullStateWorldMessageParser()
@@ -178,6 +174,7 @@ class WorldModel:
         self._teammates.clear()
         self._opponents.clear()
         self._unknown_players.clear()
+        self._all_players.clear()
 
         for player_dic in parser.dic()['players']:
             player = PlayerObject()
@@ -1426,6 +1423,9 @@ class WorldModel:
     
     def opponents(self):
         return self._opponents
+
+    def unknown_players(self):
+        return self._unknown_players
     
     def all_players(self):
         return self._all_players

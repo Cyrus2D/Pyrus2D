@@ -448,7 +448,7 @@ class PlayerAgent(SoccerAgent):
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
         if ServerParam.i().is_fullstate(self._world.our_side()) and team_config.FULL_STATE_DEBUG:
             self.full_world().update_just_before_decision(self._effector, self._impl._current_time)
-        
+
         self._effector.reset()
         
 
