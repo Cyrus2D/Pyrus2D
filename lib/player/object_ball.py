@@ -1,3 +1,4 @@
+from lib.debug.debug_print import debug_print
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from pyrusgeom.soccer_math import *
@@ -192,10 +193,10 @@ class BallObject(Object):
         self._seen_vel = Vector2D(0,0)
         self._seen_vel_count = 0
         
-        if type in [GMT.GoalieCatchBall_Left, GMT.GoalieCatchBall_Right]:
+        if type.is_goalie_catch_ball():
             return
         
-        if type in [GMT.CornerKick_Left, GMT.CornerKick_Right]:
+        if type.is_corner_kick():
             if self.pos_count() <= 1 and self.rpos().r2() > 3 ** 2:
                 self.pos().assign(
                     SP.pitch_half_length() - SP.corner_kick_margin() * (1 if self.pos().x() > 0 else -1),
@@ -203,16 +204,21 @@ class BallObject(Object):
                 )
             return
         
-        if type in [GMT.KickIn_Left, GMT.KickIn_Right]:
+        if type.is_kick_in():
             if self.pos_count() <= 1 and self.rpos().r2() > 3**2:
                 self.pos()._y = SP.pitch_half_width() * (1 if self.pos().y() > 0 else -1)
             return
         
         if type in [GMT.BeforeKickOff, GMT.KickOff_Left, GMT.KickOff_Right]:
-            self.pos().assign(0,0)
+            self._pos.assign(0,0)
             self._pos_count = 0
             self._seen_pos.assign(0, 0)
             self._seen_pos_count = 0
+            self._ghost_count = 0
+
+            debug_print(f"{'#'*20} TIME={game_mode.time()} {'#'*20}")
+            debug_print("(BALL UBGM) BALL POS SET")
+
 
     def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):
         if self.rpos_count() == 0:

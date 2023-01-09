@@ -226,8 +226,6 @@ class PlayerAgent(SoccerAgent):
             if msec_from_sense >= wait_thr * SP.slow_down_factor():
                 return True
             return False
-            
-            
 
     def __init__(self):
         super().__init__()
