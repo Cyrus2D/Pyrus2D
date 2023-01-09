@@ -81,9 +81,10 @@ class PlayerAgent(SoccerAgent):
 
             self._agent._effector.check_command_count(self._body)
             self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
+            # TODO CHECK HERE FOR SEPARATE WORLD
         
         def visual_parser(self, message: str):
-            if ServerParam.i().is_fullstate(self._agent.world().our_side()):
+            if ServerParam.i().is_fullstate(self._agent.world().our_side()) and not team_config.FULL_STATE_DEBUG:
                 return
             self.parse_cycle_info(message, False)
             
@@ -145,8 +146,10 @@ class PlayerAgent(SoccerAgent):
                 self.send_bye_command()
                 return
             self._agent.world().update_game_mode(self._game_mode, self._current_time)
-            # TODO FULL STATE WORLD update
-        
+            if ServerParam.i().is_fullstate(self._agent.world().our_side()) and team_config.FULL_STATE_DEBUG:
+                self._agent.full_world().update_game_mode(self._game_mode, self._current_time)
+
+
         def update_server_status(self):
             if self._server_cycle_stopped:
                 self._server_cycle_stopped = False
@@ -322,6 +325,14 @@ class PlayerAgent(SoccerAgent):
         if self.world().ball().pos_valid():
             dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.5, color=Color(string="blue"), fill=True)
 
+        if ServerParam.i().is_fullstate(self.world().our_side()) and team_config.FULL_STATE_DEBUG:
+            for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
+                if p.pos_valid():
+                    dlog.add_circle(Level.WORLD, 1, center=p.pos(), color=Color(string='red'))
+            if self.world().ball().pos_valid():
+                dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
+                                fill=True)
+
     def parse_message(self, message: str):
         if message.startswith("(init"):
             self.parse_init(message)
@@ -334,9 +345,11 @@ class PlayerAgent(SoccerAgent):
             self._impl.visual_parser(message)
         if message.startswith("(hear"):
             self._impl.hear_parser(message)
-        if message.startswith("(fullstate") or message.startswith("(player_type") or message.startswith("(sense_body") or message.startswith("(init"):
+        if message.startswith("(fullstate"):
+            self._full_world.parse(message)
+        if message.startswith("(player_type") or message.startswith("(sense_body") or message.startswith("(init"):
             self._world.parse(message)
-            # dlog._time = self.world().time().copy()
+            self._full_world.parse(message)
         if message.startswith("(think"):
             self._impl._think_received = True
 
@@ -408,8 +421,12 @@ class PlayerAgent(SoccerAgent):
     def do_attentionto_off(self):
         self._last_body_command.append(self._effector.set_attentionto_off())
 
-    def world(self) -> WorldModel:
-        return self._world
+    if team_config.FULL_STATE_DEBUG:
+        def world(self):
+            return self._world
+    else:
+        def world(self) -> WorldModel:
+            return self._full_world
 
     def full_world(self) -> WorldModel:
         return self._full_world
@@ -429,7 +446,8 @@ class PlayerAgent(SoccerAgent):
             return
         
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
-        # TODO FULL STATE
+        if ServerParam.i().is_fullstate(self._world.our_side()) and team_config.FULL_STATE_DEBUG:
+            self.full_world().update_just_before_decision(self._effector, self._impl._current_time)
         
         self._effector.reset()
         
@@ -469,5 +487,7 @@ class PlayerAgent(SoccerAgent):
         unum = int(message[2])
         side = message[1]
 
-        self.world().init(self._impl._team_name, side, unum, False)
+        self._world.init(self._impl._team_name, side, unum, False)
+        if ServerParam.i().is_fullstate(side) and team_config.FULL_STATE_DEBUG:
+            self._full_world.init(self._impl._team_name, side, unum, False)
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)
