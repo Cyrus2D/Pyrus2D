@@ -111,7 +111,6 @@ class dlog:
     # {color}\n
     @staticmethod
     def flush():
-        debug_print(f"dlog time = {dlog._time.cycle()}")
         if dlog._time is None or dlog._time.cycle() == 0:
             return
         dlog.debug(dlog._commands)

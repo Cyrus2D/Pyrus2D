@@ -92,7 +92,6 @@ class NeckScanPlayers(NeckAction):
             score = NeckScanPlayers.calculate_score(wm, next_self_pos, left_angle, right_angle) # TODO IMP FUNC
 
             if NeckScanPlayers.DEBUG:
-                debug_print("## BEST ANGLE")
                 dlog.add_text(Level.WORLD, f"body={next_self_body}|dir={dir}|score={score}")    
                 
             if score > best_score:
@@ -119,7 +118,6 @@ class NeckScanPlayers(NeckAction):
         reduced_left_angle = left_angle + 5.
         reduced_right_angle = right_angle - 5.
         
-        debug_print(f"ALL PLAYERS: {len(wm.all_players())}")
         for p in wm.all_players():
             if p.is_self():
                 continue

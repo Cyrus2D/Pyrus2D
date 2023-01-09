@@ -159,8 +159,6 @@ class NeckScanField(NeckAction):
             tmp_angle += WorldModel.DIR_STEP
             dir_count.append(wm.dir_count(tmp_angle))
             
-            debug_print(f"nsf cad: {add_dir} > {scan_range}")
-            
             if add_dir > scan_range:
                 break
         return sol_angle.degree()

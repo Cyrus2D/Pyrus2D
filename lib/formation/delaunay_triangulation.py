@@ -79,7 +79,6 @@ class Formation:
         if point.abs_y() > SP.pitch_half_width():
             point._y = min_max(-SP.pitch_half_width(), point.y(), +SP.pitch_half_width())
         
-        debug_print(f"(formation update) ballpos={B.is_valid()} {B}")
         for tri in self._triangles:
             if tri[0].contains(point):
                 ids = [tri[1], tri[2], tri[3]]

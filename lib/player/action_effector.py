@@ -82,8 +82,7 @@ class ActionEffector:
         wm = self._agent.world()
         if body.kick_count() != self._command_counter[CommandType.KICK.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._kick_accel = 0
@@ -92,8 +91,7 @@ class ActionEffector:
 
         if body.turn_count() != self._command_counter[CommandType.TURN.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._turn_actual = 0
@@ -102,8 +100,7 @@ class ActionEffector:
 
         if body.dash_count() != self._command_counter[CommandType.DASH.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._dash_accel = Vector2D(0, 0)
@@ -112,24 +109,21 @@ class ActionEffector:
             self._command_counter[CommandType.DASH.value] = body.dash_count()
         if body.move_count() != self._command_counter[CommandType.MOVE.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._move_pos = Vector2D(0, 0)
             self._command_counter[CommandType.MOVE.value] = body.move_count()
         if body.catch_count() != self._command_counter[CommandType.CATCH.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             # self._catch_time = GameTime()
             self._command_counter[CommandType.CATCH.value] = body.catch_count()
         if body.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
             if body.charged_expires() == 0:
-                debug_print(
-                    f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
+                debug_print(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._tackle_power = 0
@@ -472,3 +466,39 @@ class ActionEffector:
             if tmp > me.player_type().player_speed_max():
                 vel *= me.player_type().player_speed_max() / tmp
         return me.pos() + vel
+
+    def queued_next_ball_pos(self):
+        wm = self._agent.world()
+
+        if not wm.ball().pos_valid():
+            return Vector2D.invalid()
+
+        vel = Vector2D(0,0)
+        accel = Vector2D(0,0)
+
+        if wm.ball().vel_valid():
+            vel = wm.ball().vel()
+
+        if self._body_command and self._body_command.type() == CommandType.KICK:
+            accel = self.get_kick_info()
+
+        vel += accel
+        return wm.ball().pos() + vel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

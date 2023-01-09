@@ -55,7 +55,7 @@ goalie.start()
 
 players.append(goalie)
 
-for i in range(2,11):
+for i in range(2,12):
     proc = mp.Process(target=main_p.main, args=(i,False))
     proc.start()
     players.append(proc)

@@ -166,7 +166,7 @@ class PlayerAgent(SoccerAgent):
                     self._current_time.assign(new_time, 0)
 
                     if new_time - 1 != old_time.cycle():
-                        debug_print(f"player_n({self._agent.world().self_unum()}):"
+                        debug_print(f"player({self._agent.world().self_unum()}):"
                               f"last server time was wrong maybe")
                 else:
                     if by_sense_body:
@@ -182,7 +182,7 @@ class PlayerAgent(SoccerAgent):
                     dlog.add_text(Level.LEVEL_ANY, f"Cycle {new_time}-0 " + '-' * 20)
 
                     if new_time - 1 != old_time.cycle():
-                        debug_print(f"player_n({self._agent.world().self_unum()}):"
+                        debug_print(f"player({self._agent.world().self_unum()}):"
                               f"last server time was wrong maybe")
 
                     if (self._last_decision_time.stopped_cycle() == 0
@@ -299,11 +299,7 @@ class PlayerAgent(SoccerAgent):
                 debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
                 
-            debug_print(f"ct, lt, st: {self._impl._current_time}, {self._impl._last_decision_time}, {self.world().see_time()}")
-            debug_print(f"sm={ServerParam.i().synch_mode()}")
-
             if self._impl.think_received():
-                debug_print("GOING TO ACTION THINK")
                 self.action()
                 self.debug_players()
                 self._impl._think_received = False
@@ -311,7 +307,6 @@ class PlayerAgent(SoccerAgent):
                 if (self._impl._last_decision_time != self._impl._current_time
                     and self.world().see_time() == self._impl._current_time):
                     
-                    debug_print("GOING TO ACTION SEE")
                     self.action() # TODO CHECK
     
     def handle_timeout(self, timeout_count: int, waited_msec: int):
@@ -320,7 +315,6 @@ class PlayerAgent(SoccerAgent):
             msec_from_sense = get_time_msec() - self._impl._body_time_stamp
         
         if self._impl.is_decision_time(msec_from_sense, timeout_count):
-            debug_print("GOING TO ACTION TIMEOUT")
             self.action()
 
     def debug_players(self):
@@ -436,9 +430,6 @@ class PlayerAgent(SoccerAgent):
                 or self.world().self().unum() != self.world().self_unum()):
             return
         
-        debug_print(f"###################CYCLE{self.world().time().cycle()}")
-        debug_print(f"cycle_till_next_see={self._impl._see_state.cycles_till_next_see()}")
-        
         self.world().update_just_before_decision(self._effector, self._impl._current_time)
         # TODO FULL STATE
         
@@ -481,5 +472,4 @@ class PlayerAgent(SoccerAgent):
         side = message[1]
 
         self.world().init(self._impl._team_name, side, unum, False)
-        debug_print(f"INITIALIZING DLOG: {self._impl._team_name}-player {side} {unum}")
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)

@@ -197,8 +197,6 @@ class WorldModel:
         for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
             o._update_more_with_full_state(self)
         
-        # debug_print(self)
-
     def __repr__(self):
         # Fixed By MM _ temp
         return "(time: {})(ball: {})(tm: {})(opp: {})".format(self._time, self.ball(), self._our_players,
@@ -449,6 +447,12 @@ class WorldModel:
         return self.get_first_player(self._opponents_from_self,
                                      count_thr,
                                      with_goalie)
+
+    def get_opponent_nearest_to_ball(self, count_thr: int, with_goalie: bool = True):
+        return self.get_first_player(self._opponents_from_ball, count_thr, with_goalie)
+
+    def get_teammate_nearest_to_ball(self, count_thr: int, with_goalie: bool = True):
+        return self.get_first_player(self._teammates_from_ball, count_thr, with_goalie)
 
     def get_first_player(self,
                          players: list,
@@ -1073,9 +1077,7 @@ class WorldModel:
     
     def update_player_state_cache(self):
         if not self.self().pos_valid() or not self.ball().pos_valid():
-            debug_print("##########UPSC INVALID")
             return
-        debug_print("##########UPSC VALID")
         
         self.create_set_player(self._teammates,
                                self._teammates_from_self,
@@ -1227,8 +1229,6 @@ class WorldModel:
         if self.time() != current_time:
             self.update(act, current_time)
             
-        debug_print("########UJBD")
-        
         self.update_ball_by_hear(act)
         self.update_players_by_hear()        
         # TODO UPDATE BALL BY COLLISION
@@ -1482,6 +1482,39 @@ class WorldModel:
                 p.set_ghost()
         for p in removing_unknown_players:
             self._unknown_players.remove(p)
-        
+
+    def kickable_teammate(self):
+        return self._kickable_teammate
+
+    def kickable_opponent(self):
+        return self._kickable_opponent
+
+    def dir_range_count(self, angel: AngleDeg, width: float) -> tuple[int, int, int]:
+        if not 0< width <= 360:
+            return None
+
+        counter = 0
+        tmp_sum_count = 0
+        tmp_max_count = 0
+
+        tmp_angle = angel.copy()
+        if width > WorldModel.DIR_STEP:
+            tmp_angle -= width* 0.5
+
+        add_dir = 0
+        while add_dir < width:
+            c = self.dir_count(tmp_angle)
+
+            tmp_sum_count += c
+            if c > tmp_max_count:
+                tmp_max_count = c
+
+            add_dir += WorldModel.DIR_STEP
+            tmp_angle += WorldModel.DIR_STEP
+            counter += 1
+
+        return tmp_max_count, tmp_sum_count, int(tmp_sum_count/ counter)
+
+
         
         
