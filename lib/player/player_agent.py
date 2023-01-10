@@ -465,9 +465,10 @@ class PlayerAgent(SoccerAgent):
 
         self._effector.reset()
         
-
         self.action_impl()
-        
+        self._impl.do_neck_action()
+        self._impl.do_view_action()
+
         self._impl._last_decision_time = self._impl._current_time.copy()
         
         self.world().update_just_after_decision(self._effector)
