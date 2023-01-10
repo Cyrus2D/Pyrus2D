@@ -236,23 +236,23 @@ class WorldModel:
                 self._last_kicker_side = self._their_players[i].side()
                 self._exist_kickable_opponents = True
 
-    def _update_offside_line(self):
+    def update_offside_line(self):
         if not ServerParam.i().use_offside():
             self._offside_line_count = 0
             self._offside_line_x = ServerParam.i().pitch_half_length()
             return
 
-        if (self._game_mode.mode_name() == "kick_in"
-                or self._game_mode.mode_name() == "corner_kick"
-                or (self._game_mode.mode_name() == "goal_kick"
+        if (self._game_mode.type().is_kick_in()
+                or self._game_mode.type().is_corner_kick()
+                or (self._game_mode.type().is_goal_kick()
                     and self._game_mode.side() == self._our_side)):
             self._offside_line_count = 0
             self._offside_line_x = ServerParam.i().pitch_half_length()
             return
 
         if (self._game_mode.side() != self._our_side
-                and (self._game_mode.mode_name() == "goalie_catch"
-                     or self._game_mode.mode_name() == "goal_kick")):
+                and (self._game_mode.type().is_goalie_catch_ball()
+                     or self._game_mode.type().is_goal_kick())):
             self._offside_line_count = 0
             self._offside_line_x = ServerParam.i().their_penalty_area_line_x()
             return
@@ -275,7 +275,7 @@ class WorldModel:
         self._set_players_from_ball_and_self()
 
         self._update_their_defense_line()
-        self._update_offside_line()
+        self.update_offside_line()
 
         self._intercept_table.update(self)
 
@@ -1240,7 +1240,7 @@ class WorldModel:
         
         # TODO update player cards and player types
         # TODO update players collision
-        # TODO update lines
+        self.update_offside_line()
         
         # self.update_last_kicker() # TODO IMP FUNC
         self.update_intercept_table()

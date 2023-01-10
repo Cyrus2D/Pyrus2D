@@ -88,7 +88,7 @@ class GameMode:
 
     def update(self, mode: str, current_time: GameTime):
         mode = mode[:mode.find(')')]
-        if mode.startswith("yellow") or mode.startswith("red"):
+        if mode.startswith("yellow") or mode.startswith("red") or mode == 'foul_l' or mode == 'foul_r':
             return False
         
         n_under_line = len(mode.split("_"))

@@ -198,15 +198,15 @@ class BallObject(Object):
         
         if type.is_corner_kick():
             if self.pos_count() <= 1 and self.rpos().r2() > 3 ** 2:
-                self.pos().assign(
-                    SP.pitch_half_length() - SP.corner_kick_margin() * (1 if self.pos().x() > 0 else -1),
-                    SP.pitch_half_width() - SP.corner_kick_margin() * (1 if self.pos().y() > 0 else -1)
+                self._pos.assign(
+                    (SP.pitch_half_length() - SP.corner_kick_margin()) * (1 if self.pos().x() > 0 else -1),
+                    (SP.pitch_half_width() - SP.corner_kick_margin()) * (1 if self.pos().y() > 0 else -1)
                 )
             return
         
         if type.is_kick_in():
             if self.pos_count() <= 1 and self.rpos().r2() > 3**2:
-                self.pos()._y = SP.pitch_half_width() * (1 if self.pos().y() > 0 else -1)
+                self._pos._y = SP.pitch_half_width() * (1 if self.pos().y() > 0 else -1)
             return
         
         if type in [GMT.BeforeKickOff, GMT.KickOff_Left, GMT.KickOff_Right]:
@@ -215,9 +215,6 @@ class BallObject(Object):
             self._seen_pos.assign(0, 0)
             self._seen_pos_count = 0
             self._ghost_count = 0
-
-            debug_print(f"{'#'*20} TIME={game_mode.time()} {'#'*20}")
-            debug_print("(BALL UBGM) BALL POS SET")
 
 
     def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):

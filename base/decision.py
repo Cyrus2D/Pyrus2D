@@ -16,7 +16,12 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
 
+# TODO VIEW TACTICAL
+# TODO CHECK ORDER
+# TODO CALL NECK ACTION AFTER MAIN ACTIONS
 
+# TODO do preprocess
+# TODO DLOG ON SCCORWINDOW
 def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
