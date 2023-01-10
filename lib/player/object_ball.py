@@ -303,3 +303,6 @@ class BallObject(Object):
             self._dist_from_self = 1000
         else:
             self._ghost_count = 1
+
+    def lost_count(self):
+        return self._lost_count
