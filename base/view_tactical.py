@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from pyrusgeom.vector_2d import Vector2D
 
+from lib.player.soccer_action import ViewAction
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType, ViewWidth
 
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 
-class ViewTactical:
+class ViewTactical(ViewAction):
     def __init__(self):
         pass
 

@@ -85,10 +85,8 @@ class NeckAction(AbstractAction):
 
 class ViewAction(AbstractAction):
 
-    def __init__(self, ViewActions: list):
+    def __init__(self, ):
         super().__init__()
-
-        self._ViewAction = ViewActions
 
     def execute(self, agent):
         pass

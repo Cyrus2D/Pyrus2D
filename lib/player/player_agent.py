@@ -11,6 +11,7 @@ from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState
 from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player.soccer_action import ViewAction, NeckAction
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
@@ -51,6 +52,9 @@ class PlayerAgent(SoccerAgent):
             self._body_time_stamp:int = None
             
             dlog._time = self._current_time
+
+            self._neck_action: NeckAction = None
+            self._view_action: ViewAction = None
 
         def send_init_command(self):
             # TODO check reconnection
@@ -229,6 +233,16 @@ class PlayerAgent(SoccerAgent):
             if msec_from_sense >= wait_thr * SP.slow_down_factor():
                 return True
             return False
+
+        def do_neck_action(self):
+            if self._neck_action:
+                self._neck_action.execute(self._agent)
+                self._neck_action = None
+
+        def do_view_action(self):
+            if self._view_action:
+                self._view_action.execute(self._agent)
+                self._view_action = None
 
     def __init__(self):
         super().__init__()
@@ -459,7 +473,7 @@ class PlayerAgent(SoccerAgent):
         self.world().update_just_after_decision(self._effector)
         self._impl._see_state.set_view_mode(self.world().self().view_width(),
                                             self.world().self().view_quality())
-        
+
         message_command = self._effector.make_say_message_command(self.world())
         if message_command:
             self._last_body_command.append(message_command)
@@ -491,3 +505,9 @@ class PlayerAgent(SoccerAgent):
         if ServerParam.i().is_fullstate(side) and team_config.FULL_STATE_DEBUG:
             self._full_world.init(self._impl._team_name, side, unum, False)
         dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)
+
+    def set_view_action(self, view_action: ViewAction):
+        self._impl._view_action = view_action
+
+    def set_neck_action(self, neck_action: NeckAction):
+        self._impl._neck_action = neck_action
