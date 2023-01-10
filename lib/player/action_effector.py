@@ -485,6 +485,9 @@ class ActionEffector:
         vel += accel
         return wm.ball().pos() + vel
 
+    def queued_next_angle_from_body(self, target: Vector2D):
+        next_rpos = target - self.queued_next_self_pos()
+        return next_rpos.th() - self.queued_next_self_body()
 
 
 
