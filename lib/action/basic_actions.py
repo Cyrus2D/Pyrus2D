@@ -130,47 +130,6 @@ class TackleToPoint(BodyAction):
 
 
 """
-  \ class Neck_TurnToRelative
-  \ brief turn neck to the angle relative to body
-"""
-
-
-class Neck_TurnToRelative(NeckAction):
-    def __init__(self, rel_angle: AngleDeg, NeckActions: list):
-        super().__init__(NeckActions)
-        self._rel_angle = rel_angle
-
-    def execute(self, agent: 'PlayerAgent'):
-        return agent.do_turn_neck(self._rel_angle - agent.world().self().neck())
-
-
-"""
-  \ class Neck_TurnToPoint
-  \ brief turn only neck to point
-"""
-
-
-class Neck_TurnToPoint(NeckAction):  # TODO : effector
-    def __init__(self, points, NeckActions: list):
-        super().__init__(NeckActions)
-        self._points = points
-
-    # def execute(self, agent: 'PlayerAgent'):
-    #     next_pos = agent.effector().queuedNextSelfPos()
-    #     next_body = agent.effector().queuedNextSelfBody()
-    #     next_view_width = agent.effector().queuedNextViewWidth().width() * 0.5
-    #
-    #     for p in self._points
-    #         rel_pos = *p - next_pos
-    #         rel_angle = rel_pos.th() - next_body
-    #
-    #         if rel_angle.abs() < ServerParam.i().maxNeckAngle() + next_view_width - 5.0:
-    #             return agent.doTurnNeck(rel_angle - agent.world().self().neck())
-    #
-    #     return True
-
-
-"""
   \ class Arm_Off
   \ brief turn off the pointing arm
 """
