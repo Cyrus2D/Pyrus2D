@@ -17,10 +17,7 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
 
-# TODO CHECK ORDER -> VIEW TACTICAL, ACTION, NECK
-# TODO CALL NECK ACTION AFTER MAIN ACTIONS
-
-# TODO DLOG ON SCCORWINDOW
+# TODO DLOG ON SCCORWINDOW -> CHECK
 def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
