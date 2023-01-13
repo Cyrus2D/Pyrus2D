@@ -61,8 +61,6 @@ class SelfObject(PlayerObject):
         self._last_move: Vector2D = Vector2D(0,0)
         self._last_moves: list[Vector2D] = [Vector2D(0,0) for _ in range(4)]
         
-        self._kickable = False
-        
         self._arm_movable: int = 0
         if player:
             self._unum = player._unum
@@ -79,7 +77,7 @@ class SelfObject(PlayerObject):
             self._charged = player._charged
             self._card = player._card
             self._card = player._card
-            self._kickrate = player._kickrate
+            self._kick_rate = player._kick_rate
             self._rpos_count = 0
             self._vel_count = 0
             self._pos_count = 0
@@ -347,7 +345,7 @@ class SelfObject(PlayerObject):
     
     def update_ball_info(self, ball: BallObject):
         self._kickable = False
-        self._kickrate = 0
+        self._kick_rate = 0
         self._catch_probability = 0
         self._tackle_probability = 0
         self._foul_probability = 0
@@ -375,9 +373,11 @@ class SelfObject(PlayerObject):
             if ball.seen_pos_count() >= 2:
                 buff = 0.255
             if ball.dist_from_self() <= ptype.kickable_area() - buff:
+                debug_print("KA C")
+                debug_print(f"bdfs={ball.pos(), ball.dist_from_self(), ptype.kickable_area(), buff}")
                 self._kickable = True
             
-            self._kickrate = ptype.kick_rate(ball.dist_from_self(),
+            self._kick_rate = ptype.kick_rate(ball.dist_from_self(),
                                              (ball.angle_from_self() - self.body()).degree())
             debug_print(f"(self object update ball info) kickrate={self._kick_rate}")
             debug_print(f"(self object update ball info) ball2self_dist={ball.dist_from_self()}")
@@ -414,13 +414,14 @@ class SelfObject(PlayerObject):
             
             if (self_reach_cycle >= 10
                 and opponent_reach_cycle < min(self_reach_cycle, teammate_reach_cycle) - 7):
-                
+                debug_print("KA A")
                 self._kickable = True
                 return
 
             min_cycle = min(self_reach_cycle, teammate_reach_cycle, opponent_reach_cycle)
             ball_pos = ball.inertia_point(min_cycle)
             if ball_pos.abs_x() > ServerParam.i().pitch_half_length() or ball_pos.abs_y() > ServerParam.i().pitch_half_width():
+                debug_print("KA B")
                 self._kickable = True
                 return
             

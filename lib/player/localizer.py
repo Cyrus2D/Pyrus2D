@@ -1,6 +1,8 @@
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.math_values import DEG2RAD
 from pyrusgeom.vector_2d import Vector2D
+
+from lib.debug.debug_print import debug_print
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
 from lib.player.sensor.visual_sensor import VisualSensor
@@ -206,8 +208,10 @@ class Localizer:
             
             pos += estimated_pos
             n_consider += 1
-        
 
+        debug_print(f"lls n_c={n_consider}")
+        if n_consider == 0:
+            return None
         pos /= n_consider
 
         if Localizer.DEBUG:
@@ -234,7 +238,7 @@ class Localizer:
         rpos = Vector2D(r=ball.dist_, a=global_dir)
 
         if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize ball relative) ball: t={ball.dist_}, t={ball.dir_}")
+            dlog.add_text(Level.WORLD, f"(localize ball relative) ball: r={ball.dist_}, t={ball.dir_}")
             dlog.add_text(Level.WORLD, f"(localize ball relative) rpos={rpos}")
 
         

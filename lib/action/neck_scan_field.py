@@ -44,7 +44,7 @@ class NeckScanField(NeckAction):
         angle = self.calc_angle_for_wide_pitch_edge(agent)
         if angle != NeckScanField.INVALID_ANGLE:
             NeckScanField._cached_target_angle = angle
-            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck())
+            agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck())
             return True
             
         

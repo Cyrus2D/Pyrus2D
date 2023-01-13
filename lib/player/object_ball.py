@@ -1,4 +1,4 @@
-from lib.debug.debug_print import debug_print
+from lib.debug.debug_print import debug_print, debug_frame
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from pyrusgeom.soccer_math import *
@@ -88,8 +88,11 @@ class BallObject(Object):
         
         ball._dist_from_self = self._dist_from_self
         ball._angle_from_self = self._angle_from_self
-        ball._pos = self._pos
-        ball._vel = self._vel
+        ball._pos = self._pos.copy()
+        ball._vel = self._vel.copy()
+        ball._rpos = self._rpos.copy()
+        ball._seen_pos = self._seen_pos.copy()
+        ball._seen_vel = self._seen_vel.copy()
 
         return ball
 
@@ -143,6 +146,7 @@ class BallObject(Object):
         self._lost_count = min(1000, self._lost_count + 1)
     
     def update_only_vel(self, vel: Vector2D, vel_count:int):
+        debug_frame()
         self._vel = vel.copy()
         self._vel_count = vel_count
         self._seen_vel = vel.copy()
@@ -219,21 +223,26 @@ class BallObject(Object):
 
     def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):
         if self.rpos_count() == 0:
+            debug_print("busr A")
             self._dist_from_self = self.rpos().r()
             self._angle_from_self = self.rpos().th()
         else:
             if prev.rpos().is_valid() and player.last_move().is_valid():
+                debug_print("busr B")
                 self._rpos = prev.rpos() + self.vel() / ServerParam.i().ball_decay() - player.last_move()
             
             if self.rpos().is_valid() and self.pos_count() > self.rpos_count():
+                debug_print("busr C")
                 self._pos = player.pos() + self.rpos()
                 self._dist_from_self = self.rpos().r()
                 self._angle_from_self = self.rpos().th()
             elif self.pos_valid() and player.pos_valid():
+                debug_print("busr D")
                 self._rpos = self.pos() - player.pos()
                 self._dist_from_self = self.rpos().r()
                 self._angle_from_self = self.rpos().th()
             else:
+                debug_print("busr F")
                 self._dist_from_self = 1000
                 self._angle_from_self = AngleDeg(0)
     

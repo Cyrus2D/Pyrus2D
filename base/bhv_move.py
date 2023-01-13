@@ -1,6 +1,8 @@
 from lib.action.go_to_point import GoToPoint
 from base.strategy_formation import StrategyFormation
 from lib.action.intercept import Intercept
+from lib.action.neck_turn_to_ball import NeckTurnToBall
+from lib.action.neck_turn_to_ball_or_scan import NeckTurnToBallOrScan
 from lib.action.turn_to_ball import TurnToBall
 from lib.action.turn_to_point import TurnToPoint
 from lib.debug.logger import dlog, Level
@@ -40,10 +42,12 @@ class BhvMove:
             dlog.add_text(Level.BLOCK, "INTERCEPTING")
             agent.debug_client().add_message('intercept')
             if Intercept().execute(agent):
+                agent.set_neck_action(NeckTurnToBall())
                 return True
 
         if opp_min < min(tm_min, self_min):
             if Bhv_Block().execute(agent):
+                agent.set_neck_action(NeckTurnToBall())
                 return True
         st = StrategyFormation().i()
         target = st.get_pos(agent.world().self().unum())
@@ -57,9 +61,8 @@ class BhvMove:
         if dist_thr < 1.0:
             dist_thr = 1.0
 
-        if wm.ball().pos_valid() and GoToPoint(target, dist_thr, dash_power).execute(agent):
+        if GoToPoint(target, dist_thr, dash_power).execute(agent):
+            agent.set_neck_action(NeckTurnToBallOrScan())
             return True
-        if TurnToBall().execute(agent):
-            return True
-        return TurnToPoint(Vector2D(0,0)).execute(agent)
+        return False
             

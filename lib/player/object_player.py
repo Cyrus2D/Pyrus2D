@@ -36,7 +36,7 @@ class PlayerObject(Object):
         self._tackle: bool = False
         self._charged: bool = False
         self._card: Card = Card.NO_CARD
-        self._kickrate: float = 0.0
+        self._kick_rate: float = 0.0
         self._face: AngleDeg = AngleDeg(0)
         
         self._pos_history: list[Vector2D] = []
@@ -83,7 +83,7 @@ class PlayerObject(Object):
         self._card = Card.NO_CARD
         if "card" in dic:
             self._card = Card.YELLOW if dic["card"] == "y" else Card.RED
-        self._kickrate: float = 0.0
+        self._kick_rate: float = 0.0
         self._rpos_count = 0
         self._vel_count = 0
         self._pos_count = 0
@@ -153,7 +153,7 @@ class PlayerObject(Object):
         return self.dist_from_ball() < self.player_type().kickable_area() - buf
 
     def kick_rate(self):
-        return self._kickrate
+        return self._kick_rate
 
     def player_type_id(self):
         return self._player_type_id

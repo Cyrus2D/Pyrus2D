@@ -25,5 +25,12 @@ def debug_print(*messages):
         message = message[:-1]
 
     print(f"{prefix}{message}")
-    
-    
+
+
+def debug_frame():
+    frames = inspect.getouterframes(inspect.currentframe(), 1)
+
+    s = ''
+    for frame in frames[1:]:
+        s += f"({frame.filename}:{frame.lineno}): in {frame.function} called {frame.code_context[0].strip()}-> "
+    print(s[:-2])

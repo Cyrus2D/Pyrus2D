@@ -1,5 +1,8 @@
 from base.set_play.bhv_set_play_before_kick_off import Bhv_BeforeKickOff
 from base.strategy_formation import *
+from lib.action.neck_scan_players import NeckScanPlayers
+from lib.action.neck_turn_to_ball_or_scan import NeckTurnToBallOrScan
+from lib.action.scan_field import ScanField
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.action.go_to_point import *
@@ -15,6 +18,8 @@ if TYPE_CHECKING:
 
 
 class Bhv_SetPlay:
+    _kickable_time: int = -1
+    _waiting = False
     def __init__(self):
         # nothing to say :)
         pass
@@ -47,7 +52,12 @@ class Bhv_SetPlay:
                         nearest_tm = i
             if nearest_tm is wm.self().unum():
                 target = wm.ball().pos()
-        GoToPoint(target, 0.5, 100).execute(agent)
+        if GoToPoint(target, 0.5, 100).execute(agent):
+            agent.set_neck_action(NeckTurnToBallOrScan())
+            return True
+        else:
+            ScanField().execute(agent)
+            return True
 
     @staticmethod
     def is_kicker(agent):
@@ -131,18 +141,31 @@ class Bhv_SetPlay:
     
     def kick(self, agent: 'PlayerAgent'):
         wm = agent.world()
-        if wm.self().is_kickable():
-            action_candidates: list[KickAction] = []
-            action_candidates += BhvPassGen().generator(wm)
-            if len(action_candidates) == 0:
-                return False
 
-            best_action: KickAction = max(action_candidates)
+        if not wm.self().is_kickable():
+            return False
 
-            target = best_action.target_ball_pos
-            debug_print(best_action)
-            agent.debug_client().set_target(target)
-            agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
-            SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
+        if not Bhv_SetPlay._waiting:
+            Bhv_SetPlay._kickable_time = wm.time().cycle()
+            Bhv_SetPlay._waiting = True
+
+        if Bhv_SetPlay._waiting and wm.time().cycle() - Bhv_SetPlay._kickable_time > 30:
+            Bhv_SetPlay._waiting = False
+        else:
+            ScanField().execute(agent)
             return True
-        return False
+
+        action_candidates: list[KickAction] = []
+        action_candidates += BhvPassGen().generator(wm)
+        if len(action_candidates) == 0:
+            return False
+
+        best_action: KickAction = max(action_candidates)
+
+        target = best_action.target_ball_pos
+        debug_print(best_action)
+        agent.debug_client().set_target(target)
+        agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+        SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
+        agent.set_neck_action(NeckScanPlayers())
+        return True

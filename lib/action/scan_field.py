@@ -12,6 +12,7 @@ from lib.rcsc.types import ViewWidth
 if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
+
 class ScanField(BodyAction):
     def __init__(self):
         pass
@@ -38,14 +39,14 @@ class ScanField(BodyAction):
         my_next = wm.self().pos() + wm.self().vel()
         face_angle = (wm.ball().seen_pos() - my_next).th() if wm.ball().seen_pos().is_valid() else (my_next*-1).th()
 
-        search_flag = wm.ball().lost_count() /3
+        search_flag = wm.ball().lost_count() //3
         if search_flag%2==1:
             face_angle += 180.
 
         face_point = my_next + Vector2D(r=10, a=face_angle)
         NeckBodyToPoint(face_point).execute(agent)
 
-    def scan_all_field(self, agent: PlayerAgent):
+    def scan_all_field(self, agent: 'PlayerAgent'):
         wm = agent.world()
         if agent.effector().queued_next_view_width() is not ViewWidth.WIDE:
             agent.set_view_action(ViewWide())

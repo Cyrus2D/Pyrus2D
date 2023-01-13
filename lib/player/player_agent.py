@@ -235,6 +235,7 @@ class PlayerAgent(SoccerAgent):
             return False
 
         def do_neck_action(self):
+            debug_print(f"dna {self._neck_action}")
             if self._neck_action:
                 self._neck_action.execute(self._agent)
                 self._neck_action = None

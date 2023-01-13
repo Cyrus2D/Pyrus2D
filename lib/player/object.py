@@ -7,6 +7,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._vel = Vector2D.invalid()
 
         self._rpos = Vector2D.invalid()
+        self._rpos_count: int = 1000
         
         self._dist_from_self:float = 0
         self._angle_from_self: AngleDeg = AngleDeg(0)
@@ -38,7 +39,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         return self._pos_count
 
     def rpos_count(self):
-        return self._pos_count
+        return self._rpos_count
 
     def seen_pos_count(self):
         return self._seen_pos_count

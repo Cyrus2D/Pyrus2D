@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class NeckTurnToBallOrScan(NeckAction):
-    def __init__(self, count_thr: int):
+    def __init__(self, count_thr: int = 5):
         super().__init__()
         self._count_thr = count_thr
 

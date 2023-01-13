@@ -529,17 +529,21 @@ class WorldModel:
         SP = ServerParam.i()
 
         if self.self().has_sensed_collision():
+            debug_print("Z")
             if self.self()._collides_with_player or self.self()._collides_with_post:
+                debug_print("Y")
                 return Vector2D.invalid(), 1000
         
         if self.ball().rpos_count() == 1:
+            debug_print("X")
             if (see.balls()[0].dist_ < SP.visible_distance()
                 and self._prev_ball.rpos().is_valid()
                 and self.self().vel_valid()
                 and self.self().last_move().is_valid()):
-                
+
+                debug_print("W")
                 rpos_diff = rpos - self._prev_ball.rpos()
-                tmp_vel = rpos_diff + self.self().last_move() * SP.ball_decay()
+                tmp_vel = (rpos_diff + self.self().last_move()) * SP.ball_decay()
 
                 if (self.ball().seen_vel_count() <= 2
                     and self._prev_ball.rpos().r() > 1.5
@@ -547,11 +551,14 @@ class WorldModel:
                     and abs(tmp_vel.x() - self.ball().vel().x()) < 0.1
                     and abs(tmp_vel.y() - self.ball().vel().y()) < 0.1):
 
+                    debug_print("U")
                     return Vector2D.invalid(), 1000
 
                 return tmp_vel, 1
         
         elif self.ball().rpos_count() == 2:
+            debug_print("M")
+
             if (see.balls()[0].dist_ < SP.visible_distance()
                 and act.last_body_command() is not CommandType.KICK
                 and self.ball().seen_rpos().is_valid()
@@ -559,23 +566,27 @@ class WorldModel:
                 and self.self().vel_valid()
                 and self.self().last_move(0).is_valid()
                 and self.self().last_move(1).is_valid()):
-                
+
+                debug_print("N")
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
                 for i in range(2):
                     ball_move += self.self().last_move(i)
-                vel = ball_move * (SP.ball_decay()**2/(1+SP.ball_decay()))
+                vel = ball_move * ((SP.ball_decay()**2)/(1+SP.ball_decay()))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r() 
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*2) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
-                    
+
+                    debug_print("O")
                     vel.invalidate()
                     return vel, 1000
                 else:
+                    debug_print("P")
                     return vel, 2
         
         elif self.ball().rpos_count() == 3:
+            debug_print("Q")
             if (see.balls()[0].dist_ < SP.visible_distance()
                 and act.last_body_command(0) is not CommandType.KICK
                 and act.last_body_command(1) is not CommandType.KICK
@@ -585,21 +596,24 @@ class WorldModel:
                 and self.self().last_move(0).is_valid()
                 and self.self().last_move(1).is_valid()
                 and self.self().last_move(2).is_valid()):
-                
+
+                debug_print("R")
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
                 for i in range(3):
                     ball_move += self.self().last_move(i)
-                    
+
                 vel = ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r()
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*3) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
-                    
+
+                    debug_print("S")
                     vel.invalidate()
                     return vel, 1000
                 else:
+                    debug_print("T")
                     return vel, 3
         return Vector2D.invalid(), 1000
                 
@@ -637,10 +651,11 @@ class WorldModel:
             return
         
         if not self.self().pos_valid():
+            debug_print("A")
             if (self._prev_ball.rpos_count() == 0
                 and see.balls()[0].dist_ > self.self().player_type().player_size() + SP.ball_size() + 0.1
                 and self.self().last_move().is_valid()):
-                
+                debug_print("B")
                 tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
                 tvel *= SP.ball_decay()
                 self._ball.update_only_vel(tvel, 1)
@@ -656,18 +671,22 @@ class WorldModel:
             dlog.add_text(Level.WORLD, f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
         
         if rvel.is_valid() and self.self().vel_valid():
+            debug_print("C")
             gvel = self.self().vel() + rvel
             vel_count = 0
         
         if not gvel.is_valid():
+            debug_print("D")
             gvel, vel_count = self.estimate_ball_by_pos_diff(see, act, rpos)
         
         if not gvel.is_valid():
+            debug_print("E")
             if (see.balls()[0].dist_ < 2
                 and self._prev_ball.seen_pos_count() == 0
                 and self._prev_ball.rpos_count() == 0
                 and self._prev_ball.rpos().r() < 5):
-                
+
+                debug_print("F")
                 gvel = pos - self._prev_ball.pos()
                 vel_count = 2
             elif (see.balls()[0].dist_  < 2
@@ -675,7 +694,8 @@ class WorldModel:
                   and 2 <= self._ball.seen_pos_count() <= 6
                   and self.self().last_move(0).is_valid()
                   and self.self().last_move(1).is_valid()):
-                
+
+                debug_print("G")
                 prev_pos = self._ball.seen_pos()
                 move_step = self._ball.seen_pos_count()
                 ball_move: Vector2D = pos - prev_pos
@@ -686,9 +706,11 @@ class WorldModel:
                 vel_count = move_step
         
         if gvel.is_valid():
+            debug_print("H")
             self._ball.update_all(pos, self.self().pos_count(),
                                   rpos, gvel, vel_count)
         else:
+            debug_print("I")
             self._ball.update_pos(pos, self.self().pos_count(), rpos)
     
     def their_side(self):
