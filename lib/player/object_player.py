@@ -22,6 +22,7 @@ class PlayerObject(Object):
     
     POS_COUNT_THR = 30
     VEL_COUNT_THR = 5
+    FACE_COUNT_THR = 2
     
     def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()
@@ -123,6 +124,9 @@ class PlayerObject(Object):
     def pointto_angle(self):
         return self._pointto_angle
 
+    def pointto_count(self):
+        return self._pointto_count
+
     def stamina_model(self) -> StaminaModel:
         return self._stamina_model.copy()
 
@@ -156,7 +160,7 @@ class PlayerObject(Object):
         return self._kick_rate
 
     def player_type_id(self):
-        return self._player_type_id
+        return self.player_type().id()
 
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
@@ -204,10 +208,13 @@ class PlayerObject(Object):
                                                           dash_power)
     
     def vel_valid(self):
-        return self.vel_count() < PlayerObject.VEL_COUNT_THR
+        return self._vel_count < PlayerObject.VEL_COUNT_THR
 
     def pos_valid(self):
-        return self.pos_count() < PlayerObject.POS_COUNT_THR
+        return self._pos_count < PlayerObject.POS_COUNT_THR
+
+    def body_valid(self):
+        return self._body_count < PlayerObject.FACE_COUNT_THR
 
     def update(self, wm: 'WorldModel'):
         self._pos_history = [self._pos] + self._pos_history

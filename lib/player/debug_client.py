@@ -1,92 +1,49 @@
 from pyrusgeom.geom_2d import *
 import socket
 
-from lib.rcsc.types import Card, SideID
+from lib.rcsc.types import Card, SideID, GameModeType, UNUM_UNKNOWN
 
 import team_config
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
-# TODO add player
-# class PlayerPrinter {
-# private:
-#     std::ostream & M_os;
-#     const char M_tag;
-# public:
-#     PlayerPrinter( std::ostream & os,
-#                      const char tag )
-#         : M_os( os )
-#         , M_tag( tag )
-#       { }
-#
-#     void operator()( const PlayerObject & p )
-#       {
-#           M_os << " (";
-#           if ( p.unum() != Unum_Unknown )
-#           {
-#               M_os << M_tag << ' ' << p.unum();
-#           }
-#           else if ( M_tag == 'u' )
-#           {
-#               M_os << M_tag;
-#           }
-#           else
-#           {
-#               M_os << 'u' << M_tag;
-#           }
-#
-#           M_os << ' ' << ROUND( p.pos().x, 0.01 )
-#                << ' ' << ROUND( p.pos().y, 0.01 );
-#
-#           if ( p.bodyValid() )
-#           {
-#               M_os << " (bd " << rint( p.body().degree() )
-#                    << ')';
-#           }
-#
-#           M_os << " (c \"";
-#
-#           if  ( p.goalie() )
-#           {
-#               M_os << "G:";
-#           }
-#
-#           if ( p.unum() != Unum_Unknown )
-#           {
-#               M_os << 'u' << p.unumCount();
-#           }
-#
-#           M_os << 'p' << p.posCount()
-#                << 'v' << p.velCount();
-#
-#           if ( p.velCount() <= 100 )
-#           {
-#               M_os << '(' << ROUND( p.vel().x, 0.1 )
-#                    << ' ' << ROUND( p.vel().y, 0.1 )
-#                    << ')';
-#           }
-#           M_os << 'f' << p.faceCount();
-#
-#           if ( p.isTackling() )
-#           {
-#               M_os << "t";
-#           }
-#           else if ( p.kicked() )
-#           {
-#               M_os << "k";
-#           }
-#
-#           if ( p.card() == YELLOW )
-#           {
-#               M_os << "y";
-#           }
-#
-#           M_os << "\"))";
-#       }
-# };
 
+def player_printer(p: 'PlayerObject', our_side: SideID):
+    s = ' ('
+
+    if p.side() is SideID.NEUTRAL:
+        s += 'u'
+    elif p.side() == our_side:
+        if p.unum() != UNUM_UNKNOWN:
+            s += f"t {p.unum()}"
+            if p.player_type():
+                s += f" {p.player_type().id()}"
+            else:
+                s += ' -1'
+        else:
+            s += 'ut'
+    else:
+        if p.unum() != UNUM_UNKNOWN:
+            s += f"o {p.unum()}"
+            if p.player_type():
+                s += f" {p.player_type().id()}"
+            else:
+                s += ' -1'
+        else:
+            s += 'uo'
+
+    s += f" {round(p.pos().x(), 2)} {round(p.pos().y(), 2)}"
+    if p.body_valid():
+        s += f" (bd {round(p.body().degree())})"
+
+    if p.pointto_count() < 10:
+        s += f"(pt {round(float(p.pointto_angle()))})"
+
+    s += ")"
+    return s
 
 class DebugClient:
     MAX_LINE = 50       # maximum number of lines in one message.
@@ -131,22 +88,30 @@ class DebugClient:
         pass
 
     def to_str( self, world: 'WorldModel', effector ):
-        ostr = '((debug (format-version 3)) (time ' + str(world.time().cycle()) + ')'
+        ostr = ''
+        if world.game_mode().type() is GameModeType.BeforeKickOff:
+            ostr = f'((debug (format-version 5)) (time {str(world.time().cycle())},0)'
+        else:
+            ostr = f'((debug (format-version 5)) (time {str(world.time().cycle())},{world.time().stopped_cycle()})'
+
         ostr_player = ''
         ostr_ball = ''
         if world.self() and world.self().pos().is_valid():
-            ostr_player = ' (s ' + ('l ' if world.our_side() == SideID.LEFT else 'r ') + str(world.self().unum()) \
-                          + ' ' + str(round(world.self().pos().x(), 2)) + ' ' \
+            ostr_player = ' (s ' \
+                          + ('l ' if world.our_side() == SideID.LEFT else 'r ') \
+                          + str(world.self().unum()) + ' ' \
+                          + str(world.self().player_type_id()) + ' ' \
+                          + str(round(world.self().pos().x(), 2)) + ' ' \
                           + str(round(world.self().pos().y(), 2)) + ' ' \
                           + str(round(world.self().vel().x(), 2)) + ' ' \
                           + str(round(world.self().vel().y(), 2)) + ' ' \
                           + str(round(world.self().body().degree(), 1)) + ' ' \
                           + str(round(world.self().neck().degree(), 1)) \
-                          + ' (c \'' + str(world.self().pos_count()) + ' ' \
+                          + ' (c "' + str(world.self().pos_count()) + ' ' \
                           + str(world.self().vel_count()) + ' ' + str(world.self().face_count())
             if world.self().card() == Card.YELLOW:
                 ostr_player += 'y'
-            ostr_player += '\"))'
+            ostr_player += '"))'
 
         if world.ball().pos().is_valid():
             ostr_ball = ' (b ' + str(round(world.ball().pos().x(), 2)) \
@@ -160,6 +125,12 @@ class DebugClient:
 
         ostr += ostr_player
         ostr += ostr_ball
+
+        for p in world.teammates():
+            ostr += player_printer(p, world.our_side())
+
+        for p in world.opponents():
+            ostr += player_printer(p, world.our_side())
 
         if self._target_unum != 0:
             ostr += (' (target-teammate ' + str(self._target_unum)+ ')')
