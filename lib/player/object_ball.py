@@ -315,3 +315,6 @@ class BallObject(Object):
 
     def lost_count(self):
         return self._lost_count
+
+    def rpos_valid(self):
+        return self._rpos_count < BallObject.RPOS_COUNT_THR

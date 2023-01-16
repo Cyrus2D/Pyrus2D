@@ -1,3 +1,4 @@
+from base import goalie_decision
 from base.strategy_formation import StrategyFormation
 from base.set_play.bhv_set_play import Bhv_SetPlay
 from base.bhv_kick import BhvKick
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
 
-# TODO DLOG ON SCCORWINDOW -> CHECK
 def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
@@ -30,11 +30,17 @@ def get_decision(agent: 'PlayerAgent'):
         agent.do_attentionto(wm.our_side(), 5)
 
     if wm.game_mode().type() != GameModeType.PlayOn:
-        return Bhv_SetPlay().execute(agent)
+        if Bhv_SetPlay().execute(agent):
+            return True
+
+    if wm.self().goalie() and wm.game_mode().type():
+        goalie_decision.decision(agent)
+        return True
+
+
     if wm.self().is_kickable():
         return BhvKick().execute(agent)
     if BhvMove().execute(agent):
         return True
     debug_print("NO ACTION, ScanFIELD")
     return ScanField().execute(agent)
-

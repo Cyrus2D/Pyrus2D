@@ -11,10 +11,8 @@ class SoccerAgent:
              goalie: bool = False,
              argv: list = None) -> bool:
         self._client = client
-        self._goalie = goalie
-
-    def init_impl(self,
-                  cmd_parser: CmdLineParser) -> bool:
+        self.init_impl(goalie)
+    def init_impl(self, goalie: bool) -> bool:
         pass
 
     def handle_start(self) -> bool:

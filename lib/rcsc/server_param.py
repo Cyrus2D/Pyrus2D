@@ -980,6 +980,9 @@ class _ServerParam:  # TODO specific TYPES and change them
     def audio_cut_dist(self):
         return self._audio_cut_dist
 
+    def catchable_area(self):
+        return self._catchable_area
+
     def dist_quantize_step(self):
         return self._dist_quantize_step
 

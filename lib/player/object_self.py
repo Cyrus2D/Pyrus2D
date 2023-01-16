@@ -118,6 +118,9 @@ class SelfObject(PlayerObject):
     def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
         self._view_width = vw
         self._view_quality = vq
+
+    def catch_time(self):
+        return self._last_catch_time
     
     def update(self, act: ActionEffector, current_time: GameTime):
         if self._time == current_time:
