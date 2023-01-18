@@ -11,23 +11,33 @@ from lib.action.scan_field import ScanField
 from lib.debug.debug_print import debug_print
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
-from lib.rcsc.types import GameModeType, ViewWidth
+from lib.rcsc.types import GameModeType, ViewWidth, UNUM_UNKNOWN
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
 
+
+# TODO TACKLE GEN
+
 def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
     st.update(wm)
     
-    if wm.self().unum() == 5: # TODO REMOVE IT
-        # agent.add_say_message(BallPosVelMessenger())
-        agent.add_say_message(PlayerPosUnumMessenger(9))
+    fastest_teammate = wm.intercept_table().fastest_teammate()
+    nearest_teammate = None
+    if len(wm.teammates_from_ball()) > 0:
+        nearest_teammate = wm.teammates_from_ball()[0]
+
+    if fastest_teammate and fastest_teammate.unum() != UNUM_UNKNOWN:
+        agent.do_attentionto(wm.our_side(), fastest_teammate.unum())
+    elif nearest_teammate and nearest_teammate.unum() != UNUM_UNKNOWN:
+        agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
     else:
         agent.do_attentionto(wm.our_side(), 5)
+
 
     if wm.game_mode().type() != GameModeType.PlayOn:
         if Bhv_SetPlay().execute(agent):
