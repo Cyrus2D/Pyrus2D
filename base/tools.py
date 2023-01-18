@@ -58,16 +58,18 @@ class Tools:
             return max( 1, int(target_to_player.abs_y() / player_speed_max))
 
     @staticmethod
-    def get_nearest_teammate_unum(wm: 'WorldModel', position: Vector2D, unums=[x for x in range(1, 12)]):
-        unum = 0
+    def get_nearest_teammate_unum(wm: 'WorldModel', position: Vector2D, players: list['PlayerObject'] =None):
+        if players is None:
+            players = wm.teammates()
+        best_player: 'PlayerObject' = None
         min_dist2 = 1000
-        for i in unums:
-            d2 = wm.our_player(i).pos().dist2( position )
+        for player in players:
+            d2 = player.pos().dist2( position )
             if d2 < min_dist2:
                 min_dist2 = d2
-                unum = i
+                best_player = player
 
-        return unum
+        return best_player
 
     @staticmethod
     def estimate_virtual_dash_distance(player: 'PlayerObject'):
