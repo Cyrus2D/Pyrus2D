@@ -374,3 +374,6 @@ class PlayerObject(Object):
     
     def set_ghost(self):
         self._ghost_count += 1
+
+    def is_goalie(self):
+        return self._goalie
