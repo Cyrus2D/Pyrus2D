@@ -15,21 +15,22 @@ if TYPE_CHECKING:
 
 class PassMessenger(Messenger):
     def __init__(self,
-                 receiver_unum: int,
-                 receive_point: Vector2D,
-                 ball_pos: Vector2D,
-                 ball_vel: Vector2D,
+                 receiver_unum: int = None,
+                 receive_point: Vector2D = None,
+                 ball_pos: Vector2D = None,
+                 ball_vel: Vector2D = None,
                  message: str = None) -> None:
         super().__init__()
         self._size = Messenger.SIZES[Messenger.Types.PASS]
         self._header = Messenger.Types.PASS.value
 
+        if message:
+            self._message = message
+            return
         self._receiver_unum = receiver_unum
         self._receive_point = receive_point.copy()
         self._ball_pos = ball_pos.copy()
         self._ball_vel = ball_vel.copy()
-
-        self._message = message
 
     def encode(self, wm: 'WorldModel') -> str:
         if not wm.ball().pos_valid():
