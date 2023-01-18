@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from lib.rcsc.types import GameModeType
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
 debug_pass = False
 max_pass_time = 0
@@ -104,7 +105,7 @@ class BhvPassGen(BhvKickGen):
                 dlog.add_text(Level.PASS, '#DPass to {} {}, far or close'.format(t, receiver.pos()))
             return
 
-        if wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right] \
+        if wm.game_mode().type().is_goal_kick() \
                 and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
                 and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
             if debug_pass:
@@ -376,22 +377,26 @@ class BhvPassGen(BhvKickGen):
         first_ball_vel = Vector2D.polar2vector(first_ball_speed, ball_move_angle)
         min_step = 1000
         min_opp = 0
-        for unum in range(12):
-            opp = wm.their_player(unum)
+        for opp in wm.opponents():
             if opp is None or opp.unum() == 0:
                 continue
-            step = self.predict_opponent_reach_step(wm, unum, first_ball_pos, first_ball_vel, ball_move_angle,
+            step = self.predict_opponent_reach_step(wm, opp, first_ball_pos, first_ball_vel, ball_move_angle,
                                                     receive_point, max_cycle, description)
             if step < min_step:
                 min_step = step
-                min_opp = unum
+                min_opp = opp.unum()
         return min_step, min_opp
 
-    def predict_opponent_reach_step(self, wm: 'WorldModel', unum, first_ball_pos: Vector2D, first_ball_vel: Vector2D,
+    def predict_opponent_reach_step(self, wm: 'WorldModel', opp: 'PlayerObject', first_ball_pos: Vector2D, first_ball_vel: Vector2D,
                                     ball_move_angle: AngleDeg, receive_point: Vector2D, max_cycle, description):
         sp = SP.i()
+
+        penalty_area = Rect2D(Vector2D(sp.their_penalty_area_line_x(), -sp.penalty_area_half_width() ),
+                                Size2D(sp.penalty_area_length(), sp.penalty_area_width()))
         CONTROL_AREA_BUF = 0.15
-        opponent = wm.their_player(unum)
+
+
+        opponent = opp
         ptype = opponent.player_type()
         min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(), ptype.real_speed_max(), first_ball_pos,
                                                    ball_move_angle)
@@ -401,22 +406,33 @@ class BhvPassGen(BhvKickGen):
 
         for cycle in range(max(1, min_cycle), max_cycle + 1):
             ball_pos = smath.inertia_n_step_point(first_ball_pos, first_ball_vel, cycle, sp.ball_decay())
-            control_area = ptype.kickable_area()
+            control_area = sp.catchable_area() if opponent.is_goalie() and penalty_area.contains(ball_pos) else ptype.kickable_area()
 
             inertia_pos = ptype.inertia_point(opponent.pos(), opponent.vel(), cycle)
             target_dist = inertia_pos.dist(ball_pos)
 
             dash_dist = target_dist
-            # TODO calc Bonus
+            if description == 'T' \
+                and first_ball_vel.x() > 2.\
+                and ( receive_point.x() > wm.offside_line_x() or receive_point.x() > 30.):
+
+                pass
+            else:
+                dash_dist -= Tools.estimate_virtual_dash_distance(opp)
             if dash_dist - control_area - CONTROL_AREA_BUF < 0.001:
                 return cycle
 
-            dash_dist -= control_area
-            if description != 'T':
-                if receive_point.x() < 25:
-                    dash_dist -= 0.5
+            if description == 'T' \
+                and first_ball_vel.x() > 2.\
+                and ( receive_point.x() > wm.offside_line_x() or receive_point.x() > 30.):
+
+                dash_dist -= control_area
+            else:
+                if receive_point.x() < 25.:
+                    dash_dist -= control_area + 0.5
                 else:
-                    dash_dist -= 0.2
+                    dash_dist -= control_area + 0.2
+
             if dash_dist > ptype.real_speed_max() * (cycle + min(opponent.pos_count(), 5)):
                 continue
 
