@@ -444,7 +444,7 @@ class ActionEffector:
         return self._attentionto_command
     
     def queued_next_self_body(self) -> AngleDeg:
-        next_angle = self._agent.world().self().body() # TODO COPY
+        next_angle = self._agent.world().self().body().copy()
         if self._body_command and self._body_command.type() is CommandType.TURN:
             moment = self.get_turn_info()
             next_angle += moment
