@@ -354,7 +354,7 @@ class BhvPassGen(BhvKickGen):
             candidate.type = KickActionType.Pass
             candidate.start_ball_pos = wm.ball().pos()
             candidate.target_ball_pos = receive_point
-            candidate.target_unum = receiver
+            candidate.target_unum = receiver.unum()
             candidate.start_ball_speed = first_ball_speed
             candidate.evaluate()
             self.candidates.append(candidate)
