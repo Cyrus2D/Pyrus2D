@@ -6,6 +6,7 @@ from lib.action.scan_field import ScanField
 from lib.debug.level import Level
 from lib.debug.logger import dlog
 from lib.action.go_to_point import *
+from lib.messenger.pass_messenger import PassMessenger
 from lib.rcsc.types import GameModeType
 from base.generator_action import KickAction
 from base.generator_pass import BhvPassGen
@@ -167,5 +168,10 @@ class Bhv_SetPlay:
         agent.debug_client().set_target(target)
         agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
         SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
+        agent.add_say_message(PassMessenger(best_action.target_unum,
+                                            best_action.target_ball_pos,
+                                            agent.effector().queued_next_ball_pos(),
+                                            agent.effector().queued_next_ball_vel()))
+
         agent.set_neck_action(NeckScanPlayers())
         return True
