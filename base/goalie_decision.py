@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from pyrusgeom.line_2d import Line2D
 from pyrusgeom.rect_2d import Rect2D
 from pyrusgeom.size_2d import Size2D
+from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
 from base.generator_action import KickAction
@@ -84,8 +85,8 @@ def do_move(agent: 'PlayerAgent'):
 
     ball_pos = wm.ball().inertia_point(min(tm_min, opp_min))
 
-    post1 = Vector2D(-SP.pitch_half_length(), +SP.goal_half_width())
-    post2 = Vector2D(-SP.pitch_half_length(), -SP.goal_half_width())
+    post1 = Vector2D(-SP.pitch_half_length(), + SP.goal_half_width())
+    post2 = Vector2D(-SP.pitch_half_length(), - SP.goal_half_width())
 
     ball_to_post1 = (post1 - ball_pos).th()
     ball_to_post2 = (post2 - ball_pos).th()
@@ -98,6 +99,7 @@ def do_move(agent: 'PlayerAgent'):
                               Vector2D(margin, +SP.pitch_half_width()))
 
     target = goalie_move_line.intersection(ball_move_line)
+    target.set_y(bound(-SP.goal_half_width(), target.y(), SP.goal_half_width()))
 
     if DEBUG:
         dlog.add_line(Level.POSITIONING,
