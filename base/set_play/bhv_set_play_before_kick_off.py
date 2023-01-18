@@ -20,5 +20,5 @@ class Bhv_BeforeKickOff:
             agent.do_move(target.x(), target.y())
             agent.set_neck_action(NeckScanField())
             return True
-        else:
-            ScanField().execute(agent)
+        ScanField().execute(agent)
+        return True
