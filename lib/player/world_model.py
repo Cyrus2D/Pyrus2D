@@ -1537,6 +1537,7 @@ class WorldModel:
 
         return tmp_max_count, tmp_sum_count, int(tmp_sum_count/ counter)
 
-
+    def messenger_memory(self):
+        return self._messenger_memory
         
         
