@@ -40,6 +40,9 @@ class InterceptTable:
     def self_reach_cycle(self):
         return self._self_reach_cycle
 
+    def fastest_teammate(self):
+        return self._fastest_teammate
+
     def self_exhaust_reach_cycle(self):
         return self._self_exhaust_reach_cycle
 
