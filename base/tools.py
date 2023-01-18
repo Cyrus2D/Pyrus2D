@@ -58,7 +58,7 @@ class Tools:
             return max( 1, int(target_to_player.abs_y() / player_speed_max))
 
     @staticmethod
-    def get_nearest_teammate_unum(wm: 'WorldModel', position: Vector2D, players: list['PlayerObject'] =None):
+    def get_nearest_teammate(wm: 'WorldModel', position: Vector2D, players: list['PlayerObject'] =None):
         if players is None:
             players = wm.teammates()
         best_player: 'PlayerObject' = None
