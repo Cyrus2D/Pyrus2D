@@ -84,7 +84,12 @@ class MessengerMemory:
         
     def ball_time(self):
         return self._ball_time
-        
+
+    def pass_time(self):
+        return self._pass_time
+
+    def pass_(self):
+        return self._pass
 
     
     
