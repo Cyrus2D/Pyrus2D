@@ -1,3 +1,5 @@
+import math
+
 from pyrusgeom.geom_2d import *
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.player_type import PlayerType
@@ -7,6 +9,7 @@ from lib.action.kick_table import calc_max_velocity
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.object_player import PlayerObject
 
 class Tools:
     @staticmethod
@@ -65,3 +68,14 @@ class Tools:
                 unum = i
 
         return unum
+
+    @staticmethod
+    def estimate_virtual_dash_distance(player: 'PlayerObject'):
+        pos_count = min(10, player.pos_count(), player.seen_pos_count())
+        max_speed = player.player_type().real_speed_max() * 0.8
+
+        d = 0.
+        for i in range(pos_count):
+            d += max_speed * math.exp(-(i**2)/15)
+
+        return d
