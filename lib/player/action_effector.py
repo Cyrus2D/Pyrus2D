@@ -37,8 +37,8 @@ class ActionEffector:
         self._last_body_commands: list[CommandType] = [CommandType.ILLEGAL for _ in range(2)]
         self._last_action_time: GameTime = GameTime()
 
-        self._kick_accel: float = 0
-        self._kick_accel_error: float = 0
+        self._kick_accel: Vector2D = Vector2D(0, 0)
+        self._kick_accel_error: Vector2D = Vector2D(0, 0)
 
         self._turn_actual: float = 0
         self._turn_error: float = 0
@@ -85,8 +85,8 @@ class ActionEffector:
                 debug_print(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
-            self._kick_accel = 0
-            self._kick_accel_error = 0
+            self._kick_accel = Vector2D(0, 0)
+            self._kick_accel_error = Vector2D(0, 0)
             self._command_counter[CommandType.KICK.value] = body.kick_count()
 
         if body.turn_count() != self._command_counter[CommandType.TURN.value]:
@@ -444,7 +444,7 @@ class ActionEffector:
         return self._attentionto_command
     
     def queued_next_self_body(self) -> AngleDeg:
-        next_angle = self._agent.world().self().body()
+        next_angle = self._agent.world().self().body() # TODO COPY
         if self._body_command and self._body_command.type() is CommandType.TURN:
             moment = self.get_turn_info()
             next_angle += moment
@@ -488,6 +488,24 @@ class ActionEffector:
     def queued_next_angle_from_body(self, target: Vector2D):
         next_rpos = target - self.queued_next_self_pos()
         return next_rpos.th() - self.queued_next_self_body()
+
+    def queued_next_ball_vel(self):
+        vel = Vector2D(0, 0)
+        accel = Vector2D(0, 0)
+
+        wm = self._agent.world()
+
+        if wm.ball().vel_valid():
+            vel = wm.ball().vel().copy()
+
+        if self._body_command and self._body_command.type() == CommandType.KICK:
+            accel = self.get_kick_info()
+
+        vel += accel
+        vel *= ServerParam.i().ball_decay()
+        return vel
+
+
 
 
 
