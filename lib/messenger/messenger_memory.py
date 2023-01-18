@@ -9,7 +9,6 @@ class MessengerMemory:
             self.pos_: Vector2D = pos
             self.vel_: Vector2D = vel
 
-    
     class Player(Object):
         def __init__(self,
                      sender:int=0,
@@ -26,16 +25,25 @@ class MessengerMemory:
     class Ball(Object):
         def __init__(self, sender=0, pos: Vector2D = Vector2D(), vel: Vector2D = None) -> None:
             super().__init__(sender, pos, vel)
-    
+
+    class Pass:
+        def __init__(self, sender: int, receiver: int, pos: Vector2D):
+            self._sender = sender
+            self._receiver = receiver
+            self._pos = pos.copy()
+
     def __init__(self) -> None:
         self._time: GameTime = GameTime()
 
         self._players: list[MessengerMemory.Player] = []
         self._player_time: GameTime = GameTime()
         
-        self._balls: list[MessengerMemory.Player] = []
+        self._balls: list[MessengerMemory.Ball] = []
         self._ball_time: GameTime = GameTime()
-        
+
+        self._pass: list[MessengerMemory.Pass] = []
+        self._pass_time: GameTime = GameTime()
+
     def add_ball(self, sender: int, pos: Vector2D, vel: Vector2D, current_time: GameTime):
         if self._ball_time != current_time:
             self._balls.clear()
@@ -52,6 +60,15 @@ class MessengerMemory:
         self._player_time = current_time.copy()
 
         self._time = current_time.copy()
+
+    def add_pass(self, sender: int, receiver: int, pos: Vector2D, current: GameTime):
+        if self._pass_time != current:
+            self._pass.clear()
+
+        self._pass.append(MessengerMemory.Pass(sender, receiver, pos))
+        self._pass_time = current.copy()
+
+        self._time = current.copy()
     
     def time(self):
         return self._time

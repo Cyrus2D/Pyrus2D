@@ -17,6 +17,7 @@ class Messenger:
     class Types(Enum):
         BALL_POS_VEL_MESSAGE = 'b'
         PLAYER_POS_VEL_UNUM = 'P'
+        PASS = 'p'
         NONE = ''
     
    
@@ -24,12 +25,13 @@ class Messenger:
     SIZES: dict[Types, int] = {
         Types.BALL_POS_VEL_MESSAGE: 6,
         Types.PLAYER_POS_VEL_UNUM: 4,
+        Types.PASS: 10,
     }
     
-    def __init__(self) -> None:
+    def __init__(self, message: str = None) -> None:
         self._type: Messenger.Types = Messenger.Types.NONE
         self._size: int = 0
-        self._message: str = None
+        self._message: str = message
         self._header: str = None
     
     def encode(self, wm: 'WorldModel') -> str:
