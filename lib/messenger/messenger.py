@@ -75,10 +75,12 @@ class Messenger:
     def decode_all(messenger_memory: MessengerMemory, messages: str, sender: int, current_time: GameTime):
         from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
         from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
+        from lib.messenger.pass_messenger import PassMessenger
 
         messenger_classes: dict[Messenger.Types, type['Messenger']] = {
             Messenger.Types.BALL_POS_VEL_MESSAGE: BallPosVelMessenger,
             Messenger.Types.PLAYER_POS_VEL_UNUM: PlayerPosUnumMessenger,
+            Messenger.Types.PASS: PassMessenger,
         }
 
         index = 0
