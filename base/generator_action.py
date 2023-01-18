@@ -60,7 +60,7 @@ class ShootAction:
 
 class BhvKickGen:
     def __init__(self):
-        self.candidates = []
+        self.candidates: list = []
         self.index = 0
         self.debug_list = []
 
