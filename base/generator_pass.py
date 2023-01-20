@@ -205,7 +205,7 @@ class BhvPassGen(BhvKickGen):
                         dlog.add_text(Level.PASS, '#LPass to {} {}, so far or so close'.format(receiver.unum(), receive_point))
                     continue
 
-                nearest_receiver = Tools.get_nearest_teammate_unum(wm, receive_point, self.receivers)
+                nearest_receiver = Tools.get_nearest_teammate(wm, receive_point, self.receivers)
                 if nearest_receiver.unum() != receiver.unum():
                     if debug_pass:
                         dlog.add_text(Level.PASS,
