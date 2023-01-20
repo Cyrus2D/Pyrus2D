@@ -443,3 +443,9 @@ class SelfObject(PlayerObject):
         
     def is_self(self):
         return False
+
+    def tackle_probability(self):
+        return self._tackle_probability
+
+    def foul_probability(self):
+        return self._foul_probability
