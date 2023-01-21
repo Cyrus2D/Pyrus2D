@@ -36,6 +36,28 @@ class KickAction:
     def __str__(self):
         return self.__repr__()
 
+class TackleAction:
+    def __init__(self, angle: AngleDeg = None, vel: Vector2D = None):
+        if angle is not None and vel is not None:
+            self._tackle_angle: AngleDeg = AngleDeg(angle)
+            self._ball_vel: Vector2D = vel.copy()
+            self._ball_speed: float = vel.r()
+            self._ball_move_angle: AngleDeg = vel.th()
+            self._score: float = 0.
+            return
+        self._tackle_angle: AngleDeg = AngleDeg(0)
+        self._ball_vel: Vector2D = Vector2D(0,0)
+        self._ball_speed: float = 0.
+        self._ball_move_angle: AngleDeg = AngleDeg(0)
+        self._score: float = -float('inf')
+
+    def clear(self):
+        self._tackle_angle: AngleDeg = AngleDeg(0)
+        self._ball_vel: Vector2D = Vector2D(0,0)
+        self._ball_speed: float = 0.
+        self._ball_move_angle: AngleDeg = AngleDeg(0)
+        self._score: float = -float('inf')
+
 
 class ShootAction:
     def __init__(self, index, target_point, first_ball_speed, ball_move_angle, ball_move_dist, ball_reach_step):
