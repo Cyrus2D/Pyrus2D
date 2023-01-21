@@ -1540,4 +1540,8 @@ class WorldModel:
     def messenger_memory(self):
         return self._messenger_memory
         
-        
+    def our_players(self):
+        return self._our_players
+
+    def their_players(self):
+        return self._their_players
