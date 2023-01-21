@@ -1444,6 +1444,12 @@ class _ServerParam:  # TODO specific TYPES and change them
             return self.fullstate_l()
         return self.fullstate_r()
 
+    def their_team_goal_pos(self):
+        return Vector2D( self.pitch_half_length(), 0.)
+
+    def our_team_goal_pos(self):
+        return Vector2D(-self.pitch_half_length(), 0.)
+
 # TODO we can use function, instance instance class
 # like:
 # def ServerParam():
