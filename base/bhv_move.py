@@ -1,3 +1,4 @@
+from base.basic_tackle import BasicTackle
 from lib.action.go_to_point import GoToPoint
 from base.strategy_formation import StrategyFormation
 from lib.action.intercept import Intercept
@@ -23,6 +24,9 @@ class BhvMove:
 
     def execute(self, agent: 'PlayerAgent'):
         wm: 'WorldModel' = agent.world()
+
+        if BasicTackle(0.8, 80).execute(agent):
+            return True
         
         # intercept
         self_min = wm.intercept_table().self_reach_cycle()

@@ -7,6 +7,7 @@ from pyrusgeom.size_2d import Size2D
 from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
+from base.basic_tackle import BasicTackle
 from base.generator_action import KickAction
 from base.generator_pass import BhvPassGen
 from lib.action.go_to_point import GoToPoint
@@ -71,8 +72,8 @@ def do_move(agent: 'PlayerAgent'):
     SP = ServerParam.i()
     wm = agent.world()
 
-    # if Tackle(0.8, 90.).execute(agent): # TODO IMP FUNC
-    #     return True
+    if BasicTackle(0.8, 90.).execute(agent):
+        return True
 
     self_min = wm.intercept_table().self_reach_cycle()
     tm_min = wm.intercept_table().teammate_reach_cycle()
