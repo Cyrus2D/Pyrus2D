@@ -4,6 +4,8 @@ from pyrusgeom.line_2d import Line2D
 from pyrusgeom.ray_2d import Ray2D
 from pyrusgeom.vector_2d import Vector2D
 
+from base.tackle_generator import TackleGenerator
+from lib.action.neck_turn_to_point import NeckTurnToPoint
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import Card
 
@@ -54,7 +56,7 @@ class BasicTackle:
                 or self_goal
                 or (opp_min < self_min - 3 and opp_min < mate_min - 3)
                 or (self_min >= 5
-                    and wm.ball().pos().dist2(SP.their_team_goal_pos()) < 10 **2 # TODO IMP FUNC
+                    and wm.ball().pos().dist2(SP.their_team_goal_pos()) < 10 **2
                     and ((SP.their_team_goal_pos() - wm.self().pos()).th() - wm.self().body()).abs() < 45.)):
 
             return False
@@ -64,13 +66,15 @@ class BasicTackle:
     def executeV14(self, agent: 'PlayerAgent', use_foul: bool):
         wm = agent.world()
 
-        result = TackleGenerator.instance().best_result(wm) # TODO IMP FUNC
+        result = TackleGenerator.instance().best_result(wm)
 
-        agent.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result.tackle_angle.degree()}")
-        tackle_dir = (result.tackle_angle - wm.self().body()).degree()
+        ball_next = wm.ball().pos() + result._ball_vel
+
+        agent.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result._tackle_angle.degree()}")
+        tackle_dir = (result._tackle_angle - wm.self().body()).degree()
 
         agent.do_tackle(tackle_dir, use_foul)
-        agent.set_neck_action(NeckTurnToPoint()) # TODO IMP func
+        agent.set_neck_action(NeckTurnToPoint(ball_next))
         return True
 
 
