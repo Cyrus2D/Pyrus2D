@@ -70,9 +70,10 @@ class PlayerAgent(SoccerAgent):
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            com = PlayerByeCommand()
-            self._agent._client.send_message(com.str())
-            self._agent._client.set_server_alive(False)
+            if self._agent._client.is_server_alive() is not None:
+                com = PlayerByeCommand()
+                self._agent._client.send_message(com.str())
+                self._agent._client.set_server_alive(False)
 
         def sense_body_parser(self, message: str):
             self._body_time_stamp = get_time_msec()
@@ -262,6 +263,11 @@ class PlayerAgent(SoccerAgent):
 
     def handle_start(self):
         if self._client is None:
+            return False
+
+        if team_config.PLAYER_VERSION <= 18:
+            debug_print("PYRUS2D base code does not support player version less than 18.")
+            self._client.set_server_alive(False)
             return False
 
         # TODO check for config.host not empty
