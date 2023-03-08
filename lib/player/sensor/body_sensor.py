@@ -25,6 +25,7 @@ class BodySensor:
         self._catch_count: int = 0
         self._move_count: int = 0
         self._change_view_count: int = 0
+        self._change_focus_count: int = 0
 
         self._arm_movable: int = 0
         self._arm_expires: int = 0
@@ -48,11 +49,13 @@ class BodySensor:
         self._charged_expires: int = 0
         self._card: Card = Card.NO_CARD
 
+        self._focus_point_dist: float = 0.0
+        self._focus_point_dir: float = 0.0
+
     def parse(self, msg: str, current_time: GameTime):
         self._current = current_time.copy()
 
-        r = msg.split(' ')
-
+        r = msg.replace('\x00', '').split(' ')
         _sense_time = int(r[1].strip(')('))
         self._view_quality = ViewQuality(r[3].strip(')('))
         self._view_width = ViewWidth(r[4].strip(')('))
@@ -69,23 +72,24 @@ class BodySensor:
         self._catch_count = int(r[25].strip(')('))
         self._move_count = int(r[27].strip(')('))
         self._change_view_count = int(r[29].strip(')('))
-        self._arm_movable = int(r[32].strip(')('))
-        self._arm_expires = int(r[34].strip(')('))
-        self._pointto_dist = int(r[36].strip(')('))
-        self._pointto_dir = int(r[37].strip(')('))
-        self._pointto_count = int(r[39].strip(')('))
+        self._change_focus_count = int(r[31].strip(')('))
+        self._arm_movable = int(r[34].strip(')('))
+        self._arm_expires = int(r[36].strip(')('))
+        self._pointto_dist = int(r[38].strip(')('))
+        self._pointto_dir = int(r[39].strip(')('))
+        self._pointto_count = int(r[41].strip(')('))
 
-        attention_target = r[42].strip(')(')
+        attention_target = r[44].strip(')(')
         k = 0 if attention_target[0] == 'n' else 1
 
         self._attentionto_unum = UNUM_UNKNOWN
         if k > 0:
-            self._attentionto_unum = int(r[43].strip(')('))
+            self._attentionto_unum = int(r[45].strip(')('))
 
-        self._attentionto_count = int(r[44 + k].strip(')('))
+        self._attentionto_count = int(r[46 + k].strip(')('))
 
-        self._tackle_expires = int(r[47 + k].strip(')('))
-        self._tackle_count = int(r[49 + k].strip(')('))
+        self._tackle_expires = int(r[49 + k].strip(')('))
+        self._tackle_count = int(r[51 + k].strip(')('))
 
         if attention_target == 'n':
             self._attentionto_side = SideID.NEUTRAL
@@ -102,8 +106,7 @@ class BodySensor:
         self._post_collided = False
         self._player_collided = False
 
-
-        col = msg[msg.find('(collision'): msg.find('foul')]
+        col = r[53 + k].strip(')(')
         if 'none' in col:
             self._none_collided = True
         else:
@@ -113,7 +116,14 @@ class BodySensor:
                 self._player_collided = True
             if 'post' in col:
                 self._post_collided = True
-
+        self._charged_expires = int(r[56 + k].strip(')('))
+        card = r[58 + k].strip(')(')
+        if card == 'red':
+            self._card = Card.RED
+        elif card == 'yellow':
+            self._card = Card.YELLOW
+        self._focus_point_dist = float(r[60 + k].strip(')('))
+        self._focus_point_dir = float(r[61 + k].strip().strip(')('))
 
     def time(self) -> GameTime:
         return self._current
@@ -213,3 +223,12 @@ class BodySensor:
 
     def card(self):
         return self._card
+
+    def change_focus_count(self):
+        return self._change_focus_count
+
+    def focus_point_dist(self):
+        return self._focus_point_dist
+
+    def focus_point_dir(self):
+        return self._focus_point_dir
