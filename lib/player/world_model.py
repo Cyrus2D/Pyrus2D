@@ -192,7 +192,7 @@ class WorldModel:
             self.reverse()
         
         for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
-            o._update_more_with_full_state(self)
+            o.update_more_with_full_state(self)
         
     def __repr__(self):
         # Fixed By MM _ temp

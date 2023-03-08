@@ -9,7 +9,9 @@ from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent
 from lib.player_command.trainer_command import TrainerTeamNameCommand, TrainerSendCommands, TrainerMoveBallCommand, \
     TrainerMovePlayerCommand, TrainerInitCommand, TrainerDoneCommand, TrainerEyeCommand, TrainerEarCommand, \
-    TrainerChangeModeCommand
+    TrainerChangeModeCommand, TrainerRecoverCommand
+from lib.rcsc.game_mode import GameMode
+from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
 from lib.debug.debug_print import debug_print
@@ -23,7 +25,37 @@ class TrainerAgent(SoccerAgent):
             # TODO so many things....
             self._agent: TrainerAgent = agent
             self._think_received = True
+            self._game_mode: GameMode = GameMode()
+            self._current_time: GameTime = GameTime()
 
+        def hear_parser(self, message: str):
+            _, sender, cycle = tuple(
+                message.split(" ")[:3]
+            )
+            if cycle.isnumeric():
+                cycle = int(cycle)
+            else:
+                return
+
+            if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
+                self.hear_player_parser(message)
+            elif sender == "referee":
+                self.hear_referee_parser(message)
+
+        def hear_player_parser(self, message):
+            pass
+
+        def hear_referee_parser(self, message: str):
+            mode = message.split(" ")[-1].strip(")")
+            self._game_mode.update(mode, self._current_time)
+
+            # TODO CARDS AND OTHER STUFF
+
+            if self._game_mode.type() is GameModeType.TimeOver:
+                self.send_bye_command()
+                return
+            self._agent.world().update_game_mode(self._game_mode, self._current_time)
+            # TODO FULL STATE WORLD update
         def send_init_command(self):
             # TODO check reconnection
 
@@ -44,7 +76,7 @@ class TrainerAgent(SoccerAgent):
         def analyze_init(self, message):
             self._agent.init_dlog(message)
             self._agent.do_eye(True)
-            self._agent.do_ear(False)  # TODO fix hearing
+            self._agent.do_ear(True)
 
     def __init__(self):
         super().__init__()
@@ -115,6 +147,8 @@ class TrainerAgent(SoccerAgent):
             self._impl._think_received = True
         elif message.find("(ok") is not -1:
             self._client.send_message(TrainerDoneCommand().str())
+        elif message.find("(hear") is not -1:
+            self._impl.hear_parser(message)
 
     def init_dlog(self, message):
         dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name_l()}-coach.log", logging.DEBUG)
@@ -160,6 +194,11 @@ class TrainerAgent(SoccerAgent):
                        angle: AngleDeg = None,
                        vel: Vector2D = None):
         command = TrainerMovePlayerCommand(teamname, unum, pos, angle, vel)
+        self._last_body_command.append(command)
+        return True
+
+    def do_recover(self):
+        command = TrainerRecoverCommand()
         self._last_body_command.append(command)
         return True
 

@@ -51,7 +51,7 @@ class BallObject(Object):
         self._pos_count = 0
         self._ghost_count = 0
 
-    def _update_more_with_full_state(self, wm):
+    def update_more_with_full_state(self, wm):
         self._rpos = self.pos() - wm.self().pos()
 
     def dist_from_self(self):
@@ -146,7 +146,6 @@ class BallObject(Object):
         self._lost_count = min(1000, self._lost_count + 1)
     
     def update_only_vel(self, vel: Vector2D, vel_count:int):
-        debug_frame()
         self._vel = vel.copy()
         self._vel_count = vel_count
         self._seen_vel = vel.copy()

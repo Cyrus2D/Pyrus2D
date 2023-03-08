@@ -376,17 +376,11 @@ class SelfObject(PlayerObject):
             if ball.seen_pos_count() >= 2:
                 buff = 0.255
             if ball.dist_from_self() <= ptype.kickable_area() - buff:
-                debug_print("KA C")
-                debug_print(f"bdfs={ball.pos(), ball.dist_from_self(), ptype.kickable_area(), buff}")
                 self._kickable = True
             
             self._kick_rate = ptype.kick_rate(ball.dist_from_self(),
                                              (ball.angle_from_self() - self.body()).degree())
-            debug_print(f"(self object update ball info) kickrate={self._kick_rate}")
-            debug_print(f"(self object update ball info) ball2self_dist={ball.dist_from_self()}")
-            debug_print(f"(self object update ball info) ball2self_angle={ball.angle_from_self()}")
-            debug_print(f"(self object update ball info) body={self.body()}")
-        
+
         if self._last_catch_time.cycle() + SP.catch_ban_cycle() <= self._time.cycle():
             self._catch_probability = ptype.get_catch_probability(self.pos(), self.body(), ball.pos(), 0.055, 0.5)
         

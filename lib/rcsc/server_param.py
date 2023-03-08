@@ -702,6 +702,7 @@ class _ServerParam:  # TODO specific TYPES and change them
         self._wind_none = bool(int(dic["wind_none"]))
         self._wind_rand = float(dic["wind_rand"])
         self._use_wind_random = bool(int(dic["wind_random"]))
+        self._dash_angle_step = float(dic['dash_angle_step'])
         # self._max_catch_angle = dic["max_catch_angle"] TODO FIX THESE
         # self._min_catch_angle = dic["min_catch_angle"]
 

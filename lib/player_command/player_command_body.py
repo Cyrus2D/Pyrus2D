@@ -35,7 +35,7 @@ class PlayerDashCommand(PlayerBodyCommand):
         self._dir = direction
 
     def str(self):
-        return f"(dash {self._power}" + (f" {self._dir})" if self._dir != 0 else ")")
+        return f"(dash {self._power:.2f}" + (f" {self._dir:.2f})" if self._dir != 0 else ")")
 
     def __repr__(self):
         return "(Dash power:{}, dir:{})".format(self._power, self._dir)
@@ -49,7 +49,7 @@ class PlayerTurnCommand(PlayerBodyCommand):
         self._moment = moment
 
     def str(self):
-        return f"(turn {self._moment})"
+        return f"(turn {self._moment:.2f})"
 
     def __repr__(self):
         return "(Turn moment:{})".format(self._moment)
@@ -64,7 +64,7 @@ class PlayerKickCommand(PlayerBodyCommand):
         self._dir = rel_dir  # relative to body angle
 
     def str(self):
-        return f"(kick {self._power} {self._dir})"
+        return f"(kick {self._power:.2f} {self._dir:.2f})"
 
     def __repr__(self):
         return "(Kick power:{}, dir:{})".format(self._power, self._dir)

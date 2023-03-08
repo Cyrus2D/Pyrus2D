@@ -10,9 +10,9 @@ class SampleTrainer(TrainerAgent):
         super().__init__()
 
     def action_impl(self):
-        # if self.world().team_name() == "":  # TODO left team name...  # TODO is empty...
-        #     self.do_teamname()
-        #     return
+        if self.world().team_name_left() == "":  # TODO left team name...  # TODO is empty...
+            self.do_teamname()
+            return
         self.sample_action()
 
     def sample_action(self):

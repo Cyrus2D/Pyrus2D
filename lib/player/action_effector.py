@@ -202,16 +202,17 @@ class ActionEffector:
         wm = self._agent.world()
 
         rel_dir = float(rel_dir)
-        
+
         if power > SP.max_dash_power() or power < SP.min_dash_power():
             debug_print(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_power(power)
-        
-        if rel_dir > SP.max_dash_power() or rel_dir < SP.min_dash_power():
+
+        if rel_dir > SP.max_dash_angle() or rel_dir < SP.min_dash_angle():
             debug_print(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_angle(rel_dir)
-        
+
         rel_dir = SP.discretize_dash_angle(rel_dir)
+
         power = ActionEffector.conserve_dash_power(wm, power, rel_dir)
         
         dir_rate = SP.dash_dir_rate(rel_dir)

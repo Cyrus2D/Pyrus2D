@@ -76,6 +76,17 @@ class TrainerMoveBallCommand(TrainerCommand):
                f" 0 {self._vel.x()} {self._vel.y()})"
 
 
+class TrainerRecoverCommand(TrainerCommand):
+    def __init__(self):
+        super().__init__()
+
+    def type(self):
+        return TrainerCommand.Type.RECOVER
+
+    def str(self):
+        return '(recover)'
+
+
 class TrainerMovePlayerCommand(TrainerCommand):
     def __init__(self,
                  teamname: str,
@@ -106,8 +117,8 @@ class TrainerMovePlayerCommand(TrainerCommand):
                        f" {self._pos.x()} {self._pos.y()} {self._angle})"
             else:
                 return f"(move (player {self._teamname} {self._unum}) " \
-                       f"{self._pos.x()} {self._pos.y()} {self._angle}" \
-                       f" {self._vel.x()} {self._vel.y()})"
+                       f"{self._pos.x():.2f} {self._pos.y():.2f} {self._angle:.2f}" \
+                       f" {self._vel.x():.2f} {self._vel.y():.2f})"
 
     def check(self):
         if not 0 < self._unum < 12:

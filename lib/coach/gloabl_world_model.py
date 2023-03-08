@@ -231,7 +231,12 @@ class GlobalWorldModel:
             pt = self._their_player_type_id[i]
             if pt != HETERO_UNKNOWN:
                 self._their_player_type_used_count[pt] += 1
-        
+
+    def team_name_left(self):
+        return self._team_name_l
+
+    def team_name_right(self):
+        return self._team_name_r
             
             
             
