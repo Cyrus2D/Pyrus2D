@@ -265,7 +265,7 @@ class PlayerAgent(SoccerAgent):
         if self._client is None:
             return False
 
-        if team_config.PLAYER_VERSION <= 18:
+        if team_config.PLAYER_VERSION < 18:
             debug_print("PYRUS2D base code does not support player version less than 18.")
             self._client.set_server_alive(False)
             return False

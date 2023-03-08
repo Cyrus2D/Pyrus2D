@@ -142,7 +142,7 @@ class CoachAgent(SoccerAgent):
         if self._client is None:
             return False
 
-        if team_config.COACH_VERSION <= 18:
+        if team_config.COACH_VERSION < 18:
             debug_print("PYRUS2D base code does not support coach version less than 18.")
             self._client.set_server_alive(False)
             return False
