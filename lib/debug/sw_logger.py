@@ -25,10 +25,10 @@ class SoccerWindow_Logger(DebuggerAbstract):
             if x1 is not None:
                 self._commands += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} l {x1} {y1} {x2} {y2} {color}\n"
             elif start is not None:
-                 self.add_line(start.x(), start.y(), end.x(), end.y(), color=color)
+                self.add_line(start.x(), start.y(), end.x(), end.y(), color=color)
 
         def add_text(self, message: str = ""):
-            self.command += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} M {message}\n"  # TODO flush if message size is so large like 8192 and bigger
+            self._commands += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} M {message}\n"  # TODO flush if message size is so large like 8192 and bigger
 
         def add_circle(self,
                        r: float = None,
@@ -44,7 +44,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
                 self.add_circle(r, center.x(), center.y(), color=color, fill=fill)
             elif circle is not None:
                 self.add_circle(circle.radius(), circle.center().x(), circle.center().y(), fill=fill,
-                                       color=color)
+                                color=color)
 
         def add_point(self,
                       x: float = None,
@@ -63,9 +63,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
             self._commands += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
 
     def __init__(self, team_name: str, unum: int):
-        self._file = open(f"/tmp/{team_name}-{unum}.log", 'w')
-
-        self._commands: str = ""
+        self._file = open(f"{team_name}-{unum}.log", 'w')
         self._time: GameTime = GameTime()
 
         self._system = SoccerWindow_Logger.LoggerLevel(Level.SYSTEM, self._time)
@@ -91,12 +89,41 @@ class SoccerWindow_Logger(DebuggerAbstract):
         self._plan = SoccerWindow_Logger.LoggerLevel(Level.PLAN, self._time)
         self._training = SoccerWindow_Logger.LoggerLevel(Level.TRAINING, self._time)
 
-    def flush():
+        self._levels: list[SoccerWindow_Logger.LoggerLevel] = [
+            self._system,
+            self._sensor,
+            self._world,
+            self._action,
+            self._intercept,
+            self._kick,
+            self._hold,
+            self._dribble,
+            self._pass,
+            self._cross,
+            self._shoot,
+            self._clear,
+            self._block,
+            self._mark,
+            self._positioning,
+            self._role,
+            self._team,
+            self._communication,
+            self._analyzer,
+            self._action_chain,
+            self._plan,
+            self._training,
+        ]
+
+    def flush(self):
         if self._time is None or self._time.cycle() == 0:
             return
+        for l in self._levels:
+            self._file.write(l._commands)
+            l._commands = ""
+
+    def update_time(self, t: GameTime):
+        self._time.assign(t.cycle(), t.stopped_cycle())
 
 
 
 
-d = SoccerWindow_Logger()
-d._world.add_circle(...)
