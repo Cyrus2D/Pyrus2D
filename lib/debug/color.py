@@ -9,16 +9,24 @@ class Color:
         else:
             if string[0] == '#':
                 self._hex = string
-            elif string == "white":
-                self.__init__(255, 255, 255)
-            elif string == "black":
-                self.__init__(0, 0, 0)
-            elif string == "red":
-                self.__init__(255, 0, 0)
-            elif string == "green":
-                self.__init__(0, 255, 0)
-            elif string == "blue":
-                self.__init__(0, 0, 255)
+            else:
+                string = string.lower()
+                if string in ['white', 'w']:
+                    self.__init__(255, 255, 255)
+                elif string in ['black', 'b']:
+                    self.__init__(0, 0, 0)
+                elif string in ['red', 'r']:
+                    self.__init__(255, 0, 0)
+                elif string in ['green', 'g']:
+                    self.__init__(0, 255, 0)
+                elif string in ['blue', 'b']:
+                    self.__init__(0, 0, 255)
+                elif string in ['yellow', 'y']:
+                    self.__init__(255, 248, 27)
+                elif string in ['ping', 'p']:
+                    self.__init__(241, 27, 255)
+                elif string in ['gray']:
+                    self.__init__(151, 151, 151)
 
     def hex(self):
         return self._hex
