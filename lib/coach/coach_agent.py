@@ -41,7 +41,11 @@ class CoachAgent(SoccerAgent):
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            self._agent._client.set_server_alive(False)
+            if self._agent._client.is_server_alive() is True:
+                # TODO Coach Bye Command needs to be implemented
+                # com = PlayerByeCommand()
+                # self._agent._client.send_message(com.str())
+                self._agent._client.set_server_alive(False)
 
         @property # TODO REMOVE PROPERTY
         def think_received(self):
@@ -136,6 +140,11 @@ class CoachAgent(SoccerAgent):
 
     def handle_start(self):
         if self._client is None:
+            return False
+
+        if team_config.COACH_VERSION <= 18:
+            debug_print("PYRUS2D base code does not support coach version less than 18.")
+            self._client.set_server_alive(False)
             return False
 
         # TODO check for config.host not empty
