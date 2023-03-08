@@ -82,6 +82,12 @@ class SelfObject(PlayerObject):
             self._vel_count = 0
             self._pos_count = 0
             self._body_count = 0
+            self._change_focus_count = 0
+            self._focus_point_dist = 0
+            self._focus_point_dir_to_neck = AngleDeg(0)
+            self._focus_point_dir_to_body = AngleDeg(0)
+            self._focus_point_dir_to_pos = AngleDeg(0)
+            self._focus_point = player.pos()
     
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
@@ -197,6 +203,9 @@ class SelfObject(PlayerObject):
         self._time = current_time.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face - self._neck.degree())
+        self._focus_point_dir_to_pos = self.face() - self.focus_point_dir_to_neck()
+        self._focus_point_dir_to_body = self.focus_point_dir_to_pos() - self.body()
+
         self._body_count = 0
         self._face_count = 0
         
@@ -237,6 +246,10 @@ class SelfObject(PlayerObject):
         self._seen_pos = pos.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face) - self._neck
+
+        self._focus_point_dir_to_pos = self.face() - self.focus_point_dir_to_neck()
+        self._focus_point_dir_to_body = self.focus_point_dir_to_pos() - self.body()
+        self._focus_point = self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.focus_point_dir_to_pos())
 
         self._pos_count = 0
         self._seen_pos_count = 0
@@ -337,7 +350,10 @@ class SelfObject(PlayerObject):
         self._arm_expires = body.arm_expires()
         self._charge_expires = body.charged_expires()
         self._card = body.card()
-    
+        self._change_focus_count = body.change_focus_count()
+        self._focus_point_dist = body.focus_point_dist()
+        self._focus_point_dir_to_neck = body.focus_point_dir()
+
     def set_pointto(self,point: Vector2D, done_time: GameTime):
         self._pointto_pos = point.copy()
         self._last_pointto_time = done_time
@@ -443,3 +459,19 @@ class SelfObject(PlayerObject):
 
     def foul_probability(self):
         return self._foul_probability
+
+    def change_focus_count(self):
+        return self._change_focus_count
+
+    def focus_point_dist(self):
+        return self._focus_point_dist
+
+    def focus_point_dir_to_neck(self):
+        return self._focus_point_dir_to_neck
+
+    def focus_point_dir_to_body(self):
+        return self._focus_point_dir_to_body
+
+    def focus_point_dir_to_pos(self):
+        return self._focus_point_dir_to_pos
+
