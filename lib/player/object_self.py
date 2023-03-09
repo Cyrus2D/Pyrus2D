@@ -82,12 +82,12 @@ class SelfObject(PlayerObject):
             self._vel_count = 0
             self._pos_count = 0
             self._body_count = 0
-            self._change_focus_count = 0
-            self._focus_point_dist = 0
-            self._focus_point_dir_to_neck = AngleDeg(0)
-            self._focus_point_dir_to_body = AngleDeg(0)
-            self._focus_point_dir_to_pos = AngleDeg(0)
-            self._focus_point = player.pos()
+            self._change_focus_count: int = 0
+            self._focus_point_dist:float = 0
+            self._focus_point_dir_to_neck: AngleDeg = AngleDeg(0)
+            self._focus_point_dir_to_body:AngleDeg = AngleDeg(0)
+            self._focus_point_dir_to_pos:AngleDeg = AngleDeg(0)
+            self._focus_point: Vector2D = player.pos()
     
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side

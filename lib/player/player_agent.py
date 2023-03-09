@@ -70,7 +70,7 @@ class PlayerAgent(SoccerAgent):
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            if self._agent._client.is_server_alive() is True:
+            if self._agent._client.is_server_alive() is True: # TODO FALSE?
                 com = PlayerByeCommand()
                 self._agent._client.send_message(com.str())
                 self._agent._client.set_server_alive(False)

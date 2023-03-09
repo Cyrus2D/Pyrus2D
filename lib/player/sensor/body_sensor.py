@@ -106,7 +106,7 @@ class BodySensor:
         self._post_collided = False
         self._player_collided = False
 
-        col = r[53 + k].strip(')(')
+        col = r[53 + k].strip(')(') # TODO slice?
         if 'none' in col:
             self._none_collided = True
         else:
