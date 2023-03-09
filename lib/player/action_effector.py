@@ -8,7 +8,7 @@ from lib.messenger.messenger import Messenger
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player_command.player_command import CommandType
 from lib.player_command.player_command_body import PlayerBodyCommand, PlayerCatchCommand, PlayerDashCommand, PlayerKickCommand, PlayerMoveCommand, PlayerTackleCommand, PlayerTurnCommand
-from lib.player_command.player_command_support import PlayerAttentiontoCommand, PlayerChangeViewCommand, PlayerPointtoCommand, PlayerSayCommand, PlayerTurnNeckCommand
+from lib.player_command.player_command_support import PlayerAttentiontoCommand, PlayerChangeViewCommand, PlayerPointtoCommand, PlayerSayCommand, PlayerTurnNeckCommand, PlayerChangeFocusCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
@@ -30,6 +30,7 @@ class ActionEffector:
         self._neck_command: PlayerTurnNeckCommand = None
         self._pointto_command: PlayerPointtoCommand = None
         self._change_view_command: PlayerChangeViewCommand = None
+        self._change_focus_command: PlayerChangeFocusCommand = None
         self._say_command: PlayerSayCommand = None
         self._attentionto_command: PlayerAttentiontoCommand = None
         
@@ -58,6 +59,10 @@ class ActionEffector:
         self._turn_neck_moment: float = 0
         self._done_turn_neck: bool = False
 
+        self._change_focus_moment_dist: float = 0
+        self._change_focus_moment_dir: AngleDeg = AngleDeg(0)
+        self._done_change_focus = False
+
         self._say_message: str = ''
         self._messages: list[Messenger] = []
 
@@ -65,6 +70,9 @@ class ActionEffector:
     
     def change_view_command(self):
         return self._change_view_command
+
+    def change_focus_point_command(self):
+        return self._change_focus_command
 
     def pointto_command(self):
         return self._pointto_command
@@ -136,6 +144,13 @@ class ActionEffector:
             self._command_counter[CommandType.TURN_NECK.value] =   body.turn_neck_count()
             self._done_turn_neck = False
             self._turn_neck_moment = 0
+
+        if body.change_focus_count() != self._command_counter[CommandType.CHANGE_FOCUS.value]:
+            debug_print(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+            self._command_counter[CommandType.CHANGE_FOCUS.value] = body.change_focus_count()
+            self._done_change_focus = False
+            self._change_focus_moment_dist = 0
+            self._change_focus_moment_dir = AngleDeg(0)
 
         if body.change_view_count() != self._command_counter[CommandType.CHANGE_VIEW.value]:
             debug_print(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
@@ -322,7 +337,13 @@ class ActionEffector:
 
         self._neck_command = PlayerTurnNeckCommand(moment)
         return self._neck_command
-    
+
+    def set_change_focus(self, moment_dist: float, moment_dir: AngleDeg):
+        self._change_focus_command = PlayerChangeFocusCommand(moment_dist, moment_dir)
+        self._change_focus_moment_dist = moment_dist
+        self._change_focus_moment_dir = moment_dir
+        return self._change_focus_command
+
     def set_change_view(self, width: ViewWidth):
         self._change_view_command = PlayerChangeViewCommand(width, ViewQuality.HIGH)
         return self._change_view_command
@@ -365,11 +386,21 @@ class ActionEffector:
     def done_turn_neck(self) -> bool:
         return self._done_turn_neck
 
+    def get_change_focus_moment_dist(self) -> float:
+        return self._change_focus_moment_dist
+
+    def get_change_focus_moment_dir(self) -> AngleDeg:
+        return self._change_focus_moment_dir
+
+    def done_change_focus(self) -> bool:
+        return self._done_change_focus
+
     def reset(self):
         for i in range(len(self._last_body_commands)):
             self._last_body_commands[i] = None
         
         self._done_turn_neck = False
+        self._done_change_focus = False
         self._say_message = ""
 
     def update_after_actions(self):
@@ -392,7 +423,12 @@ class ActionEffector:
         if self._change_view_command:
             self.inc_command_type(CommandType.CHANGE_VIEW)
             self._change_view_command = None
-        
+
+        if self._change_focus_command:
+            self._done_change_focus = True
+            self.inc_command_type(CommandType.CHANGE_FOCUS)
+            self._change_focus_command = None
+
         if self._pointto_command:
             self.inc_command_type(CommandType.POINTTO)
             self._pointto_command = None
@@ -409,6 +445,7 @@ class ActionEffector:
         self._body_command = None
         self._neck_command = None
         self._change_view_command = None
+        self._change_focus_command = None
         self._pointto_command = None
         self._attentionto_command = None
         self._say_command = None
