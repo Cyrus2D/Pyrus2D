@@ -19,6 +19,7 @@ class CommandType(Enum):
 
     # support commands
     TURN_NECK = auto()
+    CHANGE_FOCUS = auto()
     CHANGE_VIEW = auto()
     SAY = auto()
     POINTTO = auto()
