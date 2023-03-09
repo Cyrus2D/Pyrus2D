@@ -84,11 +84,8 @@ class SelfObject(PlayerObject):
             self._body_count = 0
             self._change_focus_count = 0
             self._focus_point_dist = 0
-            self._focus_point_dir_to_neck = AngleDeg(0)
-            self._focus_point_dir_to_body = AngleDeg(0)
-            self._focus_point_dir_to_pos = AngleDeg(0)
-            self._focus_point = player.pos()
-    
+            self._focus_point_dir = AngleDeg(0)
+
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
         self._unum = unum
