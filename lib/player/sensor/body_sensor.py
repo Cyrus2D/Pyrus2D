@@ -91,11 +91,11 @@ class BodySensor:
         self._tackle_expires = int(r[49 + k].strip(')('))
         self._tackle_count = int(r[51 + k].strip(')('))
 
-        if attention_target == 'n':
+        if attention_target[0] == 'n':
             self._attentionto_side = SideID.NEUTRAL
-        elif attention_target == 'l':
+        elif attention_target[0] == 'l':
             self._attentionto_side = SideID.LEFT
-        elif attention_target == 'r':
+        elif attention_target[0] == 'r':
             self._attentionto_side = SideID.RIGHT
         else:
             debug_print("Body_sensor: Failed to parse Attentionto")
