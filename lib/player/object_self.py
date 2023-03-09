@@ -163,6 +163,10 @@ class SelfObject(PlayerObject):
             neck_moment = act.get_turn_neck_moment()
         self._neck += min_max(SP.min_neck_angle(), neck_moment, SP.max_neck_angle())
 
+        if act.done_change_focus():
+            self._focus_point_dir += act.get_change_focus_moment_dir()
+            self._focus_point_dist += act.get_change_focus_moment_dist()
+
         self._stamina_model.simulate_dash(self.player_type(), dash_power)
         
         self._body += turn_moment
