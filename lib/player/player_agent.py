@@ -445,6 +445,29 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command.append(self._effector.set_change_view(width))
         return True
 
+    def do_change_focus(self, moment_dist: float, moment_dir: Union[float, AngleDeg]):
+        if isinstance(moment_dir, float) or isinstance(moment_dir, int):
+            moment_dir = AngleDeg(moment_dir)
+
+        aligned_moment_dist = moment_dist
+        if self.world().self().focus_point_dist() + aligned_moment_dist < 0.0:
+            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be less than 0")
+            aligned_moment_dist = -self.world().self().focus_point_dist()
+        if self.world().self().focus_point_dist() + aligned_moment_dist > 40.0:
+            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be more than 40")
+            aligned_moment_dist = 40.0 - self.world().self().focus_point_dist()
+        next_view = self.effector().queued_next_view_width()
+        next_half_angle = next_view.width() * 0.5
+
+        aligned_moment_dir = moment_dir
+        if self.world().self().focus_point_dir().degree() + aligned_moment_dir.degree() < -next_half_angle:
+            aligned_moment_dir = -next_half_angle - self.world().self().focus_point_dir().degree()
+        elif self.world().self().focus_point_dir().degree() + aligned_moment_dir.degree() > next_half_angle:
+            aligned_moment_dir = next_half_angle - self.world().self().focus_point_dir().degree()
+        self._last_body_command.append(self._effector.set_change_focus(aligned_moment_dist, aligned_moment_dir))
+
+        return True
+
     def add_say_message(self, message: Messenger):
         self._effector.add_say_message(message)
 
