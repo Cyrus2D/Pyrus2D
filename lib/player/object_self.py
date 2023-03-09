@@ -464,7 +464,7 @@ class SelfObject(PlayerObject):
     def focus_point_dir(self) -> AngleDeg:
         return self._focus_point_dir
 
-    def focus_point_dir_to_body(self):
-        return self._focus_point_dir_to_body
+    def focus_point(self) -> Vector2D:
+        return self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.face() + self.focus_point_dir())
 
 
