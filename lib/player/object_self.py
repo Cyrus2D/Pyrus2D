@@ -27,7 +27,10 @@ class SelfObject(PlayerObject):
         self._view_width: ViewWidth = ViewWidth.ILLEGAL
         self._view_quality: ViewQuality = ViewQuality.ILLEGAL
 
+        self._pos_error = Vector2D(0.0, 0.0)
+        self._vel_error = Vector2D(0.0, 0.0)
         self._neck: AngleDeg = AngleDeg(0)
+        self._face_error = 0.5
 
         self._stamina_model: StaminaModel = StaminaModel()
 
@@ -171,7 +174,8 @@ class SelfObject(PlayerObject):
         
         self._body += turn_moment
         self._face = self._body + self._neck
-        
+        self._face_error = 0.5
+
         if self.vel_valid():
             self._vel += accel
         if self.pos_valid():
@@ -226,7 +230,9 @@ class SelfObject(PlayerObject):
             self._vel_count = 0
             self._seen_vel = self.vel().copy()
             self._seen_vel_count = 0
-            
+
+            # TODO Calc vel error self._vel_error
+
             if not self._collision_estimated:
                 new_last_move = self._vel/self.player_type().player_decay()
                 self._last_move.assign(new_last_move.x(), new_last_move.y())
