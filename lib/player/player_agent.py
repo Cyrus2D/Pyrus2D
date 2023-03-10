@@ -12,10 +12,11 @@ from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState
 from lib.player.sensor.visual_sensor import VisualSensor
-from lib.player.soccer_action import ViewAction, NeckAction
+from lib.player.soccer_action import ViewAction, NeckAction, FocusPointAction
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
+from pyrusgeom.soccer_math import min_max
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
@@ -56,6 +57,7 @@ class PlayerAgent(SoccerAgent):
 
             self._neck_action: NeckAction = None
             self._view_action: ViewAction = None
+            self._focus_point_action: FocusPointAction = None
 
             self._goalie: bool = False
 
@@ -248,6 +250,11 @@ class PlayerAgent(SoccerAgent):
             if self._view_action:
                 self._view_action.execute(self._agent)
                 self._view_action = None
+
+        def do_change_focus_action(self):
+            if self._focus_point_action:
+                self._focus_point_action.execute(self._agent)
+                self._focus_point_action = None
 
     def __init__(self):
         super().__init__()
@@ -461,10 +468,12 @@ class PlayerAgent(SoccerAgent):
         next_half_angle = next_view.width() * 0.5
 
         aligned_moment_dir = moment_dir
-        if self.world().self().focus_point_dir().degree() + aligned_moment_dir.degree() < -next_half_angle:
-            aligned_moment_dir = -next_half_angle - self.world().self().focus_point_dir().degree()
-        elif self.world().self().focus_point_dir().degree() + aligned_moment_dir.degree() > next_half_angle:
-            aligned_moment_dir = next_half_angle - self.world().self().focus_point_dir().degree()
+        focus_point_dir_after_change_view = AngleDeg(min_max(-next_half_angle, self.world().self().focus_point_dir().degree(), next_half_angle))
+        if focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() < -next_half_angle:
+            aligned_moment_dir = -next_half_angle - focus_point_dir_after_change_view.degree()
+        elif focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() > next_half_angle:
+            aligned_moment_dir = next_half_angle - focus_point_dir_after_change_view.degree()
+
         self._last_body_command.append(self._effector.set_change_focus(aligned_moment_dist, aligned_moment_dir))
 
         return True
@@ -525,9 +534,9 @@ class PlayerAgent(SoccerAgent):
         self._effector.reset()
 
         self.action_impl()
-        self._impl.do_neck_action()
         self._impl.do_view_action()
-
+        self._impl.do_neck_action()
+        self._impl.do_change_focus_action()
         self._impl._last_decision_time = self._impl._current_time.copy()
 
         self.world().update_just_after_decision(self._effector)
@@ -571,3 +580,6 @@ class PlayerAgent(SoccerAgent):
 
     def set_neck_action(self, neck_action: NeckAction):
         self._impl._neck_action = neck_action
+
+    def set_focus_point_action(self, focus_point_action: FocusPointAction):
+        self._impl._focus_point_action = focus_point_action
