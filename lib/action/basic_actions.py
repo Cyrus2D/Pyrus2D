@@ -138,8 +138,6 @@ class SetFocusToPoint(FocusPointAction):
     def execute(self, agent: 'PlayerAgent'):
         next_view_width = agent.effector().queued_next_view_width().width()
         my_next_pos = agent.effector().queued_next_self_pos()
-        my_next_body = agent.effector().queued_next_self_body()
-        my_next_neck = agent.effector().queued_next_self_neck()
         my_next_face = agent.effector().queued_next_self_face()
         current_focus_point_dist = agent.world().self().focus_point_dist()
         current_focus_point_dir = agent.world().self().focus_point_dir()
@@ -156,8 +154,8 @@ class SetFocusToPoint(FocusPointAction):
             debug_print(f'(FocusToPoint execute) Next focus point dir should be {-next_view_width / 2.0}<{next_focus_point_dir.degree()}<{next_view_width/2.0}')
         next_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, next_focus_point_dir.degree(), next_view_width / 2.0))
         if abs(next_focus_point_dir.abs() - next_view_width) / 2.0 < 0.001:
-            positive = AngleDeg(next_view_width / 2.0) + my_next_neck + my_next_body
-            negative = AngleDeg(-next_view_width / 2.0) + my_next_neck + my_next_body
+            positive = AngleDeg(next_view_width / 2.0) + my_next_face
+            negative = AngleDeg(-next_view_width / 2.0) + my_next_face
             if (positive - original_next_focus_point_dir_to_pos).abs() < (negative - original_next_focus_point_dir_to_pos).abs():
                 next_focus_point_dir = AngleDeg(next_view_width / 2.0)
             else:
