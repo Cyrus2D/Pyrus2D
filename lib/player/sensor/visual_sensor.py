@@ -94,6 +94,9 @@ class VisualSensor:
             self.object_type_ = VisualSensor.ObjectType.Obj_Unknown
             self.id_ = MarkerID.Marker_Unknown
 
+        def __str__(self):
+            return f'Marker {self.id_} {self.object_type_} {self.dist_} {self.dir_}'
+
         @staticmethod
         def parse_string(key, value, type, marker_map):
             marker = VisualSensor.MarkerT()
