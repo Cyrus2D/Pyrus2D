@@ -625,17 +625,23 @@ class WorldModel:
                       body: BodySensor,
                       act: 'ActionEffector',
                       current_time: GameTime):
-        angle_face = self._localizer.estimate_self_face(see)
+        angle_face = self._localizer.estimate_self_face(see, self.self().view_width())
         if angle_face is None:
             return False
-        
+
+        reverse_side = self.our_side() == SideID.RIGHT
+        team_angle_face = AngleDeg(angle_face + 180.0) if reverse_side else angle_face
+
         self.self().update_angle_by_see(angle_face, current_time)
         self.self().update_vel_dir_after_see(body, current_time)
 
-        my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
+        # my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
+        my_pos, my_pos_err = self._localizer.localize_self2(see, self.self().view_width(), angle_face, 0.5)
         if my_pos is None:
             return False
-        
+        if reverse_side:
+            my_pos *= -1.0
+
         if my_pos.is_valid():
             self.self().update_pos_by_see(my_pos, angle_face, current_time)
         
