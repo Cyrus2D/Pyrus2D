@@ -164,6 +164,28 @@ class SetFocusToPoint(FocusPointAction):
         return agent.do_change_focus(change_focus_moment_dist, change_focus_moment_dir)
 
 
+class SetFocusToBall(FocusPointAction):
+    def __init__(self):
+        super().__init__()
+
+    def execute(self, agent: 'PlayerAgent'):
+        next_ball_pos = agent.effector().queued_next_ball_pos()
+        return SetFocusToPoint(next_ball_pos).execute(agent)
+
+
+class SetFocusToSelf(FocusPointAction):
+    def __init__(self):
+        super().__init__()
+
+    def execute(self, agent: 'PlayerAgent'):
+        next_self_pos = agent.effector().queued_next_self_pos()
+        return SetFocusToPoint(next_self_pos).execute(agent)
+
+
+class SetFocusToFlags(FocusPointAction):
+    # TODO this one and others should be implemented
+    pass
+
 """
   \ class Arm_Off
   \ brief turn off the pointing arm
