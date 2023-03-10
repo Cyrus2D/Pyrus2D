@@ -60,7 +60,7 @@ class Localizer:
     def __init__(self) -> None:
         self._object_table = ObjectTable()
         self._landmark_map: dict[MarkerID, Vector2D] = {}
-        self._points = []
+        self._points: list[Vector2D] = []
 
     def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT], view_width: ViewWidth):
         if len(markers) < 2:
@@ -279,21 +279,24 @@ class Localizer:
             self.resample_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
 
     def localize_self2(self, see: VisualSensor, view_width: ViewWidth, self_face: float, self_face_error: float):
-        if len(see.markers()) == 0:
-            return None, Vector2D(0, 0)
-        self._points.clear()
-        markers = see.markers() + see.behind_markers()
+        markers = see.markers()
         markers.sort(key=lambda x: x.dist_)
 
+        behind_markers = see.behind_markers()
+        behind_markers.sort(key=lambda x: x.dist_)
+
+        if len(markers) == 0:
+            return None, Vector2D(0, 0)
+        self._points.clear()
         self.generate_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
         if len(self._points) == 0:
             return None, Vector2D(0, 0)
         self.update_points_by_markers(view_width, markers, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
-
-        if len(see.behind_markers()) == 0:
+        if len(behind_markers) == 0:
             return self_pos, self_pos_err
-        self.update_points_by_behind_marker(view_width, see.markers(), see.behind_markers(), self_pos, self_face, self_face_error)
+
+        self.update_points_by_behind_marker(view_width, markers, behind_markers, self_pos, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
         return self_pos, self_pos_err
 
