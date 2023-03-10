@@ -1,7 +1,8 @@
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.math_values import DEG2RAD
 from pyrusgeom.vector_2d import Vector2D
-
+from pyrusgeom.sector_2d import Sector2D
+from lib.player.object_table import ObjectTable, DataEntry
 from lib.debug.debug_print import debug_print
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
@@ -9,6 +10,10 @@ from lib.player.sensor.visual_sensor import VisualSensor
 from lib.debug.logger import dlog
 from lib.debug.level import Level
 from lib.debug.color import Color
+from lib.rcsc.types import ViewWidth
+from pyrusgeom.soccer_math import min_max
+import math
+
 
 class Localizer:
     DEBUG = True
@@ -53,88 +58,25 @@ class Localizer:
             return self.tackle_
     
     def __init__(self) -> None:
+        self._object_table = ObjectTable()
         self._landmark_map: dict[MarkerID, Vector2D] = {}
+        self._points = []
 
-        self._initial_landmark_map()
-    
-    def _initial_landmark_map(self):
-        
-        pitch_half_w = ServerParam.i().pitch_half_width()
-        pitch_half_l = ServerParam.i().pitch_half_length()
-        penalty_l = ServerParam.i().penalty_area_length()
-        penalty_half_w = ServerParam.i().penalty_area_half_width()
-        goal_half_w = ServerParam.i().goal_half_width()
-
-        self._landmark_map[MarkerID.Flag_C] = Vector2D( 0.0, 0.0 )
-        self._landmark_map[MarkerID.Flag_CT] = Vector2D( 0.0, -pitch_half_w )
-        self._landmark_map[MarkerID.Flag_CB] = Vector2D( 0.0, +pitch_half_w )
-        self._landmark_map[MarkerID.Flag_LT] = Vector2D( -pitch_half_l, -pitch_half_w )
-        self._landmark_map[MarkerID.Flag_LB] = Vector2D( -pitch_half_l, +pitch_half_w )
-        self._landmark_map[MarkerID.Flag_RT] = Vector2D( +pitch_half_l, -pitch_half_w )
-        self._landmark_map[MarkerID.Flag_RB] = Vector2D( +pitch_half_l, +pitch_half_w )
-        self._landmark_map[MarkerID.Flag_PLT] = Vector2D( -(pitch_half_l - penalty_l), -penalty_half_w )
-        self._landmark_map[MarkerID.Flag_PLC] = Vector2D( -(pitch_half_l - penalty_l), 0.0 )
-        self._landmark_map[MarkerID.Flag_PLB] = Vector2D( -(pitch_half_l - penalty_l), +penalty_half_w )
-        self._landmark_map[MarkerID.Flag_PRT] = Vector2D( +(pitch_half_l - penalty_l), -penalty_half_w )
-        self._landmark_map[MarkerID.Flag_PRC] = Vector2D( +(pitch_half_l - penalty_l), 0.0 )
-        self._landmark_map[MarkerID.Flag_PRB] = Vector2D( +(pitch_half_l - penalty_l), +penalty_half_w )
-        self._landmark_map[MarkerID.Flag_GLT] = Vector2D( -pitch_half_l, -goal_half_w )
-        self._landmark_map[MarkerID.Flag_GLB] = Vector2D( -pitch_half_l, +goal_half_w )
-        self._landmark_map[MarkerID.Flag_GRT] = Vector2D( +pitch_half_l, -goal_half_w )
-        self._landmark_map[MarkerID.Flag_GRB] = Vector2D( +pitch_half_l, +goal_half_w )
-        self._landmark_map[MarkerID.Flag_TL50] = Vector2D( -50.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TL40] = Vector2D( -40.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TL30] = Vector2D( -30.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TL20] = Vector2D( -20.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TL10] = Vector2D( -10.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_T0] = Vector2D( 0.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TR10] = Vector2D( +10.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TR20] = Vector2D( +20.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TR30] = Vector2D( +30.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TR40] = Vector2D( +40.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_TR50] = Vector2D( +50.0, -pitch_half_w - 5.0 )
-        self._landmark_map[MarkerID.Flag_BL50] = Vector2D( -50.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BL40] = Vector2D( -40.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BL30] = Vector2D( -30.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BL20] = Vector2D( -20.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BL10] = Vector2D( -10.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_B0] = Vector2D( 0.0, pitch_half_w + 5.0)
-        self._landmark_map[MarkerID.Flag_BR10] = Vector2D( +10.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BR20] = Vector2D( +20.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BR30] = Vector2D( +30.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BR40] = Vector2D( +40.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_BR50] = Vector2D( +50.0, pitch_half_w + 5.0 )
-        self._landmark_map[MarkerID.Flag_LT30] = Vector2D( -pitch_half_l - 5.0, -30.0 )
-        self._landmark_map[MarkerID.Flag_LT20] = Vector2D( -pitch_half_l - 5.0, -20.0 )
-        self._landmark_map[MarkerID.Flag_LT10] = Vector2D( -pitch_half_l - 5.0, -10.0 )
-        self._landmark_map[MarkerID.Flag_L0] = Vector2D( -pitch_half_l - 5.0, 0.0 )
-        self._landmark_map[MarkerID.Flag_LB10] = Vector2D( -pitch_half_l - 5.0, 10.0 )
-        self._landmark_map[MarkerID.Flag_LB20] = Vector2D( -pitch_half_l - 5.0, 20.0 )
-        self._landmark_map[MarkerID.Flag_LB30] = Vector2D( -pitch_half_l - 5.0, 30.0 )
-        self._landmark_map[MarkerID.Flag_RT30] = Vector2D( +pitch_half_l + 5.0, -30.0 )
-        self._landmark_map[MarkerID.Flag_RT20] = Vector2D( +pitch_half_l + 5.0, -20.0 )
-        self._landmark_map[MarkerID.Flag_RT10] = Vector2D( +pitch_half_l + 5.0, -10.0 )
-        self._landmark_map[MarkerID.Flag_R0] = Vector2D( +pitch_half_l + 5.0, 0.0 )
-        self._landmark_map[MarkerID.Flag_RB10] = Vector2D( +pitch_half_l + 5.0, 10.0 )
-        self._landmark_map[MarkerID.Flag_RB20] = Vector2D( +pitch_half_l + 5.0, 20.0 )
-        self._landmark_map[MarkerID.Flag_RB30] = Vector2D( +pitch_half_l + 5.0, 30.0 )
-        self._landmark_map[MarkerID.Goal_L] = Vector2D( pitch_half_l*-1, 0.0 )
-        self._landmark_map[MarkerID.Goal_R] = Vector2D( +pitch_half_l, 0.0 )
-
-    def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT]):
+    def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT], view_width: ViewWidth):
         if len(markers) < 2:
             return None
         
-        marker1 = self._landmark_map.get(markers[0])
+        marker1 = self._object_table.landmark_map.get(markers[0])
         if marker1 is None:
             return None
         
-        marker2 = self._landmark_map.get(markers[-1])
+        marker2 = self._object_table.landmark_map.get(markers[-1])
         if marker2 is None:
             return None
-        
-        rpos1 = Vector2D.polar2vector(markers[0].dist_, markers[0].dir_)
-        rpos2 = Vector2D.polar2vector(markers[-1].dist_, markers[-1].dir_)
+        marker1_dist_avg, marker1_dist_err = self._object_table.get_landmark_distance_range(view_width, markers[0].dist_)
+        marker2_dist_avg, marker2_dist_err = self._object_table.get_landmark_distance_range(view_width, markers[-1].dist_)
+        rpos1 = Vector2D.polar2vector(marker1_dist_avg, markers[0].dir_)
+        rpos2 = Vector2D.polar2vector(marker2_dist_avg, markers[-1].dir_)
 
         gap1 = rpos1 - rpos2
         gap2 = marker1 - marker2
@@ -164,10 +106,10 @@ class Localizer:
         angle = AngleDeg.normalize_angle(angle)
         return angle
     
-    def estimate_self_face(self, see: VisualSensor):
+    def estimate_self_face(self, see: VisualSensor, view_width: ViewWidth):
         face = self.get_face_dir_by_line(see.lines())
         if face is None:
-            face = self.get_face_dir_by_markers(see.markers())
+            face = self.get_face_dir_by_markers(see.markers(), view_width)
         
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(estimate self face) face={face}")
@@ -192,7 +134,7 @@ class Localizer:
                 continue
             if marker.id_ is VisualSensor.ObjectType.Obj_Unknown:
                 continue
-            marker_pos = self._landmark_map[marker.id_]
+            marker_pos = self._object_table.landmark_map[marker.id_]
 
             if Localizer.DEBUG:
                 dlog.add_text(Level.WORLD, f"(localize self) considered-marker[{marker.id_}]={marker_pos}")
@@ -220,6 +162,141 @@ class Localizer:
         
         return pos
 
+    def get_dir_range(self, seen_dir, self_face, self_face_error):
+        return seen_dir + self_face, 0.5 + self_face_error
+
+    def generate_points(self, view_width: ViewWidth, marker, marker_id: MarkerID, self_face: float, self_face_error: float):
+        marker_pos = self._object_table.landmark_map.get(marker_id)
+        if marker_pos is None:
+            return
+        ave_dist, dist_err = self._object_table.get_landmark_distance_range(view_width, marker.dist_)
+        ave_dir, dir_err = self.get_dir_range(marker.dir_, self_face, self_face_error)
+        ave_dir += 180.0
+        min_dist = ave_dist - dist_err
+        dist_range = dist_err * 2.0
+        dist_inc = max(0.01, dist_err / 16.0)
+        dist_loop = min_max(2, int(math.ceil(dist_range / dist_inc)), 16)
+        dist_inc = dist_range / (dist_loop - 1)
+        dir_range = dir_err * 2.0
+        circum = 2.0 * ave_dist * 3.141592 * (dir_range / 360.0)
+        circum_inc = max(0.01, circum / 32.0)
+        dir_loop = int(min_max(2, int(math.ceil(circum / circum_inc)), 32))
+        dir_inc = dir_range / (dir_loop - 1)
+        base_angle = AngleDeg(ave_dir - dir_err)
+        for i_dir in range(dir_loop):
+            base_angle += dir_inc
+            base_vec = Vector2D.polar2vector(1.0, base_angle)
+            add_dist = 0.0
+            for i_dist in range(dir_loop):
+                add_dist += dist_inc
+                self._points.append(marker_pos + (base_vec * (min_dist + add_dist)))
+
+    def update_points_by_markers(self, view_width: ViewWidth, markers, self_face: float, self_face_error: float):
+        counter = 0
+        for i in range(1, len(markers)):
+            if counter >= 30:
+                break
+            self.update_points_by(view_width, markers[i], markers[i].id_, self_face, self_face_error)
+            self.resample_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
+
+    def update_points_by(self, view_width: ViewWidth, marker, marker_id, self_face: float, self_face_error: float):
+        marker_pos = self._object_table.landmark_map.get(marker_id)
+        ave_dist, dist_error = self._object_table.get_landmark_distance_range(view_width, marker.dist_)
+
+        ave_dir, dir_error = self.get_dir_range(marker.dir_, self_face, self_face_error)
+        ave_dir += 180.0
+
+        sector = Sector2D(marker_pos, ave_dist - dist_error, ave_dist + dist_error, AngleDeg(ave_dir - dir_error), AngleDeg(ave_dir + dir_error))
+        self._points = list(filter(lambda p: sector.contains(p), self._points))
+
+    def resample_points(self, view_width: ViewWidth, marker, marker_id, self_face: float, self_face_error: float):
+        if len(self._points) >= 50:
+            return
+        if len(self._points) == 0:
+            self.generate_points(view_width, marker, marker_id, self_face, self_face_error)
+            return
+        import random
+        point_size = len(self._points)
+        for i in range(len(self._points), 51):
+            choose_index = random.randint(0, point_size - 1)
+            self._points.append(self._points[choose_index] + Vector2D(random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01)))
+
+    def average_points(self):
+        ave_pos = Vector2D(0.0, 0.0)
+        ave_err = Vector2D(0.0, 0.0)
+        if len(self._points) == 0:
+            return None, Vector2D(0, 0)
+        max_x = self._points[0].x()
+        min_x = max_x
+        max_y = self._points[0].y()
+        min_y = max_y
+        for p in self._points:
+            ave_pos += p
+            if p.x() > max_x:
+                max_x = p.x()
+            elif p.x() < min_x:
+                min_x = p.x()
+            if p.y() > max_y:
+                max_y = p.y()
+            elif p.y() < min_y:
+                min_y = p.y()
+        ave_pos = ave_pos / float(len(self._points))
+        ave_err.set_x((max_x - min_x) / 2.0)
+        ave_err.set_y((max_y - min_y) / 2.0)
+        return ave_pos, ave_err
+
+    def get_nearest_marker(self, object_type: VisualSensor.ObjectType, pos: Vector2D):
+        if object_type == VisualSensor.ObjectType.Obj_Goal_Behind:
+            return MarkerID.Goal_L if pos.x() < 0.0 else MarkerID.Goal_R
+        min_dist2 = 3.0 * 3.0
+        candidate = MarkerID.Marker_Unknown
+        for m, p in self._object_table.landmark_map.items():
+            d2 = pos.dist(p)
+            if d2 < min_dist2:
+                min_dist2 = d2
+                candidate = m
+        return candidate
+
+    def update_points_by_behind_marker(self, view_width, markers, behind_markers, self_pos, self_face, self_face_error):
+        if len(behind_markers) == 0:
+            return
+        marker_id = self.get_nearest_marker(behind_markers[0].object_type_, self_pos)
+        if marker_id == MarkerID.Marker_Unknown:
+            return
+        self.update_points_by(view_width, behind_markers[0], marker_id, self_face, self_face_error)
+        if len(self._points) == 0:
+            return
+
+        self.generate_points(view_width, behind_markers[0], marker_id, self_face, self_face_error)
+        if len(self._points) == 0:
+            return
+
+        counter = 0
+        for i in range(1, len(markers)):
+            if counter >= 20:
+                break
+            self.update_points_by(view_width, markers[i], markers[i].id_, self_face, self_face_error)
+            self.resample_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
+
+    def localize_self2(self, see: VisualSensor, view_width: ViewWidth, self_face: float, self_face_error: float):
+        if len(see.markers()) == 0:
+            return None, Vector2D(0, 0)
+        self._points.clear()
+        markers = see.markers() + see.behind_markers()
+        markers.sort(key=lambda x: x.dist_)
+
+        self.generate_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
+        if len(self._points) == 0:
+            return None, Vector2D(0, 0)
+        self.update_points_by_markers(view_width, markers, self_face, self_face_error)
+        self_pos, self_pos_err = self.average_points()
+
+        if len(see.behind_markers()) == 0:
+            return self_pos, self_pos_err
+        self.update_points_by_behind_marker(view_width, see.markers(), see.behind_markers(), self_pos, self_face, self_face_error)
+        self_pos, self_pos_err = self.average_points()
+        return self_pos, self_pos_err
+
     def localize_ball_relative(self,
                                see: VisualSensor,
                                self_face: float) -> tuple[Vector2D, Vector2D]:
@@ -227,10 +304,8 @@ class Localizer:
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(localize ball relative) started {'#'*20}")
 
-
         if len(see.balls()) == 0:
             return None, None
-        
         
         ball = see.balls()[0]
         global_dir = float(ball.dir_) + self_face
