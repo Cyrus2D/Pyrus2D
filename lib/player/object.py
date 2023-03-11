@@ -7,6 +7,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._vel = Vector2D.invalid()
 
         self._rpos = Vector2D.invalid()
+        self._rpos_error = Vector2D(0, 0)
         self._rpos_count: int = 1000
         
         self._dist_from_self:float = 0
