@@ -302,34 +302,136 @@ class Localizer:
 
     def localize_ball_relative(self,
                                see: VisualSensor,
-                               self_face: float) -> tuple[Vector2D, Vector2D]:
+                               self_face: float,
+                               self_face_err: float,
+                               view_width: ViewWidth) -> tuple[Vector2D, Vector2D, Vector2D, Vector2D]:
+        rpos = Vector2D().invalid()
+        rpos_err = Vector2D(0, 0)
+        rvel = Vector2D().invalid()
+        rvel_err = Vector2D(0, 0)
         self_face = float(self_face)
         if Localizer.DEBUG:
             dlog.add_text(Level.WORLD, f"(localize ball relative) started {'#'*20}")
 
         if len(see.balls()) == 0:
-            return None, None
-        
+            return rpos, rpos_err, rvel, rvel_err
+
         ball = see.balls()[0]
-        global_dir = float(ball.dir_) + self_face
+        average_dist, dist_error = self._object_table.get_distance_range(view_width, ball.dist_)
+        average_dir, dir_error = self.get_dir_range(ball.dir_, self_face, self_face_err)
+        max_dist = average_dist + dist_error
+        min_dist = average_dist - dist_error
+        max_ang = average_dir + dir_error
+        min_ang = average_dir - dir_error
+        ave_cos = AngleDeg.cos_deg(average_dir)
+        ave_sin = AngleDeg.sin_deg(average_dir)
+        rpos.set_x_y(average_dist * ave_cos, average_dist * ave_sin)
+        rpos.validate()
+        mincos = AngleDeg.cos_deg(average_dir - dir_error)
+        maxcos = AngleDeg.cos_deg(average_dir + dir_error)
+        minsin = AngleDeg.sin_deg(average_dir - dir_error)
+        maxsin = AngleDeg.sin_deg(average_dir + dir_error)
 
-        rpos = Vector2D(r=ball.dist_, a=global_dir)
+        x1 = max_dist * mincos
+        x2 = max_dist * maxcos
+        x3 = min_dist * mincos
+        x4 = min_dist * maxcos
+        y1 = max_dist * minsin
+        y2 = max_dist * maxsin
+        y3 = min_dist * minsin
+        y4 = min_dist * maxsin
+        tmp_x = (max(max(x1, x2), max(x3, x4)) - min(min(x1, x2), min(x3, x4))) * 0.5
+        tmp_y = (max(max(y1, y2), max(y3, y4)) - min(min(y1, y2), min(y3, y4))) * 0.5
+        rpos_err.set_x_y(tmp_x, tmp_y)
+        rpos_err.validate()
 
-        if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize ball relative) ball: r={ball.dist_}, t={ball.dir_}")
-            dlog.add_text(Level.WORLD, f"(localize ball relative) rpos={rpos}")
-
-        
-        rvel = Vector2D.invalid()
         if ball.has_vel_:
-            rvel = Vector2D(ball.dist_chng_, DEG2RAD * ball.dir_chng_ * ball.dist_)
-            rvel.rotate(global_dir)
-            if Localizer.DEBUG:
-                dlog.add_text(Level.WORLD, f"(localize ball relative) has_vel")
-                dlog.add_text(Level.WORLD, f"(localize ball relative) vel={rvel}")
-                dlog.add_text(Level.WORLD, f"(localize ball relative) ball={ball}")
-        
-        return rpos, rvel
+            max_dist_dist_chg1 = (ball.dist_chng_ / ball.dist_ + 0.02 * 0.5) * max_dist
+            max_dist_dist_chg2 = (ball.dist_chng_ / ball.dist_ - 0.02 * 0.5) * max_dist
+            min_dist_dist_chg1 = (ball.dist_chng_ / ball.dist_ + 0.02 * 0.5) * min_dist
+            min_dist_dist_chg2 = (ball.dist_chng_ / ball.dist_ - 0.02 * 0.5) * min_dist
+            max_dir_chg = ball.dir_chng_ + (0.1 * 0.5)
+            min_dir_chg = ball.dir_chng_ - (0.1 * 0.5)
+            max_dist_dir_chg_r1 = DEG2RAD * max_dir_chg * max_dist
+            max_dist_dir_chg_r2 = DEG2RAD * min_dir_chg * max_dist
+            min_dist_dir_chg_r1 = DEG2RAD * max_dir_chg * min_dist
+            min_dist_dir_chg_r2 = DEG2RAD * min_dir_chg * min_dist
+
+            rvel1_1 = Vector2D(max_dist_dist_chg1, max_dist_dir_chg_r1)
+            rvel1_1.rotate(max_ang)
+            rvel1_2 = Vector2D(max_dist_dist_chg1, max_dist_dir_chg_r1)
+            rvel1_2.rotate(min_ang)
+            rvel2_1 = Vector2D(max_dist_dist_chg1, max_dist_dir_chg_r2)
+            rvel2_1.rotate(max_ang)
+            rvel2_2 = Vector2D(max_dist_dist_chg1, max_dist_dir_chg_r2)
+            rvel2_2.rotate(min_ang)
+            rvel3_1 = Vector2D(max_dist_dist_chg2, max_dist_dir_chg_r1)
+            rvel3_1.rotate(max_ang)
+            rvel3_2 = Vector2D(max_dist_dist_chg2, max_dist_dir_chg_r1)
+            rvel3_2.rotate(min_ang)
+            rvel4_1 = Vector2D(max_dist_dist_chg2, max_dist_dir_chg_r2)
+            rvel4_1.rotate(max_ang)
+            rvel4_2 = Vector2D(max_dist_dist_chg2, max_dist_dir_chg_r2)
+            rvel4_2.rotate(min_ang)
+            rvel5_1 = Vector2D(min_dist_dist_chg1, min_dist_dir_chg_r1)
+            rvel5_1.rotate(max_ang)
+            rvel5_2 = Vector2D(min_dist_dist_chg1, min_dist_dir_chg_r1)
+            rvel5_2.rotate(min_ang)
+            rvel6_1 = Vector2D(min_dist_dist_chg1, min_dist_dir_chg_r2)
+            rvel6_1.rotate(max_ang)
+            rvel6_2 = Vector2D(min_dist_dist_chg1, min_dist_dir_chg_r2)
+            rvel6_2.rotate(min_ang)
+            rvel7_1 = Vector2D(min_dist_dist_chg2, min_dist_dir_chg_r1)
+            rvel7_1.rotate(max_ang)
+            rvel7_2 = Vector2D(min_dist_dist_chg2, min_dist_dir_chg_r1)
+            rvel7_2.rotate(min_ang)
+            rvel8_1 = Vector2D(min_dist_dist_chg2, min_dist_dir_chg_r2)
+            rvel8_1.rotate(max_ang)
+            rvel8_2 = Vector2D(min_dist_dist_chg2, min_dist_dir_chg_r2)
+            rvel8_2.rotate(min_ang)
+
+            max_x = max(max(max(max(rvel1_1.x(), rvel1_2.x()), max(rvel2_1.x(), rvel2_2.x())),
+                            max(max(rvel3_1.x(), rvel3_2.x()), max(rvel4_1.x(), rvel4_2.x()))),
+                        max(max(max(rvel5_1.x(), rvel5_2.x()), max(rvel6_1.x(), rvel6_2.x())),
+                            max(max(rvel7_1.x(), rvel7_2.x()), max(rvel8_1.x(), rvel8_2.x()))))
+            max_y = max(max(max(max(rvel1_1.y(), rvel1_2.y()), max(rvel2_1.y(), rvel2_2.y())),
+                            max(max(rvel3_1.y(), rvel3_2.y()), max(rvel4_1.y(), rvel4_2.y()))),
+                        max(max(max(rvel5_1.y(), rvel5_2.y()), max(rvel6_1.y(), rvel6_2.y())),
+                            max(max(rvel7_1.y(), rvel7_2.y()), max(rvel8_1.y(), rvel8_2.y()))))
+
+            min_x = min(min(min(min(rvel1_1.x(), rvel1_2.x()), min(rvel2_1.x(), rvel2_2.x())),
+                            min(min(rvel3_1.x(), rvel3_2.x()), min(rvel4_1.x(), rvel4_2.x()))),
+                        min(min(min(rvel5_1.x(), rvel5_2.x()), min(rvel6_1.x(), rvel6_2.x())),
+                            min(min(rvel7_1.x(), rvel7_2.x()), min(rvel8_1.x(), rvel8_2.x()))))
+            min_y = min(min(min(min(rvel1_1.y(), rvel1_2.y()), min(rvel2_1.y(), rvel2_2.y())),
+                            min(min(rvel3_1.y(), rvel3_2.y()), min(rvel4_1.y(), rvel4_2.y()))),
+                        min(min(min(rvel5_1.y(), rvel5_2.y()), min(rvel6_1.y(), rvel6_2.y())),
+                            min(min(rvel7_1.y(), rvel7_2.y()), min(rvel8_1.y(), rvel8_2.y()))))
+
+            ave_rvel = rvel1_1.copy()
+            ave_rvel += rvel1_2
+            ave_rvel += rvel2_1
+            ave_rvel += rvel2_2
+            ave_rvel += rvel3_1
+            ave_rvel += rvel3_2
+            ave_rvel += rvel4_1
+            ave_rvel += rvel4_2
+            ave_rvel += rvel5_1
+            ave_rvel += rvel5_2
+            ave_rvel += rvel6_1
+            ave_rvel += rvel6_2
+            ave_rvel += rvel7_1
+            ave_rvel += rvel7_2
+            ave_rvel += rvel8_1
+            ave_rvel += rvel8_2
+
+            ave_rvel /= 16.0
+
+            rvel = ave_rvel.copy()
+            rvel.validate()
+            rvel_err.assign((max_x - min_x) * 0.5, (max_y - min_y) * 0.5)
+            rvel_err.validate()
+        return rpos, rpos_err, rvel, rvel_err
 
     def localize_player(self,
                         seen_player: VisualSensor.PlayerT,
