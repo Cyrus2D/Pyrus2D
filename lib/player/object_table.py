@@ -83,11 +83,11 @@ class ObjectTable:
         elif view_width == ViewWidth.WIDE:
             movable_table = self.movable_table_v18_wide
             keys_dict = self.movable_table_v18_wide_seen_dist_dict
-        key = lower_bound(list(keys_dict), quantized_dist)
-        index = keys_dict[key]
+        key = lower_bound(list(keys_dict.keys()), quantized_dist)
+        index = keys_dict[list(keys_dict.keys())[key]]
         average = movable_table[index].average
         error = movable_table[index].error
-        return average, error 
+        return average, error
     
     def create_landmark_map(self):
         pitch_half_w = ServerParam.i().pitch_half_width()
