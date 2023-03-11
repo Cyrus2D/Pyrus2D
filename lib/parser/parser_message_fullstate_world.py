@@ -64,7 +64,7 @@ class PlayerMessageParser:
             use_point_to = 0
             if msg[3] == 'g':
                 k = 1
-            if msg[12 + k].find('stamina') > 0:
+            if msg[15 + k].find('stamina') > 0:
                 use_point_to = 2
             player_dic = {
                 "side_id": msg[1],
@@ -77,11 +77,13 @@ class PlayerMessageParser:
                 "body": msg[8 + k],
                 "neck": msg[9 + k],
                 "stamina": {
-                    "stamina": msg[11 + k + kk + use_point_to],
-                    "effort": msg[12 + k + kk + use_point_to],
-                    "recovery": msg[13 + k + kk + use_point_to],
-                    "capacity": msg[14 + k + kk + use_point_to].strip("()")
-                }
+                    "stamina": msg[14 + k + kk + use_point_to],
+                    "effort": msg[15 + k + kk + use_point_to],
+                    "recovery": msg[16 + k + kk + use_point_to],
+                    "capacity": msg[17 + k + kk + use_point_to].strip("()")
+                },
+                "focus_dist": msg[11 + k + kk + use_point_to],
+                "focus_dir": msg[12 + k + kk + use_point_to].strip("()")
             }
             if use_point_to == 2:
                 player_dic["pointto_dist"] = msg[10 + k].strip("()")
