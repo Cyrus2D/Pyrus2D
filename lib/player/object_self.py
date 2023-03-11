@@ -102,7 +102,14 @@ class SelfObject(PlayerObject):
     
     def face(self):
         return self._face
-    
+
+    def face_error(self):
+        return self._face_error
+
+    def vel_error(self):
+        # TODO is vel error updated currectly?
+        return self._vel_error
+
     def is_frozen(self):
         return self._tackle_expires > 0 or self._charge_expires > 0
     
@@ -204,11 +211,11 @@ class SelfObject(PlayerObject):
         self._collides_with_player = False
         self._collides_with_post = False
 
-    def update_angle_by_see(self, face: float, current_time: GameTime):
+    def update_angle_by_see(self, face: float, angle_face_error, current_time: GameTime):
         self._time = current_time.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face - self._neck.degree())
-
+        self._face_error = angle_face_error
         self._body_count = 0
         self._face_count = 0
         
@@ -237,17 +244,29 @@ class SelfObject(PlayerObject):
                 new_last_move = self._vel/self.player_type().player_decay()
                 self._last_move.assign(new_last_move.x(), new_last_move.y())
     
-    def update_pos_by_see(self, pos: Vector2D, face: float, current_time: GameTime):
+    def update_pos_by_see(self, pos: Vector2D, pos_err: Vector2D, face: float, face_err: float, current_time: GameTime):
         self._time = current_time.copy()
-        
-        if (self._pos_count == 1
-            and self._seen_pos_count == 1
-            and (self._collision_estimated
-                 or not self._last_move.is_valid())):
-            new_last_move = self._pos - self._seen_pos
-            self._last_move.assign(new_last_move.x(), new_last_move.y())
 
-        self._pos = pos.copy()
+        if self._pos_count == 1:
+            new_pos = pos.copy()
+            new_err = pos_err.copy()
+            if self._pos_error.x() < pos_err.x():
+                new_pos.set_x(pos.x() + (self.pos().x() - pos.x()) * (pos_err.x() / (self._pos_error.x() + pos_err.x())))
+                new_err.set_x((self._pos_error.x() + pos_err.x()) * 0.5)
+            if self._pos_error.y() < pos_err.y():
+                new_pos.set_y(pos.y() + (self.pos().y() - pos.y()) * (pos_err.y() / (self._pos_error.y() + pos_err.y())))
+                new_err.set_y((self._pos_error.y() + pos_err.y()) * 0.5)
+            self._pos = new_pos
+            self._pos_error = new_err
+
+            # TODO has sensed collision -> collisionEstimated
+            if self._seen_pos_count == 1 and (self.has_sensed_collision() or not self.last_move().is_valid()):
+                self._last_move = new_pos - self._seen_pos
+                self._last_moves[0] = self.last_move().copy()
+        else:
+            self._pos = pos.copy()
+            self._pos_error = pos_err.copy()
+
         self._seen_pos = pos.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face) - self._neck
@@ -473,4 +492,5 @@ class SelfObject(PlayerObject):
     def focus_point(self) -> Vector2D:
         return self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.face() + self.focus_point_dir())
 
-
+    def pos_error(self) -> Vector2D:
+        return self._pos_error
