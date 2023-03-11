@@ -346,10 +346,11 @@ class Localizer:
         rpos_err.validate()
 
         if ball.has_vel_:
-            max_dist_dist_chg1 = (ball.dist_chng_ / ball.dist_ + 0.02 * 0.5) * max_dist
-            max_dist_dist_chg2 = (ball.dist_chng_ / ball.dist_ - 0.02 * 0.5) * max_dist
-            min_dist_dist_chg1 = (ball.dist_chng_ / ball.dist_ + 0.02 * 0.5) * min_dist
-            min_dist_dist_chg2 = (ball.dist_chng_ / ball.dist_ - 0.02 * 0.5) * min_dist
+            ball_dist = max(ball.dist_, 0.00001)
+            max_dist_dist_chg1 = (ball.dist_chng_ / ball_dist + 0.02 * 0.5) * max_dist
+            max_dist_dist_chg2 = (ball.dist_chng_ / ball_dist - 0.02 * 0.5) * max_dist
+            min_dist_dist_chg1 = (ball.dist_chng_ / ball_dist + 0.02 * 0.5) * min_dist
+            min_dist_dist_chg2 = (ball.dist_chng_ / ball_dist - 0.02 * 0.5) * min_dist
             max_dir_chg = ball.dir_chng_ + (0.1 * 0.5)
             min_dir_chg = ball.dir_chng_ - (0.1 * 0.5)
             max_dist_dir_chg_r1 = DEG2RAD * max_dir_chg * max_dist
