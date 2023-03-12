@@ -1,4 +1,4 @@
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.debug.level import Level
 from pyrusgeom.soccer_math import min_max
 from pyrusgeom.vector_2d import Vector2D
@@ -6,7 +6,6 @@ from lib.messenger.messenger import Messenger
 from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.debug.logger import dlog
 
 import lib.messenger.converters as converters
 
@@ -30,14 +29,14 @@ class PlayerPosUnumMessenger(Messenger):
     
     def encode(self, wm: 'WorldModel') -> str:
         if not 1 <= self._unum <= 22:
-            debug_print(f"(player pos unum messenger encode) unum is out of limit. unum={self._unum}")
+            log.os_log().error(f"(player pos unum messenger encode) unum is out of limit. unum={self._unum}")
             return ""
 
         unum = self._unum % 11
         player = wm.our_player(unum) if self._unum // 11 == 0 else wm.their_player(unum)
         
         if player is None:
-            debug_print(f"(player pos unum messenger encode) player is None. unum={self._unum}")
+            log.os_log().error(f"(player pos unum messenger encode) player is None. unum={self._unum}")
             return None
         
         SP = ServerParam.i()
@@ -72,7 +71,7 @@ class PlayerPosUnumMessenger(Messenger):
         unum = (val%22) + 1
         pos = Vector2D(x,y)
         
-        dlog.add_text(Level.SENSOR, f"(PlayerPosUnumMessenger decode) receive a player. unum={unum}, pos={pos}")
+        log.sw_log().sensor().add_text( f"(PlayerPosUnumMessenger decode) receive a player. unum={unum}, pos={pos}")
 
         messenger_memory.add_player(sender, unum, pos, current_time)
     

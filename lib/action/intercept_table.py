@@ -2,8 +2,8 @@ from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_player import PlayerIntercept
 from lib.action.intercept_self import SelfIntercept
 from lib.debug.color import Color
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
 from lib.rcsc.game_time import GameTime
@@ -63,11 +63,11 @@ class InterceptTable:
 
     def update(self, wm: 'WorldModel'):
         if InterceptTable.DEBUG:
-            dlog.add_text(Level.INTERCEPT, f"(intercept update) started {'#'*20}")
+            log.sw_log().intercept().add_text( f"(intercept update) started {'#'*20}")
             
         if self._last_update_time == wm.time(): # TODO uncomment it
             if InterceptTable.DEBUG:
-                dlog.add_text(Level.INTERCEPT, "(intercept update) intercept updated before! it called agein")
+                log.sw_log().intercept().add_text( "(intercept update) intercept updated before! it called agein")
             return
 
         self._last_update_time = wm.time().copy()
@@ -76,11 +76,11 @@ class InterceptTable:
         if wm.game_mode().type() == GameModeType.TimeOver or \
                 wm.game_mode().type() == GameModeType.BeforeKickOff:
             if InterceptTable.DEBUG:
-                dlog.add_text(Level.INTERCEPT, "(intercept update) GAMEMODE RETURN")
+                log.sw_log().intercept().add_text( "(intercept update) GAMEMODE RETURN")
             return
 
         if not wm.self().pos().is_valid() or not wm.ball().pos().is_valid():
-            dlog.add_text(Level.INTERCEPT, "(intercept update) self pos or ball pos is not valid")
+            log.sw_log().intercept().add_text( "(intercept update) self pos or ball pos is not valid")
             return
         
         self.create_ball_cache(wm)
@@ -89,19 +89,19 @@ class InterceptTable:
         self.predict_teammate(wm)
 
         if self._fastest_teammate is not None:
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"Intercept Teammate, fastest reach step={self._teammate_reach_cycle}"
                           f"teammate {self._fastest_teammate.unum()} {self._fastest_teammate.pos()}")
         if self._second_teammate is not None:
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"Intercept Teammate2nd, fastest reach step={self._second_teammate_reach_cycle}"
                           f"teammate {self._second_teammate.unum()} {self._second_teammate.pos()}")
         if self._fastest_opponent is not None:
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"Intercept Opponent, fastest reach step={self._opponent_reach_cycle}"
                           f"teammate {self._fastest_opponent.unum()} {self._fastest_opponent.pos()}")
         if self._second_opponent is not None:
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"Intercept Opponent2nd, fastest reach step={self._second_opponent_reach_cycle}"
                           f"teammate {self._second_opponent.unum()} {self._second_opponent.pos()}")
 
@@ -154,11 +154,11 @@ class InterceptTable:
             self._ball_cache.append(ball_pos.copy())
 
         for b in self._ball_cache:
-            dlog.add_circle(Level.INTERCEPT, r=0.1, center=b, fill=True, color=Color(string="blue"))
+            log.sw_log().intercept().add_circle( r=0.1, center=b, fill=True, color=Color(string="blue"))
 
     def predict_self(self, wm):
         if wm.self().is_kickable():
-            dlog.add_text(Level.INTERCEPT, "Intercept predict self already kickable")
+            log.sw_log().intercept().add_text( "Intercept predict self already kickable")
             return
 
         max_cycle = min(self._max_cycle, len(self._ball_cache))
@@ -166,7 +166,7 @@ class InterceptTable:
         predictor.predict(max_cycle, self._self_cache)
 
         if len(self._self_cache) == 0:
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           "Intercept self, self cache is empty")
             return
 
@@ -183,7 +183,7 @@ class InterceptTable:
                     exhaust_min_cycle = it.reach_cycle()
                     break
 
-        dlog.add_text(Level.INTERCEPT,
+        log.sw_log().intercept().add_text(
                       f"Intercept self, solution size={len(self._self_cache)}")
         self._self_reach_cycle = min_cycle
         self._self_exhaust_reach_cycle = exhaust_min_cycle
@@ -192,14 +192,14 @@ class InterceptTable:
         opponents = wm.opponents_from_ball()
 
         if wm.exist_kickable_opponents():
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           "Intercept Opponent. exits kickable opponent")
             self._opponent_reach_cycle = 0
             for o in opponents:
                 if o.is_ghost() or o.pos_count() > wm.ball().pos_count() + 1:
                     continue
                 self._fastest_opponent = o
-                dlog.add_text(Level.INTERCEPT,
+                log.sw_log().intercept().add_text(
                               f"fastest opp {self._fastest_opponent}")
                 break
             return
@@ -214,12 +214,12 @@ class InterceptTable:
 
             player_type = it.player_type()
             if player_type is None:
-                dlog.add_text(Level.INTERCEPT,
+                log.sw_log().intercept().add_text(
                               f"intercept opponents faild to get player{it.unum()} type")
                 continue
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"opp{it.unum()} {it.pos()} "
                           f"type={player_type.id()} cycle={cycle}")
 
@@ -242,14 +242,14 @@ class InterceptTable:
         teammates = wm.teammates_from_ball()
 
         if wm.exist_kickable_teammates():
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           "Intercept Teammates. exits kickable teammate")
             self._teammate_reach_cycle = 0
             for t in teammates:
                 if t.is_ghost() or t.pos_count() > wm.ball().pos_count() + 1:
                     continue
                 self._fastest_teammate = t
-                dlog.add_text(Level.INTERCEPT,
+                log.sw_log().intercept().add_text(
                               f"fastest tm {self._fastest_teammate}")
                 break
             return
@@ -264,13 +264,13 @@ class InterceptTable:
 
             player_type = it.player_type()
             if player_type is None:
-                dlog.add_text(Level.INTERCEPT,
+                log.sw_log().intercept().add_text(
                               f"intercept teammate faild to get player{it.unum()} type")
                 continue
 
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"tm{it.unum()} {it.pos()} "
                           f"type={player_type.id()} cycle={cycle}")
 

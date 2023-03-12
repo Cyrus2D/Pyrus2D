@@ -1,7 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING
+
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.vector_2d import Vector2D
 from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
@@ -58,14 +59,14 @@ class Messenger:
                 continue
             
             if len(enc) + size > max_message_size:
-                print("(Messenger encode all) out of limitation. Deny other messages.")
-                print("denied messages are:")
+                log.os_log().warn("(Messenger encode all) out of limitation. Deny other messages.")
+                log.os_log().warn("denied messages are:")
                 for denied in messages[i:]:
-                    print(denied)
+                    log.os_log().warn(denied)
                 break
             
             if Messenger.DEBUG:
-                dlog.add_text(Level.ACTION, f"(encode all messages) a message added, msg={message}, encoded={enc}")
+                log.sw_log().action().add_text( f"(encode all messages) a message added, msg={message}, encoded={enc}")
             
             all_messages += enc
             size += len(enc)

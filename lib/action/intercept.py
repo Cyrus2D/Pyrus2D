@@ -5,8 +5,8 @@ from lib.action.go_to_point import GoToPoint
 from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_table import InterceptTable
 from lib.debug.color import Color
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.soccer_math import inertia_n_step_distance, bound, calc_first_term_geom_series, min_max
 from pyrusgeom.vector_2d import Vector2D
 from lib.player.object_player import PlayerObject
@@ -36,9 +36,9 @@ class Intercept:
         table = wm.intercept_table()
         if table.self_reach_cycle() > 100:
             final_point = wm.ball().inertia_final_point()
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"table.self_reach_cycle() > 100 (GoToPoint)")
-            dlog.add_circle(Level.INTERCEPT,
+            log.sw_log().intercept().add_circle(
                             center=final_point,
                             r=0.5,
                             color=Color(string='red'))
@@ -54,9 +54,9 @@ class Intercept:
             if not face_point.is_valid():
                 face_point.assign(50.5, wm.self().pos().y() * 0.75)
 
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"best_intercept.dash_cycle() == 0 (TurnToPoint)")
-            dlog.add_circle(Level.INTERCEPT,
+            log.sw_log().intercept().add_circle(
                             center=face_point,
                             r=0.5,
                             color=Color(string='red'))
@@ -70,7 +70,7 @@ class Intercept:
             if best_intercept.dash_power() < 0:
                 target_angle -= 180
 
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"best_intercept.turn_cycle() > 0 (do_turn)")
             return agent.do_turn(target_angle - wm.self().body())
 
@@ -84,14 +84,14 @@ class Intercept:
 
             if (wm.self().stamina() - consumed_stamina
                     < ServerParam.i().recover_dec_thr_value() + 1):
-                dlog.add_text(Level.INTERCEPT,
+                log.sw_log().intercept().add_text(
                               f"last if (do turn)")
                 agent.do_turn(0)
                 return False
 
-        dlog.add_text(Level.INTERCEPT,
+        log.sw_log().intercept().add_text(
                       f"do inertia dash (do dash)")
-        dlog.add_circle(Level.INTERCEPT,
+        log.sw_log().intercept().add_circle(
                         center=target_point,
                         r=0.5,
                         color=Color(string='red'))
@@ -110,9 +110,9 @@ class Intercept:
                 attack_pos = opp.pos() + opp.vel()
 
                 if attack_pos.dist2(goal_pos) > my_next.dist2(goal_pos):
-                    dlog.add_text(Level.INTERCEPT,
+                    log.sw_log().intercept().add_text(
                                   f"do_kickable_opp_check (GoToPoint)")
-                    dlog.add_circle(Level.INTERCEPT,
+                    log.sw_log().intercept().add_circle(
                                     center=attack_pos,
                                     r=0.5,
                                     color=Color(string='red'))
@@ -350,9 +350,9 @@ class Intercept:
             if not face_point.is_valid():
                 face_point.assign(50.5, wm.self().pos().y() * 0.9)
 
-            dlog.add_text(Level.INTERCEPT,
+            log.sw_log().intercept().add_text(
                           f"do wait turn (1) (TurnToPoint)")
-            dlog.add_circle(Level.INTERCEPT,
+            log.sw_log().intercept().add_circle(
                             center=face_point,
                             r=0.5,
                             color=Color(string='red'))
@@ -387,9 +387,9 @@ class Intercept:
         if faced_rel.abs_y() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
             return False
 
-        dlog.add_text(Level.INTERCEPT,
+        log.sw_log().intercept().add_text(
                       f"do wait turn (2)(TurnToPoint)")
-        dlog.add_circle(Level.INTERCEPT,
+        log.sw_log().intercept().add_circle(
                         center=face_point,
                         r=0.5,
                         color=Color(string='red'))

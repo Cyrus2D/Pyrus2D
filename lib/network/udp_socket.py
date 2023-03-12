@@ -1,5 +1,4 @@
 import socket
-from lib.debug.debug_print import debug_print
 
 import team_config
 

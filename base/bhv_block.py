@@ -1,12 +1,14 @@
 from lib.action.go_to_point import GoToPoint
 from base.strategy_formation import StrategyFormation
 from lib.action.intercept import Intercept
-from lib.debug.logger import dlog, Level
 from base.tools import Tools
 from base.stamina_manager import get_normal_dash_power
 from pyrusgeom.soccer_math import *
 
 from typing import TYPE_CHECKING
+
+from lib.debug.debug import log
+
 if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
@@ -38,7 +40,7 @@ class Bhv_Block:
                         break
         if blocker == wm.self_unum():
             GoToPoint(block_pos, 0.1, 100).execute(agent)
-            agent.debug_client().add_message('block in {}'.format(block_pos))
-            agent.debug_client().set_target(block_pos)
+            log.debug_client().add_message('block in {}'.format(block_pos))
+            log.debug_client().set_target(block_pos)
             return True
         return False

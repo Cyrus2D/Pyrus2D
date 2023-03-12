@@ -1,5 +1,4 @@
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.player.localizer import Localizer
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.player_type import PlayerType
@@ -342,7 +341,7 @@ class PlayerObject(Object):
                        body: float):
         
         if PlayerObject.DEBUG:
-            dlog.add_text(Level.SENSOR, f"(update player by hear) unum={unum} prior_pos={self.pos()} new_pos={pos}")
+            log.sw_log().sensor().add_text( f"(update player by hear) unum={unum} prior_pos={self.pos()} new_pos={pos}")
         
         self._heard_pos = pos.copy()
         self._heard_pos_count = 0

@@ -1,6 +1,6 @@
 import functools
 from lib.coach.coach_agent import CoachAgent
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.types import HETERO_DEFAULT, HETERO_UNKNOWN
 
@@ -36,7 +36,7 @@ class SampleCoach(CoachAgent):
         
         for i, pt in enumerate(self.world().player_types()):
             if pt is None:
-                debug_print(f"(sample coach first sub) pt is None! index={i}")
+                log.os_log().error(f"(sample coach first sub) pt is None! index={i}")
                 continue
             
             for i in range(1): # TODO PLAYER PARAM
@@ -53,7 +53,7 @@ class SampleCoach(CoachAgent):
         for unum in unum_order:
             p = self.world().our_player(unum)
             if p is None:
-                debug_print(f"(sample coach sub to) player is None! unum={unum}")
+                log.os_log().error(f"(sample coach sub to) player is None! unum={unum}")
                 continue
             type = self.get_fastest_type(candidates)
             if type != HETERO_UNKNOWN:
@@ -61,16 +61,16 @@ class SampleCoach(CoachAgent):
         
     def subsititute_to(self, unum, type):
         if self.world().time().cycle() > 0 and self.world().our_subsititute_count() >= 3: # TODO PLAYER PARAM
-            print(f"(sample coach subsititute to) WARNING: {team_config.TEAM_NAME} coach: over the substitution max."
+            log.os_log().error(f"(sample coach subsititute to) WARNING: {team_config.TEAM_NAME} coach: over the substitution max."
                   f"cannot change player({unum}) to {type}")
             return
         
         if type not in self.world().available_player_type_id(): # IMP FUNC
-            print(f"(sample coach subsititute to) type is not available. type={type}")
+            log.os_log().error(f"(sample coach subsititute to) type is not available. type={type}")
             return
         
         self.do_change_player_type(unum, type)
-        print(f"(sample coach subsititute to) player({unum})'s type changed to {type}")
+        log.os_log().error(f"(sample coach subsititute to) player({unum})'s type changed to {type}")
     
     def get_fastest_type(self, candidates: list[PlayerType]):
         if len(candidates) == 0:

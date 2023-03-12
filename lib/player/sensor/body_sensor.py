@@ -1,6 +1,6 @@
+from lib.debug.debug import log
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import ViewQuality, ViewWidth, SideID, Card, UNUM_UNKNOWN
-from lib.debug.debug_print import debug_print
 
 
 class BodySensor:
@@ -97,7 +97,7 @@ class BodySensor:
         elif attention_target[0] == 'r':
             self._attentionto_side = SideID.RIGHT
         else:
-            debug_print("Body_sensor: Failed to parse Attentionto")
+            log.os_log().error("Body_sensor: Failed to parse Attentionto")
 
         # Parse collision
         self._ball_collided = False

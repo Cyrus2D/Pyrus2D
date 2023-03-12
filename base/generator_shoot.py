@@ -1,6 +1,7 @@
-from lib.debug.logger import dlog, Level, Color
 from pyrusgeom.geom_2d import *
 import pyrusgeom.soccer_math as smath
+
+from lib.debug.debug import log
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
 import time
@@ -39,7 +40,7 @@ class BhvShhotGen(BhvKickGen):
         for i in range(DIST_DIVS):
             self.total_count += 1
             target_point = Vector2D(goal_l.x(), goal_l.y() + dist_step * i)
-            dlog.add_text(Level.SHOOT, "#shoot {} to {}".format(self.total_count, target_point))
+            log.sw_log().shoot().add_text( "#shoot {} to {}".format(self.total_count, target_point))
             self.create_shoot(wm, target_point)
         if len(self.candidates) == 0:
             return None
@@ -50,7 +51,7 @@ class BhvShhotGen(BhvKickGen):
         # end_time = time.time()
         # if end_time - start_time > max_shoot_time:
         #     max_pass_time = end_time - start_time
-        # dlog.add_text(Level.PASS, 'time:{} max is {}'.format(end_time - start_time, max_shoot_time))
+        # log.sw_log().pass_().add_text( 'time:{} max is {}'.format(end_time - start_time, max_shoot_time))
         return self.candidates[0]
 
     def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
@@ -58,7 +59,7 @@ class BhvShhotGen(BhvKickGen):
         goalie = wm.get_opponent_goalie()
         if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count() < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
-            dlog.add_text(Level.SHOOT, "#shoot {} didnt see goalie".format(self.total_count))
+            log.sw_log().shoot().add_text( "#shoot {} didnt see goalie".format(self.total_count))
             return
 
         sp = SP.i()
@@ -99,17 +100,17 @@ class BhvShhotGen(BhvKickGen):
             math.ceil(smath.calc_length_geom_series(first_ball_speed, ball_move_dist, sp.ball_decay())))
 
         if ball_reach_step == -1:
-            dlog.add_text(Level.SHOOT, 'Cant arrive to target')
+            log.sw_log().shoot().add_text( 'Cant arrive to target')
             return False
-        dlog.add_text(Level.SHOOT, '{} {} {} {} {}'.format(first_ball_speed, ball_move_dist, sp.ball_decay(), smath.calc_length_geom_series(first_ball_speed, ball_move_dist, sp.ball_decay()), math.ceil(smath.calc_length_geom_series(first_ball_speed, ball_move_dist, sp.ball_decay()))))
+        log.sw_log().shoot().add_text( '{} {} {} {} {}'.format(first_ball_speed, ball_move_dist, sp.ball_decay(), smath.calc_length_geom_series(first_ball_speed, ball_move_dist, sp.ball_decay()), math.ceil(smath.calc_length_geom_series(first_ball_speed, ball_move_dist, sp.ball_decay()))))
         course = ShootAction(self.total_count, target_point, first_ball_speed, ball_move_angle, ball_move_dist,
                              ball_reach_step)
 
-        dlog.add_text(Level.SHOOT, 'course: {}'.format(course))
+        log.sw_log().shoot().add_text( 'course: {}'.format(course))
         if ball_reach_step <= 1:
             course.ball_reach_step = 1
             self.candidates.append(course)
-            dlog.add_text(Level.SHOOT, 'Yes')
+            log.sw_log().shoot().add_text( 'Yes')
             return True
         opponent_x_thr = sp.their_penalty_area_line_x() - 30.0
         opponent_y_thr = sp.penalty_area_half_width()
@@ -117,38 +118,38 @@ class BhvShhotGen(BhvKickGen):
         for o in range(1, 12):
             opp = wm.their_player(o)
             if opp.unum() < 1:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, unum')
+                log.sw_log().shoot().add_text( '## opp {} can not, unum')
                 continue
             if opp.is_tackling():
-                dlog.add_text(Level.SHOOT, '## opp {} can not, tackle')
+                log.sw_log().shoot().add_text( '## opp {} can not, tackle')
                 continue
             if opp.pos().x() < opponent_x_thr:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, xthr')
+                log.sw_log().shoot().add_text( '## opp {} can not, xthr')
                 continue
             if opp.pos().abs_y() > opponent_y_thr:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, ythr')
+                log.sw_log().shoot().add_text( '## opp {} can not, ythr')
                 continue
 
             if (ball_move_angle - (opp.pos() - wm.ball().pos()).th()).abs() > 90.0:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, angle')
+                log.sw_log().shoot().add_text( '## opp {} can not, angle')
                 continue
 
             if opp.goalie():
                 if self.maybe_goalie_catch(opp, course, wm):
                     return False
-                dlog.add_text(Level.SHOOT, '## opp {} can not, goalie catch')
+                log.sw_log().shoot().add_text( '## opp {} can not, goalie catch')
                 continue
 
             if opp.pos_count() > 10:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, pos count')
+                log.sw_log().shoot().add_text( '## opp {} can not, pos count')
                 continue
             if opp.is_ghost() and opp.pos_count() > 5:
-                dlog.add_text(Level.SHOOT, '## opp {} can not, ghost')
+                log.sw_log().shoot().add_text( '## opp {} can not, ghost')
                 continue
 
             if self.opponent_can_reach(opp, course, wm):
                 return False
-            dlog.add_text(Level.SHOOT, '## opp {} can not, cant reach')
+            log.sw_log().shoot().add_text( '## opp {} can not, cant reach')
         self.candidates.append(course)
         return True
 

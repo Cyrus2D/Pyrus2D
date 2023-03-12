@@ -1,4 +1,3 @@
-from lib.debug.debug_print import debug_print
 from lib.parser.parser_message_params import MessageParamsParser
 from lib.rcsc.server_param import ServerParam as SP # TODO SP.i()?!?!
 import pyrusgeom.soccer_math as smath
@@ -259,7 +258,9 @@ class PlayerType:
             dist_x = (dist**2 - (SP.i().catch_area_l()/2)**2)**0.5
             fail_prob = (dist_x - catch_length_min_x) / (catch_stretch_length_x*2)
             return (1 - fail_prob)* SP.i().catch_probability()
-                
+
+        catch_stretch_length_x = (self.catchable_area_l_stretch() - 1) * SP.i().catch_area_l()
+        catch_length_min_x = SP.i().catch_area_l() - catch_stretch_length_x
         ball_rel = (ball_pos - player_pos).rotated_vector(-player_body)
         ball_dist = ball_rel.r()
         ball_dir = ball_rel.th()

@@ -62,7 +62,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
                         msg):
             self._commands += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
 
-    def __init__(self, team_name: str, unum: int):
+    def __init__(self, team_name: str, unum: int, time: GameTime):
         self._file = open(f"/tmp/{team_name}-{unum}.log", 'w')
         self._time: GameTime = GameTime()
 
@@ -88,6 +88,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
         self._action_chain = SoccerWindow_Logger.LoggerLevel(Level.ACTION_CHAIN, self._time)
         self._plan = SoccerWindow_Logger.LoggerLevel(Level.PLAN, self._time)
         self._training = SoccerWindow_Logger.LoggerLevel(Level.TRAINING, self._time)
+        self._any = SoccerWindow_Logger.LoggerLevel(Level.LEVEL_ANY, self._time)
 
         self._levels: list[SoccerWindow_Logger.LoggerLevel] = [
             self._system,
@@ -112,6 +113,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
             self._action_chain,
             self._plan,
             self._training,
+            self._any
         ]
 
     def flush(self):
@@ -124,6 +126,71 @@ class SoccerWindow_Logger(DebuggerAbstract):
     def update_time(self, t: GameTime):
         self._time.assign(t.cycle(), t.stopped_cycle())
 
+    def system(self):
+        return self._system
 
+    def sensor(self):
+        return self._sensor
 
+    def world(self):
+        return self._world
 
+    def action(self):
+        return self._action
+
+    def intercept(self):
+        return self._intercept
+
+    def kick(self):
+        return self._kick
+
+    def hold(self):
+        return self._hold
+
+    def dribble(self):
+        return self._dribble
+
+    def pass_(self):
+        return self._pass
+
+    def cross(self):
+        return self._cross
+
+    def shoot(self):
+        return self._shoot
+
+    def clear(self):
+        return self._clear
+
+    def block(self):
+        return self._block
+
+    def mark(self):
+        return self._mark
+
+    def positioning(self):
+        return self._positioning
+
+    def role(self):
+        return self._role
+
+    def team(self):
+        return self._team
+
+    def communication(self):
+        return self._communication
+
+    def analyzer(self):
+        return self._analyzer
+
+    def action_chain(self):
+        return self._action_chain
+
+    def plan(self):
+        return self._plan
+
+    def training(self):
+        return self._training
+
+    def any(self):
+        return self._any

@@ -1,7 +1,6 @@
 from scipy.spatial import Delaunay
 from pyrusgeom.geom_2d import *
 from enum import Enum
-from lib.debug.debug_print import debug_print
 from lib.rcsc.server_param import ServerParam
 from pyrusgeom.soccer_math import min_max
 

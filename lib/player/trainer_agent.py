@@ -1,9 +1,10 @@
 import logging
 import time
 
-from lib.debug.logger import dlog
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.vector_2d import Vector2D
+
+from lib.debug.debug import log
 from lib.network.udp_socket import IPAddress
 from lib.coach.gloabl_world_model import GlobalWorldModel
 from lib.player.soccer_agent import SoccerAgent
@@ -14,7 +15,6 @@ from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
-from lib.debug.debug_print import debug_print
 
 import team_config
 
@@ -63,7 +63,7 @@ class TrainerAgent(SoccerAgent):
             com = TrainerInitCommand(team_config.COACH_VERSION)
 
             if self._agent._client.send_message(com.str()) <= 0:
-                debug_print("ERROR failed to connect to server")
+                log.os_log().error("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
@@ -96,7 +96,7 @@ class TrainerAgent(SoccerAgent):
         # TODO check for config.host not empty
 
         if not self._client.connect_to(IPAddress(team_config.HOST, team_config.TRAINER_PORT)):
-            debug_print("ERROR failed to connect to server")
+            log.os_log().error("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
 
@@ -126,7 +126,7 @@ class TrainerAgent(SoccerAgent):
                     break
 
             if not self._client.is_server_alive():
-                debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
+                log.os_log().info(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
             if self._impl.think_received:
@@ -142,7 +142,6 @@ class TrainerAgent(SoccerAgent):
         elif message.find("(see") is not -1 or message.find("(player_type") is not -1:
             self._full_world.parse(message)
             self._impl._think_received = False
-            dlog._time = self.world().time().copy()
         elif message.find("think") is not -1:
             self._impl._think_received = True
         elif message.find("(ok") is not -1:
@@ -151,8 +150,7 @@ class TrainerAgent(SoccerAgent):
             self._impl.hear_parser(message)
 
     def init_dlog(self, message):
-        dlog.setup_logger(f"dlog-coach", f"/tmp/{self.world().team_name_l()}-coach.log", logging.DEBUG)
-
+        log.setup(self.world().team_name_l(), 'coach', self._impl._current_time)
     def world(self) -> GlobalWorldModel:
         return self._full_world
 
@@ -168,7 +166,7 @@ class TrainerAgent(SoccerAgent):
         # self._client.send_message(TrainerSendCommands.all_to_str(commands))
         for com in commands:
             self._client.send_message(com.str())
-        dlog.flush()
+        log.sw_log().flush()
         self._last_body_command = []
 
     def action_impl(self):

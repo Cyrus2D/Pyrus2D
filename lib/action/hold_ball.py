@@ -4,8 +4,8 @@
 """
 import functools
 
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.soccer_math import *
 from pyrusgeom.angle_deg import AngleDeg
 from lib.action.stop_ball import StopBall
@@ -77,7 +77,7 @@ class HoldBall(BodyAction):
     def execute(self, agent: 'PlayerAgent'):
         wm: 'WorldModel' = agent.world()
         if not wm.self().is_kickable():
-            dlog.add_text(Level.KICK, "not kickable")
+            log.sw_log().kick().add_text( "not kickable")
             return False
 
         if not wm.ball().vel_valid():
@@ -95,7 +95,7 @@ class HoldBall(BodyAction):
         if self.avoidOpponent(agent):
             return True
 
-        dlog.add_text(Level.KICK, "only stop ball")
+        log.sw_log().kick().add_text( "only stop ball")
 
         return StopBall().execute(agent)
 
@@ -109,7 +109,7 @@ class HoldBall(BodyAction):
         wm: 'WorldModel' = agent.world()
         point = self.searchKeepPoint(wm)
         if not point.is_valid():
-            dlog.add_text(Level.KICK, "avoidOpponent() no candidate point")
+            log.sw_log().kick().add_text( "avoidOpponent() no candidate point")
             return False
         ball_move = point - wm.ball().pos()
         kick_accel = ball_move - wm.ball().vel()

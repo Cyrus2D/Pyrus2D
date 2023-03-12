@@ -1,6 +1,5 @@
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.player.soccer_action import NeckAction
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
@@ -55,8 +54,8 @@ class NeckScanField(NeckAction):
                 break
         
         if NeckScanField.DEBUG:
-            dlog.add_text(Level.WORLD, f"(NSF EXE) existed_ghost={existed_ghost}")
-            dlog.add_text(Level.WORLD, f"(NSF EXE) dir_counts={wm._dir_count}")
+            log.sw_log().world().add_text( f"(NSF EXE) existed_ghost={existed_ghost}")
+            log.sw_log().world().add_text( f"(NSF EXE) dir_counts={wm._dir_count}")
         
         if not existed_ghost:
             angle = NeckScanPlayers.get_best_angle(agent)
@@ -121,7 +120,7 @@ class NeckScanField(NeckAction):
             dir_count.append(wm.dir_count(tmp_angle))
 
             if NeckScanField.DEBUG:
-                dlog.add_text(Level.WORLD, f"(NSF CAD) dir_count={dir_count[-1]}")
+                log.sw_log().world().add_text( f"(NSF CAD) dir_count={dir_count[-1]}")
 
             tmp_angle += WorldModel.DIR_STEP
         

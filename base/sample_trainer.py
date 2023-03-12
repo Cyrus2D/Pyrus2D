@@ -1,5 +1,5 @@
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.vector_2d import Vector2D
 from lib.player.trainer_agent import TrainerAgent
 from lib.rcsc.types import GameModeType
@@ -16,7 +16,7 @@ class SampleTrainer(TrainerAgent):
         self.sample_action()
 
     def sample_action(self):
-        dlog.add_text(Level.BLOCK, "Sample Action")
+        log.sw_log().block().add_text( "Sample Action")
 
         wm = self.world()
         ballpos = wm.ball().pos()

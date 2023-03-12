@@ -2,12 +2,11 @@
   \ file basic_actions.py
   \ brief basic player actions
 """
-
+from lib.debug.debug import log
 from lib.player.soccer_action import *
 from pyrusgeom.soccer_math import *
 from lib.rcsc.server_param import ServerParam
 from pyrusgeom.angle_deg import AngleDeg
-from lib.debug.debug_print import debug_print
 
 
 from typing import TYPE_CHECKING
@@ -144,14 +143,14 @@ class SetFocusToPoint(FocusPointAction):
         current_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, current_focus_point_dir.degree(), next_view_width / 2.0))
         next_focus_point_dist = my_next_pos.dist(self.next_focus_point)
         if not (0.0 < next_focus_point_dist < 40.0):
-            debug_print(f'(FocusToPoint execute) Next focus point dist should be 0<{next_focus_point_dist}<40')
+            log.os_log().info(f'(FocusToPoint execute) Next focus point dist should be 0<{next_focus_point_dist}<40')
         next_focus_point_dist = min_max(0.0, next_focus_point_dist, 40.0)
         change_focus_moment_dist = next_focus_point_dist - current_focus_point_dist
 
         original_next_focus_point_dir_to_pos = (self.next_focus_point - my_next_pos).th()
         next_focus_point_dir = (self.next_focus_point - my_next_pos).th() - my_next_face
         if not (-next_view_width / 2.0 < next_focus_point_dir.degree() < next_view_width / 2.0):
-            debug_print(f'(FocusToPoint execute) Next focus point dir should be {-next_view_width / 2.0}<{next_focus_point_dir.degree()}<{next_view_width/2.0}')
+            log.os_log().info(f'(FocusToPoint execute) Next focus point dir should be {-next_view_width / 2.0}<{next_focus_point_dir.degree()}<{next_view_width/2.0}')
         next_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, next_focus_point_dir.degree(), next_view_width / 2.0))
         if abs(next_focus_point_dir.abs() - next_view_width) / 2.0 < 0.001:
             positive = AngleDeg(next_view_width / 2.0) + my_next_face

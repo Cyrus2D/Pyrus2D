@@ -1,9 +1,11 @@
 import logging
+from typing import Union
+
 import coloredlogs
 import sys
 
 
-def get_logger(unum: int = None, on_file=False):
+def get_logger(unum: Union[int, str] = None, on_file=False):
     logging.basicConfig()
     logger = logging.getLogger(name='mylogger')
     coloredlogs.install(logger=logger)
@@ -26,7 +28,9 @@ def get_logger(unum: int = None, on_file=False):
         )
     )
     if on_file:
-        if unum > 0:
+        if unum == 'coach':
+            file_name = 'coach.txt'
+        elif unum > 0:
             file_name = f'player-{unum}.txt'
         else:
             file_name = f'coach-log.txt'

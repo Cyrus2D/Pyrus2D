@@ -8,7 +8,7 @@ from lib.action.neck_scan_players import NeckScanPlayers
 from lib.action.neck_turn_to_ball import NeckTurnToBall
 from lib.action.neck_turn_to_ball_or_scan import NeckTurnToBallOrScan
 from lib.action.scan_field import ScanField
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
 from lib.rcsc.types import GameModeType, ViewWidth, UNUM_UNKNOWN
@@ -52,5 +52,5 @@ def get_decision(agent: 'PlayerAgent'):
         return BhvKick().execute(agent)
     if BhvMove().execute(agent):
         return True
-    debug_print("NO ACTION, ScanFIELD")
+    log.os_log().warn("NO ACTION, ScanFIELD")
     return ScanField().execute(agent)

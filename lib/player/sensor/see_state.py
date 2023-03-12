@@ -1,10 +1,9 @@
 from enum import Enum, unique, auto
 
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import ViewWidth, ViewQuality
-from lib.debug.debug_print import debug_print
 
 DEBUG: bool = True
 
@@ -63,13 +62,13 @@ class SeeState:
         self.set_new_cycle(sense_time)
 
         if self._view_width != vw:
-            dlog.add_text(Level.SYSTEM, f"see state: (update by sense body)"
+            log.sw_log().system().add_text( f"see state: (update by sense body)"
                                         f"vew_width does not match."
                                         f" old={self._view_width}, new={vw}")
             self._view_width = vw
 
         if self._view_quality != vq:
-            dlog.add_text(Level.SYSTEM, f"see state: (update by sense body)"
+            log.sw_log().system().add_text( f"see state: (update by sense body)"
                                         f"vew_width does not match."
                                         f" old={self._view_quality}, new={vq}")
             self._view_quality = vq
@@ -78,7 +77,7 @@ class SeeState:
         if see_time == self._last_see_time:
             self._current_see_count += 1
             if self.is_synch():
-                dlog.add_text(Level.SYSTEM, "see_state: update after see: estimated synch, but duplicated")
+                log.sw_log().system().add_text( "see_state: update after see: estimated synch, but duplicated")
         else:
             self.set_new_cycle(see_time)
             self._last_see_time = see_time.copy()
@@ -89,7 +88,7 @@ class SeeState:
             return
 
         if not self.is_synch():
-            dlog.add_text(Level.SYSTEM, "see state: update by see: but no synch")
+            log.sw_log().system().add_text( "see state: update by see: but no synch")
             return
 
         # if self._cycles_till_next_see > 0:
@@ -98,9 +97,9 @@ class SeeState:
 
         new_timing: Timing = self._get_next_timing(vw, vq)
         if new_timing == Timing.TIME_NOSYNCH:
-            debug_print(f"time: {see_time}, invalid view width. no synchronization...")
+            log.os_log().error(f"time: {see_time}, invalid view width. no synchronization...")
 
-        dlog.add_text(Level.SYSTEM, f"see state: (update by seee) see update,"
+        log.sw_log().system().add_text( f"see state: (update by seee) see update,"
                                     f"last time: {self._last_timing},"
                                     f"current time: {new_timing}")
 
@@ -141,7 +140,7 @@ class SeeState:
     def set_view_mode(self, new_width: ViewWidth, new_quality: ViewQuality):
         if self._last_see_time != self._current_time:
             if DEBUG:
-                dlog.add_text(Level.SYSTEM, "see state (set_view_mode) no current cycle see arrival")
+                log.sw_log().system().add_text( "see state (set_view_mode) no current cycle see arrival")
             return
 
         self._view_width = new_width
@@ -160,7 +159,7 @@ class SeeState:
                 self._cycles_till_next_see = 1
                 self._synch_type = SynchType.SYNCH_NARROW
 
-            dlog.add_text(Level.SYSTEM, f"see state (set_view_mode)"
+            log.sw_log().system().add_text( f"see state (set_view_mode)"
                                         f" synch {new_width}: cycle = {self._cycles_till_next_see}")
             return
 
@@ -172,9 +171,9 @@ class SeeState:
                 self._cycles_till_next_see = 1
                 self._synch_type = SynchType.SYNCH_EVERY
             elif new_width == ViewWidth.NARROW:
-                debug_print(f"{self._current_time} SeeState. TIME_0_00. Narrow is illegal.")
+                log.os_log().error(f"{self._current_time} SeeState. TIME_0_00. Narrow is illegal.")
                 self._synch_type = SynchType.SYNCH_NO
-            dlog.add_text(Level.SYSTEM,
+            log.sw_log().system().add_text(
                           f"see state (setViewMode) 00:{new_width}: cycle = {self._cycles_till_next_see}")
             return
 
@@ -188,7 +187,7 @@ class SeeState:
             elif new_width == ViewWidth.NARROW:
                 self._cycles_till_next_see = 1
                 self._synch_type = SynchType.SYNCH_EVERY
-            dlog.add_text(Level.SYSTEM,
+            log.sw_log().system().add_text(
                           f"see state (setViewMode) 50:{new_width}: cycle = {self._cycles_till_next_see}")
             return
 
@@ -197,12 +196,12 @@ class SeeState:
                 self._cycles_till_next_see = 3
                 self._synch_type = SynchType.SYNCH_WIDE
             elif new_width == ViewWidth.NORMAL:
-                debug_print(f"{self._current_time} SeeState. TIME_22_5. Normal is illegal.")
+                log.os_log().error(f"{self._current_time} SeeState. TIME_22_5. Normal is illegal.")
                 self._synch_type = SynchType.SYNCH_NO
             elif new_width == ViewWidth.NARROW:
                 self._cycles_till_next_see = 1
                 self._synch_type = SynchType.SYNCH_EVERY
-            dlog.add_text(Level.SYSTEM,
+            log.sw_log().system().add_text(
                           f"see state (setViewMode) 50:{new_width}: cycle = {self._cycles_till_next_see}")
             return
 
@@ -233,7 +232,7 @@ class SeeState:
 
         if next_width == ViewWidth.WIDE:
             return True
-        debug_print("see state (can_change_view) unexpected reeach...")
+        log.os_log().error("see state (can_change_view) unexpected reeach...")
         return True
 
     def cycles_till_next_see(self):
