@@ -63,7 +63,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
             self._commands += f"{self._time.cycle()},{self._time.stopped_cycle()} {self.level.value} m {round(x, 4)} {round(y, 4)} {msg}\n"
 
     def __init__(self, team_name: str, unum: int):
-        self._file = open(f"{team_name}-{unum}.log", 'w')
+        self._file = open(f"/tmp/{team_name}-{unum}.log", 'w')
         self._time: GameTime = GameTime()
 
         self._system = SoccerWindow_Logger.LoggerLevel(Level.SYSTEM, self._time)
