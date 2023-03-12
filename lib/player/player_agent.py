@@ -4,9 +4,9 @@ import time
 
 from lib.action.kick_table import KickTable
 from base.decision import get_decision
+from lib.debug.debug import log
 from lib.debug.level import Level
 from lib.debug.color import Color
-from lib.debug.logger import dlog
 from pyrusgeom.angle_deg import AngleDeg
 from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
@@ -23,15 +23,15 @@ from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.player.debug_client import DebugClient
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
-from lib.debug.debug_print import debug_print
 from lib.messenger.messenger import Messenger
 
 import team_config
 
+
 def get_time_msec():
-    return int(time.time()*1000)
+    return int(time.time() * 1000)
+
 
 class PlayerAgent(SoccerAgent):
     class Impl:
@@ -51,9 +51,7 @@ class PlayerAgent(SoccerAgent):
             super().__init__()
             self._server_cycle_stopped: bool = True
 
-            self._body_time_stamp:int = None
-
-            dlog._time = self._current_time
+            self._body_time_stamp: int = None
 
             self._neck_action: NeckAction = None
             self._view_action: ViewAction = None
@@ -69,11 +67,11 @@ class PlayerAgent(SoccerAgent):
             self._agent._full_world._team_name = team_config.TEAM_NAME
 
             if self._agent._client.send_message(com.str()) <= 0:
-                debug_print("ERROR failed to connect to server")
+                log.os_log().error("ERROR failed to connect to server")
                 self._agent._client.set_server_alive(False)
 
         def send_bye_command(self):
-            if self._agent._client.is_server_alive() is True:
+            if self._agent._client.is_server_alive() is True:  # TODO FALSE?
                 com = PlayerByeCommand()
                 self._agent._client.send_message(com.str())
                 self._agent._client.set_server_alive(False)
@@ -83,7 +81,7 @@ class PlayerAgent(SoccerAgent):
 
             self.parse_cycle_info(message, True)
 
-            dlog.add_text(Level.SENSOR, "Receive body sensor")
+            log.sw_log().sensor().add_text("Receive body sensor")
 
             self._body.parse(message, self._current_time)
 
@@ -107,11 +105,11 @@ class PlayerAgent(SoccerAgent):
                                           self._agent.world().self().view_quality())
 
             if self._visual.time() == self._current_time and \
-                self._agent.world().see_time() != self._current_time:
-                    self._agent.world().update_after_see(self._visual,
-                                                         self._body,
-                                                         self._agent.effector(),
-                                                         self._current_time)
+                    self._agent.world().see_time() != self._current_time:
+                self._agent.world().update_after_see(self._visual,
+                                                     self._body,
+                                                     self._agent.effector(),
+                                                     self._current_time)
 
         def hear_parser(self, message: str):
             self.parse_cycle_info(message, False)
@@ -120,23 +118,22 @@ class PlayerAgent(SoccerAgent):
             )
             cycle = int(cycle)
 
-            if sender[0].isnumeric() or sender[0] == '-': # PLAYER MESSAGE
+            if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
                 self.hear_player_parser(message)
             elif sender == "referee":
                 self.hear_referee_parser(message)
 
-        def hear_player_parser(self, message:str):
+        def hear_player_parser(self, message: str):
             if message.find('"') == -1:
                 return
             data = message.strip('()').split(' ')
             if len(data) < 6:
-                debug_print("(hear player parser) message format is not matched!")
+                log.os_log().error("(hear player parser) message format is not matched!")
                 return
             player_message = message.split('"')[1]
             if not data[4].isdigit():
                 return
             sender = int(data[4])
-
 
             Messenger.decode_all(self._agent.world()._messenger_memory,
                                  player_message,
@@ -159,7 +156,6 @@ class PlayerAgent(SoccerAgent):
             if ServerParam.i().is_fullstate(self._agent.world().our_side()) and team_config.FULL_STATE_DEBUG:
                 self._agent.full_world().update_game_mode(self._game_mode, self._current_time)
 
-
         def update_server_status(self):
             if self._server_cycle_stopped:
                 self._server_cycle_stopped = False
@@ -179,28 +175,28 @@ class PlayerAgent(SoccerAgent):
                     self._current_time.assign(new_time, 0)
 
                     if new_time - 1 != old_time.cycle():
-                        debug_print(f"player({self._agent.world().self_unum()}):"
-                              f"last server time was wrong maybe")
+                        log.os_log().warn(f"player({self._agent.world().self_unum()}):"
+                                    f"last server time was wrong maybe")
                 else:
                     if by_sense_body:
                         self._current_time.assign(self._current_time.cycle(), self._current_time.stopped_cycle() + 1)
-                        dlog.add_text(Level.LEVEL_ANY, f"Cycle: {self._current_time.cycle()}-"
+                        log.sw_log().any().add_text( f"Cycle: {self._current_time.cycle()}-"
                                                        f"{self._current_time.stopped_cycle()} " + '-' * 20)
 
                         if self._last_decision_time != old_time and old_time.stopped_cycle() != 0:
-                            dlog.add_text(Level.SYSTEM, f"(update current time) missed last action(1)")
+                            log.sw_log().system().add_text( f"(update current time) missed last action(1)")
             else:
                 self._current_time.assign(new_time, 0)
                 if old_time.cycle() != new_time:
-                    dlog.add_text(Level.LEVEL_ANY, f"Cycle {new_time}-0 " + '-' * 20)
+                    log.sw_log().any().add_text( f"Cycle {new_time}-0 " + '-' * 20)
 
                     if new_time - 1 != old_time.cycle():
-                        debug_print(f"player({self._agent.world().self_unum()}):"
-                              f"last server time was wrong maybe")
+                        log.os_log().warn(f"player({self._agent.world().self_unum()}):"
+                                    f"last server time was wrong maybe")
 
                     if (self._last_decision_time.stopped_cycle() == 0
                             and self._last_decision_time.cycle() != new_time - 1):
-                        dlog.add_text(Level.SYSTEM, f"(update current time) missed last action(2)")
+                        log.sw_log().system().add_text( f"(update current time) missed last action(2)")
 
         def think_received(self):
             return self._think_received
@@ -223,9 +219,9 @@ class PlayerAgent(SoccerAgent):
             if self._agent.world().see_time() == self._current_time:
                 return True
 
-            wait_thr:int = (team_config.WAIT_TIME_THR_SYNCH_VIEW
-                            if self._see_state.is_synch()
-                            else team_config.WAIT_TIME_THR_NOSYNCH_VIEW)
+            wait_thr: int = (team_config.WAIT_TIME_THR_SYNCH_VIEW
+                             if self._see_state.is_synch()
+                             else team_config.WAIT_TIME_THR_NOSYNCH_VIEW)
 
             if self._last_decision_time == self._agent.world().sense_body_time() and timeout_count <= 2:
                 return False
@@ -241,7 +237,6 @@ class PlayerAgent(SoccerAgent):
             return False
 
         def do_neck_action(self):
-            debug_print(f"dna {self._neck_action}")
             if self._neck_action:
                 self._neck_action.execute(self._agent)
                 self._neck_action = None
@@ -263,7 +258,6 @@ class PlayerAgent(SoccerAgent):
         self._full_world = WorldModel()
         self._last_body_command = []
         self._is_synch_mode = True
-        self._debug_client = DebugClient()
         self._effector = ActionEffector(self)
 
     def init_impl(self, goalie: bool) -> bool:
@@ -274,14 +268,14 @@ class PlayerAgent(SoccerAgent):
             return False
 
         if team_config.PLAYER_VERSION < 18:
-            debug_print("PYRUS2D base code does not support player version less than 18.")
+            log.os_log().warn("PYRUS2D base code does not support player version less than 18.")
             self._client.set_server_alive(False)
             return False
 
         # TODO check for config.host not empty
 
         if not self._client.connect_to(IPAddress(team_config.HOST, team_config.PLAYER_PORT)):
-            debug_print("ERROR failed to connect to server")
+            log.os_log().error("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
 
@@ -291,7 +285,7 @@ class PlayerAgent(SoccerAgent):
     def handle_exit(self):
         if self._client.is_server_alive():
             self._impl.send_bye_command()
-        debug_print(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
+        log.os_log().info(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
 
     def handle_message(self):
         self.run()
@@ -301,8 +295,8 @@ class PlayerAgent(SoccerAgent):
 
     def run(self):
         last_time_rec = time.time()
-        waited_msec:int = 0
-        timeout_count:int = 0
+        waited_msec: int = 0
+        timeout_count: int = 0
         while True:
             message_and_address = []
             message_count = 0
@@ -326,12 +320,12 @@ class PlayerAgent(SoccerAgent):
                     last_time_rec = time.time()
                     break
 
-                waited_msec+= team_config.SOCKET_INTERVAL
+                waited_msec += team_config.SOCKET_INTERVAL
                 timeout_count += 1
                 self.handle_timeout(timeout_count, waited_msec)
 
             if not self._client.is_server_alive():
-                debug_print(f"{team_config.TEAM_NAME} Agent : Server Down")
+                log.os_log().info(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
             if self._impl.think_received():
@@ -340,9 +334,8 @@ class PlayerAgent(SoccerAgent):
                 self._impl._think_received = False
             elif not ServerParam.i().synch_mode():
                 if (self._impl._last_decision_time != self._impl._current_time
-                    and self.world().see_time() == self._impl._current_time):
-
-                    self.action() # TODO CHECK
+                        and self.world().see_time() == self._impl._current_time):
+                    self.action()  # TODO CHECK
 
     def handle_timeout(self, timeout_count: int, waited_msec: int):
         msec_from_sense = -1
@@ -355,16 +348,16 @@ class PlayerAgent(SoccerAgent):
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
-                dlog.add_circle(Level.WORLD, 1, center=p.pos(), color=Color(string='blue'))
+                log.sw_log().world().add_circle( 1, center=p.pos(), color=Color(string='blue'))
         if self.world().ball().pos_valid():
-            dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r = 0.5, color=Color(string="blue"), fill=True)
+            log.sw_log().world().add_circle( center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
 
         if ServerParam.i().is_fullstate(self.world().our_side()) and team_config.FULL_STATE_DEBUG:
             for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
                 if p.pos_valid():
-                    dlog.add_circle(Level.WORLD, 1, center=p.pos(), color=Color(string='red'))
+                    log.sw_log().world().add_circle( 1, center=p.pos(), color=Color(string='red'))
             if self.world().ball().pos_valid():
-                dlog.add_circle(Level.WORLD, center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
+                log.sw_log().world().add_circle( center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
                                 fill=True)
 
     def parse_message(self, message: str):
@@ -389,35 +382,35 @@ class PlayerAgent(SoccerAgent):
 
     def do_dash(self, power, angle=0):
         if self.world().self().is_frozen():
-            debug_print(f"(do dash) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do dash) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_dash(power, float(angle)))
         return True
 
     def do_turn(self, angle):
         if self.world().self().is_frozen():
-            debug_print(f"(do turn) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do turn) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_turn(float(angle)))
         return True
 
     def do_move(self, x, y):
         if self.world().self().is_frozen():
-            debug_print(f"(do move) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do move) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_move(x, y))
         return True
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
         if self.world().self().is_frozen():
-            debug_print(f"(do kick) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do kick) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_kick(power, rel_dir))
         return True
 
     def do_tackle(self, power_or_dir: float, foul: bool):
         if self.world().self().is_frozen():
-            debug_print(f"(do tackle) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do tackle) player({self._world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_tackle(power_or_dir, foul))
         return True
@@ -425,25 +418,22 @@ class PlayerAgent(SoccerAgent):
     def do_catch(self):
         wm = self.world()
         if wm.self().is_frozen():
-            debug_print(f"(do catch) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do catch) player({self._world.self_unum()} is frozen!")
             return False
 
         if not wm.self().goalie():
-            debug_print(f"(do catch) player({self._world.self_unum()} is not goalie!")
+            log.os_log().error(f"(do catch) player({self._world.self_unum()} is not goalie!")
             return False
 
         if wm.game_mode().type() is not GameModeType.PlayOn and not wm.game_mode().type().is_penalty_taken():
-            debug_print(f"(do catch) player({self._world.self_unum()} play mode is not play_on!")
+            log.os_log().error(f"(do catch) player({self._world.self_unum()} play mode is not play_on!")
             return False
 
         if not wm.ball().rpos_valid():
-            debug_print(f"(do catch) player({self._world.self_unum()} ball rpos is not valid!")
+            log.os_log().error(f"(do catch) player({self._world.self_unum()} ball rpos is not valid!")
             return False
 
         self._last_body_command.append(self.effector().set_catch())
-
-
-
 
     def do_turn_neck(self, moment: AngleDeg) -> bool:
         self._last_body_command.append(self._effector.set_turn_neck(moment))
@@ -459,16 +449,17 @@ class PlayerAgent(SoccerAgent):
 
         aligned_moment_dist = moment_dist
         if self.world().self().focus_point_dist() + aligned_moment_dist < 0.0:
-            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be less than 0")
+            log.os_log().warn(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be less than 0")
             aligned_moment_dist = -self.world().self().focus_point_dist()
         if self.world().self().focus_point_dist() + aligned_moment_dist > 40.0:
-            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be more than 40")
+            log.os_log().warn(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be more than 40")
             aligned_moment_dist = 40.0 - self.world().self().focus_point_dist()
         next_view = self.effector().queued_next_view_width()
         next_half_angle = next_view.width() * 0.5
 
         aligned_moment_dir = moment_dir
-        focus_point_dir_after_change_view = AngleDeg(min_max(-next_half_angle, self.world().self().focus_point_dir().degree(), next_half_angle))
+        focus_point_dir_after_change_view = AngleDeg(
+            min_max(-next_half_angle, self.world().self().focus_point_dir().degree(), next_half_angle))
         if focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() < -next_half_angle:
             aligned_moment_dir = -next_half_angle - focus_point_dir_after_change_view.degree()
         elif focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() > next_half_angle:
@@ -483,19 +474,19 @@ class PlayerAgent(SoccerAgent):
 
     def do_attentionto(self, side: SideID, unum: int):
         if side is SideID.NEUTRAL:
-            debug_print("(player agent do attentionto) side is neutral!")
+            log.os_log().error("(player agent do attentionto) side is neutral!")
             return
 
-        if unum == UNUM_UNKNOWN or not (1<= unum <= 11):
-            debug_print(f"(player agent do attentionto) unum is not in range! unum={unum}")
+        if unum == UNUM_UNKNOWN or not (1 <= unum <= 11):
+            log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
             return
 
         if self.world().our_side() == side and self.world().self().unum() == unum:
-            debug_print(f"(player agent do attentionto) attentioning to self!")
+            log.os_log().error(f"(player agent do attentionto) attentioning to self!")
             return
 
         if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
-            debug_print(f"(player agent do attentionto) already attended to the player! unum={unum}")
+            log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
             return
 
         self._last_body_command.append(self._effector.set_attentionto(side, unum))
@@ -512,9 +503,6 @@ class PlayerAgent(SoccerAgent):
 
     def full_world(self) -> WorldModel:
         return self._full_world
-
-    def debug_client(self) -> DebugClient:
-        return self._debug_client
 
     def effector(self):
         return self._effector
@@ -554,8 +542,8 @@ class PlayerAgent(SoccerAgent):
         message = self.make_commands(commands)
 
         self._client.send_message(message)
-        self._debug_client.write_all(self.world(), None)  # TODO add action effector
-        dlog.flush()
+        log.debug_client().write_all(self.world(), None)  # TODO add action effector
+        log.sw_log().flush()
         self._last_body_command = []
         self._effector.clear_all_commands()
 
@@ -573,7 +561,7 @@ class PlayerAgent(SoccerAgent):
         self._world.init(self._impl._team_name, side, unum, self._impl._goalie)
         if ServerParam.i().is_fullstate(side) and team_config.FULL_STATE_DEBUG:
             self._full_world.init(self._impl._team_name, side, unum, False)
-        dlog.setup_logger(f"dlog{side}{unum}", f"/tmp/{self._impl._team_name}-{unum}.log", logging.DEBUG)
+        log.setup(self._impl._team_name, unum, self._impl._current_time)
 
     def set_view_action(self, view_action: ViewAction):
         self._impl._view_action = view_action

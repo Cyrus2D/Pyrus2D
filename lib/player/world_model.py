@@ -1,6 +1,6 @@
-from logging import Logger
 from turtle import pos
 from lib.action.intercept_table import InterceptTable
+from lib.debug.debug import log
 from lib.player.localizer import Localizer
 from lib.messenger.messenger import Messenger
 from lib.messenger.messenger_memory import MessengerMemory
@@ -17,7 +17,6 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
 from pyrusgeom.soccer_math import *
 from typing import List
-from lib.debug.debug_print import debug_print
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -469,7 +468,7 @@ class WorldModel:
 
     def update(self, act: 'ActionEffector', current_time: GameTime):
         if self._time == current_time:
-            debug_print(f"(update) player({self.self_unum()}) called twice.")
+            log.os_log().warn(f"(update) player({self.self_unum()}) called twice.")
             return
         
         self._time = current_time.copy()
@@ -569,17 +568,14 @@ class WorldModel:
                     or vel_r < estimate_speed*(1-SP.ball_rand()*2) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
 
-                    debug_print("O")
                     vel.invalidate()
                     return 1000
                 else:
-                    debug_print("P")
                     vel_error.set_vector((rpos_error * 2.0) + self.self().vel_error())
                     vel_error *= SP.ball_decay()
                     return 2
         
         elif self.ball().rpos_count() == 3:
-            debug_print("Q")
             if (see.balls()[0].dist_ < SP.visible_distance()
                 and act.last_body_command(0) is not CommandType.KICK
                 and act.last_body_command(1) is not CommandType.KICK
@@ -590,7 +586,6 @@ class WorldModel:
                 and self.self().last_move(1).is_valid()
                 and self.self().last_move(2).is_valid()):
 
-                debug_print("R")
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
                 for i in range(3):
                     ball_move += self.self().last_move(i)
@@ -601,11 +596,9 @@ class WorldModel:
                     or vel_r < estimate_speed*(1-SP.ball_rand()*3) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
 
-                    debug_print("S")
                     vel.invalidate()
                     return 1000
                 else:
-                    debug_print("T")
                     vel_error.set_vector((rpos_error * 3.0) + self.self().vel_error())
                     return 3
         return vel_count
@@ -650,11 +643,9 @@ class WorldModel:
             return
         
         if not self.self().pos_valid():
-            debug_print("A")
             if (self._prev_ball.rpos_count() == 0
                 and see.balls()[0].dist_ > self.self().player_type().player_size() + SP.ball_size() + 0.1
                 and self.self().last_move().is_valid()):
-                debug_print("B")
                 tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
                 tvel_err = rpos_err + self.self().vel_error()
 
@@ -670,8 +661,8 @@ class WorldModel:
         vel_count = 1000
         
         if WorldModel.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count()}")
-            dlog.add_text(Level.WORLD, f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
+            log.sw_log().world().add_text( f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count()}")
+            log.sw_log().world().add_text( f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
         
         if rvel.is_valid() and self.self().vel_valid():
             gvel = self.self().vel() + rvel
@@ -682,13 +673,11 @@ class WorldModel:
             vel_count = self.estimate_ball_by_pos_diff(see, act, rpos, rpos_err, gvel, vel_err, vel_count)
         
         if not gvel.is_valid():
-            debug_print("E")
             if (see.balls()[0].dist_ < 2
                 and self._prev_ball.seen_pos_count() == 0
                 and self._prev_ball.rpos_count() == 0
                 and self._prev_ball.rpos().r() < 5):
 
-                debug_print("F")
                 gvel = pos - self._prev_ball.pos()
                 vel_err += pos_err + self._prev_ball._pos_error + self._prev_ball._vel_error
                 vel_count = 2
@@ -697,7 +686,6 @@ class WorldModel:
                   and 2 <= self._ball.seen_pos_count() <= 6
                   and self.self().last_move(0).is_valid()
                   and self.self().last_move(1).is_valid()):
-                debug_print("G")
                 prev_pos = self._ball.seen_pos()
                 move_step = self._ball.seen_pos_count()
                 ball_move: Vector2D = pos - prev_pos
@@ -708,12 +696,10 @@ class WorldModel:
                 vel_count = move_step
         
         if gvel.is_valid():
-            debug_print("H")
             self._ball.update_all(pos, pos_err, self.self().pos_count(),
                                   rpos, rpos_err,
                                   gvel, vel_err, vel_count)
         else:
-            debug_print("I")
             self._ball.update_pos(pos, pos_err, self.self().pos_count(), rpos, rpos_err)
     
     def their_side(self):
@@ -1001,11 +987,11 @@ class WorldModel:
             return
         
         self._see_time = current_time.copy()
-        dlog.add_text(Level.WORLD, f"{'*'*20} Update by See {'*'*20}")
+        log.sw_log().world().add_text( f"{'*'*20} Update by See {'*'*20}")
 
         if self._their_team_name is None and see.their_team_name() is not None:
             self._their_team_name = see.their_team_name()
-            dlog.add_text(Level.WORLD, f"(update after see) their team name set to {self._their_team_name}")
+            log.sw_log().world().add_text( f"(update after see) their team name set to {self._their_team_name}")
         
         # TODO FULL STATE TIME CHECK
         
@@ -1024,13 +1010,13 @@ class WorldModel:
 
     def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
-            debug_print(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
+            log.os_log().warn(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             return
         
         self._sense_body_time = body.time().copy()
 
         stars = "*"*20
-        dlog.add_text(Level.WORLD, f"{stars} update after sense body {stars}")
+        log.sw_log().world().add_text( f"{stars} update after sense body {stars}")
 
         if body.time() == current_time:
             self.self().update_after_sense_body(body, act, current_time)
@@ -1427,10 +1413,10 @@ class WorldModel:
         while dir.is_left_of(right_limit):
             idx = int((dir.degree() - 0.5 + 180) / WorldModel.DIR_STEP)
             if idx > WorldModel.DIR_CONF_DIVS - 1:
-                debug_print(f"{self.team_name()}({self.self().unum()}) DIR CONF overflow! idx={idx}")
+                log.os_log().warn(f"{self.team_name()}({self.self().unum()}) DIR CONF overflow! idx={idx}")
                 idx = WorldModel.DIR_CONF_DIVS - 1
             elif idx < 0:
-                debug_print(f"{self.team_name()}({self.self().unum()}) DIR CONF downflow! idx={idx}")
+                log.os_log().error(f"{self.team_name()}({self.self().unum()}) DIR CONF downflow! idx={idx}")
                 idx = 0
             self._dir_count[idx] = 0
             dir += WorldModel.DIR_STEP
@@ -1440,7 +1426,7 @@ class WorldModel:
         
         idx = int((angle - 0.5 + 180) / WorldModel.DIR_STEP)
         if not 0 <= idx < WorldModel.DIR_CONF_DIVS:
-            debug_print(f"(world model dir conf) index out of range! idx={idx}")
+            log.os_log().error(f"(world model dir conf) index out of range! idx={idx}")
             idx = 0
         return self._dir_count[idx]
     

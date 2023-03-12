@@ -1,8 +1,9 @@
 from enum import Enum, auto
+
+from lib.debug.debug import log
 from lib.parser.message_params_parser_see import MessageParamsParserSee
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID
 from lib.rcsc.game_time import GameTime
-from lib.debug.debug_print import debug_print
 
 
 class VisualSensor:
@@ -106,7 +107,7 @@ class VisualSensor:
             if not (type == VisualSensor.ObjectType.Obj_Marker_Behind
                     or type == VisualSensor.ObjectType.Obj_Goal_Behind):
                 if marker_map.get(key) is None:
-                    debug_print("No identified Marked Object!")
+                    log.os_log().error("No identified Marked Object!")
                     return None
 
                 marker.id_ = marker_map[key]
@@ -368,7 +369,7 @@ class VisualSensor:
 
         object_data = MessageParamsParserSee().parse(message)
         if object_data is None:
-            debug_print("No Object have seen!")
+            log.os_log().warn("No Object have seen!")
             return
 
         for key, value in object_data.items():
@@ -397,7 +398,7 @@ class VisualSensor:
                 self._balls.append(
                     VisualSensor.BallT.parse_string(key, value))
             else:
-                debug_print(f"A seen object is not identified by its type!!")
+                log.os_log().error(f"A seen object is not identified by its type!!")
 
             self.sort_all()
 

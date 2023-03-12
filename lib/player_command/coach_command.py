@@ -1,6 +1,6 @@
 from enum import Enum, auto, unique
 
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 
 
 class CoachCommand:
@@ -114,7 +114,7 @@ class CoachChangePlayerTypeCommand(CoachCommand):
     
     def str(self):
         if not 0 <= self._type < 18: # TODO PLAYER PARAM
-            debug_print(f"(coach change player type) illegal type! type={type}")
+            log.os_log().error(f"(coach change player type) illegal type! type={type}")
             return ""
         
         return f"(change_player_type {self._unum} {self._type})"

@@ -2,12 +2,12 @@ from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.math_values import DEG2RAD
 from pyrusgeom.vector_2d import Vector2D
 from pyrusgeom.sector_2d import Sector2D
+
+from lib.debug.debug import log
 from lib.player.object_table import ObjectTable, DataEntry
-from lib.debug.debug_print import debug_print
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
 from lib.player.sensor.visual_sensor import VisualSensor
-from lib.debug.logger import dlog
 from lib.debug.level import Level
 from lib.debug.color import Color
 from lib.rcsc.types import ViewWidth
@@ -113,13 +113,13 @@ class Localizer:
             face = self.get_face_dir_by_markers(see.markers(), view_width)
         
         if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(estimate self face) face={face}")
+            log.sw_log().world().add_text( f"(estimate self face) face={face}")
         
         return face                
 
     def localize_self(self, see:VisualSensor, self_face:float):
         if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize self) started {'#'*20}")
+            log.sw_log().world().add_text( f"(localize self) started {'#'*20}")
             
 
         markers = see.markers() + see.behind_markers()
@@ -138,28 +138,27 @@ class Localizer:
             marker_pos = self._object_table.landmark_map[marker.id_]
 
             if Localizer.DEBUG:
-                dlog.add_text(Level.WORLD, f"(localize self) considered-marker[{marker.id_}]={marker_pos}")
-                dlog.add_circle(Level.WORLD, center=marker_pos, r=0.25, fill=True, color=Color(string="black"))
+                log.sw_log().world().add_text( f"(localize self) considered-marker[{marker.id_}]={marker_pos}")
+                log.sw_log().world().add_circle( center=marker_pos, r=0.25, fill=True, color=Color(string="black"))
 
             
             global_dir = marker.dir_ + self_face
             estimated_pos = marker_pos - Vector2D(r=marker.dist_, a=global_dir)
             
             if Localizer.DEBUG:
-                dlog.add_text(Level.WORLD, f"(localize self) estimated-pos={estimated_pos}")
-                dlog.add_circle(Level.WORLD, center=estimated_pos, r=0.25, fill=True, color=Color(string="red"))
+                log.sw_log().world().add_text( f"(localize self) estimated-pos={estimated_pos}")
+                log.sw_log().world().add_circle( center=estimated_pos, r=0.25, fill=True, color=Color(string="red"))
             
             pos += estimated_pos
             n_consider += 1
 
-        debug_print(f"lls n_c={n_consider}")
         if n_consider == 0:
             return None
         pos /= n_consider
 
         if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize self) pos={pos}")
-            dlog.add_circle(Level.WORLD, center=pos, r=0.25, fill=True, color=Color(string="blue"))
+            log.sw_log().world().add_text( f"(localize self) pos={pos}")
+            log.sw_log().world().add_circle( center=pos, r=0.25, fill=True, color=Color(string="blue"))
         
         return pos
 
@@ -312,7 +311,7 @@ class Localizer:
         rvel_err = Vector2D(0, 0)
         self_face = float(self_face)
         if Localizer.DEBUG:
-            dlog.add_text(Level.WORLD, f"(localize ball relative) started {'#'*20}")
+            log.sw_log().world().add_text( f"(localize ball relative) started {'#'*20}")
 
         if len(see.balls()) == 0:
             return rpos, rpos_err, rvel, rvel_err

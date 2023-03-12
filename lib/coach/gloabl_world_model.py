@@ -1,4 +1,5 @@
 from lib.coach.global_object import GlobalPlayerObject, GlobalBallObject
+from lib.debug.debug import log
 from lib.parser.global_message_parser import GlobalFullStateWorldMessageParser
 from lib.player.object_player import *
 from lib.player.object_ball import *
@@ -177,12 +178,12 @@ class GlobalWorldModel:
     
     def change_player_type(self, side: SideID, unum: int, type: int):
         if side is SideID.NEUTRAL or not(1<=unum<=11):
-            print(f"(change player type) unum or side is not standard. side={side} unum={unum}")
+            log.os_log().error(f"(change player type) unum or side is not standard. side={side} unum={unum}")
             return
         
         player_types = len(self.player_types())
         if type != HETERO_UNKNOWN and not (HETERO_DEFAULT <= type < type):
-            print(f"(change player type) undefined type. type={type}")
+            log.os_log().error(f"(change player type) undefined type. type={type}")
             return
         
         if side == self.our_side() or (self.our_side() is SideID.NEUTRAL and side is SideID.LEFT):

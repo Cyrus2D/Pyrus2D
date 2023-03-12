@@ -1,6 +1,8 @@
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.soccer_math import min_max
 from pyrusgeom.vector_2d import Vector2D
+
+from lib.debug.debug import log
 from lib.player.action_effector import ActionEffector
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
@@ -11,7 +13,6 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import SideID, ViewQuality, ViewWidth
-from lib.debug.debug_print import debug_print
 
 
 class SelfObject(PlayerObject):
@@ -221,7 +222,7 @@ class SelfObject(PlayerObject):
         
     def update_vel_dir_after_see(self, sense: BodySensor, current_time: GameTime):
         if sense.time() != current_time:
-            debug_print("(update vel dir after see) sense time does not match current time")
+            log.os_log().error("(update vel dir after see) sense time does not match current time")
             return
         
         if self.face_count() == 0:
@@ -286,7 +287,7 @@ class SelfObject(PlayerObject):
     
     def update_after_sense_body(self, body: BodySensor, act:ActionEffector, current_time:GameTime):
         if self._sense_body_time == current_time:
-            debug_print(f"(self update after see) called twice at {current_time}")
+            log.os_log().warn(f"(self update after see) called twice at {current_time}")
             return
         
         self._sense_body_time = current_time.copy()
@@ -402,8 +403,8 @@ class SelfObject(PlayerObject):
         ptype = self.player_type()
         
         if SelfObject.DEBUG:
-            debug_print(f"(self obj update ball_info) player_type_id={ptype.id()}")
-            debug_print(f"(self obj update ball_info) kickable_area={ptype.kickable_area()}")
+            log.os_log().debug(f"(self obj update ball_info) player_type_id={ptype.id()}")
+            log.os_log().debug(f"(self obj update ball_info) kickable_area={ptype.kickable_area()}")
 
         if ball.dist_from_self() <= ptype.kickable_area():
             buff = 0.055
@@ -447,14 +448,12 @@ class SelfObject(PlayerObject):
             
             if (self_reach_cycle >= 10
                 and opponent_reach_cycle < min(self_reach_cycle, teammate_reach_cycle) - 7):
-                debug_print("KA A")
                 self._kickable = True
                 return
 
             min_cycle = min(self_reach_cycle, teammate_reach_cycle, opponent_reach_cycle)
             ball_pos = ball.inertia_point(min_cycle)
             if ball_pos.abs_x() > ServerParam.i().pitch_half_length() or ball_pos.abs_y() > ServerParam.i().pitch_half_width():
-                debug_print("KA B")
                 self._kickable = True
                 return
             

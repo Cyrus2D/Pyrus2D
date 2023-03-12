@@ -17,9 +17,8 @@ from lib.action.neck_scan_players import NeckScanPlayers
 from lib.action.neck_turn_to_ball import NeckTurnToBall
 from lib.action.smart_kick import SmartKick
 from lib.debug.color import Color
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.rcsc.server_param import ServerParam
 
 if TYPE_CHECKING:
@@ -59,9 +58,8 @@ def do_kick(agent: 'PlayerAgent'):
 
     best_action: KickAction = max(action_candidates)
     target = best_action.target_ball_pos
-    debug_print(best_action)
-    agent.debug_client().set_target(target)
-    agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(
+    log.debug_client().set_target(target)
+    log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(
         best_action.start_ball_speed))
     SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
     agent.set_neck_action(NeckScanPlayers())
@@ -103,11 +101,11 @@ def do_move(agent: 'PlayerAgent'):
     target.set_y(bound(-SP.goal_half_width(), target.y(), SP.goal_half_width()))
 
     if DEBUG:
-        dlog.add_line(Level.POSITIONING,
+        log.sw_log().positioning().add_line(
                       start=Vector2D(ball_pos.x(), ball_move_line.get_y(ball_pos.x())),
                       end=Vector2D(-SP.pitch_half_length(), ball_move_line.get_y(-SP.pitch_half_length())),
                       color=Color(string='red'))
-        dlog.add_line(Level.POSITIONING,
+        log.sw_log().positioning().add_line(
                       start=Vector2D(goalie_move_line.get_x(-30), -30),
                       end=Vector2D(goalie_move_line.get_x(+30), +30),
                       color=Color(string='red'))

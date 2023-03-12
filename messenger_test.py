@@ -52,7 +52,7 @@ def test():
     wm_reciever._messenger_memory._time = GameTime(10)
     wm_reciever._messenger_memory._ball_time = GameTime(10)
     wm_reciever._messenger_memory._player_time = GameTime(10)
-    
+
     print(wm_sender._teammates)
     print(wm_reciever._teammates)
     print(wm_sender._ball)
@@ -61,12 +61,11 @@ def test():
     
     
     msg = Messenger.encode_all(wm_sender, [PlayerPosUnumMessenger(5), BallPosVelMessenger()])
-    print(msg)
     
     Messenger.decode_all(wm_reciever._messenger_memory, msg, 4, wm_reciever.time())
     wm_reciever.update_ball_by_haer(ActionEffector())
     wm_reciever.update_players_by_hear()
-    
+
     print(wm_sender._teammates)
     print(wm_reciever._teammates)
     print(wm_sender._ball)
