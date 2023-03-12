@@ -32,6 +32,7 @@ class Localizer:
             self.pointto_: bool = False
             self.kicking_: bool = False
             self.tackle_: bool = False
+            self.dist_error_: float = 0.0
         
         def reset(self):
             self.pos_.invalidate()
@@ -437,31 +438,35 @@ class Localizer:
     def localize_player(self,
                         seen_player: VisualSensor.PlayerT,
                         self_face: float,
+                        self_face_err: float,
                         self_pos: Vector2D,
-                        self_vel: Vector2D
+                        self_vel: Vector2D,
+                        view_width: ViewWidth
                         ) -> PlayerT:
         self_face = float(self_face)
+
+        average_dist, dist_error = self._object_table.get_distance_range(view_width, seen_player.dist_)
+        average_dir, dir_error = self.get_dir_range(seen_player.dir_, self_face, self_face_err)
+
         player = Localizer.PlayerT()
         player.unum_ = seen_player.unum_
         player.goalie_ = seen_player.goalie_
-        
-        global_dir = float(seen_player.dir_) + self_face
-        
-        player.rpos_ = Vector2D(r=seen_player.dist_, a=global_dir)
+        player.rpos_._x = average_dist * AngleDeg.cos_deg(average_dir)
+        player.rpos_._y = average_dist * AngleDeg.sin_deg(average_dir)
+        player.dist_error_ = dist_error
         player.pos_ = self_pos + player.rpos_
-        
+
         if seen_player.has_vel_:
             player.vel_ = Vector2D(seen_player.dist_chng_,
                                    DEG2RAD * seen_player.dir_chng_ * seen_player.dist_)
-            player.vel_.rotate(global_dir)
+            player.vel_.rotate(average_dir)
             player.vel_ += self_vel
         else:
             player.vel_.invalidate()
         
         player.has_face_ = False
-        if (seen_player.body_  != VisualSensor.DIR_ERR
-            and seen_player.face_ != VisualSensor.DIR_ERR):
-            
+        if (seen_player.body_ != VisualSensor.DIR_ERR
+                and seen_player.face_ != VisualSensor.DIR_ERR):
             player.has_face_ = True
             player.body_ = AngleDeg.normalize_angle(seen_player.body_ + self_face)
             player.face_ = AngleDeg.normalize_angle(seen_player.face_ + self_face)

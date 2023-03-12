@@ -273,7 +273,7 @@ class PlayerObject(Object):
         elif (0 < self._pos_count <= 2
               and player.rpos_.r2() < 40**2):
             
-            speed_max = self.player_type().real_speed_max() if self._player_type else SP.defaulreal()
+            speed_max = self.player_type().real_speed_max() if self._player_type else SP.default_player_real_speed_max()
             decay = self.player_type().player_decay() if self.player_type() else SP.default_player_decay()
             self._vel = last_seen_move / last_seen_pos_count
             tmp = self._vel.r()

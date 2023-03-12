@@ -922,9 +922,10 @@ class WorldModel:
         my_pos = self.self().pos()
         my_vel = self.self().vel()
         my_face = self.self().face()
+        my_face_err = self.self().face_error()
 
         for p in see.opponents() + see.unknown_opponents():
-            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
             if player is None:
                 continue
             self.check_team_player(self.their_side(),
@@ -934,7 +935,7 @@ class WorldModel:
                                    new_opponents)
             
         for p in see.teammates() + see.unknown_teammates():
-            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
             if player is None:
                 continue
             self.check_team_player(self.our_side(),
@@ -944,7 +945,7 @@ class WorldModel:
                                    new_teammates)
         
         for p in see.unknown_players():
-            player = self._localizer.localize_player(p,my_face, my_pos, my_vel)
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
             if player is None:
                 continue
             self.check_unknown_player(player,
