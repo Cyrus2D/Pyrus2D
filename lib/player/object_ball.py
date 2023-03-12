@@ -29,8 +29,9 @@ class BallObject(Object):
     def __init__(self, string=None):
         super().__init__()
         self._pos = Vector2D.invalid()
+        self._pos_error = Vector2D(0, 0)
         self._vel = Vector2D.invalid()
-        
+        self._vel_error = Vector2D(0, 0)
         self._seen_rpos: Vector2D = Vector2D.invalid()
         
         self._rpos_count:int = 1000
@@ -145,40 +146,48 @@ class BallObject(Object):
         self._heard_vel_count = min(1000, self._heard_vel_count + 1)
         self._lost_count = min(1000, self._lost_count + 1)
     
-    def update_only_vel(self, vel: Vector2D, vel_count:int):
+    def update_only_vel(self, vel: Vector2D, vel_err: Vector2D, vel_count:int):
         self._vel = vel.copy()
+        self._vel_error = vel_err.copy()
         self._vel_count = vel_count
         self._seen_vel = vel.copy()
         self._seen_vel_count = vel_count
     
-    def update_only_relative_pos(self, rpos: Vector2D):
+    def update_only_relative_pos(self, rpos: Vector2D, rpos_err: Vector2D):
         self._rpos = rpos.copy()
+        self._rpos_error = rpos_err.copy()
         self._rpos_count = 0
         self._seen_rpos = rpos.copy()
     
     def update_pos(self,
                    pos: Vector2D,
+                   pos_err: Vector2D,
                    pos_count: int,
-                   rpos: Vector2D):
+                   rpos: Vector2D,
+                   rpos_err: Vector2D):
         self._pos = pos.copy()
+        self._pos_error = pos_err.copy()
         self._pos_count = pos_count
         self._seen_pos = pos.copy()
         self._seen_pos_count = 0
         
-        self.update_only_relative_pos(rpos)
+        self.update_only_relative_pos(rpos, rpos_err)
         
         self._lost_count = 0
         self._ghost_count = 0
     
     def update_all(self, 
                    pos: Vector2D,
+                   pos_err: Vector2D,
                    pos_count: int,
                    rpos: Vector2D,
+                   rpos_err: Vector2D,
                    vel: Vector2D,
+                   vel_err: Vector2D,
                    vel_count: int):
-        self.update_pos(pos, pos_count, rpos)
-        self.update_only_vel(vel, vel_count)
-    
+        self.update_pos(pos, pos_err, pos_count, rpos, rpos_err)
+        self.update_only_vel(vel, vel_err, vel_count)
+
     def update_by_game_mode(self, game_mode: GameMode):
         SP = ServerParam.i()
         GMT = GameModeType

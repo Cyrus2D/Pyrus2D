@@ -525,53 +525,44 @@ class WorldModel:
 
         self._dir_count = [c+1 for c in self._dir_count]
     
-    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D) -> tuple[Vector2D, int]:
+    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D, rpos_error: Vector2D, vel: Vector2D, vel_error: Vector2D, vel_count) -> int:
         SP = ServerParam.i()
 
         if self.self().has_sensed_collision():
-            debug_print("Z")
             if self.self()._collides_with_player or self.self()._collides_with_post:
-                debug_print("Y")
-                return Vector2D.invalid(), 1000
+                return 1000
         
         if self.ball().rpos_count() == 1:
-            debug_print("X")
             if (see.balls()[0].dist_ < SP.visible_distance()
-                and self._prev_ball.rpos().is_valid()
-                and self.self().vel_valid()
-                and self.self().last_move().is_valid()):
-
-                debug_print("W")
+                    and self._prev_ball.rpos().is_valid()
+                    and self.self().vel_valid()
+                    and self.self().last_move().is_valid()):
                 rpos_diff = rpos - self._prev_ball.rpos()
                 tmp_vel = (rpos_diff + self.self().last_move()) * SP.ball_decay()
+                tmp_vel_error = rpos_error + self.self().vel_error() * SP.ball_decay()
 
                 if (self.ball().seen_vel_count() <= 2
-                    and self._prev_ball.rpos().r() > 1.5
-                    and see.balls()[0].dist_ > 1.5
-                    and abs(tmp_vel.x() - self.ball().vel().x()) < 0.1
-                    and abs(tmp_vel.y() - self.ball().vel().y()) < 0.1):
-
-                    debug_print("U")
-                    return Vector2D.invalid(), 1000
-
-                return tmp_vel, 1
+                        and self._prev_ball.rpos().r() > 1.5
+                        and see.balls()[0].dist_ > 1.5
+                        and abs(tmp_vel.x() - self.ball().vel().x()) < 0.1
+                        and abs(tmp_vel.y() - self.ball().vel().y()) < 0.1):
+                    return 1000
+                vel.assign(tmp_vel.x(), tmp_vel.y())
+                vel_error.assign(tmp_vel_error.x(), tmp_vel_error.y())
+                return 1
         
         elif self.ball().rpos_count() == 2:
-            debug_print("M")
-
             if (see.balls()[0].dist_ < SP.visible_distance()
-                and act.last_body_command() is not CommandType.KICK
-                and self.ball().seen_rpos().is_valid()
-                and self.ball().seen_rpos().r() < SP.visible_distance()
-                and self.self().vel_valid()
-                and self.self().last_move(0).is_valid()
-                and self.self().last_move(1).is_valid()):
-
-                debug_print("N")
+                    and act.last_body_command() is not CommandType.KICK
+                    and self.ball().seen_rpos().is_valid()
+                    and self.ball().seen_rpos().r() < SP.visible_distance()
+                    and self.self().vel_valid()
+                    and self.self().last_move(0).is_valid()
+                    and self.self().last_move(1).is_valid()):
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
                 for i in range(2):
                     ball_move += self.self().last_move(i)
-                vel = ball_move * ((SP.ball_decay()**2)/(1+SP.ball_decay()))
+                vel.set_vector(ball_move * ((SP.ball_decay() ** 2) / (1 + SP.ball_decay())))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r() 
                 if (vel_r > estimate_speed + 0.1
@@ -580,10 +571,12 @@ class WorldModel:
 
                     debug_print("O")
                     vel.invalidate()
-                    return vel, 1000
+                    return 1000
                 else:
                     debug_print("P")
-                    return vel, 2
+                    vel_error.set_vector((rpos_error * 2.0) + self.self().vel_error())
+                    vel_error *= SP.ball_decay()
+                    return 2
         
         elif self.ball().rpos_count() == 3:
             debug_print("Q")
@@ -601,8 +594,7 @@ class WorldModel:
                 ball_move: Vector2D = rpos - self.ball().seen_rpos()
                 for i in range(3):
                     ball_move += self.self().last_move(i)
-
-                vel = ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2))
+                vel.set_vector(ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2)))
                 vel_r = vel.r()
                 estimate_speed = self.ball().vel().r()
                 if (vel_r > estimate_speed + 0.1
@@ -611,43 +603,50 @@ class WorldModel:
 
                     debug_print("S")
                     vel.invalidate()
-                    return vel, 1000
+                    return 1000
                 else:
                     debug_print("T")
-                    return vel, 3
-        return Vector2D.invalid(), 1000
+                    vel_error.set_vector((rpos_error * 3.0) + self.self().vel_error())
+                    return 3
+        return vel_count
                 
-
-
-    
     def localize_self(self,
                       see:VisualSensor,
                       body: BodySensor,
                       act: 'ActionEffector',
                       current_time: GameTime):
-        angle_face = self._localizer.estimate_self_face(see)
+        angle_face = self._localizer.estimate_self_face(see, self.self().view_width())
+        angle_face_error = 0.5
         if angle_face is None:
             return False
-        
-        self.self().update_angle_by_see(angle_face, current_time)
+
+        reverse_side = self.our_side() == SideID.RIGHT
+        team_angle_face = AngleDeg(angle_face + 180.0) if reverse_side else angle_face
+
+        self.self().update_angle_by_see(team_angle_face, angle_face_error, current_time)
         self.self().update_vel_dir_after_see(body, current_time)
 
-        my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
+        # my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
+        my_pos, my_pos_err = self._localizer.localize_self2(see, self.self().view_width(), angle_face, angle_face_error)
         if my_pos is None:
             return False
-        
+        if reverse_side:
+            my_pos *= -1.0
+
         if my_pos.is_valid():
-            self.self().update_pos_by_see(my_pos, angle_face, current_time)
+            self.self().update_pos_by_see(my_pos, my_pos_err, team_angle_face, angle_face_error, current_time)
         
     def localize_ball(self, see: VisualSensor, act: 'ActionEffector'):
         SP = ServerParam.i()
         if not self.self().face_valid():
             return
         
-        rpos, rvel = self._localizer.localize_ball_relative(see,
-                                                            self.self().face())
+        rpos, rpos_err, rvel, vel_err = self._localizer.localize_ball_relative(see,
+                                                                               self.self().face(),
+                                                                               self.self().face_error(),
+                                                                               self.self().view_width())
         
-        if rpos is None:
+        if rpos is None or not rpos.is_valid():
             return
         
         if not self.self().pos_valid():
@@ -657,12 +656,16 @@ class WorldModel:
                 and self.self().last_move().is_valid()):
                 debug_print("B")
                 tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
+                tvel_err = rpos_err + self.self().vel_error()
+
                 tvel *= SP.ball_decay()
-                self._ball.update_only_vel(tvel, 1)
-            self._ball.update_only_relative_pos(rpos)
+                tvel_err *= SP.ball_decay()
+                self._ball.update_only_vel(tvel, tvel_err, 1)
+            self._ball.update_only_relative_pos(rpos, rpos_err)
             return
         
         pos = self.self().pos() + rpos
+        pos_err = self.self().pos_error() + rpos_err
         gvel = Vector2D.invalid()
         vel_count = 1000
         
@@ -671,13 +674,12 @@ class WorldModel:
             dlog.add_text(Level.WORLD, f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
         
         if rvel.is_valid() and self.self().vel_valid():
-            debug_print("C")
             gvel = self.self().vel() + rvel
+            vel_err += self.self().vel_error()
             vel_count = 0
         
         if not gvel.is_valid():
-            debug_print("D")
-            gvel, vel_count = self.estimate_ball_by_pos_diff(see, act, rpos)
+            vel_count = self.estimate_ball_by_pos_diff(see, act, rpos, rpos_err, gvel, vel_err, vel_count)
         
         if not gvel.is_valid():
             debug_print("E")
@@ -688,13 +690,13 @@ class WorldModel:
 
                 debug_print("F")
                 gvel = pos - self._prev_ball.pos()
+                vel_err += pos_err + self._prev_ball._pos_error + self._prev_ball._vel_error
                 vel_count = 2
-            elif (see.balls()[0].dist_  < 2
+            elif (see.balls()[0].dist_ < 2
                   and not self.self().is_kicking()
                   and 2 <= self._ball.seen_pos_count() <= 6
                   and self.self().last_move(0).is_valid()
                   and self.self().last_move(1).is_valid()):
-
                 debug_print("G")
                 prev_pos = self._ball.seen_pos()
                 move_step = self._ball.seen_pos_count()
@@ -707,11 +709,12 @@ class WorldModel:
         
         if gvel.is_valid():
             debug_print("H")
-            self._ball.update_all(pos, self.self().pos_count(),
-                                  rpos, gvel, vel_count)
+            self._ball.update_all(pos, pos_err, self.self().pos_count(),
+                                  rpos, rpos_err,
+                                  gvel, vel_err, vel_count)
         else:
             debug_print("I")
-            self._ball.update_pos(pos, self.self().pos_count(), rpos)
+            self._ball.update_pos(pos, pos_err, self.self().pos_count(), rpos, rpos_err)
     
     def their_side(self):
         return SideID.LEFT if self._our_side is SideID.RIGHT else SideID.RIGHT

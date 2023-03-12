@@ -1,3 +1,4 @@
+from typing import Union
 import logging
 import time
 
@@ -11,10 +12,11 @@ from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import BodySensor
 from lib.player.sensor.see_state import SeeState
 from lib.player.sensor.visual_sensor import VisualSensor
-from lib.player.soccer_action import ViewAction, NeckAction
+from lib.player.soccer_action import ViewAction, NeckAction, FocusPointAction
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
 from lib.network.udp_socket import IPAddress
+from pyrusgeom.soccer_math import min_max
 from lib.player_command.player_command import PlayerInitCommand, PlayerByeCommand
 from lib.player_command.player_command_support import PlayerDoneCommand, PlayerTurnNeckCommand
 from lib.player_command.player_command_sender import PlayerSendCommands
@@ -55,6 +57,7 @@ class PlayerAgent(SoccerAgent):
 
             self._neck_action: NeckAction = None
             self._view_action: ViewAction = None
+            self._focus_point_action: FocusPointAction = None
 
             self._goalie: bool = False
 
@@ -247,6 +250,11 @@ class PlayerAgent(SoccerAgent):
             if self._view_action:
                 self._view_action.execute(self._agent)
                 self._view_action = None
+
+        def do_change_focus_action(self):
+            if self._focus_point_action:
+                self._focus_point_action.execute(self._agent)
+                self._focus_point_action = None
 
     def __init__(self):
         super().__init__()
@@ -445,6 +453,31 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command.append(self._effector.set_change_view(width))
         return True
 
+    def do_change_focus(self, moment_dist: float, moment_dir: Union[float, AngleDeg]):
+        if isinstance(moment_dir, float) or isinstance(moment_dir, int):
+            moment_dir = AngleDeg(moment_dir)
+
+        aligned_moment_dist = moment_dist
+        if self.world().self().focus_point_dist() + aligned_moment_dist < 0.0:
+            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be less than 0")
+            aligned_moment_dist = -self.world().self().focus_point_dist()
+        if self.world().self().focus_point_dist() + aligned_moment_dist > 40.0:
+            debug_print(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be more than 40")
+            aligned_moment_dist = 40.0 - self.world().self().focus_point_dist()
+        next_view = self.effector().queued_next_view_width()
+        next_half_angle = next_view.width() * 0.5
+
+        aligned_moment_dir = moment_dir
+        focus_point_dir_after_change_view = AngleDeg(min_max(-next_half_angle, self.world().self().focus_point_dir().degree(), next_half_angle))
+        if focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() < -next_half_angle:
+            aligned_moment_dir = -next_half_angle - focus_point_dir_after_change_view.degree()
+        elif focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() > next_half_angle:
+            aligned_moment_dir = next_half_angle - focus_point_dir_after_change_view.degree()
+
+        self._last_body_command.append(self._effector.set_change_focus(aligned_moment_dist, aligned_moment_dir))
+
+        return True
+
     def add_say_message(self, message: Messenger):
         self._effector.add_say_message(message)
 
@@ -501,9 +534,9 @@ class PlayerAgent(SoccerAgent):
         self._effector.reset()
 
         self.action_impl()
-        self._impl.do_neck_action()
         self._impl.do_view_action()
-
+        self._impl.do_neck_action()
+        self._impl.do_change_focus_action()
         self._impl._last_decision_time = self._impl._current_time.copy()
 
         self.world().update_just_after_decision(self._effector)
@@ -547,3 +580,6 @@ class PlayerAgent(SoccerAgent):
 
     def set_neck_action(self, neck_action: NeckAction):
         self._impl._neck_action = neck_action
+
+    def set_focus_point_action(self, focus_point_action: FocusPointAction):
+        self._impl._focus_point_action = focus_point_action

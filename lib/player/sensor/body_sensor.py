@@ -54,7 +54,6 @@ class BodySensor:
 
     def parse(self, msg: str, current_time: GameTime):
         self._current = current_time.copy()
-
         r = msg.replace('\x00', '').split(' ')
         _sense_time = int(r[1].strip(')('))
         self._view_quality = ViewQuality(r[3].strip(')('))
@@ -91,11 +90,11 @@ class BodySensor:
         self._tackle_expires = int(r[49 + k].strip(')('))
         self._tackle_count = int(r[51 + k].strip(')('))
 
-        if attention_target == 'n':
+        if attention_target[0] == 'n':
             self._attentionto_side = SideID.NEUTRAL
-        elif attention_target == 'l':
+        elif attention_target[0] == 'l':
             self._attentionto_side = SideID.LEFT
-        elif attention_target == 'r':
+        elif attention_target[0] == 'r':
             self._attentionto_side = SideID.RIGHT
         else:
             debug_print("Body_sensor: Failed to parse Attentionto")
@@ -106,24 +105,26 @@ class BodySensor:
         self._post_collided = False
         self._player_collided = False
 
-        col = r[53 + k].strip(')(') # TODO slice?
-        if 'none' in col:
+        collision_index = r[52 + k:].index('(collision') + 52 + k
+        foul_index = r[52 + k:].index('(foul') + 52 + k
+        collisions = ''.join(r[collision_index:foul_index])
+        if collisions.find('none') != -1:
             self._none_collided = True
         else:
-            if 'ball' in col:
+            if collisions.find('ball') != -1:
                 self._ball_collided = True
-            if 'player' in col:
+            if collisions.find('player') != -1:
                 self._player_collided = True
-            if 'post' in col:
+            if collisions.find('post') != -1:
                 self._post_collided = True
-        self._charged_expires = int(r[56 + k].strip(')('))
-        card = r[58 + k].strip(')(')
+        self._charged_expires = int(r[foul_index + 2].strip(')('))
+        card = r[foul_index + 4].strip(')(')
         if card == 'red':
             self._card = Card.RED
         elif card == 'yellow':
             self._card = Card.YELLOW
-        self._focus_point_dist = float(r[60 + k].strip(')('))
-        self._focus_point_dir = float(r[61 + k].strip().strip(')('))
+        self._focus_point_dist = float(r[foul_index + 6].strip(')('))
+        self._focus_point_dir = float(r[foul_index + 7].strip().strip(')('))
 
     def time(self) -> GameTime:
         return self._current

@@ -27,7 +27,10 @@ class SelfObject(PlayerObject):
         self._view_width: ViewWidth = ViewWidth.ILLEGAL
         self._view_quality: ViewQuality = ViewQuality.ILLEGAL
 
+        self._pos_error = Vector2D(0.0, 0.0)
+        self._vel_error = Vector2D(0.0, 0.0)
         self._neck: AngleDeg = AngleDeg(0)
+        self._face_error = 0.5
 
         self._stamina_model: StaminaModel = StaminaModel()
 
@@ -82,13 +85,10 @@ class SelfObject(PlayerObject):
             self._vel_count = 0
             self._pos_count = 0
             self._body_count = 0
-            self._change_focus_count: int = 0
-            self._focus_point_dist:float = 0
-            self._focus_point_dir_to_neck: AngleDeg = AngleDeg(0)
-            self._focus_point_dir_to_body:AngleDeg = AngleDeg(0)
-            self._focus_point_dir_to_pos:AngleDeg = AngleDeg(0)
-            self._focus_point: Vector2D = player.pos()
-    
+            self._change_focus_count = 0
+            self._focus_point_dist = 0
+            self._focus_point_dir = AngleDeg(0)
+
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
         self._unum = unum
@@ -102,7 +102,14 @@ class SelfObject(PlayerObject):
     
     def face(self):
         return self._face
-    
+
+    def face_error(self):
+        return self._face_error
+
+    def vel_error(self):
+        # TODO is vel error updated currectly?
+        return self._vel_error
+
     def is_frozen(self):
         return self._tackle_expires > 0 or self._charge_expires > 0
     
@@ -166,11 +173,16 @@ class SelfObject(PlayerObject):
             neck_moment = act.get_turn_neck_moment()
         self._neck += min_max(SP.min_neck_angle(), neck_moment, SP.max_neck_angle())
 
+        if act.done_change_focus():
+            self._focus_point_dir += act.get_change_focus_moment_dir()
+            self._focus_point_dist += act.get_change_focus_moment_dist()
+
         self._stamina_model.simulate_dash(self.player_type(), dash_power)
         
         self._body += turn_moment
         self._face = self._body + self._neck
-        
+        self._face_error = 0.5
+
         if self.vel_valid():
             self._vel += accel
         if self.pos_valid():
@@ -199,13 +211,11 @@ class SelfObject(PlayerObject):
         self._collides_with_player = False
         self._collides_with_post = False
 
-    def update_angle_by_see(self, face: float, current_time: GameTime):
+    def update_angle_by_see(self, face: float, angle_face_error, current_time: GameTime):
         self._time = current_time.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face - self._neck.degree())
-        self._focus_point_dir_to_pos = self.face() - self.focus_point_dir_to_neck()
-        self._focus_point_dir_to_body = self.focus_point_dir_to_pos() - self.body()
-
+        self._face_error = angle_face_error
         self._body_count = 0
         self._face_count = 0
         
@@ -227,29 +237,39 @@ class SelfObject(PlayerObject):
             self._vel_count = 0
             self._seen_vel = self.vel().copy()
             self._seen_vel_count = 0
-            
+
+            # TODO Calc vel error self._vel_error
+
             if not self._collision_estimated:
                 new_last_move = self._vel/self.player_type().player_decay()
                 self._last_move.assign(new_last_move.x(), new_last_move.y())
     
-    def update_pos_by_see(self, pos: Vector2D, face: float, current_time: GameTime):
+    def update_pos_by_see(self, pos: Vector2D, pos_err: Vector2D, face: float, face_err: float, current_time: GameTime):
         self._time = current_time.copy()
-        
-        if (self._pos_count == 1
-            and self._seen_pos_count == 1
-            and (self._collision_estimated
-                 or not self._last_move.is_valid())):
-            new_last_move = self._pos - self._seen_pos
-            self._last_move.assign(new_last_move.x(), new_last_move.y())
 
-        self._pos = pos.copy()
+        if self._pos_count == 1:
+            new_pos = pos.copy()
+            new_err = pos_err.copy()
+            if self._pos_error.x() < pos_err.x():
+                new_pos.set_x(pos.x() + (self.pos().x() - pos.x()) * (pos_err.x() / (self._pos_error.x() + pos_err.x())))
+                new_err.set_x((self._pos_error.x() + pos_err.x()) * 0.5)
+            if self._pos_error.y() < pos_err.y():
+                new_pos.set_y(pos.y() + (self.pos().y() - pos.y()) * (pos_err.y() / (self._pos_error.y() + pos_err.y())))
+                new_err.set_y((self._pos_error.y() + pos_err.y()) * 0.5)
+            self._pos = new_pos
+            self._pos_error = new_err
+
+            # TODO has sensed collision -> collisionEstimated
+            if self._seen_pos_count == 1 and (self.has_sensed_collision() or not self.last_move().is_valid()):
+                self._last_move = new_pos - self._seen_pos
+                self._last_moves[0] = self.last_move().copy()
+        else:
+            self._pos = pos.copy()
+            self._pos_error = pos_err.copy()
+
         self._seen_pos = pos.copy()
         self._face = AngleDeg(face)
         self._body = AngleDeg(face) - self._neck
-
-        self._focus_point_dir_to_pos = self.face() - self.focus_point_dir_to_neck()
-        self._focus_point_dir_to_body = self.focus_point_dir_to_pos() - self.body()
-        self._focus_point = self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.focus_point_dir_to_pos())
 
         self._pos_count = 0
         self._seen_pos_count = 0
@@ -352,7 +372,7 @@ class SelfObject(PlayerObject):
         self._card = body.card()
         self._change_focus_count = body.change_focus_count()
         self._focus_point_dist = body.focus_point_dist()
-        self._focus_point_dir_to_neck = body.focus_point_dir()
+        self._focus_point_dir = AngleDeg(body.focus_point_dir())
 
     def set_pointto(self,point: Vector2D, done_time: GameTime):
         self._pointto_pos = point.copy()
@@ -463,15 +483,14 @@ class SelfObject(PlayerObject):
     def change_focus_count(self):
         return self._change_focus_count
 
-    def focus_point_dist(self):
+    def focus_point_dist(self) -> float:
         return self._focus_point_dist
 
-    def focus_point_dir_to_neck(self):
-        return self._focus_point_dir_to_neck
+    def focus_point_dir(self) -> AngleDeg:
+        return self._focus_point_dir
 
-    def focus_point_dir_to_body(self):
-        return self._focus_point_dir_to_body
+    def focus_point(self) -> Vector2D:
+        return self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.face() + self.focus_point_dir())
 
-    def focus_point_dir_to_pos(self):
-        return self._focus_point_dir_to_pos
-
+    def pos_error(self) -> Vector2D:
+        return self._pos_error
