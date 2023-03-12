@@ -2,12 +2,11 @@ from pyrusgeom.circle_2d import Circle2D
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.debug.color import Color
-from lib.debug.debugger_abstract import DebuggerAbstract
 from lib.debug.level import Level
 from lib.rcsc.game_time import GameTime
 
 
-class SoccerWindow_Logger(DebuggerAbstract):
+class SoccerWindow_Logger:
     class LoggerLevel:
         def __init__(self, level: Level, game_time: GameTime):
             self.level: Level = level
@@ -64,7 +63,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
 
     def __init__(self, team_name: str, unum: int, time: GameTime):
         self._file = open(f"/tmp/{team_name}-{unum}.log", 'w')
-        self._time: GameTime = GameTime()
+        self._time: GameTime = time
 
         self._system = SoccerWindow_Logger.LoggerLevel(Level.SYSTEM, self._time)
         self._sensor = SoccerWindow_Logger.LoggerLevel(Level.SENSOR, self._time)
@@ -117,6 +116,7 @@ class SoccerWindow_Logger(DebuggerAbstract):
         ]
 
     def flush(self):
+        print(self._time, self._time.cycle())
         if self._time is None or self._time.cycle() == 0:
             return
         for l in self._levels:

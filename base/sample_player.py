@@ -70,13 +70,13 @@ class SamplePlayer(PlayerAgent):
             and wm.ball().vel_count() <= 1 \
             and self_min < 20:
             log.sw_log().team().add_text( f"(sample palyer do heard pass) intercepting!, self_min={self_min}")
-            self.debug_client().add_message("Comm:Receive:Intercept")
+            log.debug_client().add_message("Comm:Receive:Intercept")
             Intercept().execute(self)
             self.set_neck_action(NeckTurnToBall())
         else:
             log.sw_log().team().add_text( f"(sample palyer do heard pass) go to point!, cycle={self_min}")
-            self.debug_client().set_target(heard_pos)
-            self.debug_client().add_message("Comm:Receive:GoTo")
+            log.debug_client().set_target(heard_pos)
+            log.debug_client().add_message("Comm:Receive:GoTo")
 
             GoToPoint(heard_pos, 0.5, ServerParam.i().max_dash_power()).execute(self)
             self.set_neck_action(NeckTurnToBall())

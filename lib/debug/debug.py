@@ -10,10 +10,10 @@ from lib.rcsc.game_time import GameTime
 class DebugLogger:
     def __init__(self):
         self._sw_log: SoccerWindow_Logger = None
-        self._os_log: Logger = None
+        self._os_log: Logger = get_logger(0, False)
         self._debug_client: DebugClient = None
 
-    def setup(self, team_name, unum, time: GameTime):
+    def setup(self, team_name, unum, time):
         self._sw_log = SoccerWindow_Logger(team_name, unum, time)
         self._os_log = get_logger(unum, team_config.OUT == team_config.OUT_OPTION.UNUM)
         self._debug_client = DebugClient()
@@ -26,6 +26,9 @@ class DebugLogger:
 
     def debug_client(self):
         return self._debug_client
+
+    def update_time(self, t: GameTime):
+        self._time.assign(t.cycle(), t.stopped_cycle())
 
 
 log = DebugLogger()

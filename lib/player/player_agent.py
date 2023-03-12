@@ -23,7 +23,6 @@ from lib.player_command.player_command_sender import PlayerSendCommands
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.player.debug_client import DebugClient
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.messenger.messenger import Messenger
 
@@ -259,7 +258,6 @@ class PlayerAgent(SoccerAgent):
         self._full_world = WorldModel()
         self._last_body_command = []
         self._is_synch_mode = True
-        self._debug_client = DebugClient()
         self._effector = ActionEffector(self)
 
     def init_impl(self, goalie: bool) -> bool:
@@ -506,9 +504,6 @@ class PlayerAgent(SoccerAgent):
     def full_world(self) -> WorldModel:
         return self._full_world
 
-    def debug_client(self) -> DebugClient:
-        return self._debug_client
-
     def effector(self):
         return self._effector
 
@@ -547,7 +542,7 @@ class PlayerAgent(SoccerAgent):
         message = self.make_commands(commands)
 
         self._client.send_message(message)
-        self._debug_client.write_all(self.world(), None)  # TODO add action effector
+        log.debug_client().write_all(self.world(), None)  # TODO add action effector
         log.sw_log().flush()
         self._last_body_command = []
         self._effector.clear_all_commands()

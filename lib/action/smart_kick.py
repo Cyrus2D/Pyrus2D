@@ -59,13 +59,9 @@ class SmartKick(BodyAction):
                                             max_step,
                                             self._sequence)
         if ans[0] and SmartKick.debug_print_DEBUG:
-            log.os_log().info("Smart kick : ", ans[0], " seq -> speed : ",
-                  ans[1].speed_, " power : ", ans[1].power_,
-                  " score : ", ans[1].score_, "  flag : ",
-                  ans[1].flag_, "next_pos : ",
-                  ans[1].pos_list_[0], " ",
-                  len(ans[1].pos_list_), " step ",
-                  ans[1].pos_list_)
+            log.os_log().info(f"Smart kick : {ans[0]} seq -> speed : {ans[1].speed_} power : {ans[1].power_} score : {ans[1].score_} flag : {ans[1].flag_} next_pos : {ans[1].pos_list_[0]} {len(ans[1].pos_list_)} step {ans[1].pos_list_}")
+
+
             if ans[0]:
                 log.os_log().info("###################********False*******####################")
             else:
@@ -76,14 +72,12 @@ class SmartKick(BodyAction):
                 vel = self._sequence.pos_list_[0] - wm.ball().pos()
                 kick_accel = vel - wm.ball().vel()
                 if SmartKick.debug_print_DEBUG:
-                    log.os_log().debug("Kick Vel : ", vel, " ,  Kick Power : ", kick_accel.r() / wm.self().kick_rate(),
-                          " ,Kick Angle : ", kick_accel.th() - wm.self().body())
+                    log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
+
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
                 if SmartKick.debug_print_DEBUG:
-                    log.os_log().debug("----------------#### Player Number ", wm.self().unum(), " 'DO_KICK'ed in SmartKick at Time:",
-                          wm.time().cycle(),
-                          "  ####----------------")
+                    log.os_log().debug(f"----------------#### Player Number {wm.self().unum()} 'DO_KICK'ed in SmartKick at Time: {wm.time().cycle()} ####----------------")
                 return True
 
         # failed to search the kick sequence

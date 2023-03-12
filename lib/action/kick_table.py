@@ -1206,9 +1206,7 @@ class _KickTable:
             for tmp in self._candidates:
                 log.sw_log().kick().add_text(
                               f"simulate() result next_pos={sequence.pos_list_[0]}  flag={sequence.flag_} n_kick={len(sequence.pos_list_)} speed= {sequence.speed_} power={sequence.power_}  score={sequence.score_}")
-            log.os_log().info("Smart kick : ", sequence.speed_ >= target_speed - EPS, " -> seq speed is", sequence.speed_,
-                  " & tar speed eps is",
-                  target_speed - EPS)
+            log.os_log().info(f"Smart kick : {sequence.speed_ >= target_speed - EPS} -> seq speed is {sequence.speed_} & tar speed eps is {target_speed - EPS}")
         rtn_list = [sequence.speed_ >= target_speed - EPS, sequence]
         return rtn_list
 
