@@ -14,31 +14,29 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
 
 
-
-
 class PlayerObject(Object):
     DEBUG = True
     
     def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()
         self._unum: int = 0
+        self._unum_count: int = 1000
         self._side: SideID = SideID.NEUTRAL
-        self._body: AngleDeg = AngleDeg(0)
         self._goalie: bool = False
         self._player_type: PlayerType = PlayerType()
-        self._player_type_id: int = None
+        self._player_type_id: Union[None, int] = None
+        self._body: AngleDeg = AngleDeg(0)
+        self._body_count: int = 1000
+        self._face: AngleDeg = AngleDeg(0)
+        self._face_count: int = 1000
         self._pointto_angle: float = 0
+        self._pointto_count: int = 1000
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False
         self._kicking: bool = False
         self._card: Card = Card.NO_CARD
         self._kick_rate: float = 0.0
-        self._face: AngleDeg = AngleDeg(0)
-        self._body_count: int = 1000
-        self._face_count: int = 1000
-        self._pointto_count: int = 1000
-        self._unum_count: int = 1000
         self._tackle_count: int = 1000
 
         if side is not None and player is not None:
@@ -108,6 +106,9 @@ class PlayerObject(Object):
 
     def neck(self):
         return self._neck
+
+    def face(self):
+        return self._face
 
     def goalie(self):
         return self._goalie
@@ -392,4 +393,4 @@ class PlayerObject(Object):
         return res
 
     def __str__(self):
-        return f'''Player pos: side: {self._side} unum: {self._unum} {self.pos()} vel:{self.vel()} body: {self._body}'''
+        return f'''Player side:{self._side} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''

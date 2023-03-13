@@ -1,7 +1,7 @@
+from typing import Union
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.soccer_math import min_max
 from pyrusgeom.vector_2d import Vector2D
-
 from lib.debug.debug import log
 from lib.player.action_effector import ActionEffector
 from lib.player.object_ball import BallObject
@@ -24,47 +24,33 @@ class SelfObject(PlayerObject):
 
         self._time: GameTime = GameTime()
         self._sense_body_time: GameTime = GameTime()
-
         self._view_width: ViewWidth = ViewWidth.ILLEGAL
         self._view_quality: ViewQuality = ViewQuality.ILLEGAL
-
-        self._pos_error = Vector2D(0.0, 0.0)
-        self._vel_error = Vector2D(0.0, 0.0)
         self._neck: AngleDeg = AngleDeg(0)
         self._face_error = 0.5
-
         self._stamina_model: StaminaModel = StaminaModel()
-
         self._last_catch_time: GameTime = GameTime()
-
         self._tackle_expires: int = 0
         self._charge_expires: int = 0
-
         self._arm_moveable: int = 0
         self._arm_expires: int = 0
-
         self._pointto_rpos: Vector2D = Vector2D.invalid()
         self._pointto_pos: Vector2D = Vector2D.invalid()
         self._last_pointto_time: GameTime = GameTime()
-
         self._attentionto_side: SideID = SideID.NEUTRAL
         self._attentionto_unum: int = 0
-
         self._collision_estimated: bool = False
         self._collides_with_none: bool = False
         self._collides_with_ball: bool = False
         self._collides_with_player: bool = False
         self._collides_with_post: bool = False
-
         self._kickable: bool = False
         self._kick_rate: float = 0
         self._catch_probability: float = 0
         self._tackle_probability: float = 0
         self._foul_probability: float = 0
-                
-        self._last_move: Vector2D = Vector2D(0,0)
-        self._last_moves: list[Vector2D] = [Vector2D(0,0) for _ in range(4)]
-        
+        self._last_move: Vector2D = Vector2D(0, 0)
+        self._last_moves: list[Vector2D] = [Vector2D(0, 0) for _ in range(4)]
         self._arm_movable: int = 0
         if player:
             self._unum = player._unum
@@ -90,6 +76,8 @@ class SelfObject(PlayerObject):
             self._focus_point_dist = 0
             self._focus_point_dir = AngleDeg(0)
 
+        self._face_count_thr: Union[None, int] = 5
+
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
         self._unum = unum
@@ -101,15 +89,8 @@ class SelfObject(PlayerObject):
     def view_quality(self):
         return self._view_quality
     
-    def face(self):
-        return self._face
-
     def face_error(self):
         return self._face_error
-
-    def vel_error(self):
-        # TODO is vel error updated currectly?
-        return self._vel_error
 
     def is_frozen(self):
         return self._tackle_expires > 0 or self._charge_expires > 0
@@ -126,7 +107,7 @@ class SelfObject(PlayerObject):
     def is_kicking(self):
         return self._kicking
     
-    def is_kickable(self):
+    def is_kickable(self, buf=0.0):
         return self._kickable
     
     def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
@@ -468,7 +449,7 @@ class SelfObject(PlayerObject):
         self._attentionto_unum = unum   
         
     def is_self(self):
-        return False
+        return True
 
     def tackle_probability(self):
         return self._tackle_probability
@@ -488,11 +469,47 @@ class SelfObject(PlayerObject):
     def focus_point(self) -> Vector2D:
         return self._pos + Vector2D.polar2vector(self.focus_point_dist(), self.face() + self.focus_point_dir())
 
-    def pos_error(self) -> Vector2D:
-        return self._pos_error
-
     def str_sensed_body(self):
         return f'''
         self._sense_body_time
         
         '''
+
+    def long_str(self):
+        res = super(SelfObject, self).long_str()
+        res += f'''
+                time: {self._time},
+                sense_body_time: {self._sense_body_time},
+                view_width: {self._view_width},
+                view_quality: {self._view_quality},
+                neck: {self._neck},
+                face_error: {self._face_error},
+                stamina_model: {self._stamina_model},
+                last_catch_time: {self._last_catch_time},
+                tackle_expires: {self._tackle_expires},
+                charge_expires: {self._charge_expires},
+                arm_moveable: {self._arm_moveable},
+                arm_expires: {self._arm_expires},
+                pointto_rpos: {self._pointto_rpos},
+                pointto_pos: {self._pointto_pos},
+                last_pointto_time: {self._last_pointto_time},
+                attentionto_side: {self._attentionto_side},
+                attentionto_unum: {self._attentionto_unum},
+                collision_estimated: {self._collision_estimated},
+                collides_with_none: {self._collides_with_none},
+                collides_with_ball: {self._collides_with_ball},
+                collides_with_player: {self._collides_with_player},
+                collides_with_post: {self._collides_with_post},
+                kickable: {self._kickable},
+                kick_rate: {self._kick_rate},
+                catch_probability: {self._catch_probability},
+                tackle_probability: {self._tackle_probability},
+                foul_probability: {self._foul_probability},
+                last_move: {self._last_move},
+                last_moves: {self._last_moves},
+                arm_movable: {self._arm_movable},        
+                '''
+        return res
+
+    def __str__(self):
+        return f'''Self Player side:{self._side} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''
