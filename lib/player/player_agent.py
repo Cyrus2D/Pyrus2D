@@ -1,7 +1,6 @@
 from typing import Union
 import logging
 import time
-
 from lib.action.kick_table import KickTable
 from base.decision import get_decision
 from lib.debug.debug import log
@@ -25,8 +24,10 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.messenger.messenger import Messenger
-
 import team_config
+
+
+DEBUG = True
 
 
 def get_time_msec():
@@ -41,9 +42,9 @@ class PlayerAgent(SoccerAgent):
             self._current_time: GameTime = GameTime()
             self._last_decision_time: GameTime = GameTime()
 
-            self._body = BodySensor()
+            self._body_sensor: BodySensor = BodySensor()
 
-            self._visual: VisualSensor = VisualSensor()
+            self._visual_sensor: VisualSensor = VisualSensor()
             self._see_state: SeeState = SeeState()
             self._team_name = team_config.TEAM_NAME
 
@@ -51,11 +52,11 @@ class PlayerAgent(SoccerAgent):
             super().__init__()
             self._server_cycle_stopped: bool = True
 
-            self._body_time_stamp: int = None
+            self._body_time_stamp: Union[int, None] = None
 
-            self._neck_action: NeckAction = None
-            self._view_action: ViewAction = None
-            self._focus_point_action: FocusPointAction = None
+            self._neck_action: Union[NeckAction, None] = None
+            self._view_action: Union[ViewAction, None] = None
+            self._focus_point_action: Union[FocusPointAction, None] = None
 
             self._goalie: bool = False
 
@@ -81,14 +82,22 @@ class PlayerAgent(SoccerAgent):
 
             self.parse_cycle_info(message, True)
 
-            log.sw_log().sensor().add_text("Receive body sensor")
+            if DEBUG:
+                log.sw_log().sensor().add_text('===Received Message===\n' + message)
+                log.os_log().debug('===Received Message===\n' + message)
 
-            self._body.parse(message, self._current_time)
+            self._body_sensor.parse(message, self._current_time)
 
-            self._see_state.update_by_sense_body(self._current_time, self._body.view_width(), self._body.view_quality())
+            if DEBUG:
+                log.sw_log().sensor().add_text(str(self._body_sensor))
+                log.os_log().debug(str(self._body_sensor))
 
-            self._agent._effector.check_command_count(self._body)
-            self._agent.world().update_after_sense_body(self._body, self._agent._effector, self._current_time)
+            self._see_state.update_by_sense_body(self._current_time,
+                                                 self._body_sensor.view_width(),
+                                                 self._body_sensor.view_quality())
+
+            self._agent._effector.check_command_count(self._body_sensor)
+            self._agent.world().update_after_sense_body(self._body_sensor, self._agent._effector, self._current_time)
             # TODO CHECK HERE FOR SEPARATE WORLD
 
         def visual_parser(self, message: str):
@@ -96,18 +105,18 @@ class PlayerAgent(SoccerAgent):
                 return
             self.parse_cycle_info(message, False)
 
-            self._visual.parse(message,
-                               self._team_name,
-                               self._current_time)
+            self._visual_sensor.parse(message,
+                                      self._team_name,
+                                      self._current_time)
 
             self._see_state.update_by_see(self._current_time,
                                           self._agent.world().self().view_width(),
                                           self._agent.world().self().view_quality())
 
-            if self._visual.time() == self._current_time and \
+            if self._visual_sensor.time() == self._current_time and \
                     self._agent.world().see_time() != self._current_time:
-                self._agent.world().update_after_see(self._visual,
-                                                     self._body,
+                self._agent.world().update_after_see(self._visual_sensor,
+                                                     self._body_sensor,
                                                      self._agent.effector(),
                                                      self._current_time)
 

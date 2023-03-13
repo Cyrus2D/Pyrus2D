@@ -21,6 +21,9 @@ class SideID(Enum):
     def invert(self):
         return SideID.RIGHT if self == SideID.LEFT else SideID.LEFT if self != SideID.NEUTRAL else SideID.NEUTRAL
 
+    def __repr__(self):
+        return self.value
+
 
 """
   \ enum MarkerID

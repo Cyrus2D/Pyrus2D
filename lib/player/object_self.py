@@ -197,15 +197,12 @@ class SelfObject(PlayerObject):
         self._body_count += 1
         self._face_count += 1
         self._pointto_count = min(1000, self._pointto_count + 1)
-        
         self._tackle_expires = max(0, self._tackle_expires - 1)
         self._charge_expires = max(0, self._charge_expires - 1)
         self._arm_movable = max(0, self._arm_movable - 1)
         self._arm_expires = max(0, self._arm_expires - 1)
-        
         self._last_move = self._vel / self.player_type().player_decay()
         self._last_moves = [self._last_move] + self._last_moves[0:-1]
-
         self._collision_estimated = False
         self._collides_with_none = False
         self._collides_with_ball = False
@@ -285,9 +282,9 @@ class SelfObject(PlayerObject):
             or self._collides_with_post
         )
     
-    def update_after_sense_body(self, body: BodySensor, act:ActionEffector, current_time:GameTime):
+    def update_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
         if self._sense_body_time == current_time:
-            log.os_log().warn(f"(self update after see) called twice at {current_time}")
+            log.os_log().critical(f"(self update after see) called twice at {current_time}")
             return
         
         self._sense_body_time = current_time.copy()
@@ -493,3 +490,9 @@ class SelfObject(PlayerObject):
 
     def pos_error(self) -> Vector2D:
         return self._pos_error
+
+    def str_sensed_body(self):
+        return f'''
+        self._sense_body_time
+        
+        '''

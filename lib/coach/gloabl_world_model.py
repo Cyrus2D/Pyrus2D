@@ -69,13 +69,13 @@ class GlobalWorldModel:
         return self._available_player_type_id
 
     def parse(self, message):
-        if message.find("see_global") is not -1:
+        if message.find("see_global") != -1:
             self.fullstate_parser(message)
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
-        elif message.find("sense_body") is not -1:
+        elif message.find("sense_body") != -1:
             pass
-        elif message.find("init") is not -1:
+        elif message.find("init") != -1:
             pass
 
     def fullstate_parser(self, message):

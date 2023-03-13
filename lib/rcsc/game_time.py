@@ -31,3 +31,6 @@ class GameTime:
 
     def copy(self):
         return GameTime(self._cycle, self._stopped_cycle)
+
+    def __str__(self):
+        return f'GameTime cycle {self._cycle}.{self._stopped_cycle}'

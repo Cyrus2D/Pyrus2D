@@ -18,6 +18,10 @@ from lib.rcsc.types import HETERO_DEFAULT, UNUM_UNKNOWN, GameModeType
 from pyrusgeom.soccer_math import *
 from typing import List
 
+
+DEBUG=True
+
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.action_effector import ActionEffector
@@ -1010,13 +1014,15 @@ class WorldModel:
 
     def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
-            log.os_log().warn(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
+            log.os_log().critical(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
+            log.sw_log().sensor(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             return
         
         self._sense_body_time = body.time().copy()
 
-        stars = "*"*20
-        log.sw_log().world().add_text( f"{stars} update after sense body {stars}")
+        if DEBUG:
+            log.sw_log().world().add_text("******** update after sense body ********")
+            log.os_log().debug("******** update after sense body ********")
 
         if body.time() == current_time:
             self.self().update_after_sense_body(body, act, current_time)
