@@ -19,10 +19,6 @@ if TYPE_CHECKING:
 class PlayerObject(Object):
     DEBUG = True
     
-    POS_COUNT_THR = 30
-    VEL_COUNT_THR = 5
-    FACE_COUNT_THR = 2
-    
     def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()
         self._unum: int = 0
@@ -35,20 +31,16 @@ class PlayerObject(Object):
         self._kick: bool = False
         self._tackle: bool = False
         self._charged: bool = False
+        self._kicking: bool = False
         self._card: Card = Card.NO_CARD
         self._kick_rate: float = 0.0
         self._face: AngleDeg = AngleDeg(0)
-        
-        self._pos_history: list[Vector2D] = []
-
         self._body_count: int = 1000
-        self._face_count:int = 1000
+        self._face_count: int = 1000
         self._pointto_count: int = 1000
         self._unum_count: int = 1000
-        self._kicking = False
-
         self._tackle_count: int = 1000
-        
+
         if side is not None and player is not None:
             self._side = side
             self._unum = player.unum_
@@ -60,8 +52,11 @@ class PlayerObject(Object):
             
             if player.unum_ != UNUM_UNKNOWN:
                 self._unum_count = 0
-            
 
+        self._pos_count_thr: Union[None, int] = 30
+        self._relation_pos_count_thr: Union[None, int] = 30
+        self._vel_count_thr: Union[None, int] = 5
+        self._body_count_thr: Union[None, int] = 2
 
     # update with server data
     def init_dic(self, dic: dict):
@@ -191,7 +186,7 @@ class PlayerObject(Object):
         return self._tackle_count
 
     def face_count(self):
-        return 0
+        return self._face_count
 
     def is_frozen(self):
         return False 
@@ -206,14 +201,8 @@ class PlayerObject(Object):
         return self.stamina_model().get_safety_dash_power(self.player_type(),
                                                           dash_power)
     
-    def vel_valid(self):
-        return self._vel_count < PlayerObject.VEL_COUNT_THR
-
-    def pos_valid(self):
-        return self._pos_count < PlayerObject.POS_COUNT_THR
-
     def body_valid(self):
-        return self._body_count < PlayerObject.FACE_COUNT_THR
+        return self._body_count < self._body_count_thr
 
     def update(self, wm: 'WorldModel'):
         self._pos_history = [self._pos] + self._pos_history
@@ -376,3 +365,31 @@ class PlayerObject(Object):
 
     def is_goalie(self):
         return self._goalie
+
+    def long_str(self):
+        res = super(PlayerObject, self).long_str()
+        res += f'''
+                unum: {self._unum}
+                side: {self._side}
+                body: {self._body}
+                goalie: {self._goalie}
+                player_type: {self._player_type}
+                player_type_id: {self._player_type_id}
+                pointto_angle: {self._pointto_angle}
+                kick: {self._kick}
+                tackle: {self._tackle}
+                charged: {self._charged}
+                kicking: {self._kicking}
+                card: {self._card}
+                kick_rate: {self._kick_rate}
+                face: {self._face}
+                body_count: {self._body_count}
+                face_count: {self._face_count}
+                pointto_count: {self._pointto_count}
+                unum_count: {self._unum_count}
+                tackle_count: {self._tackle_count}        
+                '''
+        return res
+
+    def __str__(self):
+        return f'''Player pos: side: {self._side} unum: {self._unum} {self.pos()} vel:{self.vel()} body: {self._body}'''

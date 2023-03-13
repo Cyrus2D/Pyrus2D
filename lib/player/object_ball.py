@@ -15,27 +15,15 @@ if TYPE_CHECKING:
     from lib.player.action_effector import ActionEffector
 
 
-
-
-
 class BallObject(Object):
-    DEBUG= True
-    
-    VEL_COUNT_THR = 10
-    POS_COUNT_THR = 10
-    RPOS_COUNT_THR = 5
+    DEBUG = True
 
     def __init__(self, string=None):
         super().__init__()
-        self._pos = Vector2D.invalid()
-        self._pos_error = Vector2D(0, 0)
-        self._vel = Vector2D.invalid()
-        self._vel_error = Vector2D(0, 0)
-        self._seen_rpos: Vector2D = Vector2D.invalid()
-        
-        self._rpos_count:int = 1000
-        self._heard_pos_count: int = 1000
-        self._heard_vel_count: int = 1000
+        self._pos_count_thr: Union[None, int] = 10
+        self._relation_pos_count_thr: Union[None, int] = 5
+        self._vel_count_thr: Union[None, int] = 10
+
         self._lost_count: int = 1000
         
         if string is None:
@@ -54,24 +42,6 @@ class BallObject(Object):
     def update_more_with_full_state(self, wm):
         self._rpos = self.pos() - wm.self().pos()
 
-    def dist_from_self(self):
-        return self._dist_from_self
-
-    def angle_from_self(self):
-        return self._angle_from_self
-    
-    def seen_rpos(self):
-        return self._seen_rpos
-
-    def vel_valid(self):
-        return self.vel_count() < BallObject.VEL_COUNT_THR
-
-    def pos_valid(self):
-        return self.pos_count() < BallObject.POS_COUNT_THR
-
-    def __repr__(self):
-        return f"(pos: {self.pos()}) (vel:{self.vel()})"
-
     def inertia_point(self, cycle: int) -> Vector2D:
         return inertia_n_step_point(self._pos,
                                     self._vel,
@@ -85,15 +55,13 @@ class BallObject(Object):
 
     def copy(self):
         ball = BallObject()
-        
-        ball._dist_from_self = self._dist_from_self
-        ball._angle_from_self = self._angle_from_self
         ball._pos = self._pos.copy()
         ball._vel = self._vel.copy()
         ball._rpos = self._rpos.copy()
         ball._seen_pos = self._seen_pos.copy()
         ball._seen_vel = self._seen_vel.copy()
-
+        ball._dist_from_self = self._dist_from_self
+        ball._angle_from_self = self._angle_from_self
         return ball
 
     def update(self, act: 'ActionEffector', game_mode: GameMode):
@@ -318,5 +286,5 @@ class BallObject(Object):
     def lost_count(self):
         return self._lost_count
 
-    def rpos_valid(self):
-        return self._rpos_count < BallObject.RPOS_COUNT_THR
+    def __str__(self):
+        return f'''Ball pos: {self.pos()} vel:{self.vel()}'''
