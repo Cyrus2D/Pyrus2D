@@ -1012,21 +1012,23 @@ class WorldModel:
             self.check_ghost(varea) # TODO 
             self.update_dir_count(varea)
 
-    def update_after_sense_body(self, body: BodySensor, act: 'ActionEffector', current_time: GameTime):
+    def update_after_sense_body(self, body_sensor: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             log.sw_log().sensor(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             return
         
-        self._sense_body_time = body.time().copy()
+        self._sense_body_time = body_sensor.time().copy()
 
         if DEBUG:
-            log.sw_log().world().add_text("******** update after sense body ********")
-            log.os_log().debug("******** update after sense body ********")
+            log.sw_log().world().add_text("******** update world after sense body ********")
+            log.os_log().debug("******** update world after sense body ********")
 
-        if body.time() == current_time:
-            self.self().update_after_sense_body(body, act, current_time)
-        
+        if body_sensor.time() == current_time:
+            self.self().update_after_sense_body(body_sensor, act, current_time)
+            # M_localize->updateBySenseBody( sense_body );
+
+        # TODO
         # RECOVERY AND STAMINA CAPACITY THINGS...
         # CARD THINGS...
         

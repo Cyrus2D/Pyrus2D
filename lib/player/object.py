@@ -69,6 +69,9 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
     def vel(self) -> Vector2D:
         return self._vel.copy()
 
+    def vel_error(self) -> Vector2D:
+        return self._vel.copy()
+
     def vel_count(self) -> int:
         return self._vel_count
 

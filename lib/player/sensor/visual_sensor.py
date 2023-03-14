@@ -371,8 +371,9 @@ class VisualSensor:
         if object_data is None:
             log.os_log().warn("No Object have seen!")
             return
-
-        for key, value in object_data.items():
+        for key_value in object_data:
+            key = key_value[0]
+            value = key_value[1]
             types = VisualSensor.ObjectType
             t: str = key[0]
             if t in ['P', 'B', 'L']:
@@ -402,24 +403,25 @@ class VisualSensor:
 
             self.sort_all()
 
-    def __repr__(self) -> str:
-        res = ""
+    def __str__(self):
+        res = "\n"
+        res += "-"*50
         res += "teammates: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._teammates))
-        res += "\n" + "#"*50 + "\nunknown_teammates: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_teammates))
-        res += "\n" + "#"*50 + "\nopponents: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._opponents))
-        res += "\n" + "#"*50 + "\nunknown_opponents: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_opponents))
-        res += "\n" + "#"*50 + "\nunknown_players: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._unknown_players))
-        res += "\n" + "#"*50 + "\nmarkers: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._markers))
-        res += "\n" + "#"*50 + "\nbehind_markers: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._behind_markers))
-        res += "\n" + "#"*50 + "\nlines: \n".upper()
-        res += ("\n" + "#"*10 + "\n").join(map(str, self._lines))
+        res += "\n".join(map(str, self._teammates))
+        res += "\n" + "-"*50 + "\nunknown_teammates: \n".upper()
+        res += "\n".join(map(str, self._unknown_teammates))
+        res += "\n" + "-"*50 + "\nopponents: \n".upper()
+        res += "\n".join(map(str, self._opponents))
+        res += "\n" + "-"*50 + "\nunknown_opponents: \n".upper()
+        res += "\n".join(map(str, self._unknown_opponents))
+        res += "\n" + "-"*50 + "\nunknown_players: \n".upper()
+        res += "\n".join(map(str, self._unknown_players))
+        res += "\n" + "-"*50 + "\nmarkers: \n".upper()
+        res += "\n".join(map(str, self._markers))
+        res += "\n" + "-"*50 + "\nbehind_markers: \n".upper()
+        res += "\n".join(map(str, self._behind_markers))
+        res += "\n" + "-"*50 + "\nlines: \n".upper()
+        res += "\n".join(map(str, self._lines))
         return res
 
     def time(self):

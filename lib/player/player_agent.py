@@ -81,14 +81,13 @@ class PlayerAgent(SoccerAgent):
             self._body_time_stamp = get_time_msec()
 
             self.parse_cycle_info(message, True)
-
             if DEBUG:
-                log.sw_log().sensor().add_text('===Received Message===\n' + message)
-                log.os_log().debug('===Received Message===\n' + message)
-
+                log.os_log().debug(f'##################{self._agent.world().time().cycle()}#################')
             self._body_sensor.parse(message, self._current_time)
 
             if DEBUG:
+                log.sw_log().sensor().add_text('===Received Sense Message===\n' + message)
+                log.os_log().debug('===Received Sense Message===\n' + message)
                 log.sw_log().sensor().add_text(str(self._body_sensor))
                 log.os_log().debug(str(self._body_sensor))
 
@@ -100,6 +99,12 @@ class PlayerAgent(SoccerAgent):
             self._agent.world().update_after_sense_body(self._body_sensor, self._agent._effector, self._current_time)
             # TODO CHECK HERE FOR SEPARATE WORLD
 
+            if DEBUG:
+                log.sw_log().world().add_text("===Sense Body Results self===\n" + str(self._agent.world().self()))
+                log.sw_log().world().add_text("===Sense Body Results ball===\n" + str(self._agent.world().ball()))
+                log.os_log().debug("===Sense Body Results self===\n" + str(self._agent.world().self()))
+                log.os_log().debug("===Sense Body Results ball===\n" + str(self._agent.world().ball()))
+
         def visual_parser(self, message: str):
             if ServerParam.i().is_fullstate(self._agent.world().our_side()) and not team_config.FULL_STATE_DEBUG:
                 return
@@ -108,6 +113,12 @@ class PlayerAgent(SoccerAgent):
             self._visual_sensor.parse(message,
                                       self._team_name,
                                       self._current_time)
+
+            if DEBUG:
+                log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
+                log.os_log().debug('===Received See Message Sensor===\n' + message)
+                log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
+                log.os_log().debug('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
 
             self._see_state.update_by_see(self._current_time,
                                           self._agent.world().self().view_width(),
@@ -119,6 +130,23 @@ class PlayerAgent(SoccerAgent):
                                                      self._body_sensor,
                                                      self._agent.effector(),
                                                      self._current_time)
+            if DEBUG:
+                log.sw_log().world().add_text('===After processing see message===')
+                log.sw_log().world().add_text('===Ball===\n' + str(self._agent.world().ball()))
+                log.sw_log().world().add_text('===Our Players===')
+                for p in self._agent.world().our_players():
+                    log.sw_log().world().add_text(str(p))
+                log.sw_log().world().add_text('===Their Players===')
+                for p in self._agent.world().their_players():
+                    log.sw_log().world().add_text(str(p))
+                log.os_log().debug('===After processing see message===')
+                log.os_log().debug('===Ball===\n' + str(self._agent.world().ball()))
+                log.os_log().debug('===Our Players===')
+                for p in self._agent.world().our_players():
+                    log.os_log().debug(str(p))
+                log.os_log().debug('===Their Players===')
+                for p in self._agent.world().their_players():
+                    log.os_log().debug(str(p))
 
         def hear_parser(self, message: str):
             self.parse_cycle_info(message, False)
