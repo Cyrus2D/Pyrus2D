@@ -367,6 +367,9 @@ class PlayerObject(Object):
     def is_goalie(self):
         return self._goalie
 
+    def unum_count(self):
+        return self._unum_count
+
     def long_str(self):
         res = super(PlayerObject, self).long_str()
         res += f'''
