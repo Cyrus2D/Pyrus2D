@@ -1543,3 +1543,6 @@ class WorldModel:
 
     def their_players(self):
         return self._their_players
+
+    def prev_ball(self):
+        return self._prev_ball
