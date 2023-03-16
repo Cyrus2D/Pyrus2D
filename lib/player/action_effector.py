@@ -33,7 +33,7 @@ class ActionEffector:
         self._change_focus_command: PlayerChangeFocusCommand = None
         self._say_command: PlayerSayCommand = None
         self._attentionto_command: PlayerAttentiontoCommand = None
-        
+
         self._command_counter: list[int] = [0 for _ in range(len(CommandType))]
         self._last_body_commands: list[CommandType] = [CommandType.ILLEGAL for _ in range(2)]
         self._last_action_time: GameTime = GameTime()
@@ -67,7 +67,7 @@ class ActionEffector:
         self._messages: list[Messenger] = []
 
         self._pointto_pos: Vector2D = Vector2D(0, 0)
-    
+
     def change_view_command(self):
         return self._change_view_command
 
@@ -76,13 +76,13 @@ class ActionEffector:
 
     def pointto_command(self):
         return self._pointto_command
-    
+
     def pointto_pos(self):
         return self._pointto_pos
-    
+
     def attentionto_command(self):
         return self._attentionto_command
-    
+
     def inc_command_type(self, type: CommandType):
         self._command_counter[type.value] += 1
 
@@ -150,7 +150,7 @@ class ActionEffector:
             self._tackle_dir = 0
             self._tackle_foul = False
             self._command_counter[CommandType.TACKLE.value] = body_sensor.tackle_count()
-        
+
         if body_sensor.turn_neck_count() != self._command_counter[CommandType.TURN_NECK.value]:
             log.os_log().error(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
@@ -191,7 +191,7 @@ class ActionEffector:
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             self._command_counter[CommandType.ATTENTIONTO.value] =   body_sensor.attentionto_count()
-    
+
     @staticmethod
     def conserve_dash_power(wm: 'WorldModel', power, rel_dir):
         log.sw_log().action().add_text( f"(conserved dash power) power={power}")
@@ -199,34 +199,34 @@ class ActionEffector:
         SP = ServerParam.i()
         required_stamina = power
         available_stamina = wm.self().stamina() + wm.self().player_type().extra_stamina()
-        
+
         if available_stamina < required_stamina:
             log.sw_log().action().add_text( f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")
             power = available_stamina
-        
+
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
         accel_angle = wm.self().body() + rel_dir
         _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel(),
                                                 accel_angle=accel_angle,
                                                 accel_mag=accel_mag)
-        
+
         power = accel_mag / wm.self().dash_rate() / dir_rate
         power = SP.normalize_dash_power(power)
-        
+
         log.sw_log().action().add_text( f"(conserved dash power) conserved power={power}")
 
         return power
-        
+
     def set_kick(self, power: float, rel_dir: Union[AngleDeg, float]):
         wm = self._agent.world()
 
         rel_dir = float(rel_dir)
-        
+
         if power < ServerParam.i().min_power() or power > ServerParam.i().max_power():
             log.os_log().error(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             power = ServerParam.i().max_power() if power > 100 else ServerParam.i().min_power()
-        
+
         log.sw_log().action().add_text( f"(set kick) power={power}, rel_dir={rel_dir}")
         self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate(),
                                                  wm.self().body() + rel_dir)
@@ -235,7 +235,7 @@ class ActionEffector:
 
         self._body_command = PlayerKickCommand(power, rel_dir)
         return self._body_command
-        
+
     def set_dash(self, power: float, rel_dir: Union[AngleDeg, float] = 0):
         SP = ServerParam.i()
         wm = self._agent.world()
@@ -253,16 +253,16 @@ class ActionEffector:
         rel_dir = SP.discretize_dash_angle(rel_dir)
 
         power = ActionEffector.conserve_dash_power(wm, power, rel_dir)
-        
+
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
         accel_mag = min(accel_mag, SP.player_accel_max())
         accel_angle = wm.self().body() + rel_dir
-        
+
         self._dash_power = power
         self._dash_dir = rel_dir
         self._dash_accel = Vector2D.polar2vector(accel_mag, accel_angle)
-        
+
         log.sw_log().action().add_text( f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
 
         self._body_command = PlayerDashCommand(power, rel_dir)
@@ -270,7 +270,7 @@ class ActionEffector:
 
     def set_turn(self, moment: Union[AngleDeg, float]):
         moment = float(moment)
-        
+
         SP = ServerParam.i()
         wm = self._agent.world()
         speed = wm.self().vel().r()
@@ -279,7 +279,7 @@ class ActionEffector:
         if moment > SP.max_moment() or moment < SP.min_moment():
             log.os_log().error(f"(set turn) player({wm.self().unum()}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
             moment = SP.max_moment() if moment > SP.max_moment() else SP.min_moment()
-        
+
         self._turn_actual = moment / (1 + speed*wm.self().player_type().inertia_moment())
         self._turn_error = abs(SP.player_rand()*self._turn_actual)
 
@@ -287,7 +287,7 @@ class ActionEffector:
 
         self._body_command = PlayerTurnCommand(moment)
         return self._body_command
-    
+
     def set_move(self, x: float, y: float):
         SP = ServerParam.i()
         wm = self._agent.world()
@@ -296,11 +296,11 @@ class ActionEffector:
             log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
             x = min_max(-SP.pitch_half_length(), x, SP.pitch_half_length())
             y = min_max(-SP.pitch_half_width(), y, SP.pitch_half_width())
-        
+
         if SP.kickoff_offside() and x > 0:
             log.os_log().error(f"(set move) player({wm.self().unum()}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
             x = -0.1
-        
+
         if wm.game_mode().type().is_goalie_catch_ball() and wm.game_mode().side() == wm.our_side():
             if x < -SP.pitch_half_length() + 1 or x > -SP.our_penalty_area_line_x() - 1:
                 log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
@@ -308,50 +308,50 @@ class ActionEffector:
             if abs(y) > SP.penalty_area_half_width() -1:
                 log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
                 y = min_max(-SP.penalty_area_half_width(),y, SP.penalty_area_half_width())
-        
+
         self._move_pos.assign(x, y)
 
         self._body_command = PlayerMoveCommand(x, y)
         return self._body_command
-    
+
     def set_catch(self):
         SP = ServerParam.i()
         wm = self._agent.world()
-        
+
         diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w()*0.5, SP.catch_area_l())
         ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
         catch_angle = (ball_rel_angle + diagonal_angle).degree()
-        
+
         if not (SP.min_catch_angle() < catch_angle < SP.max_catch_angle()):
             catch_angle = ball_rel_angle - diagonal_angle
 
         self._body_command = PlayerCatchCommand(catch_angle)
-        return self._body_command    
+        return self._body_command
 
     def set_tackle(self, dir: Union[float, AngleDeg], foul: bool):
         wm = self._agent.world()
-        
+
         dir = float(dir)
         if abs(dir) > 180:
             log.os_log().error(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. dir={dir}")
             dir = AngleDeg.normalize_angle(dir)
-        
+
         self._tackle_power = ServerParam.i().max_tackle_power()
         self._tackle_dir = dir
         self._tackle_foul = foul
 
         self._body_command = PlayerTackleCommand(dir, foul)
         return self._body_command
-    
+
     def set_turn_neck(self, moment: Union[AngleDeg, float]):
         SP = ServerParam.i()
         wm = self._agent.world()
-        
+
         moment = float(moment)
         if not (SP.min_neck_moment() < moment < SP.max_neck_moment()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
-        
+
         next_neck_angle = wm.self().neck().degree() + moment
         if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum()}) \
@@ -371,7 +371,7 @@ class ActionEffector:
     def set_change_view(self, width: ViewWidth):
         self._change_view_command = PlayerChangeViewCommand(width, ViewQuality.HIGH)
         return self._change_view_command
-    
+
     def set_pointto(self, x, y):
         wm = self._agent.world()
 
@@ -381,7 +381,7 @@ class ActionEffector:
 
         self._pointto_command = PlayerPointtoCommand(target.r(), target.th())
         return self._pointto_command
-    
+
     def set_pointto_off(self):
         self._pointto_command = PlayerPointtoCommand()
         return self._pointto_command
@@ -422,7 +422,7 @@ class ActionEffector:
     def reset(self):
         for i in range(len(self._last_body_commands)):
             self._last_body_commands[i] = None
-        
+
         self._done_turn_neck = False
         self._done_change_focus = False
         self._say_message = ""
@@ -430,20 +430,20 @@ class ActionEffector:
     def update_after_actions(self):
         self._last_body_commands[1] = self._last_body_commands[0]
         self._last_action_time = self._agent.world().time().copy()
-        
+
         if self._body_command:
             self._last_body_commands[0] = self._body_command.type()
             if self._last_body_commands[0] is CommandType.CATCH:
                 self._catch_time = self._agent.world().time().copy()
-            
+
             self.inc_command_type(self._body_command.type())
             self._body_command = None
-        
+
         if self._neck_command:
             self._done_turn_neck = True
             self.inc_command_type(CommandType.TURN_NECK)
             self._neck_command = None
-        
+
         if self._change_view_command:
             self.inc_command_type(CommandType.CHANGE_VIEW)
             self._change_view_command = None
@@ -456,15 +456,15 @@ class ActionEffector:
         if self._pointto_command:
             self.inc_command_type(CommandType.POINTTO)
             self._pointto_command = None
-        
+
         if self._say_command:
             self.inc_command_type(CommandType.SAY)
             self._say_command = None
-        
+
         if self._attentionto_command:
             self.inc_command_type(CommandType.ATTENTIONTO)
             self._attentionto_command = None
-    
+
     def clear_all_commands(self):
         self._body_command = None
         self._neck_command = None
@@ -474,11 +474,11 @@ class ActionEffector:
         self._attentionto_command = None
         self._say_command = None
         self._messages.clear()
-    
+
     def add_say_message(self, message: Messenger):
         if message:
             self._messages.append(message)
-    
+
     def make_say_message_command(self, wm: 'WorldModel'):
         if len(self._messages) == 0:
             return None
@@ -486,9 +486,9 @@ class ActionEffector:
         say_command =  PlayerSayCommand(Messenger.encode_all(wm, self._messages))
         if len(say_command.message()) == 0:
             return None
-        
+
         return say_command
-    
+
     def set_attentionto(self, side: SideID, unum: int):
         SIDE = PlayerAttentiontoCommand.SideType
         new_side = SIDE.NONE
@@ -500,18 +500,18 @@ class ActionEffector:
             new_side = SIDE.NONE
         self._attentionto_command = PlayerAttentiontoCommand(new_side, unum)
         return self._attentionto_command
-    
+
     def set_attentionto_off(self):
         self._attentionto_command = PlayerAttentiontoCommand()
         return self._attentionto_command
-    
+
     def queued_next_self_body(self) -> AngleDeg:
         next_angle = self._agent.world().self().body().copy()
         if self._body_command and self._body_command.type() is CommandType.TURN:
             moment = self.get_turn_info()
             next_angle += moment
         return next_angle
-    
+
     def queued_next_view_width(self) -> ViewWidth:
         if self._change_view_command:
             return self._change_view_command.width()
@@ -540,7 +540,7 @@ class ActionEffector:
         if self._body_command and self._body_command.type() is CommandType.DASH:
             accel, _ = self.get_dash_info()
             vel += accel
-            
+
             tmp = vel.r()
             if tmp > me.player_type().player_speed_max():
                 vel *= me.player_type().player_speed_max() / tmp
@@ -584,11 +584,21 @@ class ActionEffector:
         vel *= ServerParam.i().ball_decay()
         return vel
 
+    def queued_next_ball_kickable(self):
+        if self._agent.world().ball().rpos_count() >= 3:
+            return False
+
+        my_next = self.queued_next_self_pos()
+        ball_next = self.queued_next_ball_pos()
+
+        return my_next.dist(ball_next) < self._agent.world().self().player_type().kickable_area() - 0.06
 
 
-
-
-
+    def get_say_message_length(self):
+        l = 0
+        for m in self._messages:
+            l += m.size()
+        return l
 
 
 
