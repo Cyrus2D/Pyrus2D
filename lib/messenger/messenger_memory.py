@@ -44,6 +44,8 @@ class MessengerMemory:
         self._pass: list[MessengerMemory.Pass] = []
         self._pass_time: GameTime = GameTime()
 
+        self._player_record: list[tuple[GameTime, MessengerMemory.Player]] = []
+
     def add_ball(self, sender: int, pos: Vector2D, vel: Vector2D, current_time: GameTime):
         if self._ball_time != current_time:
             self._balls.clear()
@@ -58,6 +60,10 @@ class MessengerMemory:
 
         self._players.append(MessengerMemory.Player(sender, unum, pos))
         self._player_time = current_time.copy()
+
+        self._player_record.append((current_time, self._players[-1]))
+        if len(self._player_record) > 30:
+            self._player_record = self._player_record[1:]
 
         self._time = current_time.copy()
 
@@ -91,5 +97,7 @@ class MessengerMemory:
     def pass_(self):
         return self._pass
 
+    def player_record(self):
+        return self._player_record
     
     
