@@ -33,6 +33,104 @@ class SampleCommunication:
         self._teammate_send_time: list[GameTime] = [GameTime(0, 0) for i in range(12)]
         self._opponent_send_time: list[GameTime] = [GameTime(0, 0) for i in range(12)]
 
+    def should_say_ball(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        ef = agent.effector()
+
+        if wm.ball().seen_pos_count() > 0 or wm.ball().seen_vel_count() > 2:
+            return False
+        if wm.game_mode().type() != GameModeType.PlayOn and ef.queued_next_ball_vel().r2() < 0.5 ** 2:
+            return False
+        if wm.kickable_teammate():
+            return False
+
+        ball_vel_changed = False
+        current_ball_speed = wm.ball().vel().r()
+
+        if wm.prev_ball().vel_valid():
+            prev_ball_speed = wm.prev_ball().vel().r()
+            angle_diff = abs(wm.ball().vel().th() - wm.prev_ball().vel().th())
+
+            log.sw_log().communication(f'(sample communication)'
+                                       f'prev vel={wm.prev_ball().vel()}, r={prev_ball_speed}'
+                                       f'current_vel={wm.ball().vel()}, r={wm.ball().vel()}')
+
+            if current_ball_speed > prev_ball_speed + 0.1 \
+                    or (
+                    prev_ball_speed > 0.5 and current_ball_speed < prev_ball_speed * ServerParam.i().ball_decay() / 2) \
+                    or (prev_ball_speed > 0.5 and angle_diff > 20.):
+                log.sw_log().communication(f'(sample communication) ball vel changed')
+                ball_vel_changed = True
+
+        if wm.self().is_kickable():
+            if ball_vel_changed and wm.last_kicker_side() != wm.our_side() and not wm.kickable_opponent():
+                log.sw_log().communication().add_text(
+                    "(sample communication) ball vel changed. opponent kicked. no opponent kicker")
+                return True
+            if ef.queued_next_ball_kickable() and current_ball_speed < 1.:  # TODO IMP FUNC
+                return False
+            if ball_vel_changed and ef.queued_next_ball_vel().r() > 1.:
+                log.sw_log().communication().add_text('(sample communication) kickable. ball vel changed')
+                return True
+            log.sw_log().communication().add_text('(sample communication) kickable. but no say')
+            return False
+
+        ball_nearest_teammate: PlayerObject = None
+        second_ball_nearest_teammate: PlayerObject = None
+
+        for p in wm.teammates_from_ball():
+            if p is None:
+                continue
+            if p.is_ghost() or p.pos_count() >= 10:
+                continue
+
+            if ball_nearest_teammate is None:
+                ball_nearest_teammate = p
+            elif second_ball_nearest_teammate is None:
+                second_ball_nearest_teammate = p
+                break
+
+        our_min = min(wm.intercept_table().self_reach_cycle(), wm.intercept_table().teammate_reach_cycle())
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+
+        if ball_nearest_teammate is None \
+                or ball_nearest_teammate.dist_from_ball() > wm.ball().dist_from_self() - 3.:
+            log.sw_log().communication().add_text('(sample communication) maybe nearest to ball')
+
+            if ball_vel_changed or (opp_min <= 1 and current_ball_speed > 1.):
+                log.sw_log().communication().add_text('(sample communication) nearest to ball. ball vel changed?')
+                return True
+
+        if ball_nearest_teammate is not None \
+                and wm.ball().dist_from_self() < 20. \
+                and 1. < ball_nearest_teammate.dist_from_ball() < 6. \
+                and (opp_min <= our_min + 1 or ball_vel_changed):
+            log.sw_log().communication().add_text('(sample communication) support nearset player')
+            return True
+        return False
+
+    def should_say_opponent_goalie(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        goalie: PlayerObject = wm.get_their_goalie()
+
+        if goalie is None:
+            return False
+
+        if goalie.seen_pos_count() == 0 \
+                and goalie.body_count() == 0 \
+                and goalie.unum() != UNUM_UNKNOWN \
+                and goalie.unum_count() == 0 \
+                and goalie.dist_from_self() < 25. \
+                and 51. - 16. < goalie.pos().x() < 52.5 \
+                and goalie.pos().abs_y() < 20.:
+
+            goal_pos = ServerParam.i().their_team_goal_pos()
+            ball_next = wm.ball().pos() + wm.ball().vel()
+
+            if ball_next.dist2(goal_pos) < 18 ** 2:
+                return True
+        return False
+
     def say_ball_and_players(self, agent: 'PlayerAgent'):
         SP = ServerParam.i()
         wm = agent.world()
@@ -40,7 +138,7 @@ class SampleCommunication:
 
         current_len = ef.get_say_message_len()  # TODO IMP FUNC
 
-        should_say_ball = self.should_say_ball(agent)  # TODO IMP FUNC
+        should_say_ball = self.should_say_ball(agent)
         should_say_goalie = self.should_say_opponent_goalie(agent)  # TODO IMP FUNC
         goalie_say_situation = False  # self.goalie_say_situation # TODO IMP FUNC
 
