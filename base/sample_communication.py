@@ -3,10 +3,19 @@ from math import exp
 from pyrusgeom.soccer_math import bound
 
 import team_config
+from base.strategy import Strategy
 from lib.debug.debug import log
+from lib.messenger.ball_goalie_messenger import BallGoalieMessenger
+from lib.messenger.ball_messenger import BallMessenger
+from lib.messenger.ball_player_messenger import BallPlayerMessenger
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
+from lib.messenger.goalie_messenger import GoalieMessenger
+from lib.messenger.goalie_player_messenger import GoaliePlayerMessenger
 from lib.messenger.messenger import Messenger
 from lib.messenger.messenger_memory import MessengerMemory
+from lib.messenger.one_player_messenger import OnePlayerMessenger
+from lib.messenger.three_player_messenger import ThreePlayerMessenger
+from lib.messenger.two_player_messenger import TwoPlayerMessenger
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID
@@ -16,6 +25,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
     from lib.player.object_player import PlayerObject
+    from lib.player.world_model import WorldModel
 
 
 class ObjectScore:
@@ -67,7 +77,7 @@ class SampleCommunication:
                 log.sw_log().communication().add_text(
                     "(sample communication) ball vel changed. opponent kicked. no opponent kicker")
                 return True
-            if ef.queued_next_ball_kickable() and current_ball_speed < 1.:  # TODO IMP FUNC
+            if ef.queued_next_ball_kickable() and current_ball_speed < 1.:
                 return False
             if ball_vel_changed and ef.queued_next_ball_vel().r() > 1.:
                 log.sw_log().communication().add_text('(sample communication) kickable. ball vel changed')
@@ -131,15 +141,26 @@ class SampleCommunication:
                 return True
         return False
 
+    def update_player_send_time(self, wm: 'WorldModel', side: SideID, unum: int):
+        if not (1 <= unum <= 11):
+            log.os_log().error(f'(sample communication) illegal player number. unum={unum}')
+            return
+
+        if side == wm.our_side():
+            self._teammate_send_time[unum] = wm.time().copy()
+        else:
+            self._opponent_send_time[unum] = wm.time().copy()
+
+
     def say_ball_and_players(self, agent: 'PlayerAgent'):
         SP = ServerParam.i()
         wm = agent.world()
         ef = agent.effector()
 
-        current_len = ef.get_say_message_len()  # TODO IMP FUNC
+        current_len = ef.get_say_message_len()
 
         should_say_ball = self.should_say_ball(agent)
-        should_say_goalie = self.should_say_opponent_goalie(agent)  # TODO IMP FUNC
+        should_say_goalie = self.should_say_opponent_goalie(agent)
         goalie_say_situation = False  # self.goalie_say_situation # TODO IMP FUNC
 
         if not should_say_ball and not should_say_goalie and not goalie_say_situation \
@@ -154,7 +175,7 @@ class SampleCommunication:
         objects = [ObjectScore(i, 1000) for i in range(23)]
         objects[0].score = wm.time().cycle() - mm.ball_time().cycle()
 
-        for p in mm.player_record():  # TODO IMP FUNC
+        for p in mm.player_record():
             n = p[1].unum_
             if not (1 <= n <= 22):
                 continue
@@ -163,11 +184,11 @@ class SampleCommunication:
 
         if 1 <= wm.their_goalie_unum() <= 11:
             n = wm.their_goalie_unum() + 11
-            diff = wm.time().cycle() - mm.goalie_time().cycle()  # TODO IMP FUNC
+            diff = wm.time().cycle() - mm.goalie_time().cycle()
             objects[n].score = min(objects[n].score, diff)
 
         if wm.self().is_kickable():
-            if ef.queued_next_ball_kickable():  # TODO IMP FUNC
+            if ef.queued_next_ball_kickable():
                 objects[0].score = -1000
             else:
                 objects[0].score = 1000
@@ -249,16 +270,16 @@ class SampleCommunication:
             ball_vel.assign(0, 0)
 
         if can_send_ball and not send_ball_and_player and available_len >= Messenger.SIZES[
-            Messenger.Types.BALL_POS_VEL_MESSAGE]:
-            if available_len >= Messenger.SIZES[Messenger.Types.BALL_PLAYER]:  # TODO IMP FUNC
-                agent.add_say_message(BallPlayerMessage(ef.queued_next_ball_pos(),  # TODO IMP FUNC
+            Messenger.Types.BALL]:
+            if available_len >= Messenger.SIZES[Messenger.Types.BALL_PLAYER]:
+                agent.add_say_message(BallPlayerMessenger(ef.queued_next_ball_pos(),
                                                         ball_vel,
                                                         wm.self().unum(),
                                                         ef.queued_next_self_pos(),
                                                         ef.queued_next_self_body()))
-                self.update_player_send_time(wm, wm.our_side(), wm.self().unum())  # TODO IMP FUNC
+                self.update_player_send_time(wm, wm.our_side(), wm.self().unum())
             else:
-                agent.add_say_message(BallMessageMessenger(ef.queued_next_ball_pos(), ball_vel))  # TODO IMP FUNC
+                agent.add_say_message(BallMessenger(ef.queued_next_ball_pos(), ball_vel))
 
             self._ball_send_time = wm.time().copy()
             log.sw_log().communication().add_text('(sample communication) only ball')
@@ -266,13 +287,13 @@ class SampleCommunication:
 
         if send_ball_and_player:
             if should_say_goalie and available_len >= Messenger.SIZES[Messenger.Types.BALL_GOALIE]:
-                goalie = wm.get_their_goalie()  # TODO IMP FUNC
-                agent.add_say_message(BallGoalieMessageMessenger(ef.queued_next_ball_pos(),  # TODO IMP FUNC
+                goalie = wm.get_their_goalie()
+                agent.add_say_message(BallGoalieMessenger(ef.queued_next_ball_pos(),
                                                                  ball_vel,
                                                                  goalie.pos() + goalie.vel(),
-                                                                 goalie().vel()))
+                                                                 goalie.body()))
                 self._ball_send_time = wm.time().copy()
-                self.update_player_send_time(wm, goalie.side(), goalie.unum())  # TODO IMP FUNC
+                self.update_player_send_time(wm, goalie.side(), goalie.unum())
 
                 log.sw_log().communication().add_text('(sample communication) ball and goalie')
                 return True
@@ -280,13 +301,13 @@ class SampleCommunication:
             if available_len >= Messenger.SIZES[Messenger.Types.BALL_PLAYER]:
                 p = send_players[0].player
                 if p.unum() == wm.self().unum():
-                    agent.add_say_message(BallPlayerMessageMessenger(ef.queued_next_ball_pos(),  # TODO IMP FUNC
+                    agent.add_say_message(BallPlayerMessenger(ef.queued_next_ball_pos(),
                                                                      ball_vel,
                                                                      wm.self().unum(),
                                                                      ef.queued_next_self_pos(),
                                                                      ef.queued_next_self_body()))
                 else:
-                    agent.add_say_message(BallPlayerMessageMessenger(ef.queued_next_ball_pos(),  # TODO IMP FUNC
+                    agent.add_say_message(BallPlayerMessenger(ef.queued_next_ball_pos(),
                                                                      ball_vel,
                                                                      send_players[0].number,
                                                                      p.pos() + p.vel(),
@@ -299,7 +320,7 @@ class SampleCommunication:
                 return True
 
         if wm.ball().pos().x() > 34 and wm.ball().pos().abs_y() < 20:
-            goalie: PlayerObject = wm.get_their_goalie()  # TODO IMP FUNC
+            goalie: PlayerObject = wm.get_their_goalie()
 
             if goalie is not None \
                     and goalie.seen_pos_count() == 0 \
@@ -311,7 +332,7 @@ class SampleCommunication:
                 if available_len >= Messenger.SIZES[Messenger.Types.GOALIE_AND_PLAYER]:
                     player: PlayerObject = None
                     for p in send_players:
-                        if p.player.unum() != goalie.unum() and p.player.side() != goalie.side()
+                        if p.player.unum() != goalie.unum() and p.player.side() != goalie.side():
                             player = p.player
                             break
 
@@ -321,7 +342,7 @@ class SampleCommunication:
                             bound(53. - 16., goalie_pos.x(), 52.9),
                             bound(-20, goalie_pos.y(), 20),
                         )
-                        agent.add_say_message(GoaliePlayerMessageMessenger(goalie.unum(),  # TODO IMP FUNC
+                        agent.add_say_message(GoaliePlayerMessenger(goalie.unum(),
                                                                            goalie_pos,
                                                                            goalie.body(),
                                                                            (
@@ -341,7 +362,7 @@ class SampleCommunication:
                         bound(53. - 16., goalie_pos.x(), 52.9),
                         bound(-20, goalie_pos.y(), 20),
                     )
-                    agent.add_say_message(GoalieMessageMessenger(goalie.unum(),  # TODO IMP FUNC
+                    agent.add_say_message(GoalieMessenger(goalie.unum(),  # TODO IMP FUNC
                                                                  goalie_pos,
                                                                  goalie.body()))
                     self._ball_send_time = wm.time().copy()
@@ -356,7 +377,7 @@ class SampleCommunication:
             p1 = send_players[1].player
             p2 = send_players[2].player
 
-            agent.add_say_message(ThreePlayerMessageMessenger(send_players[0].number,  # TODO IMP FUNC
+            agent.add_say_message(ThreePlayerMessenger(send_players[0].number,
                                                               p0.pos() + p0.vel(),
                                                               send_players[1].number,
                                                               p1.pos() + p1.vel(),
@@ -376,7 +397,7 @@ class SampleCommunication:
             p0 = send_players[0].player
             p1 = send_players[1].player
 
-            agent.add_say_message(TwoPlayerMessageMessenger(send_players[0].number,  # TODO IMP FUNC
+            agent.add_say_message(TwoPlayerMessenger(send_players[0].number,
                                                             p0.pos() + p0.vel(),
                                                             send_players[1].number,
                                                             p1.pos() + p1.vel()))
@@ -400,7 +421,7 @@ class SampleCommunication:
                     bound(53. - 16., goalie_pos.x(), 52.9),
                     bound(-20, goalie_pos.y(), 20),
                 )
-                agent.add_say_message(GoalieMessageMessenger(p0.unum(),  # TODO IMP FUNC
+                agent.add_say_message(GoalieMessenger(p0.unum(),  # TODO IMP FUNC
                                                              goalie_pos,
                                                              p0.body()))
 
@@ -413,7 +434,7 @@ class SampleCommunication:
         if len(send_players) >= 1 and available_len >= Messenger.Types[Messenger.Types.ONE_PLAYERS]:
             p0 = send_players[0].player
 
-            agent.add_say_message(OnePlayerMessageMessenger(send_players[0].number,  # TODO IMP FUNC
+            agent.add_say_message(OnePlayerMessenger(send_players[0].number,
                                                             p0.pos() + p0.vel()))
 
             self.update_player_send_time(wm, p0.side(), p0.unum())
@@ -424,11 +445,59 @@ class SampleCommunication:
 
         return False
 
+    def update_current_sender(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        if agent.effector().get_say_message_length() > 0:
+            self._current_sender_unum = wm.self().unum()
+            return
+
+        self._current_sender_unum = UNUM_UNKNOWN
+        candidate_unum: list[int] = []
+
+        if wm.ball().pos().x() < -10. or wm.game_mode().type() != GameModeType.PlayOn:
+            for unum in range(1, 12):
+                candidate_unum.append(unum)
+        else:
+            goalie_unum = wm.our_goalie_unum() if wm.our_goalie_unum() != UNUM_UNKNOWN else 1 # TODO STRATEGY.GOALIE_UNUM()
+            for unum in range(1, 12):
+                if unum != goalie_unum:
+                    candidate_unum.append(unum)
+        val = wm.time().cycle() + wm.time().stopped_cycle() if wm.time().stopped_cycle() > 0 else wm.time().cycle()
+        current = val % len(candidate_unum)
+        next = (val+1)%len(candidate_unum)
+
+        self._current_sender_unum = candidate_unum[current]
+        self._next_sender_unum = candidate_unum[next]
+
+    def say_recovery(self, agent: 'PlayerAgent'):
+        current_len = agent.effector().get_say_message_length()
+        available_len = ServerParam.i().player_say_msg_size() - current_len
+        if available_len < Messenger.SIZES[Messenger.Types.RECOVERY]:
+            return False
+
+        agent.add_say_message(RecoveryMessageMessenger(agent.world().self().recovery())) # TODO IMP FUNC
+        log.sw_log().communication().add_text('(sample communication) say self recovery')
+        return True
+
+
+    def say_stamina(self, agent: 'PlayerAgent'):
+        current_len = agent.effector().get_say_message_length()
+        if current_len == 0:
+            return False
+        available_len = ServerParam.i().player_say_msg_size() - current_len
+        if available_len < Messenger.SIZES[Messenger.Types.STAMINA]:
+            return False
+        agent.add_say_message(StaminaMessageMessenger(agent.world().self().stamina())) # TODO IMP FUNC
+        log.sw_log().communication().add_text('(sample communication) say self stamina')
+        return True
+
+    def attention_to_someone(self, agent: 'PlayerAgent'):
+
     def execute(self, agent: 'PlayerAgent'):
         if not team_config.USE_COMMUNICATION:  # TODO IMP FUNC
             return False
 
-        self.update_current_sender(agent)  # TODO IMP FUNC
+        self.update_current_sender(agent)
 
         wm = agent.world()
         penalty_shootout = wm.game_mode().is_penalty_kick_mode()
@@ -439,15 +508,15 @@ class SampleCommunication:
                 and self._current_sender_unum == wm.self().unum() \
                 and wm.self().recovery() < ServerParam.i().recover_init() - 0.002:
             say_recovery = True
-            self.say_recovery(agent)  # TODO IMP FUNC
+            self.say_recovery(agent)
 
         if wm.game_mode().type() == GameModeType.BeforeKickOff \
                 or wm.game_mode().type().is_after_goal() \
                 or penalty_shootout:
             return say_recovery
 
-        self.say_ball_and_players(agent)  # TODO IMP FUNC
-        self.say_stamina(agent)  # TODO IMP FUNC
+        self.say_ball_and_players(agent)
+        self.say_stamina(agent)
 
         self.attention_to_someone(agent)  # TODO IMP FUNC
 
