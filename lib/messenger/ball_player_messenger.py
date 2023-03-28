@@ -9,6 +9,10 @@ from lib.messenger.messenger_memory import MessengerMemory
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lib.player.world_model import WorldModel
+
 
 class BallPlayerMessenger(Messenger):
     CONVERTER = MessengerConverter([
@@ -30,11 +34,11 @@ class BallPlayerMessenger(Messenger):
                  player_body: AngleDeg = None,
                  message: str = None) -> None:
         super().__init__()
-        self._ball_pos: Vector2D = ball_pos
-        self._ball_vel: Vector2D = ball_vel
+        self._ball_pos: Vector2D = ball_pos.copy()
+        self._ball_vel: Vector2D = ball_vel.copy()
         self._unum: int = unum
-        self._player_pos: Vector2D = player_pos
-        self._player_body: AngleDeg = player_body
+        self._player_pos: Vector2D = player_pos.copy()
+        self._player_body: AngleDeg = player_body.copy()
         self._size = Messenger.SIZES[Messenger.Types.BALL_PLAYER]
         self._header = Messenger.Types.BALL_PLAYER.value
 
@@ -47,7 +51,7 @@ class BallPlayerMessenger(Messenger):
             return ''
 
         msg = BallPlayerMessenger.CONVERTER.convert_to_word([
-            self._ball_pos.x,
+            self._ball_pos.x(),
             self._ball_pos.y(),
             self._ball_vel.x(),
             self._ball_vel.y(),
@@ -65,4 +69,4 @@ class BallPlayerMessenger(Messenger):
         messenger_memory.add_player(sender, Vector2D(ppx, ppy), current_time, body=AngleDeg(pb))  # TODO IMP FUNC
 
     def __repr__(self) -> str:
-        return "ball pos vel msg"
+        return "ball player msg"
