@@ -1546,3 +1546,12 @@ class WorldModel:
 
     def prev_ball(self):
         return self._prev_ball
+
+    def get_their_goalie(self):
+        if self._their_goalie_unum != UNUM_UNKNOWN:
+            return self.their_player(self._their_goalie_unum)
+
+        for p in self._opponents:
+            if p.goalie():
+                return p
+        return None
