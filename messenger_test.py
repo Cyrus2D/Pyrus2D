@@ -99,3 +99,5 @@ def test3():
 
 if __name__ == "__main__":
     test3()
+# TODO TEST GOALIE MESSENGERS
+# TODO TEST ALL MESSENGERS
