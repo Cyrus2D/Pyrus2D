@@ -6,6 +6,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._pos = Vector2D.invalid()
         self._pos_error = Vector2D(0, 0)
         self._pos_count: int = 1000
+        self._possible_poses: list[Vector2D] = []
 
         self._seen_pos: Vector2D = Vector2D.invalid()
         self._seen_pos_count: int = 1000
@@ -51,6 +52,9 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
     def pos_count(self) -> int:
         return self._pos_count
 
+    def possible_posses(self) -> list[Vector2D]:
+        return self._possible_poses
+
     def seen_pos(self) -> Vector2D:
         return self._seen_pos.copy()
 
@@ -70,7 +74,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         return self._vel.copy()
 
     def vel_error(self) -> Vector2D:
-        return self._vel.copy()
+        return self._vel_error.copy()
 
     def vel_count(self) -> int:
         return self._vel_count
@@ -149,31 +153,31 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
 
     def long_str(self):
         return f'''
-                    pos: self._pos: {self._pos},
-                    pos_error: self._pos_error: {self._pos_error},
-                    pos_count: self._pos_count: {self._pos_count},
-                    seen_pos: self._seen_pos: {self._seen_pos},
-                    seen_pos_count: self._seen_pos_count: {self._seen_pos_count},
-                    heard_pos: self._heard_pos: {self._heard_pos},
-                    heard_pos_count: self._heard_pos_count: {self._heard_pos_count},
-                    vel: self._vel: {self._vel},
-                    vel_error: self._vel_error: {self._vel_error},
-                    vel_count: self._vel_count: {self._vel_count},
-                    seen_vel: self._seen_vel: {self._seen_vel},
-                    seen_vel_count: self._seen_vel_count: {self._seen_vel_count},
-                    heard_vel: self._heard_vel: {self._heard_vel},
-                    heard_vel_count: self._heard_vel_count: {self._heard_vel_count},
-                    rpos: self._rpos: {self._rpos},
-                    rpos_error: self._rpos_error: {self._rpos_error},
-                    rpos_count: self._rpos_count: {self._rpos_count},
-                    seen_rpos: self._seen_rpos: {self._seen_rpos},
-                    seen_rpos_error: self._seen_rpos_error: {self._seen_rpos_error},
-                    dist_from_self: self._dist_from_self: {self._dist_from_self},
-                    angle_from_self: self._angle_from_self: {self._angle_from_self},
-                    dist_from_ball: self._dist_from_ball: {self._dist_from_ball},
-                    angle_from_ball: self._angle_from_ball: {self._angle_from_ball},
-                    ghost_count: self._ghost_count: {self._ghost_count},
-                    pos_history: self._pos_history: {self._pos_history},
+                    pos: {self._pos},
+                    pos_error: {self._pos_error},
+                    pos_count: {self._pos_count},
+                    seen_pos: {self._seen_pos},
+                    seen_pos_count: {self._seen_pos_count},
+                    heard_pos: {self._heard_pos},
+                    heard_pos_count: {self._heard_pos_count},
+                    vel: {self._vel},
+                    vel_error: {self._vel_error},
+                    vel_count: {self._vel_count},
+                    seen_vel: {self._seen_vel},
+                    seen_vel_count: {self._seen_vel_count},
+                    heard_vel: {self._heard_vel},
+                    heard_vel_count: {self._heard_vel_count},
+                    rpos: {self._rpos},
+                    rpos_error: {self._rpos_error},
+                    rpos_count: {self._rpos_count},
+                    seen_rpos: {self._seen_rpos},
+                    seen_rpos_error: {self._seen_rpos_error},
+                    dist_from_self: {self._dist_from_self},
+                    angle_from_self: {self._angle_from_self},
+                    dist_from_ball: {self._dist_from_ball},
+                    angle_from_ball: {self._angle_from_ball},
+                    ghost_count: {self._ghost_count},
+                    pos_history: {self._pos_history},
                     '''
 
     def __str__(self):
