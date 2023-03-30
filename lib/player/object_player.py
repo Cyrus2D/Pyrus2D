@@ -91,10 +91,6 @@ class PlayerObject(Object):
         self._body.reverse()
         self._neck.reverse()  # TODO neck is relative?!?!?!
 
-    def __repr__(self):
-        return "(side: " + str(self.side().name) + ")(unum: " + str(self._unum) + ")(pos: " + str(
-            self.pos()) + ")(vel: " + str(self.vel()) + ")"
-
     def set_player_type(self, player_type: PlayerType):
         self._player_type = player_type
 
@@ -393,4 +389,7 @@ class PlayerObject(Object):
         return res
 
     def __str__(self):
-        return f'''Player side:{self._side} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''
+        return f'''Player side:{self._side.name} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''
+
+    def __repr__(self):
+        return self.__str__()
