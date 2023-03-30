@@ -1,3 +1,4 @@
+from typing import Union
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.math_values import DEG2RAD
 from pyrusgeom.vector_2d import Vector2D
@@ -64,6 +65,7 @@ class Localizer:
         self._points: list[Vector2D] = []
 
     def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT], view_width: ViewWidth):
+        # TODO This function can be improved by using more than two markers to reduce face error
         if len(markers) < 2:
             return None
         
@@ -114,10 +116,11 @@ class Localizer:
         
         if Localizer.DEBUG:
             log.sw_log().world().add_text( f"(estimate self face) face={face}")
-        
-        return face                
 
-    def localize_self(self, see:VisualSensor, self_face:float):
+        face_error = 0.5
+        return face, face_error
+
+    def localize_self_simple(self, see:VisualSensor, self_face:float):
         if Localizer.DEBUG:
             log.sw_log().world().add_text( f"(localize self) started {'#'*20}")
             
@@ -221,7 +224,7 @@ class Localizer:
             choose_index = random.randint(0, point_size - 1)
             self._points.append(self._points[choose_index] + Vector2D(random.uniform(-0.01, 0.01), random.uniform(-0.01, 0.01)))
 
-    def average_points(self):
+    def average_points(self) -> tuple[Union[None, Vector2D], Vector2D]:
         ave_pos = Vector2D(0.0, 0.0)
         ave_err = Vector2D(0.0, 0.0)
         if len(self._points) == 0:
@@ -278,7 +281,7 @@ class Localizer:
             self.update_points_by(view_width, markers[i], markers[i].id_, self_face, self_face_error)
             self.resample_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
 
-    def localize_self2(self, see: VisualSensor, view_width: ViewWidth, self_face: float, self_face_error: float):
+    def localize_self(self, see: VisualSensor, view_width: ViewWidth, self_face: float, self_face_error: float):
         markers = see.markers()
         markers.sort(key=lambda x: x.dist_)
 
@@ -286,19 +289,21 @@ class Localizer:
         behind_markers.sort(key=lambda x: x.dist_)
 
         if len(markers) == 0:
-            return None, Vector2D(0, 0)
+            return None, Vector2D(0, 0), [None]
         self._points.clear()
         self.generate_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
         if len(self._points) == 0:
-            return None, Vector2D(0, 0)
+            return None, Vector2D(0, 0), [None]
         self.update_points_by_markers(view_width, markers, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
+        possible_self_pos = [self_pos.copy() if isinstance(self_pos, Vector2D) else None]
         if len(behind_markers) == 0:
-            return self_pos, self_pos_err
+            return self_pos, self_pos_err, possible_self_pos
 
         self.update_points_by_behind_marker(view_width, markers, behind_markers, self_pos, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
-        return self_pos, self_pos_err
+        possible_self_pos = [self_pos.copy() if isinstance(self_pos, Vector2D) else None]
+        return self_pos, self_pos_err, possible_self_pos
 
     def localize_ball_relative(self,
                                see: VisualSensor,
