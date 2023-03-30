@@ -615,8 +615,7 @@ class WorldModel:
                       body: BodySensor,
                       act: 'ActionEffector',
                       current_time: GameTime):
-        angle_face = self._localizer.estimate_self_face(see, self.self().view_width())
-        angle_face_error = 0.5
+        angle_face, angle_face_error = self._localizer.estimate_self_face(see, self.self().view_width())
         if angle_face is None:
             return False
 
@@ -626,15 +625,15 @@ class WorldModel:
         self.self().update_angle_by_see(team_angle_face, angle_face_error, current_time)
         self.self().update_vel_dir_after_see(body, current_time)
 
-        # my_pos: Vector2D = self._localizer.localize_self(see, angle_face)
-        my_pos, my_pos_err = self._localizer.localize_self2(see, self.self().view_width(), angle_face, angle_face_error)
+        # my_pos: Vector2D = self._localizer.localize_self_simple(see, angle_face)
+        my_pos, my_pos_err, my_possible_posses = self._localizer.localize_self(see, self.self().view_width(), angle_face, angle_face_error)
         if my_pos is None:
             return False
         if reverse_side:
             my_pos *= -1.0
 
         if my_pos.is_valid():
-            self.self().update_pos_by_see(my_pos, my_pos_err, team_angle_face, angle_face_error, current_time)
+            self.self().update_pos_by_see(my_pos, my_pos_err, my_possible_posses, team_angle_face, angle_face_error, current_time)
         
     def localize_ball(self, see: VisualSensor, act: 'ActionEffector'):
         SP = ServerParam.i()
@@ -981,7 +980,6 @@ class WorldModel:
         for p in self._unknown_players:
             p.set_player_type(self._player_types[HETERO_DEFAULT]) 
             
-        
     def update_after_see(self,
                          see: VisualSensor,
                          body: BodySensor,
@@ -1015,7 +1013,7 @@ class WorldModel:
             self.check_ghost(varea) # TODO 
             self.update_dir_count(varea)
 
-    def update_after_sense_body(self, body_sensor: BodySensor, act: 'ActionEffector', current_time: GameTime):
+    def update_world_after_sense_body(self, body_sensor: BodySensor, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             log.sw_log().sensor(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
@@ -1028,13 +1026,17 @@ class WorldModel:
             log.os_log().debug("******** update world after sense body ********")
 
         if body_sensor.time() == current_time:
-            self.self().update_after_sense_body(body_sensor, act, current_time)
+            self.self().update_self_after_sense_body(body_sensor, act, current_time)
             # M_localize->updateBySenseBody( sense_body );
 
-        # TODO
-        # RECOVERY AND STAMINA CAPACITY THINGS...
-        # CARD THINGS...
-        
+        self._our_recovery[self.self().unum() - 1] = self.self().recovery()
+        self._our_stamina_capacity[self.self().unum() - 1] = self.self().stamina_model().capacity()
+        self._our_card[self.self().unum() - 1] = body_sensor.card()
+
+        if DEBUG:
+            log.sw_log().world().add_text(str(self.self()))
+            log.os_log().debug(str(self.self()))
+
         if self.time() != current_time:
             self.update(act, current_time)
     
@@ -1127,7 +1129,6 @@ class WorldModel:
         self._all_players.append(self.self())
         self._our_players.append(self.self())
         self._our_players_array[self.self().unum()] = self.self()
-        
         for p in self._teammates:
             self._all_players.append(p)
             self._our_players.append(p)
@@ -1240,11 +1241,9 @@ class WorldModel:
                 self._teammates.append(candidate)
                 self._unknown_players.remove(candidate)
             
-    
     def update_intercept_table(self):
         self.intercept_table().update(self)
-        
-    
+
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
@@ -1257,7 +1256,7 @@ class WorldModel:
         self.ball().update_self_related(self.self(), self._prev_ball)
         
         self.self().update_ball_info(self.ball())
-        
+
         self.update_player_state_cache()
         self.update_player_type()
         
@@ -1274,6 +1273,27 @@ class WorldModel:
                                           self.intercept_table().self_reach_cycle(),
                                           self.intercept_table().teammate_reach_cycle(),
                                           self.intercept_table().opponent_reach_cycle())
+
+        if DEBUG:
+            log.sw_log().world().add_text('===After processing see message===')
+            log.sw_log().world().add_text('===Our Players===')
+            for p in self.our_players():
+                log.sw_log().world().add_text(str(p))
+            log.sw_log().world().add_text('===Their Players===')
+            for p in self.their_players():
+                log.sw_log().world().add_text(str(p))
+            log.os_log().debug('===After processing see message===')
+            log.os_log().debug('===Ball===\n' + str(self.ball().long_str()))
+            log.os_log().debug('===Our Players===')
+            log.os_log().debug('-----------------------')
+            log.os_log().debug(str(self.self().long_str()))
+            for p in self.our_players():
+                log.os_log().debug('-----------------------')
+                log.os_log().debug(str(p.long_str()))
+            log.os_log().debug('===Their Players===')
+            for p in self.their_players():
+                log.os_log().debug('-----------------------')
+                log.os_log().debug(str(p.long_str()))
     
     def update_just_after_decision(self, act: 'ActionEffector'):
         self._decision_time = self.time().copy()
