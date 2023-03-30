@@ -44,7 +44,7 @@ class ThreePlayerMessenger(Messenger):
 
         self._message = message
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         data = []
         for p, u in zip(self._player_poses,self._unums):
             if not 1 <= u <= 22:

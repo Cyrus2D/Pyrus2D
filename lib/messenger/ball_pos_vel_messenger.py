@@ -20,7 +20,7 @@ class BallPosVelMessenger(Messenger):
         
         self._message = message
     
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         if not wm.ball().pos_valid():
             return
         if not wm.ball().vel_valid():

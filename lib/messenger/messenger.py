@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 from typing import TYPE_CHECKING
 
 from lib.debug.debug import log
@@ -26,7 +26,8 @@ class Messenger:
         THREE_PLAYER = 'R'
         TWO_PLAYER = 'Q'
         ONE_PLAYER = 'P'
-
+        RECOVERY = 'r'
+        STAMINA = 's'
 
 
     SIZES: dict[Types, int] = {
@@ -39,6 +40,8 @@ class Messenger:
         Types.THREE_PLAYER: 10,
         Types.TWO_PLAYER: 7,
         Types.ONE_PLAYER: 4,
+        Types.RECOVERY: 2,
+        Types.STAMINA: 2,
 
     }
 
@@ -48,7 +51,7 @@ class Messenger:
         self._message: str = message
         self._header: str = None
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         pass
 
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
@@ -61,12 +64,12 @@ class Messenger:
         return self._type
 
     @staticmethod
-    def encode_all(wm: 'WorldModel', messages: list['Messenger']):
+    def encode_all(messages: list['Messenger']):
         max_message_size = ServerParam.i().player_say_msg_size()
         size = 0
         all_messages = ""
         for i, message in enumerate(messages):
-            enc = message.encode(wm)
+            enc = message.encode()
             log.os_log().debug(f'enc: {enc}')
 
             if not enc:

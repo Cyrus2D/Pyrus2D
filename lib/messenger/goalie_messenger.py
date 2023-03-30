@@ -36,7 +36,7 @@ class GoalieMessenger(Messenger):
 
         self._message = message
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         if self._goalie_pos.x() < 53. - 16 or self._goalie_pos.x() > 53 or self._goalie_pos.abs_y() > 20:
             log.sw_log().communication().add_text(f'(goalie player messenger) goalie pos over poisition range'
                                                   f': {self._goalie_pos}')

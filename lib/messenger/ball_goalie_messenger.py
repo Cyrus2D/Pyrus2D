@@ -41,7 +41,7 @@ class BallGoalieMessenger(Messenger):
 
         self._message = message
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         msg = BallGoalieMessenger.CONVERTER.convert_to_word([
             self._ball_pos.x(),
             self._ball_pos.y(),

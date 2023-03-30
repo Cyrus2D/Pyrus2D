@@ -2,6 +2,7 @@ from pyrusgeom.vector_2d import Vector2D
 
 from lib.messenger.ball_player_messenger import BallPlayerMessenger
 from lib.messenger.converters import MessengerConverter
+from lib.messenger.one_player_messenger import OnePlayerMessenger
 from lib.player.action_effector import ActionEffector
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.messenger import Messenger
@@ -93,11 +94,21 @@ def test3():
     val = cc.convert_to_values(msg)
     print(data)
     print(val)
-    print([abs(v-d) for v, d in zip(val, data)])
+    print([abs(v - d) for v, d in zip(val, data)])
+
+
+def test_one_player():
+    unum = 3
+    pos = Vector2D(10, 20)
+    print(unum, pos)
+    msg = OnePlayerMessenger(unum, pos)
+    print(msg)
+
+    print(OnePlayerMessenger.CONVERTER(msg))
 
 
 
 if __name__ == "__main__":
-    test3()
+    test_one_player()
 # TODO TEST GOALIE MESSENGERS
 # TODO TEST ALL MESSENGERS

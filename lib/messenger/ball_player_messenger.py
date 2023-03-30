@@ -44,7 +44,7 @@ class BallPlayerMessenger(Messenger):
 
         self._message = message
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         if not 1 <= self._unum <= 22:
             log.os_log().error(f'(ball player messenger) illegal unum={self._unum}')
             log.sw_log().sensor().add_text(f'(ball player messenger) illegal unum={self._unum}')

@@ -14,6 +14,8 @@ from lib.messenger.goalie_player_messenger import GoaliePlayerMessenger
 from lib.messenger.messenger import Messenger
 from lib.messenger.messenger_memory import MessengerMemory
 from lib.messenger.one_player_messenger import OnePlayerMessenger
+from lib.messenger.recovery_message import RecoveryMessenger
+from lib.messenger.stamina_messenger import StaminaMessenger
 from lib.messenger.three_player_messenger import ThreePlayerMessenger
 from lib.messenger.two_player_messenger import TwoPlayerMessenger
 from lib.rcsc.game_time import GameTime
@@ -475,7 +477,7 @@ class SampleCommunication:
         if available_len < Messenger.SIZES[Messenger.Types.RECOVERY]:
             return False
 
-        agent.add_say_message(RecoveryMessageMessenger(agent.world().self().recovery())) # TODO IMP FUNC
+        agent.add_say_message(RecoveryMessenger(agent.world().self().recovery()))
         log.sw_log().communication().add_text('(sample communication) say self recovery')
         return True
 
@@ -487,11 +489,12 @@ class SampleCommunication:
         available_len = ServerParam.i().player_say_msg_size() - current_len
         if available_len < Messenger.SIZES[Messenger.Types.STAMINA]:
             return False
-        agent.add_say_message(StaminaMessageMessenger(agent.world().self().stamina())) # TODO IMP FUNC
+        agent.add_say_message(StaminaMessenger(agent.world().self().stamina())) # TODO IMP FUNC
         log.sw_log().communication().add_text('(sample communication) say self stamina')
         return True
 
-    def attention_to_someone(self, agent: 'PlayerAgent'):
+    def attention_to_someone(self, agent: 'PlayerAgent'): # TODO IMP FUNC
+        pass
 
     def execute(self, agent: 'PlayerAgent'):
         if not team_config.USE_COMMUNICATION:  # TODO IMP FUNC

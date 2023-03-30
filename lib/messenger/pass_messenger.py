@@ -32,7 +32,7 @@ class PassMessenger(Messenger):
         self._ball_pos = ball_pos.copy()
         self._ball_vel = ball_vel.copy()
 
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         if not wm.ball().pos_valid():
             return
         if not wm.ball().vel_valid():
