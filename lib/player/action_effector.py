@@ -142,7 +142,7 @@ class ActionEffector:
         if body_sensor.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
             if body_sensor.charged_expires() == 0:
                 log.os_log().error(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
-                log.sw_log().error(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
                 log.debug_client().add_message(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
