@@ -96,7 +96,7 @@ class PlayerAgent(SoccerAgent):
                                                  self._body_sensor.view_quality())
 
             self._agent._effector.check_command_count(self._body_sensor)
-            self._agent.world().update_after_sense_body(self._body_sensor, self._agent._effector, self._current_time)
+            self._agent.world().update_world_after_sense_body(self._body_sensor, self._agent._effector, self._current_time)
             # TODO CHECK HERE FOR SEPARATE WORLD
 
             if DEBUG:
@@ -130,23 +130,6 @@ class PlayerAgent(SoccerAgent):
                                                      self._body_sensor,
                                                      self._agent.effector(),
                                                      self._current_time)
-            if DEBUG:
-                log.sw_log().world().add_text('===After processing see message===')
-                log.sw_log().world().add_text('===Ball===\n' + str(self._agent.world().ball()))
-                log.sw_log().world().add_text('===Our Players===')
-                for p in self._agent.world().our_players():
-                    log.sw_log().world().add_text(str(p))
-                log.sw_log().world().add_text('===Their Players===')
-                for p in self._agent.world().their_players():
-                    log.sw_log().world().add_text(str(p))
-                log.os_log().debug('===After processing see message===')
-                log.os_log().debug('===Ball===\n' + str(self._agent.world().ball()))
-                log.os_log().debug('===Our Players===')
-                for p in self._agent.world().our_players():
-                    log.os_log().debug(str(p))
-                log.os_log().debug('===Their Players===')
-                for p in self._agent.world().their_players():
-                    log.os_log().debug(str(p))
 
         def hear_parser(self, message: str):
             self.parse_cycle_info(message, False)
@@ -565,6 +548,14 @@ class PlayerAgent(SoccerAgent):
         self._impl._last_decision_time = self._impl._current_time.copy()
 
         self.world().update_just_after_decision(self._effector)
+        if DEBUG:
+            log.os_log().debug("======Self after decision======")
+            log.os_log().debug("turn " + str(self.effector().get_turn_info()))
+            log.os_log().debug("dash " + str(self.effector().get_dash_info()))
+            log.os_log().debug("next body " + str(self.effector().queued_next_self_body()))
+            log.os_log().debug("next pos " + str(self.effector().queued_next_self_pos()))
+            # log.os_log().debug(str(self.world().self().long_str()))
+
         self._impl._see_state.set_view_mode(self.world().self().view_width(),
                                             self.world().self().view_quality())
 
@@ -577,7 +568,8 @@ class PlayerAgent(SoccerAgent):
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         message = self.make_commands(commands)
-
+        if DEBUG:
+            log.os_log().debug("sent message: " + str(message))
         self._client.send_message(message)
         log.debug_client().write_all(self.world(), None)  # TODO add action effector
         log.sw_log().flush()
