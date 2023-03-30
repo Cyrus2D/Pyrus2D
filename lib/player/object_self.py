@@ -190,6 +190,7 @@ class SelfObject(PlayerObject):
         self._collides_with_player = False
         self._collides_with_post = False
 
+
     def update_angle_by_see(self, face: float, angle_face_error, current_time: GameTime):
         self._time = current_time.copy()
         self._face = AngleDeg(face)
@@ -205,6 +206,9 @@ class SelfObject(PlayerObject):
         
         if self.face_count() == 0:
             sensed_speed_dir = sense.speed_dir()
+            sensed_speed_dir_error = 0.5
+            if sensed_speed_dir == 0.0:
+                sensed_speed_dir_error = 1.0
             if sensed_speed_dir > 0:
                 sensed_speed_dir = AngleDeg.normalize_angle(sensed_speed_dir + 0.5)
             elif sensed_speed_dir < 0:
@@ -217,13 +221,16 @@ class SelfObject(PlayerObject):
             self._seen_vel = self.vel().copy()
             self._seen_vel_count = 0
 
-            # TODO Calc vel error self._vel_error
+            # TODO cos_min_max and sin_min_max should be implemented
+            # min_cos, max_cos = vel_ang.cos_min_max(self.face_error() + sensed_speed_dir_error)
+            # min_sin, max_sin = vel_ang.sin_min_max(self.face_error() + sensed_speed_dir_error)
+            # self._vel_error.assign((max_cos - min_cos) * (sense.speed_mag() + 0.005), (max_sin - min_sin) * (sense.speed_mag() + 0.005))
 
             if not self._collision_estimated:
                 new_last_move = self._vel/self.player_type().player_decay()
                 self._last_move.assign(new_last_move.x(), new_last_move.y())
     
-    def update_pos_by_see(self, pos: Vector2D, pos_err: Vector2D, face: float, face_err: float, current_time: GameTime):
+    def update_pos_by_see(self, pos: Vector2D, pos_err: Vector2D, my_possible_posses: list[Vector2D], face: float, face_err: float, current_time: GameTime):
         self._time = current_time.copy()
 
         if self._pos_count == 1:
@@ -237,7 +244,7 @@ class SelfObject(PlayerObject):
                 new_err.set_y((self._pos_error.y() + pos_err.y()) * 0.5)
             self._pos = new_pos
             self._pos_error = new_err
-
+            self._possible_posses = [self._pos.copy()]
             # TODO has sensed collision -> collisionEstimated
             if self._seen_pos_count == 1 and (self.has_sensed_collision() or not self.last_move().is_valid()):
                 self._last_move = new_pos - self._seen_pos
@@ -245,6 +252,7 @@ class SelfObject(PlayerObject):
         else:
             self._pos = pos.copy()
             self._pos_error = pos_err.copy()
+            self._possible_posses = my_possible_posses
 
         self._seen_pos = pos.copy()
         self._face = AngleDeg(face)
@@ -263,7 +271,7 @@ class SelfObject(PlayerObject):
             or self._collides_with_post
         )
     
-    def update_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
+    def update_self_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"(self update after see) called twice at {current_time}")
             return
