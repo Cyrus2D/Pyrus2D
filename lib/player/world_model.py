@@ -106,7 +106,10 @@ class WorldModel:
         
         self._our_players_type: list[int] = [HETERO_DEFAULT for _ in range(11)]
         self._their_players_type: list[int] = [HETERO_DEFAULT for _ in range(11)]
-        
+
+        self._our_card: list[Card] = [Card.NO_CARD for _ in range(11)]
+        self._their_card: list[Card] = [Card.NO_CARD for _ in range(11)]
+
         self._last_set_play_start_time: GameTime = GameTime()
         self._set_play_count: int = 0
         

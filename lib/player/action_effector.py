@@ -269,8 +269,7 @@ class ActionEffector:
         return self._body_command
 
     def set_turn(self, moment: Union[AngleDeg, float]):
-        moment = float(moment)
-        
+        moment = float(AngleDeg(moment))
         SP = ServerParam.i()
         wm = self._agent.world()
         speed = wm.self().vel().r()
@@ -284,6 +283,7 @@ class ActionEffector:
         self._turn_error = abs(SP.player_rand()*self._turn_actual)
 
         log.sw_log().action().add_text( f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
+        log.os_log().debug(f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
 
         self._body_command = PlayerTurnCommand(moment)
         return self._body_command
