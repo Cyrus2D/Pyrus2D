@@ -405,7 +405,7 @@ class VisualSensor:
 
     def __str__(self):
         res = "\n"
-        res += "-"*50
+        res += "-"*50 + '\n'
         res += "teammates: \n".upper()
         res += "\n".join(map(str, self._teammates))
         res += "\n" + "-"*50 + "\nunknown_teammates: \n".upper()
