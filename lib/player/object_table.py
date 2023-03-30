@@ -60,14 +60,14 @@ class ObjectTable:
         return self._landmark_map
 
     def get_landmark_distance_range(self, view_width: ViewWidth, quantized_dist: float):
-        static_table = self.static_table_v18_narrow
-        keys_dict = self.static_table_v18_narrow_seen_dist_dict
-        if view_width == ViewWidth.NORMAL:
-            static_table = self.static_table_v18_normal
-            keys_dict = self.static_table_v18_normal_seen_dist_dict
-        elif view_width == ViewWidth.WIDE:
-            static_table = self.static_table_v18_wide
-            keys_dict = self.static_table_v18_wide_seen_dist_dict
+        # static_table = self.static_table_v18_narrow
+        # keys_dict = self.static_table_v18_narrow_seen_dist_dict
+        # if view_width == ViewWidth.NORMAL:
+        #     static_table = self.static_table_v18_normal
+        #     keys_dict = self.static_table_v18_normal_seen_dist_dict
+        # elif view_width == ViewWidth.WIDE:
+        static_table = self.static_table_v18_wide
+        keys_dict = self.static_table_v18_wide_seen_dist_dict
         key = lower_bound(list(keys_dict.keys()), quantized_dist)
         index = keys_dict[list(keys_dict.keys())[key]]
         average = static_table[index].average
@@ -75,14 +75,14 @@ class ObjectTable:
         return average, error 
 
     def get_distance_range(self, view_width: ViewWidth, quantized_dist: float):
-        movable_table = self.movable_table_v18_narrow
-        keys_dict = self.movable_table_v18_narrow_seen_dist_dict
-        if view_width == ViewWidth.NORMAL:
-            movable_table = self.movable_table_v18_normal
-            keys_dict = self.movable_table_v18_normal_seen_dist_dict
-        elif view_width == ViewWidth.WIDE:
-            movable_table = self.movable_table_v18_wide
-            keys_dict = self.movable_table_v18_wide_seen_dist_dict
+        # movable_table = self.movable_table_v18_narrow
+        # keys_dict = self.movable_table_v18_narrow_seen_dist_dict
+        # if view_width == ViewWidth.NORMAL:
+        #     movable_table = self.movable_table_v18_normal
+        #     keys_dict = self.movable_table_v18_normal_seen_dist_dict
+        # elif view_width == ViewWidth.WIDE:
+        movable_table = self.movable_table_v18_wide
+        keys_dict = self.movable_table_v18_wide_seen_dist_dict
         key = lower_bound(list(keys_dict.keys()), quantized_dist)
         index = keys_dict[list(keys_dict.keys())[key]]
         average = movable_table[index].average
