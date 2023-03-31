@@ -26,9 +26,9 @@ class StaminaMessenger(Messenger):
         return f'{self._header}{msg}'
 
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
-        rate = StaminaMessenger.CONVERTER.convert_to_values(self._message) * ServerParam.i().stamina_max()
+        rate = StaminaMessenger.CONVERTER.convert_to_values(self._message)[0]
 
-        messenger_memory.add_stamina(sender, rate, current_time)  # TODO IMP FUNC
+        messenger_memory.add_stamina(sender, rate, current_time)
 
     def __repr__(self):
         return 'recovery message'

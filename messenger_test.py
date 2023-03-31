@@ -107,7 +107,7 @@ def test3():
     print([abs(v - d) for v, d in zip(val, data)])
 
 
-def test():
+def test_mm():
     gu = 1
     gp = Vector2D(40., 12)
     gb = AngleDeg(170)
@@ -119,10 +119,32 @@ def test():
     print(gu, gp, gb, pu, pp)
     msg = GoaliePlayerMessenger(gu, gp, gb, pu, pp).encode()
     print(msg)
-    Messenger.decode_all(mm,msg, 3, GameTime(10))
+    Messenger.decode_all(mm, msg, 3, GameTime(10))
 
-    print(mm.players())
-    print(mm._goalie)
+    print(mm.players()[0].pos_)
+    print(mm._goalie[0].pos_)
+
+
+def test_mm2():
+    u1 = 1
+    p1 = Vector2D(-52., 30)
+    u2 = 12
+    p2 = Vector2D(0, -20)
+    u3 = 22
+    p3 = Vector2D(52, 12)
+
+    stamina = 1500
+
+    mm = MessengerMemory()
+
+    print(u1, p1, u2, p2, u3, p3, stamina)
+    msg = Messenger.encode_all([TwoPlayerMessenger(u1, p1, u2, p2), StaminaMessenger(stamina)])
+    print(msg)
+
+    Messenger.decode_all(mm, msg, 3, GameTime(10))
+    print(mm.players()[0].pos_)
+    print(mm.players()[1].pos_)
+    print(mm._stamina[0].rate_)
 
 
 def test_one_player():
@@ -204,6 +226,7 @@ def test_ball_player_messenger():
 
     print(BallPlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
 
+
 def test_goalie_player_messenger():
     gu = 1
     gp = Vector2D(40., 12)
@@ -216,6 +239,7 @@ def test_goalie_player_messenger():
     print(msg)
     print(GoaliePlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
 
+
 def test_recovery_messenger():
     recovery = 0.99
 
@@ -223,6 +247,7 @@ def test_recovery_messenger():
     msg = RecoveryMessenger(recovery).encode()
     print(msg)
     print(RecoveryMessenger.CONVERTER.convert_to_values(msg[1:]))
+
 
 def test_stamina_messenger():
     stamina = 5000
@@ -232,7 +257,6 @@ def test_stamina_messenger():
     print(msg)
     print(StaminaMessenger.CONVERTER.convert_to_values(msg[1:]))
 
+
 if __name__ == "__main__":
-    test()
-# TODO TEST GOALIE MESSENGERS
-# TODO TEST ALL MESSENGERS
+    test_mm2()

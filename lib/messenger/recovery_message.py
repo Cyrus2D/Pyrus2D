@@ -26,7 +26,7 @@ class RecoveryMessenger(Messenger):
         return f'{self._header}{msg}'
 
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
-        rate = RecoveryMessenger.CONVERTER.convert_to_values(self._message)
+        rate = RecoveryMessenger.CONVERTER.convert_to_values(self._message)[0]
 
         messenger_memory.add_recovery(sender, rate, current_time)  # TODO IMP FUNC
 

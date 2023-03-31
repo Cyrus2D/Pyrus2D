@@ -123,7 +123,7 @@ class Messenger:
             message_type = Messenger.Types(messages[index])
             message_size = Messenger.SIZES[message_type]
 
-            message = messages[index: index+message_size]
+            message = messages[index+1: index+message_size]
 
             messenger_classes[message_type](message=message).decode(messenger_memory, sender, current_time)
             index += message_size

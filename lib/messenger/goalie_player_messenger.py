@@ -21,7 +21,7 @@ class GoaliePlayerMessenger(Messenger):
         (0, 360, 360),
         (0, 23, 23),
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 190),
-        (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 123),
+        (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 124),
     ])
 
     def __init__(self,

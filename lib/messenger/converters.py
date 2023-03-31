@@ -22,10 +22,11 @@ class MessengerConverter:
         n_chars = len(chars)
         words = []
         while s != 0:
+            # print(s)
             words.append(s % n_chars)
             s = s // n_chars
-
-        words.append(s)
+        # print(s)
+        # words.append(s)
         msg = ''
         for word in words:
             msg += chars[word]
