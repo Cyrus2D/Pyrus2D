@@ -33,11 +33,6 @@ class PassMessenger(Messenger):
         self._ball_vel = ball_vel.copy()
 
     def encode(self) -> str:
-        if not wm.ball().pos_valid():
-            return
-        if not wm.ball().vel_valid():
-            return
-
         SP = ServerParam.i()
 
         pos = self._receive_point

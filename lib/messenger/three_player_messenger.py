@@ -36,8 +36,12 @@ class ThreePlayerMessenger(Messenger):
                  p3: Vector2D = None,
                  message: str = None) -> None:
         super().__init__()
-        self._unums: list[int] = [u1, u2, u3]
-        self._player_poses: list[Vector2D] = [p1.copy(), p2.copy(), p3.copy()]
+        if message is None:
+            self._unums: list[int] = [u1, u2, u3]
+            self._player_poses: list[Vector2D] = [p1.copy(), p2.copy(), p3.copy()]
+        else:
+            self._unums: list[int] = None
+            self._player_poses: list[Vector2D] = None
 
         self._size = Messenger.SIZES[Messenger.Types.THREE_PLAYER]
         self._header = Messenger.Types.THREE_PLAYER.value

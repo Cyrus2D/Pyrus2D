@@ -32,8 +32,12 @@ class TwoPlayerMessenger(Messenger):
                  p2: Vector2D = None,
                  message: str = None) -> None:
         super().__init__()
-        self._unums: list[int] = [u1, u2]
-        self._player_poses: list[Vector2D] = [p1.copy(), p2.copy()]
+        if message is None:
+            self._unums: list[int] = [u1, u2]
+            self._player_poses: list[Vector2D] = [p1.copy(), p2.copy()]
+        else:
+            self._unums: list[int] = None
+            self._player_poses: list[Vector2D] = None
 
         self._size = Messenger.SIZES[Messenger.Types.TWO_PLAYER]
         self._header = Messenger.Types.TWO_PLAYER.value

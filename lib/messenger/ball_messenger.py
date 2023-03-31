@@ -27,8 +27,12 @@ class BallMessenger(Messenger):
                  ball_vel: Vector2D = None,
                  message: str = None) -> None:
         super().__init__()
-        self._ball_pos: Vector2D = ball_pos.copy()
-        self._ball_vel: Vector2D = ball_vel.copy()
+        if message is None:
+            self._ball_pos: Vector2D = ball_pos.copy()
+            self._ball_vel: Vector2D = ball_vel.copy()
+        else:
+            self._ball_pos: Vector2D = None
+            self._ball_vel: Vector2D = None
 
         self._size = Messenger.SIZES[Messenger.Types.BALL]
         self._header = Messenger.Types.BALL.value

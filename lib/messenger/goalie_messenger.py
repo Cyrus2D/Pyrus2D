@@ -27,9 +27,14 @@ class GoalieMessenger(Messenger):
                  goalie_body: AngleDeg = None,
                  message: str = None) -> None:
         super().__init__()
-        self._goalie_unum: int = goalie_unum
-        self._goalie_pos: Vector2D = goalie_pos.copy()
-        self._goalie_body: AngleDeg = goalie_body.copy()
+        if message is None:
+            self._goalie_unum: int = goalie_unum
+            self._goalie_pos: Vector2D = goalie_pos.copy()
+            self._goalie_body: AngleDeg = goalie_body.copy()
+        else:
+            self._goalie_unum: int = None
+            self._goalie_pos: Vector2D = None
+            self._goalie_body: AngleDeg = None
 
         self._size = Messenger.SIZES[Messenger.Types.GOALIE]
         self._header = Messenger.Types.GOALIE.value

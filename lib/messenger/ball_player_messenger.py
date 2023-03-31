@@ -34,11 +34,19 @@ class BallPlayerMessenger(Messenger):
                  player_body: AngleDeg = None,
                  message: str = None) -> None:
         super().__init__()
-        self._ball_pos: Vector2D = ball_pos.copy()
-        self._ball_vel: Vector2D = ball_vel.copy()
-        self._unum: int = unum
-        self._player_pos: Vector2D = player_pos.copy()
-        self._player_body: AngleDeg = player_body.copy()
+        if message is None:
+            self._ball_pos: Vector2D = ball_pos.copy()
+            self._ball_vel: Vector2D = ball_vel.copy()
+            self._unum: int = unum
+            self._player_pos: Vector2D = player_pos.copy()
+            self._player_body: AngleDeg = player_body.copy()
+        else:
+            self._ball_pos: Vector2D = None
+            self._ball_vel: Vector2D = None
+            self._unum: int = None
+            self._player_pos: Vector2D = None
+            self._player_body: AngleDeg = None
+
         self._size = Messenger.SIZES[Messenger.Types.BALL_PLAYER]
         self._header = Messenger.Types.BALL_PLAYER.value
 
