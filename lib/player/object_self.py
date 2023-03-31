@@ -59,6 +59,7 @@ class SelfObject(PlayerObject):
             self._side = player._side
             self._body = player._body
             self._neck = player._neck
+            self._face = player._face
             self._goalie = player._goalie
             self._player_type_id = player._player_type_id
             self._stamina_model = player._stamina_model
