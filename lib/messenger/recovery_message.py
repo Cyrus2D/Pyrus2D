@@ -7,7 +7,7 @@ from lib.rcsc.server_param import ServerParam
 
 class RecoveryMessenger(Messenger):
     CONVERTER = MessengerConverter([
-        (0, 1, 74)
+        (ServerParam.i().recover_min(), ServerParam.i().recover_init(), 74)
     ])
 
     def __init__(self,
@@ -22,9 +22,7 @@ class RecoveryMessenger(Messenger):
         self._message = message
 
     def encode(self) -> str:
-        SP = ServerParam.i()
-        rate = (self._recovery - SP.recover_min()) / (SP.recover_init() - SP.recover_min())
-        msg = RecoveryMessenger.CONVERTER.convert_to_word([rate])
+        msg = RecoveryMessenger.CONVERTER.convert_to_word([self._recovery])
         return f'{self._header}{msg}'
 
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:

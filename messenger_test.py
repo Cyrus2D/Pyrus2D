@@ -1,8 +1,17 @@
+from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.vector_2d import Vector2D
 
+from lib.messenger.ball_goalie_messenger import BallGoalieMessenger
+from lib.messenger.ball_messenger import BallMessenger
 from lib.messenger.ball_player_messenger import BallPlayerMessenger
 from lib.messenger.converters import MessengerConverter
+from lib.messenger.goalie_messenger import GoalieMessenger
+from lib.messenger.goalie_player_messenger import GoaliePlayerMessenger
 from lib.messenger.one_player_messenger import OnePlayerMessenger
+from lib.messenger.recovery_message import RecoveryMessenger
+from lib.messenger.stamina_messenger import StaminaMessenger
+from lib.messenger.three_player_messenger import ThreePlayerMessenger
+from lib.messenger.two_player_messenger import TwoPlayerMessenger
 from lib.player.action_effector import ActionEffector
 from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
 from lib.messenger.messenger import Messenger
@@ -98,17 +107,113 @@ def test3():
 
 
 def test_one_player():
-    unum = 3
-    pos = Vector2D(10, 20)
+    unum = 1
+    pos = Vector2D(-52., 30)
     print(unum, pos)
-    msg = OnePlayerMessenger(unum, pos)
+    msg = OnePlayerMessenger(unum, pos).encode()
     print(msg)
 
-    print(OnePlayerMessenger.CONVERTER(msg))
+    print(OnePlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
 
 
+def test_two_player():
+    u1 = 1
+    p1 = Vector2D(-52., 30)
+    u2 = 12
+    p2 = Vector2D(0, -20)
+    print(u1, p1, u2, p2)
+    msg = TwoPlayerMessenger(u1, p1, u2, p2).encode()
+    print(msg)
+
+    print(TwoPlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+
+def test_three_player():
+    u1 = 1
+    p1 = Vector2D(-52., 30)
+    u2 = 12
+    p2 = Vector2D(0, -20)
+    u3 = 22
+    p3 = Vector2D(52, 12)
+    print(u1, p1, u2, p2, u3, p3)
+    msg = ThreePlayerMessenger(u1, p1, u2, p2, u3, p3).encode()
+    print(msg)
+
+    print(ThreePlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+
+def test_goalie_messenger():
+    gu = 1
+    gp = Vector2D(40., 12)
+    gb = AngleDeg(170)
+
+    print(gu, gp, gb)
+    msg = GoalieMessenger(gu, gp, gb).encode()
+    print(msg)
+    print(GoalieMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+
+def test_ball_goalie_messenger():
+    bp = Vector2D(12, 30)
+    bv = Vector2D(1, -1)
+    gp = Vector2D(40., 33.9)
+    gb = AngleDeg(170)
+
+    print(bp, bv, gp, gb)
+    msg = BallGoalieMessenger(bp, bv, gp, gb).encode()
+    print(BallGoalieMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+
+def test_ball_messenger():
+    bp = Vector2D(12, 30)
+    bv = Vector2D(1, -1)
+
+    print(bp, bv)
+    msg = BallMessenger(bp, bv).encode()
+    print(BallMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+
+def test_ball_player_messenger():
+    bp = Vector2D(12, 30)
+    bv = Vector2D(1, -1)
+    pu = 3
+    pp = Vector2D(40., 33.9)
+    pb = AngleDeg(170)
+
+    print(bp, bv, pu, pp, pb)
+    msg = BallPlayerMessenger(bp, bv, pu, pp, pb).encode()
+
+    print(BallPlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+def test_goalie_player_messenger():
+    gu = 1
+    gp = Vector2D(40., 12)
+    gb = AngleDeg(170)
+    pu = 3
+    pp = Vector2D(40., 33.9)
+
+    print(gu, gp, gb, pu, pp)
+    msg = GoaliePlayerMessenger(gu, gp, gb, pu, pp).encode()
+    print(msg)
+    print(GoaliePlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+def test_recovery_messenger():
+    recovery = 0.99
+
+    print(recovery)
+    msg = RecoveryMessenger(recovery).encode()
+    print(msg)
+    print(RecoveryMessenger.CONVERTER.convert_to_values(msg[1:]))
+
+def test_stamina_messenger():
+    stamina = 5000
+
+    print(stamina)
+    msg = StaminaMessenger(stamina).encode()
+    print(msg)
+    print(StaminaMessenger.CONVERTER.convert_to_values(msg[1:]))
 
 if __name__ == "__main__":
-    test_one_player()
+    test_stamina_messenger()
 # TODO TEST GOALIE MESSENGERS
 # TODO TEST ALL MESSENGERS

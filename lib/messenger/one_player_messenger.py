@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class OnePlayerMessenger(Messenger):
     CONVERTER = MessengerConverter([
         (0, 23, 23),
-        (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 167),
+        (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 168),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 108),
     ])
 
@@ -56,7 +56,7 @@ class OnePlayerMessenger(Messenger):
             px = data[i * 3 + 1]
             py = data[i * 3 + 2]
 
-            messenger_memory.add_player(sender, Vector2D(px, py), current_time)  # TODO IMP FUNC
+            messenger_memory.add_player(sender,u,  Vector2D(px, py), current_time)  # TODO IMP FUNC
 
     def __repr__(self) -> str:
         return "ball player msg"

@@ -52,7 +52,7 @@ class GoalieMessenger(Messenger):
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
         gpx, gpy, gb = GoalieMessenger.CONVERTER.convert_to_values(self._message)
 
-        messenger_memory.add_opponent_goalie(sender, Vector2D(gpx, gpy), current_time, body=AngleDeg(gb))  # TODO IMP FUNC
+        messenger_memory.add_opponent_goalie(sender, Vector2D(gpx, gpy), current_time, body=AngleDeg(gb-180))  # TODO IMP FUNC
 
     def __repr__(self) -> str:
         return "ball player msg"

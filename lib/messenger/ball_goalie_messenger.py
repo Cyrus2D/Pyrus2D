@@ -57,7 +57,7 @@ class BallGoalieMessenger(Messenger):
         bpx, bpy, bvx, bvy, ppx, ppy, pb = BallGoalieMessenger.CONVERTER.convert_to_values(self._message)
 
         messenger_memory.add_ball(sender, Vector2D(bpx, bpy), Vector2D(bvx, bvy), current_time)
-        messenger_memory.add_opponent_goalie(sender, Vector2D(ppx, ppy), current_time, body=AngleDeg(pb))  # TODO IMP FUNC
+        messenger_memory.add_opponent_goalie(sender, Vector2D(ppx, ppy), current_time, body=AngleDeg(pb-180))  # TODO IMP FUNC
 
     def __repr__(self) -> str:
         return "ball player msg"

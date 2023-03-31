@@ -7,7 +7,7 @@ from lib.rcsc.server_param import ServerParam
 
 class StaminaMessenger(Messenger):
     CONVERTER = MessengerConverter([
-        (0, 1, 74)
+        (0, ServerParam.i().stamina_max(), 74)
     ])
 
     def __init__(self,
@@ -22,13 +22,11 @@ class StaminaMessenger(Messenger):
         self._message = message
 
     def encode(self) -> str:
-        SP = ServerParam.i()
-        rate = (self._recovery - SP.recover_min()) / (SP.recover_init() - SP.recover_min())
-        msg = StaminaMessenger.CONVERTER.convert_to_word([rate])
+        msg = StaminaMessenger.CONVERTER.convert_to_word([self._stamina])
         return f'{self._header}{msg}'
 
     def decode(self, messenger_memory: MessengerMemory, sender: int, current_time: GameTime) -> None:
-        rate = StaminaMessenger.CONVERTER.convert_to_values(self._message)
+        rate = StaminaMessenger.CONVERTER.convert_to_values(self._message) * ServerParam.i().stamina_max()
 
         messenger_memory.add_stamina(sender, rate, current_time)  # TODO IMP FUNC
 

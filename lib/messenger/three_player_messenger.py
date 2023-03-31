@@ -65,7 +65,7 @@ class ThreePlayerMessenger(Messenger):
             px = data[i*3 + 1]
             py = data[i*3 + 2]
 
-            messenger_memory.add_player(sender, Vector2D(px, py), current_time) # TODO IMP FUNC
+            messenger_memory.add_player(sender,u, Vector2D(px, py), current_time) # TODO IMP FUNC
 
     def __repr__(self) -> str:
         return "ball player msg"
