@@ -1,9 +1,6 @@
-from copy import deepcopy
 from math import ceil
-
 from lib.action.intercept_info import InterceptInfo
 from lib.debug.debug import log
-from lib.debug.level import Level
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.line_2d import Line2D
 from pyrusgeom.segment_2d import Segment2D
@@ -16,6 +13,7 @@ from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
 
@@ -35,7 +33,7 @@ class SelfIntercept:
 
     def predict(self, max_cycle, self_cache: list):
         if len(self._ball_cache) < 2:
-            log.sw_log().intercept().add_text( "no ball position cache :(")
+            log.sw_log().intercept().add_text("no ball position cache :(")
             return
 
         save_recovery: bool = self._wm.self().stamina_model().capacity() != 0
@@ -45,9 +43,9 @@ class SelfIntercept:
         self.predict_long_step(max_cycle, save_recovery, self_cache)
 
         self_cache.sort()  # TODO check this
-        log.sw_log().intercept().add_text( "self pred all sorted intercept")
+        log.sw_log().intercept().add_text("self pred all sorted intercept")
         for ii in self_cache:
-            log.sw_log().intercept().add_text( f"{ii}")
+            log.sw_log().intercept().add_text(f"{ii}")
 
     def predict_one_step(self, self_cache):
         wm = self._wm
@@ -84,7 +82,7 @@ class SelfIntercept:
 
         # out of control area
         if next_ball_dist > control_area - 0.15 - ball_noise:
-            log.sw_log().intercept().add_text( "self pred no dash out of control area")
+            log.sw_log().intercept().add_text("self pred no dash out of control area")
             return False
 
         # if goalie immediately success
@@ -98,7 +96,7 @@ class SelfIntercept:
                                             my_next,
                                             next_ball_dist,
                                             stamina_model.stamina()))
-            log.sw_log().intercept().add_text( "self pred no dash goalie mode success")
+            log.sw_log().intercept().add_text("self pred no dash goalie mode success")
             return True
 
         # check kick effectiveness
@@ -108,7 +106,7 @@ class SelfIntercept:
                                                next_ball_rel.th().degree())
             next_ball_vel: Vector2D = wm.ball().vel() * SP.ball_decay()
             if SP.max_power() * kick_rate <= next_ball_vel.r() * SP.ball_decay() * 1.1:
-                log.sw_log().intercept().add_text( "self pred no dash kickable, but maybe not control")
+                log.sw_log().intercept().add_text("self pred no dash kickable, but maybe not control")
                 return False
 
         # at least, player can stop the ball
@@ -119,7 +117,7 @@ class SelfIntercept:
                                         my_next,
                                         next_ball_dist,
                                         stamina_model.stamina()))
-        log.sw_log().intercept().add_text( "self pred no dash success")
+        log.sw_log().intercept().add_text("self pred no dash success")
         return True
 
     def is_goalie_mode(self, ball_next, x_limit=None, abs_y_limit=None) -> bool:
@@ -155,14 +153,14 @@ class SelfIntercept:
         max_dash_angle = (SP.max_dash_angle() + dash_angle_step * 0.5
                           if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
                           else dash_angle_step * int(180 / dash_angle_step) - 1)
-        log.sw_log().intercept().add_text( f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
-        
-        n_steps = int((max_dash_angle - min_dash_angle)/ dash_angle_step)
-        dirs = [min_dash_angle + d*dash_angle_step for d in range(n_steps)]
+        log.sw_log().intercept().add_text(f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
+
+        n_steps = int((max_dash_angle - min_dash_angle) / dash_angle_step)
+        dirs = [min_dash_angle + d * dash_angle_step for d in range(n_steps)]
         for dirr in dirs:
             dash_angle: AngleDeg = me.body() + SP.discretize_dash_angle(SP.normalize_dash_angle(dirr))
             dash_rate: float = me.dash_rate() * SP.dash_dir_rate(dirr)
-            log.sw_log().intercept().add_text( f"self pred one dash dir={dirr}, angle={dash_angle}, dash_rate={dash_rate}")
+            log.sw_log().intercept().add_text(f"self pred one dash dir={dirr}, angle={dash_angle}, dash_rate={dash_rate}")
 
             # check recovery save dash
             forward_dash_power = bound(0,
@@ -185,7 +183,7 @@ class SelfIntercept:
                                             max_back_accel,
                                             control_area,
                                             info):
-                log.sw_log().intercept().add_text( "Register 1 dash intercept(1)")
+                log.sw_log().intercept().add_text("Register 1 dash intercept(1)")
                 tmp_cache.append(info)
                 continue
 
@@ -207,7 +205,7 @@ class SelfIntercept:
                                             max_back_accel,
                                             control_area,
                                             info):
-                log.sw_log().intercept().add_text( "Register 1 dash intercept(2)")
+                log.sw_log().intercept().add_text("Register 1 dash intercept(2)")
                 tmp_cache.append(info)
                 continue
 
@@ -243,11 +241,11 @@ class SelfIntercept:
         # debug_print(
         # f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel} ,_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel} , _____ max_back_accel={max_back_accel} rel={back_accel_rel}")
         log.sw_log().intercept().add_text(
-                      f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel}")
+            f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel}")
         log.sw_log().intercept().add_text(
-                      f"_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel}")
+            f"_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel}")
         log.sw_log().intercept().add_text(
-                      f"_____ max_back_accel={max_back_accel} rel={back_accel_rel}")
+            f"_____ max_back_accel={max_back_accel} rel={back_accel_rel}")
 
         if ball_rel.abs_y() > control_buf or \
                 Segment2D(forward_accel_rel, back_accel_rel).dist(ball_rel) > control_buf:
@@ -263,7 +261,7 @@ class SelfIntercept:
                                                       forward_accel_rel.x(),
                                                       back_accel_rel.x())
             log.sw_log().intercept().add_text(
-                          f"self pred one dash adjust (1). dash_power={dash_power}")
+                f"self pred one dash adjust (1). dash_power={dash_power}")
 
         # big x difference x (>0)
         if dash_power < -999 and \
@@ -272,8 +270,8 @@ class SelfIntercept:
             if enable_ball_dist < control_buf:
                 dash_power = forward_accel_rel.x() / dash_rate
                 log.sw_log().intercept().add_text(
-                              f"self pred one dash adjust (2). not best." +
-                              f"next_ball_dist={enable_ball_dist}, dash_power={dash_power}")
+                    f"self pred one dash adjust (2). not best." +
+                    f"next_ball_dist={enable_ball_dist}, dash_power={dash_power}")
 
         # big x difference (<0)
         if dash_power < -999 and \
@@ -282,20 +280,20 @@ class SelfIntercept:
             if enable_ball_dist < control_buf:
                 dash_power = back_accel_rel.x() / dash_rate
                 log.sw_log().intercept().add_text(
-                              f"self pred one dash adjust (3). not best." +
-                              f"next_ball_dist={enable_ball_dist}, dash_power={dash_power}")
+                    f"self pred one dash adjust (3). not best." +
+                    f"next_ball_dist={enable_ball_dist}, dash_power={dash_power}")
 
         # check if adjustable
         if dash_power < -999 and \
                 back_accel_rel.x() < ball_rel.x() < forward_accel_rel.x():
             dash_power = ball_rel.x() / dash_rate
             log.sw_log().intercept().add_text(
-                          f"self pred one dash adjust (4). not best." +
-                          f"just adjust X. dash_power={dash_power}")
+                f"self pred one dash adjust (4). not best." +
+                f"just adjust X. dash_power={dash_power}")
 
         # register
         if dash_power < -999:
-            log.sw_log().intercept().add_text( "self pred one dash adjust XXX FAILED")
+            log.sw_log().intercept().add_text("self pred one dash adjust XXX FAILED")
             return False
 
         mode = InterceptInfo.Mode.NORMAL
@@ -315,13 +313,13 @@ class SelfIntercept:
                   my_pos.dist(ball_next),
                   stamina_model.stamina())
         log.sw_log().intercept().add_text(
-                      f"self pred one dash adjust Success! "
-                      f"power={info.dash_power()}, "
-                      f"rel_dir={info.dash_angle()}, "
-                      f"angle={dash_angle.degree()}"
-                      f"my_pos={my_pos}"
-                      f"ball_dist={info.ball_dist()}"
-                      f"stamina={stamina_model.stamina()}")
+            f"self pred one dash adjust Success! "
+            f"power={info.dash_power()}, "
+            f"rel_dir={info.dash_angle()}, "
+            f"angle={dash_angle.degree()}"
+            f"my_pos={my_pos}"
+            f"ball_dist={info.ball_dist()}"
+            f"stamina={stamina_model.stamina()}")
         return True
 
     def get_one_step_dash_power(self,
@@ -360,7 +358,7 @@ class SelfIntercept:
         # debug_print("forward_trap_accel_x:", forward_trap_accel_x, "| backward_trap_accel_x :", backward_trap_accel_x,
         #       "| X_step :",
         #       x_step)
-        accels = [forward_trap_accel_x + a*x_step for a in range(5)]
+        accels = [forward_trap_accel_x + a * x_step for a in range(5)]
         for accel_x in accels:
             if (0 <= accel_x < max_forward_accel_x) or \
                     (max_back_accel_x < accel_x < 0):
@@ -402,14 +400,14 @@ class SelfIntercept:
             tmp_cache = []
             ball_pos += ball_vel
             ball_vel *= SP.ball_decay()
-            log.sw_log().intercept().add_text( f"self pred short cycle {cycle}: bpos={ball_pos}, bvel={ball_vel}")
+            log.sw_log().intercept().add_text(f"self pred short cycle {cycle}: bpos={ball_pos}, bvel={ball_vel}")
 
             goalie_mode = self.is_goalie_mode(ball_pos, pen_area_x, pen_area_y)
             control_area = (ptype.catchable_area()
                             if goalie_mode
                             else ptype.kickable_area())
             if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos().dist2(ball_pos):
-                log.sw_log().intercept().add_text( "self pred short too far")
+                log.sw_log().intercept().add_text("self pred short too far")
                 continue
 
             self.predict_turn_dash_short(cycle, ball_pos, control_area, save_recovery,  # forward dash
@@ -488,9 +486,9 @@ class SelfIntercept:
                           else dash_angle_step * int(180 / dash_angle_step) - 1)
 
         target_angle = (ball_pos - my_inertia).th()
-        
-        n_steps = int((max_dash_angle - min_dash_angle)/ dash_angle_step)
-        dirs = [min_dash_angle + d*dash_angle_step for d in range(n_steps)]
+
+        n_steps = int((max_dash_angle - min_dash_angle) / dash_angle_step)
+        dirs = [min_dash_angle + d * dash_angle_step for d in range(n_steps)]
         for dirr in dirs:
             if abs(dirr) < 1:
                 continue
@@ -702,14 +700,14 @@ class SelfIntercept:
         target_angle: AngleDeg = (ball_pos - my_inertia).th()
         if (target_angle - dash_angle).abs() > 90:
             log.sw_log().intercept().add_text(
-                          "self pred short target_angle - dash_angle > 90")
+                "self pred short target_angle - dash_angle > 90")
             return
 
         accel_unit = Vector2D.polar2vector(1, dash_angle)
         first_dash_power = 0
         for n_dash in range(1, max_dash + 1):
             log.sw_log().intercept().add_text(
-                          f"self pred short dash {n_dash}: max_dash={max_dash}")
+                f"self pred short dash {n_dash}: max_dash={max_dash}")
             ball_rel = (ball_pos - my_pos).rotated_vector(-dash_angle)
             first_speed = calc_first_term_geom_series(ball_rel.x(),
                                                       ptype.player_decay(),
@@ -798,13 +796,13 @@ class SelfIntercept:
                 result_dash_angle.set_degree((target_angle + angle_diff).degree())
 
         log.sw_log().intercept().add_text(
-                      f"self pred short cycle {cycle}: "
-                      f"turn={n_turn}, "
-                      f"turn_margin={turn_margin}"
-                      f"turn_momment={result_dash_angle.degree() - body_angle.degree()}"
-                      f"first_angle_diff={target_angle.degree() - body_angle.degree()}"
-                      f"final_angle={angle_diff}"
-                      f"dash_angle={result_dash_angle}")
+            f"self pred short cycle {cycle}: "
+            f"turn={n_turn}, "
+            f"turn_margin={turn_margin}"
+            f"turn_momment={result_dash_angle.degree() - body_angle.degree()}"
+            f"first_angle_diff={target_angle.degree() - body_angle.degree()}"
+            f"final_angle={angle_diff}"
+            f"dash_angle={result_dash_angle}")
         return n_turn
 
     def predict_long_step(self, max_cycle: int, save_recovery: bool, self_cache: list):
