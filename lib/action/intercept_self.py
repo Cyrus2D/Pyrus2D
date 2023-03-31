@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 
 control_area_buf = 0.15
 
+DEBUG = True
+
 
 class SelfIntercept:
     def __init__(self, wm, ball_cache):
@@ -211,15 +213,9 @@ class SelfIntercept:
 
         if len(tmp_cache) == 0:
             return
-        safety_ball_dist = max(control_area - 0.2 - ball.vel().r() * SP.ball_rand(),
-                               ptype.player_size() + SP.ball_size() + ptype.kickable_margin() * 0.4)
         best: InterceptInfo = tmp_cache[0]
         for it in tmp_cache:
-            if best.ball_dist() < safety_ball_dist and \
-                    it.ball_dist() < safety_ball_dist:
-                if best.stamina() < it.stamina():
-                    best = it
-            elif best.ball_dist() > it.ball_dist() or \
+            if best.ball_dist() > it.ball_dist() or \
                     (abs(best.ball_dist() - it.ball_dist()) < 0.001 and
                      best.stamina() < it.stamina()):
                 best = it
@@ -754,7 +750,7 @@ class SelfIntercept:
                     else InterceptInfo.Mode.NORMAL)
 
             self_cache.append(InterceptInfo(mode, n_turn, cycle - n_turn,
-                                            first_dash_power, 0,
+                                            first_dash_power, 180 if back_dash else 0,
                                             my_pos,
                                             my_pos.dist(ball_pos),
                                             stamina_model.stamina()))
@@ -812,6 +808,8 @@ class SelfIntercept:
         return n_turn
 
     def predict_long_step(self, max_cycle: int, save_recovery: bool, self_cache: list):
+        if DEBUG:
+            log.sw_log().intercept().add_text('=========================== Long Step =============================')
         tmp_cache = []
         SP = ServerParam.i()
         wm = self._wm
@@ -826,8 +824,8 @@ class SelfIntercept:
                                 - ptype.kickable_area()
                                 - 0.2)
                                / ptype.real_speed_max()))
-        if start_cycle <= self._max_short_step:
-            start_cycle = self._max_short_step + 1
+        # if start_cycle <= self._max_short_step:
+        #     start_cycle = self._max_short_step + 1
 
         ball_pos = ball.inertia_point(start_cycle - 1)
         ball_vel = ball.vel() * SP.ball_decay() ** (start_cycle - 1)
@@ -838,9 +836,12 @@ class SelfIntercept:
         for cycle in range(start_cycle, max_loop):
             ball_pos += ball_vel
             ball_vel *= SP.ball_decay()
-
+            if DEBUG:
+                log.sw_log().intercept().add_text(f'$$$ c: {cycle} b: {ball_pos}')
             if ball_pos.abs_x() > SP.pitch_half_length() + 10 or \
                     ball_pos.abs_y() > SP.pitch_half_width() + 10:
+                log.sw_log().intercept().add_text('-------> out of field')
+                log.sw_log().intercept().add_circle(cx=ball_pos.x(), cy=ball_pos.y(), r=0.3, color='r')
                 break
 
             goalie_mode = self.is_goalie_mode(ball_pos)
@@ -848,21 +849,24 @@ class SelfIntercept:
 
             # reach point is to far never reach
             if control_area + ptype.real_speed_max() * cycle < me.pos().dist(ball_pos):
+                log.sw_log().intercept().add_text('-------> to far never reach')
+                log.sw_log().intercept().add_circle(cx=ball_pos.x(), cy=ball_pos.y(), r=0.3, color='r')
                 continue
 
-            back_dash = False
-            n_turn = 0
-            result_recovery = 0
-
-            res, n_turn, back_dash, result_recovery = self.can_reach_after_turn_dash(cycle,
-                                                                                     ball_pos,
-                                                                                     control_area,
-                                                                                     save_recovery,
-                                                                                     self_cache)
+            res, n_turn, back_dash, result_recovery = self.can_reach_after_turn_long_dash(cycle,
+                                                                                          ball_pos,
+                                                                                          control_area,
+                                                                                          save_recovery,
+                                                                                          self_cache)
             if res:
+                log.sw_log().intercept().add_text(f'-------> {res} turn:{n_turn} back_dash: {back_dash}')
                 if not found:
                     max_loop = min(max_cycle, cycle + 10)
                 found = True
+                log.sw_log().intercept().add_circle(cx=ball_pos.x(), cy=ball_pos.y(), r=0.3, color='green')
+            else:
+                log.sw_log().intercept().add_text('-------> res not found')
+                log.sw_log().intercept().add_circle(cx=ball_pos.x(), cy=ball_pos.y(), r=0.3, color='red')
 
         # not registered any intercept
         if not found and save_recovery:
@@ -870,12 +874,12 @@ class SelfIntercept:
         if len(self_cache) == 0:
             self.predict_final(max_cycle, self_cache)
 
-    def can_reach_after_turn_dash(self,
-                                  cycle,
-                                  ball_pos,
-                                  control_area,
-                                  save_recovery,
-                                  self_cache) -> tuple:
+    def can_reach_after_turn_long_dash(self,
+                                       cycle,
+                                       ball_pos,
+                                       control_area,
+                                       save_recovery,
+                                       self_cache) -> tuple:
         dash_angle = self._wm.self().body()
         result_recovery = 0
         n_turn, dash_angle, back_dash = self.predict_turn_cycle(cycle,
@@ -936,7 +940,7 @@ class SelfIntercept:
 
         # update dash angle
         if n_turn > 0:
-            angle_diff = max(0, angle_diff)
+            angle_diff = max(0.0, angle_diff)
             dash_angle = target_angle + (angle_diff
                                          if diff_is_positive
                                          else -angle_diff)
@@ -944,7 +948,7 @@ class SelfIntercept:
         return n_turn, dash_angle, back_dash
 
     def can_back_dash_chase(self, cycle: int,
-                            target_dist: Vector2D,
+                            target_dist: float,
                             angle_diff: float):
         wm = self._wm
 
@@ -1084,7 +1088,7 @@ class SelfIntercept:
                         else InterceptInfo.Mode.NORMAL)
                 self_cache.append(InterceptInfo(mode,
                                                 n_turn, n_dash,
-                                                first_dash_power, 0,
+                                                first_dash_power, 180.0 if back_dash else 0,
                                                 my_final_pos,
                                                 my_final_pos.dist(ball_pos),
                                                 stamina_model.stamina()))
@@ -1107,7 +1111,7 @@ class SelfIntercept:
                     else InterceptInfo.Mode.NORMAL)
             self_cache.append(InterceptInfo(mode,
                                             n_turn, n_dash,
-                                            first_dash_power, 0,
+                                            first_dash_power, 180.0 if back_dash else 0,
                                             my_final_pos, my_final_pos.dist(ball_pos),
                                             stamina_model.stamina()))
             return True, result_recovery
@@ -1123,7 +1127,6 @@ class SelfIntercept:
         goalie_mode = self.is_goalie_mode(ball_final_pos)
         control_area = ptype.catchable_area() - 0.15 if goalie_mode else ptype.kickable_area()
         dash_angle = me.body()
-        back_dash = False  # dummy
         n_turn, dash_angle, back_dash = self.predict_turn_cycle(100,
                                                                 ball_final_pos,
                                                                 control_area,

@@ -1,3 +1,4 @@
+from typing import Union
 from lib.action.intercept_info import InterceptInfo
 from lib.action.intercept_player import PlayerIntercept
 from lib.action.intercept_self import SelfIntercept
@@ -13,6 +14,7 @@ from lib.rcsc.types import GameModeType
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+
 
 class InterceptTable:
     DEBUG = True
@@ -32,10 +34,10 @@ class InterceptTable:
         self._opponent_reach_cycle = 1000
         self._second_opponent_reach_cycle = 1000
 
-        self._fastest_teammate: PlayerObject = None
-        self._second_teammate: PlayerObject = None
-        self._fastest_opponent: PlayerObject = None
-        self._second_opponent: PlayerObject = None
+        self._fastest_teammate: Union[None, PlayerObject] = None
+        self._second_teammate: Union[None, PlayerObject] = None
+        self._fastest_opponent: Union[None, PlayerObject] = None
+        self._second_opponent: Union[None, PlayerObject] = None
 
     def self_reach_cycle(self):
         return self._self_reach_cycle
