@@ -364,7 +364,7 @@ class SampleCommunication:
                         bound(53. - 16., goalie_pos.x(), 52.9),
                         bound(-20, goalie_pos.y(), 20),
                     )
-                    agent.add_say_message(GoalieMessenger(goalie.unum(),  # TODO IMP FUNC
+                    agent.add_say_message(GoalieMessenger(goalie.unum(),
                                                                  goalie_pos,
                                                                  goalie.body()))
                     self._ball_send_time = wm.time().copy()
@@ -423,7 +423,7 @@ class SampleCommunication:
                     bound(53. - 16., goalie_pos.x(), 52.9),
                     bound(-20, goalie_pos.y(), 20),
                 )
-                agent.add_say_message(GoalieMessenger(p0.unum(),  # TODO IMP FUNC
+                agent.add_say_message(GoalieMessenger(p0.unum(),
                                                              goalie_pos,
                                                              p0.body()))
 
@@ -489,12 +489,105 @@ class SampleCommunication:
         available_len = ServerParam.i().player_say_msg_size() - current_len
         if available_len < Messenger.SIZES[Messenger.Types.STAMINA]:
             return False
-        agent.add_say_message(StaminaMessenger(agent.world().self().stamina())) # TODO IMP FUNC
+        agent.add_say_message(StaminaMessenger(agent.world().self().stamina()))
         log.sw_log().communication().add_text('(sample communication) say self stamina')
         return True
 
     def attention_to_someone(self, agent: 'PlayerAgent'): # TODO IMP FUNC
-        pass
+        wm = agent.world()
+        ef = agent.effector()
+
+        if wm.self().pos().x() > wm.offside_line_x() - 15. \
+            and wm.intercept_table().self_reach_cycle() <= 3:
+            if self._current_sender_unum != wm.self().unum() and self._current_sender_unum != UNUM_UNKNOWN:
+                agent.do_attentionto(wm.our_side(), self._current_sender_unum)
+                log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
+            else:
+                candidates: list[PlayerObject] = []
+                for p in wm.teammates_from_self():
+                    if p.goalie() or p.unum() == UNUM_UNKNOWN or p.pos().x() > wm.offside_line_x() + 1.:
+                        continue
+                    if p.dist_from_self() > 20.:
+                        break
+
+                    candidates.append(p)
+
+                self_next = ef.queued_next_self_pos()
+
+                target_teammate: PlayerObject = None
+                max_x = -100000
+                for p in candidates:
+                    diff = p.pos() + p.vel() - self_next
+                    x = diff.x() * (1. - diff.abs_y() / 40)
+                    if x > max_x:
+                        max_x = x
+                        target_teammate = p
+
+                if target_teammate is not None:
+                    log.sw_log().communication().add_text(f'(attentionto someone) most front teammate')
+                    log.debug_client().add_message(f'AttFrontMate{target_teammate.unum()}')
+                    agent.do_attentionto(wm.our_side(), target_teammate.unum())
+                    return
+
+                if wm.self().attentionto_unum() > 0:
+                    log.sw_log().communication().add_text('(attentionto someone) attentionto off. maybe ball owner')
+                    log.debug_client().add_message('AttOffBOwner')
+                    agent.do_attentionto_off()
+            return
+
+        fastest_teammate = wm.intercept_table().fastest_teammate()
+        self_min = wm.intercept_table().self_reach_cycle()
+        mate_min = wm.intercept_table().teammate_reach_cycle()
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+
+        if fastest_teammate is not None \
+            and fastest_teammate.unum() != UNUM_UNKNOWN \
+            and mate_min <= 1 \
+            and mate_min < self_min \
+            and mate_min <= opp_min + 1 \
+            and mate_min <= 5 + min(4, fastest_teammate.pos_count()) \
+            and wm.ball().inertia_point(mate_min).dist2(ef.queued_next_self_pos()) < 35.**2:
+            log.debug_client().add_message(f'AttBallOwner{fastest_teammate.unum()}')
+            agent.do_attentionto(wm.our_side(), fastest_teammate.unum())
+            return
+
+        nearest_teammate = wm.get_teammate_nearest_to_ball(5)
+        if nearest_teammate is not None \
+            and nearest_teammate.unum() != UNUM_UNKNOWN \
+            and opp_min <= 3 \
+            and opp_min <= mate_min \
+            and opp_min <= self_min \
+            and nearest_teammate.dist_from_self() < 45. \
+            and nearest_teammate.dist_from_ball() < 20.:
+            log.debug_client().add_message(f'AttBallNearest(1){nearest_teammate.unum()}')
+            agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
+            return
+
+        if nearest_teammate is not None \
+            and nearest_teammate.unum() != UNUM_UNKNOWN \
+            and wm.ball().pos_count() >= 3 \
+            and nearest_teammate.dist_from_ball() < 20.:
+            log.debug_client().add_message(f'AttBallNearest(2){nearest_teammate.unum()}')
+            agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
+            return
+
+        if nearest_teammate is not None \
+            and nearest_teammate.unum() != 45. \
+            and nearest_teammate.dist_from_self() < 45. \
+            and nearest_teammate.dist_from_ball() < 3.5:
+            log.debug_client().add_message(f'AttBallNearest(3){nearest_teammate.unum()}')
+            agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
+            return
+
+        if self._current_sender_unum != wm.self().unum() and self._current_sender_unum != UNUM_UNKNOWN:
+            log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
+            agent.do_attentionto(wm.our_side(), self._current_sender_unum)
+        else:
+            log.debug_client().add_message(f'AttOff')
+            agent.do_attentionto_off()
+
+
+
 
     def execute(self, agent: 'PlayerAgent'):
         if not team_config.USE_COMMUNICATION:  # TODO IMP FUNC
