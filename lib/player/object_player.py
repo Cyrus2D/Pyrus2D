@@ -64,6 +64,7 @@ class PlayerObject(Object):
         self._side = SideID.RIGHT if dic["side_id"] == 'r' else SideID.LEFT if dic["side_id"] == 'l' else SideID.NEUTRAL
         self._body = AngleDeg(float(dic["body"]))
         self._neck = AngleDeg(float(dic["neck"]))
+        self._face = self._body + self._neck
         self._goalie = True if "goalie" in dic else False
         self._player_type_id = int(dic["player_type"])
         # self._pointto = Vector2D.invalid() TODO check this on full state
