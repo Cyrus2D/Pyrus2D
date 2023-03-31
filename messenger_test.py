@@ -7,6 +7,7 @@ from lib.messenger.ball_player_messenger import BallPlayerMessenger
 from lib.messenger.converters import MessengerConverter
 from lib.messenger.goalie_messenger import GoalieMessenger
 from lib.messenger.goalie_player_messenger import GoaliePlayerMessenger
+from lib.messenger.messenger_memory import MessengerMemory
 from lib.messenger.one_player_messenger import OnePlayerMessenger
 from lib.messenger.recovery_message import RecoveryMessenger
 from lib.messenger.stamina_messenger import StaminaMessenger
@@ -104,6 +105,24 @@ def test3():
     print(data)
     print(val)
     print([abs(v - d) for v, d in zip(val, data)])
+
+
+def test():
+    gu = 1
+    gp = Vector2D(40., 12)
+    gb = AngleDeg(170)
+    pu = 3
+    pp = Vector2D(40., 33.9)
+
+    mm = MessengerMemory()
+
+    print(gu, gp, gb, pu, pp)
+    msg = GoaliePlayerMessenger(gu, gp, gb, pu, pp).encode()
+    print(msg)
+    Messenger.decode_all(mm,msg, 3, GameTime(10))
+
+    print(mm.players())
+    print(mm._goalie)
 
 
 def test_one_player():
@@ -214,6 +233,6 @@ def test_stamina_messenger():
     print(StaminaMessenger.CONVERTER.convert_to_values(msg[1:]))
 
 if __name__ == "__main__":
-    test_stamina_messenger()
+    test()
 # TODO TEST GOALIE MESSENGERS
 # TODO TEST ALL MESSENGERS
