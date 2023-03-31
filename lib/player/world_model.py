@@ -1240,14 +1240,80 @@ class WorldModel:
     
     def update_intercept_table(self):
         self.intercept_table().update(self)
-        
-    
+
+    def update_goalie_by_hear(self):
+        SP = ServerParam.i()
+        # TODO CHECK FULL STATE TIME
+
+        if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie()) == 0:
+            return
+
+        goalie: PlayerObject = None
+
+        for o in self._opponents:
+            if o.goalie():
+                goalie = o
+                break
+
+        if goalie is not None and goalie.pos_count() == 0 and goalie.body_count() == 0:
+            return
+
+        heard_pos = Vector2D(0, 0)
+        heard_body = 0.
+
+        for g in self._messenger_memory.goalie():
+            heard_pos += g.pos_
+            heard_body += g.body_
+
+        heard_body /= len(self._messenger_memory.goalie())
+        heard_pos /= len(self._messenger_memory.goalie())
+
+        if goalie is not None:
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum,True, heard_pos, heard_body)
+            return
+
+        goalie_speed_max = SP.default_player_speed_max()
+        min_dist = 1000.
+        for o in self._opponents + self._unknown_players:
+            if o.unum() != UNUM_UNKNOWN:
+                continue
+            if o.pos().x() < SP.their_penalty_area_line_x() or o.pos().abs_y() > SP.penalty_area_half_width():
+                continue
+
+            d = o.pos().dist(heard_pos)
+            if d < min_dist and d < o.pos_count() * goalie_speed_max + o.dist_from_self() * 0.06:
+                min_dist = d
+                goalie = o
+
+        if goalie is not None:
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+        else:
+            goalie = PlayerObject()
+            self._opponents.append(goalie)
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+
+    def update_player_stamina_by_hear(self):
+        if self._messenger_memory.recovery() == self.time():
+            for r in self._messenger_memory.recovery():
+                if 1 <= r.sender_ <= 11:
+                    self._our_recovery[r.sender_ - 1] = r.rate_
+                    log.sw_log().world().add_text(f'(update player stamina by hear) u={r.sender_} r={r.rate_}')
+
+        if self._messenger_memory.stamina_time() == self.time():
+            for r in self._messenger_memory.stamina():
+                if 1 <= r.sender_ <= 11:
+                    self._our_stamina_capacity[r.sender_ - 1] = r.rate_
+                    log.sw_log().world().add_text(f'(update player stamina by hear) u={r.sender_} s={r.rate_}')
+
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
             
         self.update_ball_by_hear(act)
-        self.update_players_by_hear()        
+        self.update_goalie_by_hear()
+        self.update_players_by_hear()
+        self.update_player_stamina_by_hear()
+
         # TODO UPDATE BALL BY COLLISION
         
         self.ball().update_by_game_mode(self.game_mode())
