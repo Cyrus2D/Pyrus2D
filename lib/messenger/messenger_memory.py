@@ -45,7 +45,7 @@ class MessengerMemory:
 
     class Recovery:
         def __init__(self, sender: int, rate: float):
-            self.rete_ = rate
+            self.rate_ = rate
             self.sender_ = sender
 
     def __init__(self) -> None:
@@ -160,4 +160,21 @@ class MessengerMemory:
 
     def player_record(self):
         return self._player_record
+
+    def goalie(self):
+        return self._goalie
+
+    def recovery(self):
+        return self._recovery
+
+    def recovery_time(self):
+        return self._recovery_time
+
+    def stamina(self):
+        return self._stamina
+
+    def stamina_time(self):
+        return self._stamina_time
+
+
 
