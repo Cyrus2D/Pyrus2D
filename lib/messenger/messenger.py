@@ -5,6 +5,7 @@ from lib.debug.debug import log
 from lib.debug.level import Level
 from pyrusgeom.vector_2d import Vector2D
 from lib.messenger.messenger_memory import MessengerMemory
+
 from lib.rcsc.game_time import GameTime
 
 from lib.rcsc.server_param import ServerParam
@@ -91,14 +92,30 @@ class Messenger:
 
     @staticmethod
     def decode_all(messenger_memory: MessengerMemory, messages: str, sender: int, current_time: GameTime):
-        from lib.messenger.ball_pos_vel_messenger import BallPosVelMessenger
-        from lib.messenger.player_pos_unum_messenger import PlayerPosUnumMessenger
         from lib.messenger.pass_messenger import PassMessenger
+        from lib.messenger.ball_goalie_messenger import BallGoalieMessenger
+        from lib.messenger.ball_messenger import BallMessenger
+        from lib.messenger.ball_player_messenger import BallPlayerMessenger
+        from lib.messenger.goalie_messenger import GoalieMessenger
+        from lib.messenger.goalie_player_messenger import GoaliePlayerMessenger
+        from lib.messenger.one_player_messenger import OnePlayerMessenger
+        from lib.messenger.recovery_message import RecoveryMessenger
+        from lib.messenger.stamina_messenger import StaminaMessenger
+        from lib.messenger.three_player_messenger import ThreePlayerMessenger
+        from lib.messenger.two_player_messenger import TwoPlayerMessenger
 
         messenger_classes: dict[Messenger.Types, type['Messenger']] = {
-            Messenger.Types.BALL_POS_VEL_MESSAGE: BallPosVelMessenger,
-            Messenger.Types.PLAYER_POS_VEL_UNUM: PlayerPosUnumMessenger,
+            Messenger.Types.BALL: BallMessenger,
             Messenger.Types.PASS: PassMessenger,
+            Messenger.Types.BALL_PLAYER: BallPlayerMessenger,
+            Messenger.Types.BALL_GOALIE: BallGoalieMessenger,
+            Messenger.Types.GOALIE_PLAYER: GoaliePlayerMessenger,
+            Messenger.Types.GOALIE: GoalieMessenger,
+            Messenger.Types.THREE_PLAYER: ThreePlayerMessenger,
+            Messenger.Types.TWO_PLAYER: TwoPlayerMessenger,
+            Messenger.Types.ONE_PLAYER: OnePlayerMessenger,
+            Messenger.Types.RECOVERY: RecoveryMessenger,
+            Messenger.Types.STAMINA: StaminaMessenger,
         }
 
         index = 0
