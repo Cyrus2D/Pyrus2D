@@ -66,6 +66,7 @@ class SelfIntercept:
         self.predict_one_dash(self_cache)
 
     def predict_no_dash(self, self_cache) -> bool:
+        log.sw_log().intercept().add_text("=================== predict_no_dash ======================")
         SP = ServerParam.i()
         wm: 'WorldModel' = self._wm
         me: PlayerObject = wm.self()
@@ -76,13 +77,13 @@ class SelfIntercept:
         control_area: float = me.player_type().catchable_area() if \
             goalie_mode else \
             me.player_type().kickable_area()
-        next_ball_rel: Vector2D = (ball_next - my_next).rotated_vector(-me.body())  # WHAT THE FUUCKKKK
+        next_ball_rel: Vector2D = (ball_next - my_next).rotated_vector(-me.body())
         ball_noise: float = wm.ball().vel().r() * SP.ball_rand()
         next_ball_dist: float = next_ball_rel.r()
 
         # out of control area
         if next_ball_dist > control_area - 0.15 - ball_noise:
-            log.sw_log().intercept().add_text("self pred no dash out of control area")
+            log.sw_log().intercept().add_text("----->>>> NO ball is out of intercept no dash area")
             return False
 
         # if goalie immediately success
@@ -96,7 +97,7 @@ class SelfIntercept:
                                             my_next,
                                             next_ball_dist,
                                             stamina_model.stamina()))
-            log.sw_log().intercept().add_text("self pred no dash goalie mode success")
+            log.sw_log().intercept().add_text("------>>>>> OK goal mode success")
             return True
 
         # check kick effectiveness
@@ -106,7 +107,7 @@ class SelfIntercept:
                                                next_ball_rel.th().degree())
             next_ball_vel: Vector2D = wm.ball().vel() * SP.ball_decay()
             if SP.max_power() * kick_rate <= next_ball_vel.r() * SP.ball_decay() * 1.1:
-                log.sw_log().intercept().add_text("self pred no dash kickable, but maybe not control")
+                log.sw_log().intercept().add_text("------>>>>> NO can not control the ball")
                 return False
 
         # at least, player can stop the ball
@@ -117,7 +118,7 @@ class SelfIntercept:
                                         my_next,
                                         next_ball_dist,
                                         stamina_model.stamina()))
-        log.sw_log().intercept().add_text("self pred no dash success")
+        log.sw_log().intercept().add_text("----->>>>> OK can control with out dash")
         return True
 
     def is_goalie_mode(self, ball_next, x_limit=None, abs_y_limit=None) -> bool:
@@ -133,6 +134,7 @@ class SelfIntercept:
                 ball_next.abs_y() < abs_y_limit)
 
     def predict_one_dash(self, self_cache):
+        log.sw_log().intercept().add_text("=================== predict_one_dash ======================")
         tmp_cache = []
 
         SP = ServerParam.i()
@@ -153,14 +155,13 @@ class SelfIntercept:
         max_dash_angle = (SP.max_dash_angle() + dash_angle_step * 0.5
                           if -180 < SP.min_dash_angle() and SP.max_dash_angle() < 180
                           else dash_angle_step * int(180 / dash_angle_step) - 1)
-        log.sw_log().intercept().add_text(f"self pred on dash min_angle={min_dash_angle}, max_angle={max_dash_angle}")
 
         n_steps = int((max_dash_angle - min_dash_angle) / dash_angle_step)
         dirs = [min_dash_angle + d * dash_angle_step for d in range(n_steps)]
-        for dirr in dirs:
-            dash_angle: AngleDeg = me.body() + SP.discretize_dash_angle(SP.normalize_dash_angle(dirr))
-            dash_rate: float = me.dash_rate() * SP.dash_dir_rate(dirr)
-            log.sw_log().intercept().add_text(f"self pred one dash dir={dirr}, angle={dash_angle}, dash_rate={dash_rate}")
+        for dash_dir in dirs:
+            dash_angle: AngleDeg = me.body() + SP.discretize_dash_angle(SP.normalize_dash_angle(dash_dir))
+            dash_rate: float = me.dash_rate() * SP.dash_dir_rate(dash_dir)
+            log.sw_log().intercept().add_text(f"----- dash dir={dash_dir}, angle={dash_angle}, dash_rate={dash_rate}")
 
             # check recovery save dash
             forward_dash_power = bound(0,
@@ -183,13 +184,14 @@ class SelfIntercept:
                                             max_back_accel,
                                             control_area,
                                             info):
-                log.sw_log().intercept().add_text("Register 1 dash intercept(1)")
+                log.sw_log().intercept().add_text("---->>>> OK Register 1 dash intercept(1)")
                 tmp_cache.append(info)
                 continue
 
             # check max_power_dash
             if abs(forward_dash_power - SP.max_dash_power()) < 1 and \
                     abs(back_dash_power - SP.min_dash_power()) < 1:
+                log.sw_log().intercept().add_text("---->>>> NO max dash power")
                 continue
 
             max_forward_accel = Vector2D.polar2vector(SP.max_dash_power() * dash_rate,
@@ -205,11 +207,12 @@ class SelfIntercept:
                                             max_back_accel,
                                             control_area,
                                             info):
-                log.sw_log().intercept().add_text("Register 1 dash intercept(2)")
+                log.sw_log().intercept().add_text("---->>>> OK Register 1 dash intercept(2)")
                 tmp_cache.append(info)
                 continue
 
         if len(tmp_cache) == 0:
+            log.sw_log().intercept().add_text("======>>>>> No one dash intercept")
             return
         best: InterceptInfo = tmp_cache[0]
         for it in tmp_cache:
@@ -217,6 +220,7 @@ class SelfIntercept:
                     (abs(best.ball_dist() - it.ball_dist()) < 0.001 and
                      best.stamina() < it.stamina()):
                 best = it
+        log.sw_log().intercept().add_text(f'=====>>>> best one dash: {str(best)}')
         self_cache.append(best)
 
     def predict_one_dash_adjust(self,
