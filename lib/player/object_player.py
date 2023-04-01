@@ -364,6 +364,9 @@ class PlayerObject(Object):
     def is_goalie(self):
         return self._goalie
 
+    def unum_count(self):
+        return self._unum_count
+
     def long_str(self):
         res = f'unum: {self._unum} side: {self._side} body: {self._body} goalie: {self._goalie} ' \
                f'player_type: {self._player_type} player_type_id: {self._player_type_id} pointto_angle: {self._pointto_angle} kick: {self._kick}' \

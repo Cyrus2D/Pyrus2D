@@ -784,12 +784,12 @@ class WorldModel:
             candidate = candidate_team
             target_list = old_known_players
             log.os_log().debug('------ >>>> candid in old known')
-        
+
         if candidate_unknown is not None and min_unknown_dist < min_team_dist:
             candidate = candidate_unknown
             target_list = old_unknown_players
             log.os_log().debug('------ >>>> candid in old unknown')
-        
+
         if candidate is not None and target_list is not None:
             candidate.update_by_see(side, player)
             log.os_log().debug(f'---> update {candidate.unum()}')
@@ -798,7 +798,7 @@ class WorldModel:
             return
         new_known_players.append(PlayerObject(side=side, player=player))
         log.os_log().debug(f'---> add new known player {new_known_players[-1]}')
-    
+
     def check_unknown_player(self,
                              player: Localizer.PlayerT,
                              old_teammates: list[PlayerObject],
@@ -993,7 +993,7 @@ class WorldModel:
         self._teammates = list(filter(player_valid_check, self._teammates))
         self._opponents = list(filter(player_valid_check, self._opponents))
         log.os_log().debug(f'opp len {len(self._opponents)} E')
-    
+
     def update_player_type(self):
         for p in self._teammates:
             unum = p.unum() - 1
@@ -1011,7 +1011,7 @@ class WorldModel:
         
         for p in self._unknown_players:
             p.set_player_type(self._player_types[HETERO_DEFAULT]) 
-            
+
     def update_after_see(self,
                          see: VisualSensor,
                          body: BodySensor,
@@ -1129,6 +1129,7 @@ class WorldModel:
                 self._kickable_opponent = p
                 break
         
+    
     def update_player_state_cache(self):
         if not self.self().pos_valid() or not self.ball().pos_valid():
             return
@@ -1272,16 +1273,92 @@ class WorldModel:
             if from_unknown:
                 self._teammates.append(candidate)
                 self._unknown_players.remove(candidate)
-            
+
     def update_intercept_table(self):
         self.intercept_table().update(self)
+
+    def update_goalie_by_hear(self):
+        SP = ServerParam.i()
+        # TODO CHECK FULL STATE TIME
+
+        if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie()) == 0:
+            return
+
+        goalie: PlayerObject = None
+
+        for o in self._opponents:
+            if o.goalie():
+                goalie = o
+                break
+
+        if goalie is not None and goalie.pos_count() == 0 and goalie.body_count() == 0:
+            return
+
+        heard_pos = Vector2D(0, 0)
+        heard_body = 0.
+
+        for g in self._messenger_memory.goalie():
+            heard_pos += g.pos_
+            heard_body += AngleDeg(g.body_)
+
+        heard_body /= len(self._messenger_memory.goalie())
+        heard_pos /= len(self._messenger_memory.goalie())
+
+        if goalie is not None:
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum,True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
+            return
+
+        goalie_speed_max = SP.default_player_speed_max()
+        min_dist = 1000.
+        for o in self._opponents + self._unknown_players:
+            if o.unum() != UNUM_UNKNOWN:
+                continue
+            if o.pos().x() < SP.their_penalty_area_line_x() or o.pos().abs_y() > SP.penalty_area_half_width():
+                continue
+
+            d = o.pos().dist(heard_pos)
+            if d < min_dist and d < o.pos_count() * goalie_speed_max + o.dist_from_self() * 0.06:
+                min_dist = d
+                goalie = o
+
+        if goalie is not None:
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
+        else:
+            goalie = PlayerObject()
+            self._opponents.append(goalie)
+            goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
+
+    def update_player_stamina_by_hear(self):
+        if self._messenger_memory.recovery_time() == self.time():
+            for r in self._messenger_memory.recovery():
+                if 1 <= r.sender_ <= 11:
+                    self._our_recovery[r.sender_ - 1] = r.rate_
+                    log.sw_log().world().add_text(f'(update player stamina by hear) u={r.sender_} r={r.rate_}')
+
+        if self._messenger_memory.stamina_time() == self.time():
+            for r in self._messenger_memory.stamina():
+                if 1 <= r.sender_ <= 11:
+                    self._our_stamina_capacity[r.sender_ - 1] = r.rate_
+                    log.sw_log().world().add_text(f'(update player stamina by hear) u={r.sender_} s={r.rate_}')
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
             
         self.update_ball_by_hear(act)
-        self.update_players_by_hear()        
+        self.update_goalie_by_hear()
+        self.update_players_by_hear()
+        self.update_player_stamina_by_hear()
+
         # TODO UPDATE BALL BY COLLISION
         
         self.ball().update_by_game_mode(self.game_mode())
@@ -1325,7 +1402,7 @@ class WorldModel:
             for p in self.their_players():
                 log.os_log().debug('-----------------------')
                 log.os_log().debug(str(p.long_str()))
-    
+
     def update_just_after_decision(self, act: 'ActionEffector'):
         self._decision_time = self.time().copy()
         if act.change_view_command():
@@ -1359,7 +1436,8 @@ class WorldModel:
             
             side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
             unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
-            
+            unum = round(unum)
+
             if side == self.our_side() and unum == self.self().unum():
                 return
             
@@ -1390,6 +1468,8 @@ class WorldModel:
                         unknown = p
             if target_player:
                 target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
+                log.sw_log().world().add_text(f'(update player by hear) '
+                                                 f's={side} u={unum} p={player.pos_} b={player.body_}')
 
                 if unknown:
                     players.append(unknown)
@@ -1403,7 +1483,9 @@ class WorldModel:
                     
                     self._opponents.append(target_player)
                 target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
-            
+                log.sw_log().world().add_text(f'(update player by hear) '
+                                                 f's={side} u={unum} p={player.pos_} b={player.body_}')
+
             if target_player:
                 if side == self.our_side():
                     if 1 <= unum <= 11:
@@ -1451,6 +1533,8 @@ class WorldModel:
 
         if heared_pos.is_valid():
             self._ball.update_by_hear(act, min_dist, heared_pos, heared_vel)
+            log.sw_log().world().add_text(f'(update ball by hear) '
+                                             f'p={heared_pos} v={heared_vel}')
 
     def update_dir_count(self, varea: ViewArea):
         dir_buf = (WorldModel.DIR_STEP*0.5+1
@@ -1597,3 +1681,15 @@ class WorldModel:
 
     def their_players(self):
         return self._their_players
+
+    def prev_ball(self):
+        return self._prev_ball
+
+    def get_their_goalie(self):
+        if self._their_goalie_unum != UNUM_UNKNOWN:
+            return self.their_player(self._their_goalie_unum)
+
+        for p in self._opponents:
+            if p.goalie():
+                return p
+        return None

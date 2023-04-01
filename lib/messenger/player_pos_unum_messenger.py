@@ -27,7 +27,7 @@ class PlayerPosUnumMessenger(Messenger):
             self._unum: int = unum
             self._message = None
     
-    def encode(self, wm: 'WorldModel') -> str:
+    def encode(self) -> str:
         if not 1 <= self._unum <= 22:
             log.os_log().error(f"(player pos unum messenger encode) unum is out of limit. unum={self._unum}")
             return ""
