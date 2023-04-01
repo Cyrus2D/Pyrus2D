@@ -152,33 +152,31 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._dist_from_self = self._rpos.r()
 
     def long_str(self):
-        return f'''
-                    pos: {self._pos},
-                    pos_error: {self._pos_error},
-                    pos_count: {self._pos_count},
-                    seen_pos: {self._seen_pos},
-                    seen_pos_count: {self._seen_pos_count},
-                    heard_pos: {self._heard_pos},
-                    heard_pos_count: {self._heard_pos_count},
-                    vel: {self._vel},
-                    vel_error: {self._vel_error},
-                    vel_count: {self._vel_count},
-                    seen_vel: {self._seen_vel},
-                    seen_vel_count: {self._seen_vel_count},
-                    heard_vel: {self._heard_vel},
-                    heard_vel_count: {self._heard_vel_count},
-                    rpos: {self._rpos},
-                    rpos_error: {self._rpos_error},
-                    rpos_count: {self._rpos_count},
-                    seen_rpos: {self._seen_rpos},
-                    seen_rpos_error: {self._seen_rpos_error},
-                    dist_from_self: {self._dist_from_self},
-                    angle_from_self: {self._angle_from_self},
-                    dist_from_ball: {self._dist_from_ball},
-                    angle_from_ball: {self._angle_from_ball},
-                    ghost_count: {self._ghost_count},
-                    pos_history: {self._pos_history},
-                    '''
+        return f'pos: {self._pos}, ' \
+               f'pos_error: {self._pos_error}, ' \
+               f'pos_count: {self._pos_count}, ' \
+               f'seen_pos: {self._seen_pos}, ' \
+               f'seen_pos_count: {self._seen_pos_count}, ' \
+               f'heard_pos: {self._heard_pos}, ' \
+               f'heard_pos_count: {self._heard_pos_count}, ' \
+               f'vel: {self._vel}, ' \
+               f'vel_error: {self._vel_error}, ' \
+               f'vel_count: {self._vel_count}, ' \
+               f'seen_vel: {self._seen_vel}, ' \
+               f'seen_vel_count: {self._seen_vel_count}, ' \
+               f'heard_vel: {self._heard_vel}, ' \
+               f'heard_vel_count: {self._heard_vel_count}, ' \
+               f'rpos: {self._rpos}, ' \
+               f'rpos_error: {self._rpos_error}, ' \
+               f'rpos_count: {self._rpos_count}, ' \
+               f'seen_rpos: {self._seen_rpos}, ' \
+               f'seen_rpos_error: {self._seen_rpos_error}, ' \
+               f'dist_from_self: {self._dist_from_self}, ' \
+               f'angle_from_self: {self._angle_from_self}, ' \
+               f'dist_from_ball: {self._dist_from_ball}, ' \
+               f'angle_from_ball: {self._angle_from_ball}, ' \
+               f'ghost_count: {self._ghost_count},'
+                    # pos_history: {self._pos_history},
 
     def __str__(self):
         return f'''pos: {self.pos()} vel:{self.vel()}'''
