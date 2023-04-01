@@ -19,7 +19,7 @@ class PlayerObject(Object):
     
     def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()
-        self._unum: int = 0
+        self._unum: int = UNUM_UNKNOWN
         self._unum_count: int = 1000
         self._side: SideID = SideID.NEUTRAL
         self._goalie: bool = False
