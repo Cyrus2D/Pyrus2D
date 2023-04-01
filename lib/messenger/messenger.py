@@ -69,7 +69,9 @@ class Messenger:
         max_message_size = ServerParam.i().player_say_msg_size()
         size = 0
         all_messages = ""
+        log.os_log().debug(f'#'*20)
         for i, message in enumerate(messages):
+            log.os_log().debug(f'msg.t={message._header}')
             enc = message.encode()
             log.os_log().debug(f'enc: {enc}')
 
@@ -119,11 +121,15 @@ class Messenger:
         }
 
         index = 0
+        log.os_log().debug('*'*100)
+        log.os_log().debug(sender)
+        log.os_log().debug(messages)
         while index < len(messages):
             message_type = Messenger.Types(messages[index])
             message_size = Messenger.SIZES[message_type]
 
             message = messages[index+1: index+message_size]
+            log.os_log().debug(messages[index: index + message_size])
 
             messenger_classes[message_type](message=message).decode(messenger_memory, sender, current_time)
             index += message_size

@@ -6,8 +6,8 @@ from lib.rcsc.server_param import ServerParam
 
 
 class StaminaMessenger(Messenger):
-    CONVERTER = MessengerConverter([
-        (0, ServerParam.i().stamina_max(), 74)
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.STAMINA], [
+        (0, ServerParam.i().stamina_max()+1, 74)
     ])
 
     def __init__(self,

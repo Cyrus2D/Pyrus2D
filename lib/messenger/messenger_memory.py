@@ -125,7 +125,7 @@ class MessengerMemory:
 
         self._time = current_time.copy()
 
-    def set_recovery(self, sender: int, rate: float, current_time: GameTime):
+    def add_recovery(self, sender: int, rate: float, current_time: GameTime):
         if self._recovery_time != current_time:
             self._recovery.clear()
 

@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 
 class OnePlayerMessenger(Messenger):
-    CONVERTER = MessengerConverter([
-        (0, 23, 23),
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.ONE_PLAYER], [
+        (1, 23, 22),
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 168),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 108),
     ])

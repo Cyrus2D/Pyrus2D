@@ -1,4 +1,5 @@
 from base.decision import get_decision
+from base.sample_communication import SampleCommunication
 from base.view_tactical import ViewTactical
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept import Intercept
@@ -16,6 +17,8 @@ from lib.rcsc.types import GameModeType
 class SamplePlayer(PlayerAgent):
     def __init__(self):
         super().__init__()
+
+        self._communication = SampleCommunication()
     
     def action_impl(self):
         wm = self.world()

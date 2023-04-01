@@ -6,8 +6,8 @@ from lib.rcsc.server_param import ServerParam
 
 
 class RecoveryMessenger(Messenger):
-    CONVERTER = MessengerConverter([
-        (ServerParam.i().recover_min(), ServerParam.i().recover_init(), 74)
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.RECOVERY], [
+        (ServerParam.i().recover_min(), ServerParam.i().recover_init()+0.01, 74)
     ])
 
     def __init__(self,

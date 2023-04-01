@@ -159,7 +159,7 @@ class SampleCommunication:
         wm = agent.world()
         ef = agent.effector()
 
-        current_len = ef.get_say_message_len()
+        current_len = ef.get_say_message_length()
 
         should_say_ball = self.should_say_ball(agent)
         should_say_goalie = self.should_say_opponent_goalie(agent)
@@ -178,7 +178,7 @@ class SampleCommunication:
         objects[0].score = wm.time().cycle() - mm.ball_time().cycle()
 
         for p in mm.player_record():
-            n = p[1].unum_
+            n = round(p[1].unum_)
             if not (1 <= n <= 22):
                 continue
 
@@ -222,7 +222,7 @@ class SampleCommunication:
         for i in range(1, 12):
             p = wm.our_player(i)
             if p is None or p.unum_count() >= 2:
-                objects[i] = -1000
+                objects[i].score = -1000
             else:
                 d = (((p.pos().x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
                 objects[i].score *= exp(-d ** 2 / (2 * variance ** 2))
@@ -231,14 +231,14 @@ class SampleCommunication:
 
             p = wm.their_player(i)
             if p is None or p.unum_count() >= 2:
-                objects[i + 11] = -1000
+                objects[i + 11].score = -1000
             else:
                 d = (((p.pos().x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
                 objects[i + 11].score *= exp(-d ** 2 / (2 * variance ** 2))
                 objects[i + 11].score *= 0.3 ** p.unum_count()
                 objects[i + 11].player = p
 
-        objects = list(filter(lambda x: x.score < 0.1, objects))
+        objects = list(filter(lambda x: x.score > 0.1, objects))
         objects.sort(key=lambda x: x.score, reverse=True)
 
         can_send_ball = False
@@ -374,7 +374,10 @@ class SampleCommunication:
                                                           f'{goalie.unum()} {goalie.pos()} {goalie.body()}')
                     return True
 
-        if len(send_players) >= 3 and available_len >= Messenger.SIZES[Messenger.Types.THREE_PLAYERS]:
+        if len(send_players) >= 3 and available_len >= Messenger.SIZES[Messenger.Types.THREE_PLAYER]:
+            for o in send_players:
+                log.os_log().debug(o.player)
+                log.os_log().debug(o.player.pos())
             p0 = send_players[0].player
             p1 = send_players[1].player
             p2 = send_players[2].player
@@ -395,7 +398,7 @@ class SampleCommunication:
                                                   f'{p2.side()}{p2.unum()}')
             return True
 
-        if len(send_players) >= 2 and available_len >= Messenger.Types[Messenger.Types.TWO_PLAYERS]:
+        if len(send_players) >= 2 and available_len >= Messenger.SIZES[Messenger.Types.TWO_PLAYER]:
             p0 = send_players[0].player
             p1 = send_players[1].player
 
@@ -411,7 +414,7 @@ class SampleCommunication:
                                                   f'{p1.side()}{p1.unum()}')
             return True
 
-        if len(send_players) >= 1 and available_len >= Messenger.Types[Messenger.Types.GOALIE]:
+        if len(send_players) >= 1 and available_len >= Messenger.SIZES[Messenger.Types.GOALIE]:
             p0 = send_players[0].player
             if p0.side() == wm.their_side() \
                     and p0.goalie() \
@@ -433,7 +436,7 @@ class SampleCommunication:
                                                       f'{p0.side()}{p0.unum()}')
                 return True
 
-        if len(send_players) >= 1 and available_len >= Messenger.Types[Messenger.Types.ONE_PLAYERS]:
+        if len(send_players) >= 1 and available_len >= Messenger.SIZES[Messenger.Types.ONE_PLAYER]:
             p0 = send_players[0].player
 
             agent.add_say_message(OnePlayerMessenger(send_players[0].number,
@@ -590,7 +593,7 @@ class SampleCommunication:
 
 
     def execute(self, agent: 'PlayerAgent'):
-        if not team_config.USE_COMMUNICATION:  # TODO IMP FUNC
+        if not team_config.USE_COMMUNICATION:
             return False
 
         self.update_current_sender(agent)
@@ -611,7 +614,8 @@ class SampleCommunication:
                 or penalty_shootout:
             return say_recovery
 
-        self.say_ball_and_players(agent)
+        if not(wm.game_mode().type() == GameModeType.BeforeKickOff or wm.game_mode().type().is_kick_off()):
+            self.say_ball_and_players(agent)
         self.say_stamina(agent)
 
         self.attention_to_someone(agent)  # TODO IMP FUNC

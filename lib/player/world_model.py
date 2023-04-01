@@ -1263,13 +1263,16 @@ class WorldModel:
 
         for g in self._messenger_memory.goalie():
             heard_pos += g.pos_
-            heard_body += g.body_
+            heard_body += AngleDeg(g.body_)
 
         heard_body /= len(self._messenger_memory.goalie())
         heard_pos /= len(self._messenger_memory.goalie())
 
         if goalie is not None:
             goalie.update_by_hear(self.their_side(), self._their_goalie_unum,True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
             return
 
         goalie_speed_max = SP.default_player_speed_max()
@@ -1287,13 +1290,19 @@ class WorldModel:
 
         if goalie is not None:
             goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
         else:
             goalie = PlayerObject()
             self._opponents.append(goalie)
             goalie.update_by_hear(self.their_side(), self._their_goalie_unum, True, heard_pos, heard_body)
+            log.sw_log().world().add_text(f'(update player by hear) '
+                                             f's={self.their_side()} u={self._their_goalie_unum} '
+                                             f'p={heard_pos} b={heard_body}')
 
     def update_player_stamina_by_hear(self):
-        if self._messenger_memory.recovery() == self.time():
+        if self._messenger_memory.recovery_time() == self.time():
             for r in self._messenger_memory.recovery():
                 if 1 <= r.sender_ <= 11:
                     self._our_recovery[r.sender_ - 1] = r.rate_
@@ -1308,6 +1317,7 @@ class WorldModel:
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
+        log.os_log().debug(f'CYCLE={self.time().cycle()}')
             
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
@@ -1371,6 +1381,7 @@ class WorldModel:
             
             side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
             unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
+            unum = round(unum)
             
             if side == self.our_side() and unum == self.self().unum():
                 return
@@ -1402,6 +1413,8 @@ class WorldModel:
                         unknown = p
             if target_player:
                 target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
+                log.sw_log().world().add_text(f'(update player by hear) '
+                                                 f's={side} u={unum} p={player.pos_} b={player.body_}')
 
                 if unknown:
                     players.append(unknown)
@@ -1415,6 +1428,8 @@ class WorldModel:
                     
                     self._opponents.append(target_player)
                 target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
+                log.sw_log().world().add_text(f'(update player by hear) '
+                                                 f's={side} u={unum} p={player.pos_} b={player.body_}')
             
             if target_player:
                 if side == self.our_side():
@@ -1463,6 +1478,8 @@ class WorldModel:
 
         if heared_pos.is_valid():
             self._ball.update_by_hear(act, min_dist, heared_pos, heared_vel)
+            log.sw_log().world().add_text(f'(update ball by hear) '
+                                             f'p={heared_pos} v={heared_vel}')
 
     def update_dir_count(self, varea: ViewArea):
         dir_buf = (WorldModel.DIR_STEP*0.5+1

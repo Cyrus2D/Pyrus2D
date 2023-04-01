@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class GoalieMessenger(Messenger):
-    CONVERTER = MessengerConverter([
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.GOALIE], [
         (53. - 16., 53., 160),
         (-20., 20., 400),
         (0, 360, 360),

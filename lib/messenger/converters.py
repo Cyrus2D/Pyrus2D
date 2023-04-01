@@ -1,17 +1,24 @@
 from math import ceil
 from typing import Union
 
+from pyrusgeom.soccer_math import bound
+
+from lib.debug.debug import log
+
 chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ().+-*/?<>_0123456789"
 
 
 class MessengerConverter:
-    def __init__(self, min_max_sizes: list[tuple[float, float, int]]):
+    def __init__(self, size, min_max_sizes: list[tuple[float, float, int]]):
         self._min_max_sizes = min_max_sizes
+        self._size = size
 
     def convert_to_word(self, values):
         s = 0
         for i, (min_v, max_v, size) in enumerate(self._min_max_sizes):
             v = values[i]
+            log.os_log().debug(f'v={v}')
+            v = bound(min_v, v, max_v)
             v -= min_v
             v /= max_v - min_v
             v *= size
@@ -25,11 +32,15 @@ class MessengerConverter:
             # print(s)
             words.append(s % n_chars)
             s = s // n_chars
+            log.os_log().debug(f's={s}')
         # print(s)
         # words.append(s)
         msg = ''
         for word in words:
             msg += chars[word]
+
+        while len(msg) < self._size-1:
+            msg += chars[0]
 
         return msg
 

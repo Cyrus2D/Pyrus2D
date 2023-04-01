@@ -165,7 +165,7 @@ class PlayerAgent(SoccerAgent):
                 return
             data = message.strip('()').split(' ')
             if len(data) < 6:
-                log.os_log().error("(hear player parser) message format is not matched!")
+                log.os_log().error(f"(hear player parser) message format is not matched! msg={message}")
                 return
             player_message = message.split('"')[1]
             if not data[4].isdigit():
@@ -296,6 +296,11 @@ class PlayerAgent(SoccerAgent):
         self._last_body_command = []
         self._is_synch_mode = True
         self._effector = ActionEffector(self)
+        self._communication = None
+
+    def communicate_impl(self):
+        if self._communication is not None:
+            self._communication.execute(self)
 
     def init_impl(self, goalie: bool) -> bool:
         self._impl._goalie = goalie
@@ -562,6 +567,8 @@ class PlayerAgent(SoccerAgent):
         self._impl.do_view_action()
         self._impl.do_neck_action()
         self._impl.do_change_focus_action()
+        self.communicate_impl()
+
         self._impl._last_decision_time = self._impl._current_time.copy()
 
         self.world().update_just_after_decision(self._effector)

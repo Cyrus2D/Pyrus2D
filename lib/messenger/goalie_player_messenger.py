@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
 
 class GoaliePlayerMessenger(Messenger):
-    CONVERTER = MessengerConverter([
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.GOALIE_PLAYER], [
         (53. - 16., 53., 160),
         (-20., 20., 400),
         (0, 360, 360),
-        (0, 23, 23),
+        (1, 23, 22),
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 190),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 124),
     ])

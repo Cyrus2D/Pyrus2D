@@ -126,10 +126,10 @@ def test_mm():
 
 
 def test_mm2():
-    u1 = 1
-    p1 = Vector2D(-52., 30)
-    u2 = 12
-    p2 = Vector2D(0, -20)
+    u1 = 22
+    p1 = Vector2D(-24.5, 0.6)
+    u2 = 1
+    p2 = Vector2D(-51.5, 2)
     u3 = 22
     p3 = Vector2D(52, 12)
 
@@ -158,10 +158,10 @@ def test_one_player():
 
 
 def test_two_player():
-    u1 = 1
-    p1 = Vector2D(-52., 30)
-    u2 = 12
-    p2 = Vector2D(0, -20)
+    u1 = 22
+    p1 = Vector2D(-24.5, 0.6)
+    u2 = 1
+    p2 = Vector2D(-51.5, 2)
     print(u1, p1, u2, p2)
     msg = TwoPlayerMessenger(u1, p1, u2, p2).encode()
     print(msg)
@@ -170,12 +170,12 @@ def test_two_player():
 
 
 def test_three_player():
-    u1 = 1
-    p1 = Vector2D(-52., 30)
-    u2 = 12
-    p2 = Vector2D(0, -20)
-    u3 = 22
-    p3 = Vector2D(52, 12)
+    u1 = 2 + 11
+    p1 = Vector2D(5.441864657550282,-36.15640365877976)
+    u2 = 3 + 11
+    p2 = Vector2D(9.548082361799027,-37.26023761462523)
+    u3 = 4 + 11
+    p3 = Vector2D(12.174446180516131, -10.985076789602786)
     print(u1, p1, u2, p2, u3, p3)
     msg = ThreePlayerMessenger(u1, p1, u2, p2, u3, p3).encode()
     print(msg)
@@ -215,14 +215,15 @@ def test_ball_messenger():
 
 
 def test_ball_player_messenger():
-    bp = Vector2D(12, 30)
-    bv = Vector2D(1, -1)
-    pu = 3
-    pp = Vector2D(40., 33.9)
-    pb = AngleDeg(170)
+    bp = Vector2D(0, 0)
+    bv = Vector2D(0, 0)
+    pu = 10
+    pp = Vector2D(-9.15, 10.5)
+    pb = AngleDeg(2.1)
 
     print(bp, bv, pu, pp, pb)
     msg = BallPlayerMessenger(bp, bv, pu, pp, pb).encode()
+    print(msg)
 
     print(BallPlayerMessenger.CONVERTER.convert_to_values(msg[1:]))
 
@@ -259,4 +260,4 @@ def test_stamina_messenger():
 
 
 if __name__ == "__main__":
-    test_mm2()
+    test_ball_player_messenger()

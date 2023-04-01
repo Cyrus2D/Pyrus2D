@@ -483,7 +483,7 @@ class ActionEffector:
         if len(self._messages) == 0:
             return None
 
-        say_command =  PlayerSayCommand(Messenger.encode_all(wm, self._messages))
+        say_command =  PlayerSayCommand(Messenger.encode_all(self._messages))
         if len(say_command.message()) == 0:
             return None
 
@@ -592,7 +592,6 @@ class ActionEffector:
         ball_next = self.queued_next_ball_pos()
 
         return my_next.dist(ball_next) < self._agent.world().self().player_type().kickable_area() - 0.06
-
 
     def get_say_message_length(self):
         l = 0

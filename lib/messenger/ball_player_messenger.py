@@ -10,17 +10,18 @@ from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
 
 
 class BallPlayerMessenger(Messenger):
-    CONVERTER = MessengerConverter([
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.BALL_PLAYER], [
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 2 ** 10),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 2 ** 9),
         (-ServerParam.i().ball_speed_max(), ServerParam.i().ball_speed_max(), 2 ** 6),
         (-ServerParam.i().ball_speed_max(), ServerParam.i().ball_speed_max(), 2 ** 6),
-        (0, 23, 23),
+        (1, 23, 22),
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 106),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 69),
         (0, 360, 180)
@@ -58,6 +59,10 @@ class BallPlayerMessenger(Messenger):
             log.sw_log().sensor().add_text(f'(ball player messenger) illegal unum={self._unum}')
             return ''
 
+        if self._ball_pos.abs_x() > ServerParam.i().pitch_half_length() \
+                or self._ball_pos.abs_y() > ServerParam.i().pitch_half_width():
+            return ''
+
         msg = BallPlayerMessenger.CONVERTER.convert_to_word([
             self._ball_pos.x(),
             self._ball_pos.y(),
@@ -74,7 +79,8 @@ class BallPlayerMessenger(Messenger):
         bpx, bpy, bvx, bvy, pu, ppx, ppy, pb = BallPlayerMessenger.CONVERTER.convert_to_values(self._message)
 
         messenger_memory.add_ball(sender, Vector2D(bpx, bpy), Vector2D(bvx, bvy), current_time)
-        messenger_memory.add_player(sender, Vector2D(ppx, ppy), current_time, body=AngleDeg(pb-180))  # TODO IMP FUNC
+        messenger_memory.add_player(sender, pu, Vector2D(ppx, ppy), current_time,
+                                    body=AngleDeg(pb - 180))  # TODO IMP FUNC
 
     def __repr__(self) -> str:
         return "ball player msg"

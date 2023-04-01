@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class BallGoalieMessenger(Messenger):
-    CONVERTER = MessengerConverter([
+    CONVERTER = MessengerConverter(Messenger.SIZES[Messenger.Types.BALL_GOALIE], [
         (-ServerParam.i().pitch_half_length(), ServerParam.i().pitch_half_length(), 2 ** 10),
         (-ServerParam.i().pitch_half_width(), ServerParam.i().pitch_half_width(), 2 ** 9),
         (-ServerParam.i().ball_speed_max(), ServerParam.i().ball_speed_max(), 2 ** 6),
@@ -48,6 +48,10 @@ class BallGoalieMessenger(Messenger):
         self._message = message
 
     def encode(self) -> str:
+        if self._ball_pos.abs_x() > ServerParam.i().pitch_half_length() \
+                or self._ball_pos.abs_y() > ServerParam.i().pitch_half_width():
+            return ''
+
         msg = BallGoalieMessenger.CONVERTER.convert_to_word([
             self._ball_pos.x(),
             self._ball_pos.y(),
