@@ -117,7 +117,6 @@ class TrainerAgent(SoccerAgent):
                     last_time_rec = time.time()
                     break
                 elif time.time() - last_time_rec > 3:
-                    ("TIME")
                     self._client.set_server_alive(False)
                     break
                 message_count += 1
