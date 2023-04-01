@@ -109,16 +109,16 @@ class PlayerAgent(SoccerAgent):
             if ServerParam.i().is_fullstate(self._agent.world().our_side()) and not team_config.FULL_STATE_DEBUG:
                 return
             self.parse_cycle_info(message, False)
-
+            log.debug_client().add_message(f'rec see in {self._agent.world().time().cycle()}\n')
             self._visual_sensor.parse(message,
                                       self._team_name,
                                       self._current_time)
 
             if DEBUG:
                 log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
-                log.os_log().debug('===Received See Message Sensor===\n' + message)
+                log.os_log().debug(f'{"="*30}See Message Sensor{"="*30}\n' + message)
                 log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
-                log.os_log().debug('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
+                log.os_log().debug(f'{"="*30}Visual Sensor{"="*30}\n' + str(self._visual_sensor))
 
             self._see_state.update_by_see(self._current_time,
                                           self._agent.world().self().view_width(),
@@ -547,6 +547,9 @@ class PlayerAgent(SoccerAgent):
         self._impl.do_change_focus_action()
         self._impl._last_decision_time = self._impl._current_time.copy()
 
+        log.os_log().debug("body " + str(self.world().self().body()))
+        log.os_log().debug("pos " + str(self.world().self().pos()))
+
         self.world().update_just_after_decision(self._effector)
         if DEBUG:
             log.os_log().debug("======Self after decision======")
@@ -568,6 +571,7 @@ class PlayerAgent(SoccerAgent):
         if self._is_synch_mode:
             commands.append(PlayerDoneCommand())
         message = self.make_commands(commands)
+        log.debug_client().add_message("\nsent message: " + str(message))
         if DEBUG:
             log.os_log().debug("sent message: " + str(message))
         self._client.send_message(message)
