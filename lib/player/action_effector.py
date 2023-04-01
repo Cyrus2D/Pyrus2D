@@ -285,7 +285,7 @@ class ActionEffector:
         log.sw_log().action().add_text( f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
         log.os_log().debug(f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
 
-        self._body_command = PlayerTurnCommand(moment)
+        self._body_command = PlayerTurnCommand(round(moment, 2))
         return self._body_command
     
     def set_move(self, x: float, y: float):
@@ -359,7 +359,7 @@ class ActionEffector:
             moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
         self._turn_neck_moment = moment
 
-        self._neck_command = PlayerTurnNeckCommand(moment)
+        self._neck_command = PlayerTurnNeckCommand(round(moment, 2))
         return self._neck_command
 
     def set_change_focus(self, moment_dist: float, moment_dir: AngleDeg):
