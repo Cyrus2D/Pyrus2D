@@ -40,7 +40,7 @@ class Bhv_Block:
                         break
         if blocker == wm.self_unum():
             GoToPoint(block_pos, 0.1, 100).execute(agent)
-            log.debug_client().add_message('block in {}'.format(block_pos))
+            log.debug_client().add_message(f'block in ({round(block_pos.x(), 2)}, {round(block_pos.y(), 2)})')
             log.debug_client().set_target(block_pos)
             return True
         return False
