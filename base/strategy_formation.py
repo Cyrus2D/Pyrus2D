@@ -44,7 +44,11 @@ class _StrategyFormation:
             else:
                 self.current_situation = Situation.OppSetPlay_Situation
 
-        ball_pos = wm.ball().pos()
+        tm_min = wm.intercept_table().teammate_reach_cycle()
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+        self_min = wm.intercept_table().self_reach_cycle()
+        all_min = min(tm_min, opp_min, self_min)
+        ball_pos = wm.ball().inertia_point(all_min)
 
         if wm.game_mode().type() is GameModeType.PlayOn:
             if self.current_situation is Situation.Offense_Situation:
