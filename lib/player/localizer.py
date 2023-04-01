@@ -58,6 +58,9 @@ class Localizer:
         
         def is_tackling(self):
             return self.tackle_
+
+        def __repr__(self):
+            return f'PlayerT side:{self.side_} unum:{self.unum_} pos:{self.pos_}'
     
     def __init__(self) -> None:
         self._object_table = ObjectTable()
