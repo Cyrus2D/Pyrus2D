@@ -331,7 +331,7 @@ class SampleCommunication:
                     and goalie.pos().abs_y() < 20. \
                     and goalie.unum() != UNUM_UNKNOWN \
                     and goalie.dist_from_self() < 25:
-                if available_len >= Messenger.SIZES[Messenger.Types.GOALIE_AND_PLAYER]:
+                if available_len >= Messenger.SIZES[Messenger.Types.GOALIE_PLAYER]:
                     player: PlayerObject = None
                     for p in send_players:
                         if p.player.unum() != goalie.unum() and p.player.side() != goalie.side():
