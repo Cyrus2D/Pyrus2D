@@ -717,29 +717,29 @@ class WorldModel:
                           old_known_players: list[PlayerObject],
                           old_unknown_players: list[PlayerObject],
                           new_known_players: list[PlayerObject]):
-        
+
+        log.os_log().debug(f'------- check with old known A')
         if player.unum_ != UNUM_UNKNOWN:
             for p in old_known_players:
+                log.os_log().debug(f'--------------?? {p}')
                 if p.unum() == player.unum_:
                     p.update_by_see(side, player)
-
                     new_known_players.append(p)
                     old_known_players.remove(p)
-
+                    log.os_log().debug(f'--------------> update {p.unum()}')
                     return
         
         min_team_dist = 1000
         min_unknown_dist = 1000
-        
-        candidate_team:PlayerObject = None
-        candidate_unknown: PlayerObject = None
-        
+        candidate_team: Union[None, PlayerObject] = None
+        candidate_unknown: Union[None, PlayerObject] = None
+
+        log.os_log().debug(f'------- check with old known B')
         for p in old_known_players:
-            if (p.unum() != UNUM_UNKNOWN
-                and player.unum_ != UNUM_UNKNOWN
-                and p.unum() != player.unum_):
+            log.os_log().debug(f'--------------?? {p}')
+            if p.unum() != UNUM_UNKNOWN and player.unum_ != UNUM_UNKNOWN and p.unum() != player.unum_:
+                log.os_log().debug(f'--------------<< No (unum)')
                 continue
-            
             count = p.seen_pos_count()
             old_pos = p.seen_pos()
             if p.heard_pos_count() < p.seen_pos_count():
@@ -747,17 +747,19 @@ class WorldModel:
                 old_pos = p.heard_pos()
             
             d = player.pos_.dist(old_pos)
-            if d > p.player_type().real_speed_max() * count:
+            if d > p.player_type().real_speed_max() * count + player.dist_error_ * 2.0:
+                log.os_log().debug(f'--------------<< No (dist)')
                 continue
             
             if d < min_team_dist:
                 min_team_dist = d
                 candidate_team = p
-                
+                log.os_log().debug(f'-------------->> update best candid {min_team_dist} {candidate_team}')
+
+        log.os_log().debug(f'------- check with old unknown')
         for p in old_unknown_players:
-            if (p.unum() != UNUM_UNKNOWN
-                and player.unum_ != UNUM_UNKNOWN
-                and p.unum() != player.unum_):
+            if p.unum() != UNUM_UNKNOWN and player.unum_ != UNUM_UNKNOWN and p.unum() != player.unum_:
+                log.os_log().debug(f'--------------<< No (unum)')
                 continue
             
             count = p.seen_pos_count()
@@ -767,30 +769,35 @@ class WorldModel:
                 old_pos = p.heard_pos()
             
             d = player.pos_.dist(old_pos)
-            if d > p.player_type().real_speed_max() * count:
+            if d > p.player_type().real_speed_max() * count + player.dist_error_ * 2.0:
+                log.os_log().debug(f'--------------<< No (dist)')
                 continue
             
             if d < min_team_dist:
                 min_unknown_dist = d
                 candidate_unknown = p
-        
-        candidate: PlayerObject = None
-        target_list: list[PlayerObject] = None
+                log.os_log().debug(f'-------------->> update best candid {min_unknown_dist} {candidate_unknown}')
+
+        candidate: Union[None, PlayerObject] = None
+        target_list: Union[None, list[PlayerObject]] = None
         if candidate_team is not None and min_team_dist < min_unknown_dist:
             candidate = candidate_team
             target_list = old_known_players
+            log.os_log().debug('------ >>>> candid in old known')
         
         if candidate_unknown is not None and min_unknown_dist < min_team_dist:
             candidate = candidate_unknown
             target_list = old_unknown_players
+            log.os_log().debug('------ >>>> candid in old unknown')
         
         if candidate is not None and target_list is not None:
             candidate.update_by_see(side, player)
+            log.os_log().debug(f'---> update {candidate.unum()}')
             new_known_players.append(candidate)
             target_list.remove(candidate)
             return
-        
         new_known_players.append(PlayerObject(side=side, player=player))
+        log.os_log().debug(f'---> add new known player {new_known_players[-1]}')
     
     def check_unknown_player(self,
                              player: Localizer.PlayerT,
@@ -906,7 +913,8 @@ class WorldModel:
     def localize_players(self, see: VisualSensor):
         if not self.self().face_valid() or not self.self().pos_valid():
             return
-        
+        if DEBUG:
+            log.os_log().debug(f'{"#"*30} Localize players ')
         new_teammates: list[PlayerObject] = []
         new_opponents: list[PlayerObject] = []
         new_unknown_players: list[PlayerObject] = []
@@ -918,6 +926,8 @@ class WorldModel:
 
         for p in see.opponents() + see.unknown_opponents():
             player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            if DEBUG:
+                log.os_log().debug(f'{"-"*30} opp {player}')
             if player is None:
                 continue
             self.check_team_player(self.their_side(),
@@ -928,6 +938,8 @@ class WorldModel:
             
         for p in see.teammates() + see.unknown_teammates():
             player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            if DEBUG:
+                log.os_log().debug(f'{"-"*30} mate {player}')
             if player is None:
                 continue
             self.check_team_player(self.our_side(),
@@ -938,6 +950,8 @@ class WorldModel:
         
         for p in see.unknown_players():
             player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            if DEBUG:
+                log.os_log().debug(f'{"-"*30} unk {player}')
             if player is None:
                 continue
             self.check_unknown_player(player,
@@ -947,20 +961,38 @@ class WorldModel:
                                       new_teammates,
                                       new_opponents,
                                       new_unknown_players)
-        
+        if DEBUG:
+            log.os_log().debug(f'{"#"*30} End Localize players ')
+            for t in self._teammates:
+                log.os_log().debug(f'old team {t}')
+            for t in new_teammates:
+                log.os_log().debug(f'new team {t}')
+            for t in self._opponents:
+                log.os_log().debug(f'old team {t}')
+            for t in new_opponents:
+                log.os_log().debug(f'new team {t}')
+            for t in self._unknown_players:
+                log.os_log().debug(f'old unk {t}')
+            for t in new_unknown_players:
+                log.os_log().debug(f'new unk {t}')
         self._teammates += new_teammates
         self._opponents += new_opponents
+        log.os_log().debug(f'opp len {len(self._opponents)} A')
         self._unknown_players += new_unknown_players
         
         all_teammates = sorted(self._teammates, key=player_accuracy_value)
         all_opponents = sorted(self._opponents, key=player_accuracy_value)
+        log.os_log().debug(f'opp len {len(self._opponents)} B')
+        log.os_log().debug(f'opp len {len(all_opponents)} C')
         self._unknown_players.sort(key=player_count_value)
         
         for p in all_teammates[10:] + all_opponents[11:]:
+            log.os_log().debug(f'forget {p}')
             p.forgot()
-        
+        log.os_log().debug(f'opp len {len(self._opponents)} D')
         self._teammates = list(filter(player_valid_check, self._teammates))
         self._opponents = list(filter(player_valid_check, self._opponents))
+        log.os_log().debug(f'opp len {len(self._opponents)} E')
     
     def update_player_type(self):
         for p in self._teammates:
@@ -993,6 +1025,7 @@ class WorldModel:
         
         self._see_time = current_time.copy()
         log.sw_log().world().add_text( f"{'*'*20} Update by See {'*'*20}")
+        log.os_log().debug(f"{'#' * 30} Update by See {'#' * 30}")
 
         if self._their_team_name is None and see.their_team_name() is not None:
             self._their_team_name = see.their_team_name()
@@ -1096,7 +1129,6 @@ class WorldModel:
                 self._kickable_opponent = p
                 break
         
-    
     def update_player_state_cache(self):
         if not self.self().pos_valid() or not self.ball().pos_valid():
             return
@@ -1286,10 +1318,9 @@ class WorldModel:
             log.os_log().debug('===Ball===\n' + str(self.ball().long_str()))
             log.os_log().debug('===Our Players===')
             log.os_log().debug('-----------------------')
-            log.os_log().debug(str(self.self().long_str()))
             for p in self.our_players():
                 log.os_log().debug('-----------------------')
-                log.os_log().debug(str(p.long_str()))
+                log.os_log().debug(str(self.self()) if p.is_self() else str(p.long_str()))
             log.os_log().debug('===Their Players===')
             for p in self.their_players():
                 log.os_log().debug('-----------------------')
