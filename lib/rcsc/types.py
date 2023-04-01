@@ -181,6 +181,7 @@ class GameModeType(Enum):
     GoalieCatchBall_Right = "goalie_catch_ball_r"
     IllegalDefense_Left = "illegal_defense_l"
     IllegalDefense_Right = "illegal_defense_r"
+    HalfTime = "half_time"
     MAX = "max"
 
     def is_kick_off(self):
