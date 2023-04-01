@@ -19,8 +19,10 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
     from lib.player.world_model import WorldModel
 
+
 class BhvMove:
     def __init__(self):
+        self._in_recovery_mode = False
         pass
 
     def execute(self, agent: 'PlayerAgent'):
@@ -60,7 +62,7 @@ class BhvMove:
         log.debug_client().set_target(target)
         log.debug_client().add_message('bhv_move')
 
-        dash_power = get_normal_dash_power(wm)
+        dash_power, self._in_recovery_mode = get_normal_dash_power(wm, self._in_recovery_mode)
         dist_thr = wm.ball().dist_from_self() * 0.1
 
         if dist_thr < 1.0:
