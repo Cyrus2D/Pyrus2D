@@ -1299,7 +1299,7 @@ class WorldModel:
 
         for g in self._messenger_memory.goalie():
             heard_pos += g.pos_
-            heard_body += AngleDeg(g.body_)
+            heard_body += AngleDeg(g.body_).degree()
 
         heard_body /= len(self._messenger_memory.goalie())
         heard_pos /= len(self._messenger_memory.goalie())
