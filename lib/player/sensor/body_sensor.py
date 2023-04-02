@@ -1,13 +1,12 @@
 from lib.debug.debug import log
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import ViewQuality, ViewWidth, SideID, Card, UNUM_UNKNOWN
+from lib.rcsc.types import ViewWidth, SideID, Card, UNUM_UNKNOWN
 
 
-class BodySensor:
+class SenseBodyParser:
     def __init__(self):
         self._current: GameTime = GameTime()
 
-        self._view_quality: ViewQuality = ViewQuality(ViewQuality.ILLEGAL)
         self._view_width: ViewWidth = ViewWidth(ViewWidth.ILLEGAL)
 
         self._stamina: float = 0.
@@ -56,7 +55,6 @@ class BodySensor:
         self._current = current_time.copy()
         r = msg.replace('\x00', '').split(' ')
         _sense_time = int(r[1].strip(')('))
-        self._view_quality = ViewQuality(r[3].strip(')('))
         self._view_width = ViewWidth(r[4].strip(')('))
         self._stamina = float(r[6].strip(')('))
         self._effort = float(r[7].strip(')('))
@@ -128,9 +126,6 @@ class BodySensor:
 
     def time(self) -> GameTime:
         return self._current
-
-    def view_quality(self):
-        return self._view_quality
 
     def view_width(self):
         return self._view_width
@@ -235,14 +230,15 @@ class BodySensor:
         return self._focus_point_dir
 
     def __str__(self):
-        return f'''
-                ===Body Sensor===
-                view_quality: {self._view_quality}, view_width: {self._view_width}, stamina: {self._stamina}, effort: {self._effort}, stamina_capacity: {self._stamina_capacity},
-                speed_mag: {self._speed_mag}, speed_dir_relative: {self._speed_dir_relative}, neck_relative: {self._neck_relative}, kick_count: {self._kick_count},
-                dash_count: {self._dash_count}, turn_count: {self._turn_count}, say_count: {self._say_count}, turn_neck_count: {self._turn_neck_count}, catch_count: {self._catch_count},
-                move_count: {self._move_count}, change_view_count: {self._change_view_count}, change_focus_count: {self._change_focus_count}, arm_movable: {self._arm_movable},
-                arm_expires: {self._arm_expires}, pointto_dist: {self._pointto_dist}, pointto_dir: {self._pointto_dir}, pointto_count: {self._pointto_count}, attentionto_side: {self._attentionto_side},
-                attentionto_unum: {self._attentionto_unum}, attentionto_count: {self._attentionto_count}, tackle_expires: {self._tackle_expires}, tackle_count: {self._tackle_count},
-                none_collided: {self._none_collided}, ball_collided: {self._ball_collided}, player_collided: {self._player_collided}, post_collided: {self._post_collided},
-                charged_expires: {self._charged_expires}, card: {self._card}, focus_point_dist: {self._focus_point_dist}, focus_point_dir: {self._focus_point_dir},
-                '''
+        return f'===Body Sensor===\n view_width: {self._view_width}, stamina: {self._stamina}, ' \
+               f'effort: {self._effort}, stamina_capacity: {self._stamina_capacity}, speed_mag: {self._speed_mag}, ' \
+               f'speed_dir_relative: {self._speed_dir_relative}, neck_relative: {self._neck_relative}, kick_count: {self._kick_count}, ' \
+               f'dash_count: {self._dash_count}, turn_count: {self._turn_count}, say_count: {self._say_count}, ' \
+               f'turn_neck_count: {self._turn_neck_count}, catch_count: {self._catch_count}, move_count: {self._move_count}, ' \
+               f'change_view_count: {self._change_view_count}, change_focus_count: {self._change_focus_count}, ' \
+               f'arm_movable: {self._arm_movable}, arm_expires: {self._arm_expires}, pointto_dist: {self._pointto_dist}, ' \
+               f'pointto_dir: {self._pointto_dir}, pointto_count: {self._pointto_count}, attentionto_side: {self._attentionto_side}, ' \
+               f'attentionto_unum: {self._attentionto_unum}, attentionto_count: {self._attentionto_count}, tackle_expires: {self._tackle_expires}, ' \
+               f'tackle_count: {self._tackle_count}, none_collided: {self._none_collided}, ball_collided: {self._ball_collided}, ' \
+               f'player_collided: {self._player_collided}, post_collided: {self._post_collided}, charged_expires: {self._charged_expires}, ' \
+               f'card: {self._card}, focus_point_dist: {self._focus_point_dist}, focus_point_dir: {self._focus_point_dir}'

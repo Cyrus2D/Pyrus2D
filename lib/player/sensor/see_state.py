@@ -3,7 +3,7 @@ from enum import Enum, unique, auto
 from lib.debug.debug import log
 from lib.debug.level import Level
 from lib.rcsc.game_time import GameTime
-from lib.rcsc.types import ViewWidth, ViewQuality
+from lib.rcsc.types import ViewWidth
 
 DEBUG: bool = True
 
@@ -44,7 +44,6 @@ class SeeState:
         self._current_see_count: int = 0
         self._cycles_till_next_see: int = 100
         self._view_width: ViewWidth = ViewWidth(ViewWidth.NORMAL)
-        self._view_quality: ViewQuality = ViewQuality(ViewQuality.HIGH)
 
         self._see_count_history: list = [0 for i in range(SeeState.HISTORY_SIZE)]
 
@@ -58,7 +57,7 @@ class SeeState:
     def last_timing(self):
         return self._last_timing
 
-    def update_by_sense_body(self, sense_time: GameTime, vw: ViewWidth, vq: ViewQuality):
+    def update_by_sense_body(self, sense_time: GameTime, vw: ViewWidth):
         self.set_new_cycle(sense_time)
 
         if self._view_width != vw:
@@ -71,17 +70,7 @@ class SeeState:
                                   f" old={self._view_width}, new={vw}")
             self._view_width = vw
 
-        if self._view_quality != vq:
-            if DEBUG:
-                log.sw_log().system().add_text(f"see state: (update by sense body)"
-                                               f"vew_width does not match."
-                                               f" old={self._view_quality}, new={vq}")
-                log.os_log().info(f"see state: (update by sense body)"
-                                  f"vew_width does not match."
-                                  f" old={self._view_quality}, new={vq}")
-            self._view_quality = vq
-
-    def update_by_see(self, see_time: GameTime, vw: ViewWidth, vq: ViewQuality):
+    def update_by_see(self, see_time: GameTime, vw: ViewWidth):
         if see_time == self._last_see_time:
             self._current_see_count += 1
             if self.is_synch():
@@ -91,19 +80,15 @@ class SeeState:
             self._last_see_time = see_time.copy()
             self._current_see_count = 1
 
-        if vq == ViewQuality.LOW:
-            self._last_timing = Timing.TIME_NOSYNCH
-            return
-
         if not self.is_synch():
             log.sw_log().system().add_text( "see state: update by see: but no synch")
             return
 
         # if self._cycles_till_next_see > 0:
         self._cycles_till_next_see = 0
-        self.set_view_mode(vw, vq)
+        self.set_view_mode(vw)
 
-        new_timing: Timing = self._get_next_timing(vw, vq)
+        new_timing: Timing = self._get_next_timing(vw)
         if new_timing == Timing.TIME_NOSYNCH:
             log.os_log().error(f"time: {see_time}, invalid view width. no synchronization...")
 
@@ -145,14 +130,13 @@ class SeeState:
                 and self._see_count_history[1] == 2
                 and self._see_count_history[2] == 3)
 
-    def set_view_mode(self, new_width: ViewWidth, new_quality: ViewQuality):
+    def set_view_mode(self, new_width: ViewWidth):
         if self._last_see_time != self._current_time:
             if DEBUG:
                 log.sw_log().system().add_text( "see state (set_view_mode) no current cycle see arrival")
             return
 
         self._view_width = new_width
-        self._view_quality = new_quality
 
         if SeeState._synch_see_mode:
             if new_width == ViewWidth.WIDE:
@@ -257,12 +241,9 @@ class SeeState:
                 or self._last_timing == Timing.TIME_50_0
                 or self._last_timing == Timing.TIME_22_5)
 
-    def _get_next_timing(self, vw: ViewWidth, vq: ViewQuality):
+    def _get_next_timing(self, vw: ViewWidth):
         if SeeState._synch_see_mode:
             return Timing.TIME_SYNC
-
-        if vq == ViewQuality.LOW:
-            return Timing.TIME_NOSYNCH
 
         timing = Timing.TIME_NOSYNCH
 

@@ -6,13 +6,13 @@ from lib.debug.debug import log
 from lib.player.action_effector import ActionEffector
 from lib.player.object_ball import BallObject
 from lib.player.object_player import PlayerObject
-from lib.player.sensor.body_sensor import BodySensor
+from lib.player.sensor.body_sensor import SenseBodyParser
 from lib.player.stamina_model import StaminaModel
 from lib.player_command.player_command import CommandType
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import SideID, ViewQuality, ViewWidth
+from lib.rcsc.types import SideID, ViewWidth
 
 
 class SelfObject(PlayerObject):
@@ -25,7 +25,6 @@ class SelfObject(PlayerObject):
         self._time: GameTime = GameTime()
         self._sense_body_time: GameTime = GameTime()
         self._view_width: ViewWidth = ViewWidth.ILLEGAL
-        self._view_quality: ViewQuality = ViewQuality.ILLEGAL
         self._neck: AngleDeg = AngleDeg(0)
         self._face_error = 0.5
         self._stamina_model: StaminaModel = StaminaModel()
@@ -87,9 +86,6 @@ class SelfObject(PlayerObject):
     def view_width(self):
         return self._view_width
 
-    def view_quality(self):
-        return self._view_quality
-    
     def face_error(self):
         return self._face_error
 
@@ -111,9 +107,8 @@ class SelfObject(PlayerObject):
     def is_kickable(self, buf=0.0):
         return self._kickable
     
-    def set_view_mode(self, vw: ViewWidth, vq:ViewQuality):
+    def set_view_mode(self, vw: ViewWidth):
         self._view_width = vw
-        self._view_quality = vq
 
     def catch_time(self):
         return self._last_catch_time
@@ -200,7 +195,7 @@ class SelfObject(PlayerObject):
         self._body_count = 0
         self._face_count = 0
         
-    def update_vel_dir_after_see(self, sense: BodySensor, current_time: GameTime):
+    def update_vel_dir_after_see(self, sense: SenseBodyParser, current_time: GameTime):
         if sense.time() != current_time:
             log.os_log().error("(update vel dir after see) sense time does not match current time")
             return
@@ -272,7 +267,7 @@ class SelfObject(PlayerObject):
             or self._collides_with_post
         )
     
-    def update_self_after_sense_body(self, body: BodySensor, act: ActionEffector, current_time: GameTime):
+    def update_self_after_sense_body(self, body: SenseBodyParser, act: ActionEffector, current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"(self update after see) called twice at {current_time}")
             return
@@ -283,8 +278,7 @@ class SelfObject(PlayerObject):
 
         self._kicking = act.last_body_command() == CommandType.KICK or act.last_body_command() == CommandType.TACKLE
         self._view_width = body.view_width()
-        self._view_quality = body.view_quality()
-        
+
         self._stamina_model.update_by_sense_body(body.stamina(),
                                                  body.effort(),
                                                  body.stamina_capacity(),
@@ -490,7 +484,6 @@ class SelfObject(PlayerObject):
                 time: {self._time},
                 sense_body_time: {self._sense_body_time},
                 view_width: {self._view_width},
-                view_quality: {self._view_quality},
                 neck: {self._neck},
                 face_error: {self._face_error},
                 stamina_model: {self._stamina_model},

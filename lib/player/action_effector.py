@@ -6,14 +6,14 @@ from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.soccer_math import min_max
 from pyrusgeom.vector_2d import Vector2D
 from lib.messenger.messenger import Messenger
-from lib.player.sensor.body_sensor import BodySensor
+from lib.player.sensor.body_sensor import SenseBodyParser
 from lib.player_command.player_command import CommandType
 from lib.player_command.player_command_body import PlayerBodyCommand, PlayerCatchCommand, PlayerDashCommand, PlayerKickCommand, PlayerMoveCommand, PlayerTackleCommand, PlayerTurnCommand
 from lib.player_command.player_command_support import PlayerAttentiontoCommand, PlayerChangeViewCommand, PlayerPointtoCommand, PlayerSayCommand, PlayerTurnNeckCommand, PlayerChangeFocusCommand
 from lib.rcsc.game_mode import GameMode
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.server_param import ServerParam
-from lib.rcsc.types import GameModeType, SideID, ViewQuality, ViewWidth
+from lib.rcsc.types import GameModeType, SideID, ViewWidth
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -86,7 +86,7 @@ class ActionEffector:
     def inc_command_type(self, type: CommandType):
         self._command_counter[type.value] += 1
 
-    def check_command_count(self, body_sensor: BodySensor):
+    def check_command_count(self, body_sensor: SenseBodyParser):
         wm = self._agent.world()
         if body_sensor.kick_count() != self._command_counter[CommandType.KICK.value]:
             if body_sensor.charged_expires() == 0:
@@ -369,7 +369,7 @@ class ActionEffector:
         return self._change_focus_command
 
     def set_change_view(self, width: ViewWidth):
-        self._change_view_command = PlayerChangeViewCommand(width, ViewQuality.HIGH)
+        self._change_view_command = PlayerChangeViewCommand(width)
         return self._change_view_command
 
     def set_pointto(self, x, y):

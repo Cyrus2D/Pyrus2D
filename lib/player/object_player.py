@@ -6,7 +6,7 @@ from lib.player.object_ball import *
 from lib.player.stamina_model import StaminaModel
 from lib.rcsc.player_type import PlayerType
 from lib.rcsc.server_param import ServerParam as SP
-from lib.rcsc.types import UNUM_UNKNOWN, SideID, Card, ViewQuality, ViewWidth
+from lib.rcsc.types import UNUM_UNKNOWN, SideID, Card, ViewWidth
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

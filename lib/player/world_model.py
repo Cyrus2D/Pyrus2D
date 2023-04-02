@@ -8,7 +8,7 @@ from lib.player.object_player import *
 from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.player.object_self import SelfObject
-from lib.player.sensor.body_sensor import BodySensor
+from lib.player.sensor.body_sensor import SenseBodyParser
 from lib.player.sensor.visual_sensor import VisualSensor
 from lib.player.view_area import ViewArea
 from lib.player_command.player_command_support import PlayerAttentiontoCommand
@@ -612,7 +612,7 @@ class WorldModel:
                 
     def localize_self(self,
                       see:VisualSensor,
-                      body: BodySensor,
+                      body: SenseBodyParser,
                       act: 'ActionEffector',
                       current_time: GameTime):
         angle_face, angle_face_error = self._localizer.estimate_self_face(see, self.self().view_width())
@@ -1014,7 +1014,7 @@ class WorldModel:
 
     def update_after_see(self,
                          see: VisualSensor,
-                         body: BodySensor,
+                         body: SenseBodyParser,
                          act: 'ActionEffector',
                          current_time: GameTime):
         if self._time != current_time:
@@ -1038,7 +1038,7 @@ class WorldModel:
         self.localize_players(see)
         self.update_player_type()
         
-        if self.self().pos_count() <= 10 and self.self().view_quality() is ViewQuality.HIGH:
+        if self.self().pos_count() <= 10:
             varea = ViewArea(self.self().view_width().width(),
                              self.self().pos(),
                              self.self().face(),
@@ -1046,7 +1046,7 @@ class WorldModel:
             self.check_ghost(varea) # TODO 
             self.update_dir_count(varea)
 
-    def update_world_after_sense_body(self, body_sensor: BodySensor, act: 'ActionEffector', current_time: GameTime):
+    def update_world_after_sense_body(self, body_sensor: SenseBodyParser, act: 'ActionEffector', current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             log.sw_log().sensor(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
@@ -1406,8 +1406,7 @@ class WorldModel:
     def update_just_after_decision(self, act: 'ActionEffector'):
         self._decision_time = self.time().copy()
         if act.change_view_command():
-            self.self().set_view_mode(act.change_view_command().width(),
-                                      act.change_view_command().quality())
+            self.self().set_view_mode(act.change_view_command().width())
         if act.pointto_command():
             self.self().set_pointto(act.pointto_pos(),
                                     self.time())

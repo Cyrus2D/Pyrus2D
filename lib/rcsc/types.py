@@ -384,16 +384,6 @@ BALL_STATUS_STRINGS = ["",
 
 
 @unique
-class ViewQuality(Enum):
-    HIGH = 'high'
-    LOW = 'low'
-    ILLEGAL = 'illegal'
-
-    def __repr__(self):
-        return self.value
-
-
-@unique
 class ViewWidth(Enum):
     NARROW = 'narrow'
     NORMAL = 'normal'
