@@ -38,20 +38,14 @@ class UDPSocket:
             msg += '\0'
         return self._sock.sendto(msg.encode(), self._ip.tuple())
 
-    def recieve_msg(self, message_and_address):
+    def receive_msg(self):
         try:
             message, server_address = self._sock.recvfrom(MAX_BUFF_SIZE)
-            message_and_address.clear()
-            message_and_address.append(message)
-            message_and_address.append(server_address)
             if not self._receive_first_message:
                 self._receive_first_message = True
                 self._ip._port = server_address[1]
-            return len(message)
+            return len(message), message, server_address
         except:
             message = ""
-            server_addredss = 0
-            message_and_address.clear()
-            message_and_address.append(message)
-            message_and_address.append(server_addredss)
-            return len(message)
+            server_address = 0
+            return len(message), message, server_address

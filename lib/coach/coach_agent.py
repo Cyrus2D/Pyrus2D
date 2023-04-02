@@ -156,12 +156,9 @@ class CoachAgent(SoccerAgent):
     def run(self):
         last_time_rec = time.time()
         while True:
-            message_and_address = []
             message_count = 0
             while True:
-                self._client.recv_message(message_and_address)
-                message = message_and_address[0]
-                server_address = message_and_address[1]
+                length, message, server_address = self._client.recv_message()
                 if len(message) != 0:
                     self.parse_message(message.decode())
                     last_time_rec = time.time()
