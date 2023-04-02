@@ -312,7 +312,6 @@ class PlayerAgent(SoccerAgent):
         waited_msec: int = 0
         timeout_count: int = 0
         while True:
-            message_count = 0
             while True:
                 length, message, server_address = self._client.recv_message()
                 if len(message) != 0:
@@ -326,7 +325,6 @@ class PlayerAgent(SoccerAgent):
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
-                message_count += 1
                 if self.think_received():
                     last_time_rec = time.time()
                     break
