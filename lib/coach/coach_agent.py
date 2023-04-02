@@ -134,9 +134,6 @@ class CoachAgent(SoccerAgent):
         self._last_body_command: list[CoachCommand] = []
         self._free_from_messages: list[FreeFormMessenger] = []
 
-    def handle_message(self):
-        self.run()
-
     def handle_start(self):
         if self._client is None:
             return False

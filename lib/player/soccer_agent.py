@@ -18,7 +18,7 @@ class SoccerAgent:
     def handle_start(self) -> bool:
         pass
 
-    def handle_message(self):
+    def run(self):
         pass
 
     def handle_exit(self):

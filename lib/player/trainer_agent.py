@@ -86,9 +86,6 @@ class TrainerAgent(SoccerAgent):
         self._is_synch_mode = True
         self._last_body_command = []
 
-    def handle_message(self):
-        self.run()
-
     def handle_start(self):
         if self._client is None:
             return False

@@ -304,9 +304,6 @@ class PlayerAgent(SoccerAgent):
             self.send_bye_command()
         log.os_log().info(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
 
-    def handle_message(self):
-        self.run()
-
     def see_state(self):
         return self._see_state
 
