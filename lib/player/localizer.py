@@ -8,7 +8,7 @@ from lib.debug.debug import log
 from lib.player.object_table import ObjectTable, DataEntry
 from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID, SideID
 from lib.rcsc.server_param import ServerParam
-from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player.sensor.visual_sensor import SeeParser
 from lib.debug.level import Level
 from lib.debug.color import Color
 from lib.rcsc.types import ViewWidth
@@ -67,7 +67,7 @@ class Localizer:
         self._landmark_map: dict[MarkerID, Vector2D] = {}
         self._points: list[Vector2D] = []
 
-    def get_face_dir_by_markers(self, markers: list[VisualSensor.MarkerT], view_width: ViewWidth):
+    def get_face_dir_by_markers(self, markers: list[SeeParser.MarkerT], view_width: ViewWidth):
         # TODO This function can be improved by using more than two markers to reduce face error
         if len(markers) < 2:
             return None
@@ -89,7 +89,7 @@ class Localizer:
         
         return (gap2.th() - gap1.th()).degree()
     
-    def get_face_dir_by_line(self, lines: list[VisualSensor.LineT]):
+    def get_face_dir_by_line(self, lines: list[SeeParser.LineT]):
         if len(lines) == 0:
             return None
         
@@ -112,7 +112,7 @@ class Localizer:
         angle = AngleDeg.normalize_angle(angle)
         return angle
     
-    def estimate_self_face(self, see: VisualSensor, view_width: ViewWidth):
+    def estimate_self_face(self, see: SeeParser, view_width: ViewWidth):
         face = self.get_face_dir_by_line(see.lines())
         if face is None:
             face = self.get_face_dir_by_markers(see.markers(), view_width)
@@ -123,7 +123,7 @@ class Localizer:
         face_error = 0.5
         return face, face_error
 
-    def localize_self_simple(self, see:VisualSensor, self_face:float):
+    def localize_self_simple(self, see:SeeParser, self_face:float):
         if Localizer.DEBUG:
             log.sw_log().world().add_text( f"(localize self) started {'#'*20}")
             
@@ -139,7 +139,7 @@ class Localizer:
         for marker in markers:
             if n_consider >= 5:
                 continue
-            if marker.id_ is VisualSensor.ObjectType.Obj_Unknown:
+            if marker.id_ is SeeParser.ObjectType.Obj_Unknown:
                 continue
             marker_pos = self._object_table.landmark_map[marker.id_]
 
@@ -251,8 +251,8 @@ class Localizer:
         ave_err.set_y((max_y - min_y) / 2.0)
         return ave_pos, ave_err
 
-    def get_nearest_marker(self, object_type: VisualSensor.ObjectType, pos: Vector2D):
-        if object_type == VisualSensor.ObjectType.Obj_Goal_Behind:
+    def get_nearest_marker(self, object_type: SeeParser.ObjectType, pos: Vector2D):
+        if object_type == SeeParser.ObjectType.Obj_Goal_Behind:
             return MarkerID.Goal_L if pos.x() < 0.0 else MarkerID.Goal_R
         min_dist2 = 3.0 * 3.0
         candidate = MarkerID.Marker_Unknown
@@ -284,7 +284,7 @@ class Localizer:
             self.update_points_by(view_width, markers[i], markers[i].id_, self_face, self_face_error)
             self.resample_points(view_width, markers[0], markers[0].id_, self_face, self_face_error)
 
-    def localize_self(self, see: VisualSensor, view_width: ViewWidth, self_face: float, self_face_error: float):
+    def localize_self(self, see: SeeParser, view_width: ViewWidth, self_face: float, self_face_error: float):
         markers = see.markers()
         markers.sort(key=lambda x: x.dist_)
 
@@ -309,7 +309,7 @@ class Localizer:
         return self_pos, self_pos_err, possible_self_pos
 
     def localize_ball_relative(self,
-                               see: VisualSensor,
+                               see: SeeParser,
                                self_face: float,
                                self_face_err: float,
                                view_width: ViewWidth) -> tuple[Vector2D, Vector2D, Vector2D, Vector2D]:
@@ -443,7 +443,7 @@ class Localizer:
         return rpos, rpos_err, rvel, rvel_err
 
     def localize_player(self,
-                        seen_player: VisualSensor.PlayerT,
+                        seen_player: SeeParser.PlayerT,
                         self_face: float,
                         self_face_err: float,
                         self_pos: Vector2D,
@@ -472,14 +472,14 @@ class Localizer:
             player.vel_.invalidate()
         
         player.has_face_ = False
-        if (seen_player.body_ != VisualSensor.DIR_ERR
-                and seen_player.face_ != VisualSensor.DIR_ERR):
+        if (seen_player.body_ != SeeParser.DIR_ERR
+                and seen_player.face_ != SeeParser.DIR_ERR):
             player.has_face_ = True
             player.body_ = AngleDeg.normalize_angle(seen_player.body_ + self_face)
             player.face_ = AngleDeg.normalize_angle(seen_player.face_ + self_face)
         
         player.pointto_ = False
-        if seen_player.arm_ != VisualSensor.DIR_ERR:
+        if seen_player.arm_ != SeeParser.DIR_ERR:
             player.pointto_ = True
             player.arm_ = AngleDeg.normalize_angle(seen_player.arm_ + self_face)
         

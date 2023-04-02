@@ -6,7 +6,7 @@ from lib.rcsc.types import UNUM_UNKNOWN, LineID, MarkerID
 from lib.rcsc.game_time import GameTime
 
 
-class VisualSensor:
+class SeeParser:
     DIST_ERR = float("inf")
     DIR_ERR = -360
 
@@ -31,12 +31,12 @@ class VisualSensor:
 
     class PolarT:
         def __init__(self) -> None:
-            self.dist_: float = VisualSensor.DIST_ERR
-            self.dir_: float = VisualSensor.DIR_ERR
+            self.dist_: float = SeeParser.DIST_ERR
+            self.dir_: float = SeeParser.DIR_ERR
 
         def reset(self):
-            self.dist_ = VisualSensor.DIST_ERR
-            self.dir_ = VisualSensor.DIR_ERR
+            self.dist_ = SeeParser.DIST_ERR
+            self.dir_ = SeeParser.DIR_ERR
 
         @staticmethod
         def parse_string(key, value):
@@ -73,7 +73,7 @@ class VisualSensor:
 
         @staticmethod
         def parse_string(key, value):
-            line = VisualSensor.LineT()
+            line = SeeParser.LineT()
             line_name = key.split(' ')[1]
 
             line.id_ = LineID(line_name)
@@ -87,12 +87,12 @@ class VisualSensor:
     class MarkerT(PolarT):
         def __init__(self) -> None:
             super().__init__()
-            self.object_type_ = VisualSensor.ObjectType.Obj_Unknown
+            self.object_type_ = SeeParser.ObjectType.Obj_Unknown
             self.id_ = MarkerID.Marker_Unknown
 
         def reset(self):
             super().reset()
-            self.object_type_ = VisualSensor.ObjectType.Obj_Unknown
+            self.object_type_ = SeeParser.ObjectType.Obj_Unknown
             self.id_ = MarkerID.Marker_Unknown
 
         def __str__(self):
@@ -100,12 +100,12 @@ class VisualSensor:
 
         @staticmethod
         def parse_string(key, value, type, marker_map):
-            marker = VisualSensor.MarkerT()
-            marker.id_ = VisualSensor.ObjectType.Obj_Unknown
+            marker = SeeParser.MarkerT()
+            marker.id_ = SeeParser.ObjectType.Obj_Unknown
             marker.object_type_ = type
 
-            if not (type == VisualSensor.ObjectType.Obj_Marker_Behind
-                    or type == VisualSensor.ObjectType.Obj_Goal_Behind):
+            if not (type == SeeParser.ObjectType.Obj_Marker_Behind
+                    or type == SeeParser.ObjectType.Obj_Goal_Behind):
                 if marker_map.get(key) is None:
                     log.os_log().error("No identified Marked Object!")
                     return None
@@ -124,7 +124,7 @@ class VisualSensor:
 
         @staticmethod
         def parse_string(key, value):
-            ball = VisualSensor.BallT()
+            ball = SeeParser.BallT()
 
             state_data = value.split(" ")
             n_state_data = len(state_data)
@@ -143,9 +143,9 @@ class VisualSensor:
             super().__init__()
             self.unum_ = UNUM_UNKNOWN
             self.goalie_: bool = False
-            self.body_ = VisualSensor.DIR_ERR
-            self.face_ = VisualSensor.DIR_ERR
-            self.arm_ = VisualSensor.DIR_ERR
+            self.body_ = SeeParser.DIR_ERR
+            self.face_ = SeeParser.DIR_ERR
+            self.arm_ = SeeParser.DIR_ERR
             self.kicking_: bool = False
             self.tackle_: bool = False
 
@@ -153,18 +153,18 @@ class VisualSensor:
             super().reset()
             self.unum_ = UNUM_UNKNOWN
             self.goalie_: bool = False
-            self.body_ = VisualSensor.DIR_ERR
-            self.face_ = VisualSensor.DIR_ERR
-            self.arm_ = VisualSensor.DIR_ERR
+            self.body_ = SeeParser.DIR_ERR
+            self.face_ = SeeParser.DIR_ERR
+            self.arm_ = SeeParser.DIR_ERR
             self.kicking_: bool = False
             self.tackle_: bool = False
 
         @staticmethod
         def parse_string(key, value, team_name, visual_sensor):
             # PARSE KEY
-            types = VisualSensor.PlayerInfoType
+            types = SeeParser.PlayerInfoType
 
-            player = VisualSensor.PlayerT()
+            player = SeeParser.PlayerT()
             result_type = types.Player_Illegal
 
             player_data = key.split(" ")
@@ -256,15 +256,15 @@ class VisualSensor:
         self._their_team_name: str = None
         self._marker_map: dict[str, MarkerID] = {}
 
-        self._balls: list[VisualSensor.BallT] = []
-        self._markers: list[VisualSensor.MarkerT] = []
-        self._behind_markers: list[VisualSensor.MarkerT] = []
-        self._lines: list[VisualSensor.LineT] = []
-        self._teammates: list[VisualSensor.PlayerT] = []
-        self._unknown_teammates: list[VisualSensor.PlayerT] = []
-        self._opponents: list[VisualSensor.PlayerT] = []
-        self._unknown_opponents: list[VisualSensor.PlayerT] = []
-        self._unknown_players: list[VisualSensor.PlayerT] = []
+        self._balls: list[SeeParser.BallT] = []
+        self._markers: list[SeeParser.MarkerT] = []
+        self._behind_markers: list[SeeParser.MarkerT] = []
+        self._lines: list[SeeParser.LineT] = []
+        self._teammates: list[SeeParser.PlayerT] = []
+        self._unknown_teammates: list[SeeParser.PlayerT] = []
+        self._opponents: list[SeeParser.PlayerT] = []
+        self._unknown_opponents: list[SeeParser.PlayerT] = []
+        self._unknown_players: list[SeeParser.PlayerT] = []
 
         self.initial_marker_map()
 
@@ -337,7 +337,7 @@ class VisualSensor:
         self._unknown_players.clear()
 
     def add_player(self, player, player_type):
-        types = VisualSensor.PlayerInfoType
+        types = SeeParser.PlayerInfoType
         if player_type == types.Player_Teammate:
             self._teammates.append(player)
         elif player_type == types.Player_Unknown_Teammate:
@@ -374,7 +374,7 @@ class VisualSensor:
         for key_value in object_data:
             key = key_value[0]
             value = key_value[1]
-            types = VisualSensor.ObjectType
+            types = SeeParser.ObjectType
             t: str = key[0]
             if t in ['P', 'B', 'L']:
                 t = t.lower()
@@ -383,21 +383,21 @@ class VisualSensor:
             value = value.strip(")")
 
             if obj_type == types.Obj_Marker or obj_type == types.Obj_Goal:
-                self._markers.append(VisualSensor.MarkerT.parse_string(
+                self._markers.append(SeeParser.MarkerT.parse_string(
                     key, value, obj_type, self._marker_map))
             elif obj_type == types.Obj_Marker_Behind or obj_type == types.Obj_Goal_Behind:
-                self._behind_markers.append(VisualSensor.MarkerT.parse_string(
+                self._behind_markers.append(SeeParser.MarkerT.parse_string(
                     key, value, obj_type, self._marker_map))
             elif obj_type == types.Obj_Player:
-                player, player_type = VisualSensor.PlayerT.parse_string(
+                player, player_type = SeeParser.PlayerT.parse_string(
                     key, value, team_name, self)
                 self.add_player(player, player_type)
             elif obj_type == types.Obj_Line:
                 self._lines.append(
-                    VisualSensor.LineT.parse_string(key, value))
+                    SeeParser.LineT.parse_string(key, value))
             elif obj_type == types.Obj_Ball:
                 self._balls.append(
-                    VisualSensor.BallT.parse_string(key, value))
+                    SeeParser.BallT.parse_string(key, value))
             else:
                 log.os_log().error(f"A seen object is not identified by its type!!")
 

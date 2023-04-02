@@ -9,7 +9,7 @@ from lib.player.object_ball import *
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 from lib.player.object_self import SelfObject
 from lib.player.sensor.body_sensor import SenseBodyParser
-from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player.sensor.visual_sensor import SeeParser
 from lib.player.view_area import ViewArea
 from lib.player_command.player_command_support import PlayerAttentiontoCommand
 from lib.rcsc.game_mode import GameMode
@@ -531,7 +531,7 @@ class WorldModel:
 
         self._dir_count = [c+1 for c in self._dir_count]
     
-    def estimate_ball_by_pos_diff(self, see: VisualSensor, act: 'ActionEffector', rpos: Vector2D, rpos_error: Vector2D, vel: Vector2D, vel_error: Vector2D, vel_count) -> int:
+    def estimate_ball_by_pos_diff(self, see: SeeParser, act: 'ActionEffector', rpos: Vector2D, rpos_error: Vector2D, vel: Vector2D, vel_error: Vector2D, vel_count) -> int:
         SP = ServerParam.i()
 
         if self.self().has_sensed_collision():
@@ -611,7 +611,7 @@ class WorldModel:
         return vel_count
                 
     def localize_self(self,
-                      see:VisualSensor,
+                      see:SeeParser,
                       body: SenseBodyParser,
                       act: 'ActionEffector',
                       current_time: GameTime):
@@ -635,7 +635,7 @@ class WorldModel:
         if my_pos.is_valid():
             self.self().update_pos_by_see(my_pos, my_pos_err, my_possible_posses, team_angle_face, angle_face_error, current_time)
         
-    def localize_ball(self, see: VisualSensor, act: 'ActionEffector'):
+    def localize_ball(self, see: SeeParser, act: 'ActionEffector'):
         SP = ServerParam.i()
         if not self.self().face_valid():
             return
@@ -910,7 +910,7 @@ class WorldModel:
         
         new_unknown_players.append(PlayerObject(side=SideID.NEUTRAL, player=player))
     
-    def localize_players(self, see: VisualSensor):
+    def localize_players(self, see: SeeParser):
         if not self.self().face_valid() or not self.self().pos_valid():
             return
         if DEBUG:
@@ -1013,7 +1013,7 @@ class WorldModel:
             p.set_player_type(self._player_types[HETERO_DEFAULT]) 
 
     def update_after_see(self,
-                         see: VisualSensor,
+                         see: SeeParser,
                          body: SenseBodyParser,
                          act: 'ActionEffector',
                          current_time: GameTime):

@@ -10,7 +10,7 @@ from pyrusgeom.angle_deg import AngleDeg
 from lib.player.action_effector import ActionEffector
 from lib.player.sensor.body_sensor import SenseBodyParser
 from lib.player.sensor.see_state import SeeState
-from lib.player.sensor.visual_sensor import VisualSensor
+from lib.player.sensor.visual_sensor import SeeParser
 from lib.player.soccer_action import ViewAction, NeckAction, FocusPointAction
 from lib.player.soccer_agent import SoccerAgent
 from lib.player.world_model import WorldModel
@@ -41,7 +41,7 @@ class PlayerAgent(SoccerAgent):
         self._last_decision_time: GameTime = GameTime()
 
         self._sense_body_parser: SenseBodyParser = SenseBodyParser()
-        self._visual_sensor: VisualSensor = VisualSensor()
+        self._see_parser: SeeParser = SeeParser()
         self._see_state: SeeState = SeeState()
 
         self._team_name = team_config.TEAM_NAME
@@ -94,6 +94,7 @@ class PlayerAgent(SoccerAgent):
             log.sw_log().sensor().add_text(str(self._sense_body_parser))
             log.os_log().debug(str(self._sense_body_parser))
 
+    def update_after_receive_sense_body_msg(self):
         self._see_state.update_by_sense_body(self._current_time,
                                              self._sense_body_parser.view_width())
         self._effector.check_command_count(self._sense_body_parser)
@@ -106,27 +107,30 @@ class PlayerAgent(SoccerAgent):
             log.os_log().debug("===Sense Body Results self===\n" + str(self.world().self()))
             log.os_log().debug("===Sense Body Results ball===\n" + str(self.world().ball()))
 
-    def visual_parser(self, message: str):
+        KickTable.instance().create_tables()
+
+    def parse_see_message(self, message: str):
         if ServerParam.i().is_fullstate(self.world().our_side()) and not team_config.FULL_STATE_DEBUG:
             return
         self.parse_cycle_info(message, False)
         log.debug_client().add_message(f'rec see in {self.world().time().cycle()}\n')
-        self._visual_sensor.parse(message,
-                                  self._team_name,
-                                  self._current_time)
+        self._see_parser.parse(message,
+                               self._team_name,
+                               self._current_time)
 
         if DEBUG:
             log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
             log.os_log().debug(f'{"=" * 30}See Message Sensor{"=" * 30}\n' + message)
-            log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
-            log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._visual_sensor))
+            log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._see_parser))
+            log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._see_parser))
 
+    def update_after_receive_see_msg(self):
         self._see_state.update_by_see(self._current_time,
                                       self.world().self().view_width())
 
-        if self._visual_sensor.time() == self._current_time and \
+        if self._see_parser.time() == self._current_time and \
                 self.world().see_time() != self._current_time:
-            self.world().update_after_see(self._visual_sensor,
+            self.world().update_after_see(self._see_parser,
                                           self._sense_body_parser,
                                           self.effector(),
                                           self._current_time)
@@ -380,9 +384,10 @@ class PlayerAgent(SoccerAgent):
             ServerParam.i().parse(message)
         if message.startswith("(sense_body"):
             self.parse_sense_body_message(message)
-            KickTable.instance().create_tables()
+            self.update_after_receive_sense_body_msg()
         if message.startswith("(see"):
-            self.visual_parser(message)
+            self.parse_see_message(message)
+            self.update_after_receive_see_msg()
         if message.startswith("(hear"):
             self.hear_parser(message)
         if message.startswith("(fullstate"):
