@@ -36,9 +36,7 @@ class BasicClient:
             agent.handle_exit()
             return
 
-        while self.is_server_alive():
-            # TODO handle selects and rets and fds and timeout ... (I dont know what the hell are these)
-            agent.run()
+        agent.run()
 
     def set_server_alive(self, mode: bool):
         self._server_alive = mode
