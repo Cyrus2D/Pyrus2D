@@ -65,7 +65,7 @@ class SeeState:
     def update_by_see(self, see_time: GameTime, vw: ViewWidth):
         if see_time == self._last_see_time:
             self._current_see_count += 1
-            log.sw_log().system().add_text( "see_state: update after see: estimated synch, but duplicated")
+            log.sw_log().system().add_text("see_state: update after see: estimated synch, but duplicated")
         else:
             self.set_new_cycle(see_time)
             self._last_see_time = see_time.copy()
@@ -75,13 +75,13 @@ class SeeState:
         self._cycles_till_next_see = 0
         self.set_view_mode(vw)
 
-        new_timing: Timing = self._get_next_timing(vw)
+        new_timing: Timing = self._get_next_timing()
         if new_timing == Timing.TIME_NOSYNCH:
             log.os_log().error(f"time: {see_time}, invalid view width. no synchronization...")
 
-        log.sw_log().system().add_text( f"see state: (update by seee) see update,"
-                                    f"last time: {self._last_timing},"
-                                    f"current time: {new_timing}")
+        log.sw_log().system().add_text(f"see state: (update by seee) see update,"
+                                       f"last time: {self._last_timing},"
+                                       f"current time: {new_timing}")
 
         self._last_timing = new_timing
 
@@ -120,7 +120,7 @@ class SeeState:
     def set_view_mode(self, new_width: ViewWidth):
         if self._last_see_time != self._current_time:
             if DEBUG:
-                log.sw_log().system().add_text( "see state (set_view_mode) no current cycle see arrival")
+                log.sw_log().system().add_text("see state (set_view_mode) no current cycle see arrival")
             return
 
         self._view_width = new_width
@@ -137,8 +137,8 @@ class SeeState:
             self._cycles_till_next_see = 1
             self._synch_type = SynchType.SYNCH_NARROW
 
-        log.sw_log().system().add_text( f"see state (set_view_mode)"
-                                    f" synch {new_width}: cycle = {self._cycles_till_next_see}")
+        log.sw_log().system().add_text(f"see state (set_view_mode)"
+                                       f" synch {new_width}: cycle = {self._cycles_till_next_see}")
         return
 
     def can_change_view_to(self, next_width: ViewWidth, current: GameTime):
@@ -150,5 +150,5 @@ class SeeState:
     def cycles_till_next_see(self):
         return self._cycles_till_next_see
 
-    def _get_next_timing(self, vw: ViewWidth):
+    def _get_next_timing(self):
         return Timing.TIME_SYNC
