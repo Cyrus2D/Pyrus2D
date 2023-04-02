@@ -26,7 +26,6 @@ from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.messenger.messenger import Messenger
 import team_config
 
-
 DEBUG = True
 
 
@@ -118,9 +117,9 @@ class PlayerAgent(SoccerAgent):
 
         if DEBUG:
             log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
-            log.os_log().debug(f'{"="*30}See Message Sensor{"="*30}\n' + message)
+            log.os_log().debug(f'{"=" * 30}See Message Sensor{"=" * 30}\n' + message)
             log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._visual_sensor))
-            log.os_log().debug(f'{"="*30}Visual Sensor{"="*30}\n' + str(self._visual_sensor))
+            log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._visual_sensor))
 
         self._see_state.update_by_see(self._current_time,
                                       self.world().self().view_width())
@@ -197,27 +196,27 @@ class PlayerAgent(SoccerAgent):
 
                 if new_time - 1 != old_time.cycle():
                     log.os_log().warn(f"player({self.world().self_unum()}):"
-                                f"last server time was wrong maybe")
+                                      f"last server time was wrong maybe")
             else:
                 if by_sense_body:
                     self._current_time.assign(self._current_time.cycle(), self._current_time.stopped_cycle() + 1)
-                    log.sw_log().any().add_text( f"Cycle: {self._current_time.cycle()}-"
-                                                   f"{self._current_time.stopped_cycle()} " + '-' * 20)
+                    log.sw_log().any().add_text(f"Cycle: {self._current_time.cycle()}-"
+                                                f"{self._current_time.stopped_cycle()} " + '-' * 20)
 
                     if self._last_decision_time != old_time and old_time.stopped_cycle() != 0:
-                        log.sw_log().system().add_text( f"(update current time) missed last action(1)")
+                        log.sw_log().system().add_text(f"(update current time) missed last action(1)")
         else:
             self._current_time.assign(new_time, 0)
             if old_time.cycle() != new_time:
-                log.sw_log().any().add_text( f"Cycle {new_time}-0 " + '-' * 20)
+                log.sw_log().any().add_text(f"Cycle {new_time}-0 " + '-' * 20)
 
                 if new_time - 1 != old_time.cycle():
                     log.os_log().warn(f"player({self.world().self_unum()}):"
-                                f"last server time was wrong maybe")
+                                      f"last server time was wrong maybe")
 
                 if (self._last_decision_time.stopped_cycle() == 0
                         and self._last_decision_time.cycle() != new_time - 1):
-                    log.sw_log().system().add_text( f"(update current time) missed last action(2)")
+                    log.sw_log().system().add_text(f"(update current time) missed last action(2)")
 
     def think_received(self):
         return self._think_received
@@ -364,17 +363,17 @@ class PlayerAgent(SoccerAgent):
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
-                log.sw_log().world().add_circle( 1, center=p.pos(), color=Color(string='blue'))
+                log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='blue'))
         if self.world().ball().pos_valid():
-            log.sw_log().world().add_circle( center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
+            log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
 
         if ServerParam.i().is_fullstate(self.world().our_side()) and team_config.FULL_STATE_DEBUG:
             for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
                 if p.pos_valid():
-                    log.sw_log().world().add_circle( 1, center=p.pos(), color=Color(string='red'))
+                    log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='red'))
             if self.world().ball().pos_valid():
-                log.sw_log().world().add_circle( center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
-                                fill=True)
+                log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
+                                                fill=True)
 
     def parse_message(self, message: str):
         if message.startswith("(init"):
