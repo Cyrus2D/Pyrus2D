@@ -34,7 +34,6 @@ class Timing(Enum):
 
 class SeeState:
     HISTORY_SIZE: int = 3
-    _synch_see_mode: bool = True
 
     def __init__(self):
         self._current_time: GameTime = GameTime(-1, 0)
@@ -46,13 +45,6 @@ class SeeState:
         self._view_width: ViewWidth = ViewWidth(ViewWidth.NORMAL)
 
         self._see_count_history: list = [0 for i in range(SeeState.HISTORY_SIZE)]
-
-    def set_synch_mode(self):
-        SeeState._synch_see_mode = True
-
-    @staticmethod
-    def synch_see_mode():
-        return SeeState._synch_see_mode
 
     def last_timing(self):
         return self._last_timing
@@ -73,16 +65,11 @@ class SeeState:
     def update_by_see(self, see_time: GameTime, vw: ViewWidth):
         if see_time == self._last_see_time:
             self._current_see_count += 1
-            if self.is_synch():
-                log.sw_log().system().add_text( "see_state: update after see: estimated synch, but duplicated")
+            log.sw_log().system().add_text( "see_state: update after see: estimated synch, but duplicated")
         else:
             self.set_new_cycle(see_time)
             self._last_see_time = see_time.copy()
             self._current_see_count = 1
-
-        if not self.is_synch():
-            log.sw_log().system().add_text( "see state: update by see: but no synch")
-            return
 
         # if self._cycles_till_next_see > 0:
         self._cycles_till_next_see = 0
@@ -138,137 +125,30 @@ class SeeState:
 
         self._view_width = new_width
 
-        if SeeState._synch_see_mode:
-            if new_width == ViewWidth.WIDE:
-                self._cycles_till_next_see = 3
-                self._synch_type = SynchType.SYNCH_WIDE
-
-            elif new_width == ViewWidth.NORMAL:
-                self._cycles_till_next_see = 2
-                self._synch_type = SynchType.SYNCH_NORMAL
-
-            elif new_width == ViewWidth.NARROW:
-                self._cycles_till_next_see = 1
-                self._synch_type = SynchType.SYNCH_NARROW
-
-            log.sw_log().system().add_text( f"see state (set_view_mode)"
-                                        f" synch {new_width}: cycle = {self._cycles_till_next_see}")
-            return
-
-        if self._last_timing == Timing.TIME_0_00:
-            if new_width == ViewWidth.WIDE:
-                self._cycles_till_next_see = 3
-                self._synch_type = SynchType.SYNCH_WIDE
-            elif new_width == ViewWidth.NORMAL:
-                self._cycles_till_next_see = 1
-                self._synch_type = SynchType.SYNCH_EVERY
-            elif new_width == ViewWidth.NARROW:
-                log.os_log().error(f"{self._current_time} SeeState. TIME_0_00. Narrow is illegal.")
-                self._synch_type = SynchType.SYNCH_NO
-            log.sw_log().system().add_text(
-                          f"see state (setViewMode) 00:{new_width}: cycle = {self._cycles_till_next_see}")
-            return
-
-        if self._last_timing == Timing.TIME_50_0:
-            if new_width == ViewWidth.WIDE:
-                self._cycles_till_next_see = 3
-                self._synch_type = SynchType.SYNCH_WIDE
-            elif new_width == ViewWidth.NORMAL:
-                self._cycles_till_next_see = 2
-                self._synch_type = SynchType.SYNCH_NORMAL
-            elif new_width == ViewWidth.NARROW:
-                self._cycles_till_next_see = 1
-                self._synch_type = SynchType.SYNCH_EVERY
-            log.sw_log().system().add_text(
-                          f"see state (setViewMode) 50:{new_width}: cycle = {self._cycles_till_next_see}")
-            return
-
-        if self._last_timing == Timing.TIME_22_5:
-            if new_width == ViewWidth.WIDE:
-                self._cycles_till_next_see = 3
-                self._synch_type = SynchType.SYNCH_WIDE
-            elif new_width == ViewWidth.NORMAL:
-                log.os_log().error(f"{self._current_time} SeeState. TIME_22_5. Normal is illegal.")
-                self._synch_type = SynchType.SYNCH_NO
-            elif new_width == ViewWidth.NARROW:
-                self._cycles_till_next_see = 1
-                self._synch_type = SynchType.SYNCH_EVERY
-            log.sw_log().system().add_text(
-                          f"see state (setViewMode) 50:{new_width}: cycle = {self._cycles_till_next_see}")
-            return
-
-        self._synch_type = SynchType.SYNCH_NO
         if new_width == ViewWidth.WIDE:
             self._cycles_till_next_see = 3
+            self._synch_type = SynchType.SYNCH_WIDE
+
         elif new_width == ViewWidth.NORMAL:
             self._cycles_till_next_see = 2
+            self._synch_type = SynchType.SYNCH_NORMAL
+
         elif new_width == ViewWidth.NARROW:
             self._cycles_till_next_see = 1
+            self._synch_type = SynchType.SYNCH_NARROW
+
+        log.sw_log().system().add_text( f"see state (set_view_mode)"
+                                    f" synch {new_width}: cycle = {self._cycles_till_next_see}")
+        return
 
     def can_change_view_to(self, next_width: ViewWidth, current: GameTime):
         if current != self._last_see_time:
             return False
 
-        if SeeState._synch_see_mode:
-            return True
-
-        if next_width == ViewWidth.NARROW:
-            if self._last_timing == Timing.TIME_0_00:
-                return False
-            return True
-
-        if next_width == ViewWidth.NORMAL:
-            if self._last_timing == Timing.TIME_0_00 or self._last_timing == Timing.TIME_50_0:
-                return True
-            return False
-
-        if next_width == ViewWidth.WIDE:
-            return True
-        log.os_log().error("see state (can_change_view) unexpected reeach...")
         return True
 
     def cycles_till_next_see(self):
         return self._cycles_till_next_see
 
-    def is_synch(self) -> bool:
-        if SeeState._synch_see_mode:
-            return True
-
-        if self._synch_type == SynchType.SYNCH_SYNC:
-            return True
-
-        return (self._last_timing == Timing.TIME_0_00
-                or self._last_timing == Timing.TIME_50_0
-                or self._last_timing == Timing.TIME_22_5)
-
     def _get_next_timing(self, vw: ViewWidth):
-        if SeeState._synch_see_mode:
-            return Timing.TIME_SYNC
-
-        timing = Timing.TIME_NOSYNCH
-
-        if self.last_timing() == Timing.TIME_0_00:
-            if vw == ViewWidth.WIDE:
-                timing = Timing.TIME_0_00
-            elif vw == ViewWidth.NORMAL:
-                timing = Timing.TIME_50_0
-            elif vw == ViewWidth.NARROW:
-                timing = Timing.TIME_NOSYNCH
-
-        elif self.last_timing() == Timing.TIME_50_0:
-            if vw == ViewWidth.WIDE:
-                timing = Timing.TIME_50_0
-            elif vw == ViewWidth.NORMAL:
-                timing = Timing.TIME_0_00
-            elif vw == ViewWidth.NARROW:
-                timing = Timing.TIME_22_5
-
-        elif self.last_timing() == Timing.TIME_22_5:
-            if vw == ViewWidth.WIDE:
-                timing = Timing.TIME_22_5
-            elif vw == ViewWidth.NORMAL:
-                timing = Timing.TIME_NOSYNCH
-            elif vw == ViewWidth.NARROW:
-                timing = Timing.TIME_0_00
-
-        return timing
+        return Timing.TIME_SYNC

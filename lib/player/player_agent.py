@@ -239,17 +239,15 @@ class PlayerAgent(SoccerAgent):
         if self.world().see_time() == self._current_time:
             return True
 
-        wait_thr: int = (team_config.WAIT_TIME_THR_SYNCH_VIEW
-                         if self._see_state.is_synch()
-                         else team_config.WAIT_TIME_THR_NOSYNCH_VIEW)
+        wait_thr: int = team_config.WAIT_TIME_THR_SYNCH_VIEW
 
         if self._last_decision_time == self.world().sense_body_time() and timeout_count <= 2:
             return False
 
-        if SeeState.synch_see_mode() and SP.synch_see_offset() > wait_thr and msec_from_sense >= 0:
+        if SP.synch_see_offset() > wait_thr and msec_from_sense >= 0:
             return True
 
-        if self._see_state.is_synch() and self._see_state.cycles_till_next_see() > 0:
+        if self._see_state.cycles_till_next_see() > 0:
             return True
 
         if msec_from_sense >= wait_thr * SP.slow_down_factor():
