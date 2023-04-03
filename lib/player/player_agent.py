@@ -225,7 +225,10 @@ class PlayerAgent(SoccerAgent):
     def think_received(self):
         return self._think_received
 
-    def is_decision_time(self, msec_from_sense: int, timeout_count: int):
+    def is_decision_time(self, timeout_count: int, waited_msec):
+        msec_from_sense = -1
+        if self._body_time_stamp:
+            msec_from_sense = get_time_msec() - self._body_time_stamp
         SP = ServerParam.i()
 
         if SP.synch_mode():
@@ -308,51 +311,35 @@ class PlayerAgent(SoccerAgent):
         return self._see_state
 
     def run(self):
+        log.os_log().error('@#RUN')
         last_time_rec = time.time()
         waited_msec: int = 0
         timeout_count: int = 0
-        while True:
-            while True:
-                length, message, server_address = self._client.recv_message()
-                if len(message) != 0:
-                    self.parse_message(message.decode())
-
-                    last_time_rec = time.time()
-                    waited_msec = 0
-                    timeout_count = 0
-                    break
-
-                elif time.time() - last_time_rec > 3:
-                    self._client.set_server_alive(False)
-                    break
-                if self.think_received():
-                    last_time_rec = time.time()
-                    break
-
+        while self._client.is_server_alive():
+            length, message, server_address = self._client.recv_message()
+            if len(message) == 0:
                 waited_msec += team_config.SOCKET_INTERVAL
                 timeout_count += 1
-                self.handle_timeout(timeout_count, waited_msec)
+                if time.time() - last_time_rec > 3:
+                    log.os_log().critical(f'@####time time.time() - last_time_rec')
+                    self._client.set_server_alive(False)
+                    break
+            else:
+                log.os_log().critical('@####' + str(message[:20]))
+                self.parse_message(message.decode())
+                last_time_rec = time.time()
+                waited_msec = 0
+                timeout_count = 0
 
-            if not self._client.is_server_alive():
-                log.os_log().info(f"{team_config.TEAM_NAME} Agent : Server Down")
-                break
-
-            if self.think_received():
-                self.action()
-                self.debug_players()
-                self._think_received = False
-            elif not ServerParam.i().synch_mode():
-                if (self._last_decision_time != self._current_time
-                        and self.world().see_time() == self._current_time):
-                    self.action()  # TODO CHECK
-
-    def handle_timeout(self, timeout_count: int, waited_msec: int):
-        msec_from_sense = -1
-        if self._body_time_stamp:
-            msec_from_sense = get_time_msec() - self._body_time_stamp
-
-        if self.is_decision_time(msec_from_sense, timeout_count):
-            self.action()
+            if ServerParam.i().synch_mode():
+                if self.think_received():
+                    self.action()
+                    self.debug_players()
+                    self._think_received = False
+            else:
+                if self.is_decision_time(timeout_count, waited_msec) or (self._last_decision_time != self._current_time and self.world().see_time() == self._current_time):
+                    log.os_log().error('@#### act dec time')
+                    self.action()
 
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
@@ -370,24 +357,24 @@ class PlayerAgent(SoccerAgent):
                                                 fill=True)
 
     def parse_message(self, message: str):
-        if message.startswith("(init"):
-            self.parse_init(message)
-        if message.startswith("(server_param"):
-            ServerParam.i().parse(message)
         if message.startswith("(sense_body"):
             self.parse_sense_body_message(message)
             self.update_after_receive_sense_body_msg()
-        if message.startswith("(see"):
+        elif message.startswith("(see"):
             self.parse_see_message(message)
             self.update_after_receive_see_msg()
-        if message.startswith("(hear"):
-            self.hear_parser(message)
-        if message.startswith("(fullstate"):
+        elif message.startswith("(init"):
+            self.parse_init(message)
+        elif message.startswith("(server_param"):
+            ServerParam.i().parse(message)
+        elif message.startswith("(fullstate"):
             self._full_world.parse(message)
-        if message.startswith("(player_type") or message.startswith("(sense_body") or message.startswith("(init"):
+        elif message.startswith("(hear"):
+            self.hear_parser(message)
+        elif message.startswith("(player_type"):
             self._world.parse(message)
             self._full_world.parse(message)
-        if message.startswith("(think"):
+        elif message.startswith("(think"):
             self._think_received = True
 
     def do_dash(self, power, angle=0):
