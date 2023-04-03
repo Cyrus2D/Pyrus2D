@@ -48,7 +48,8 @@ class WorldModel:
     DIR_CONF_DIVS = 72
     DIR_STEP = 360. / DIR_CONF_DIVS
     
-    def __init__(self):
+    def __init__(self, name):
+        self._name = name
         self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = None
         self._team_name: str = ""
@@ -177,7 +178,8 @@ class WorldModel:
         self._opponents.clear()
         self._unknown_players.clear()
         self._all_players.clear()
-
+        self._our_players.clear()
+        self._their_players.clear()
         for player_dic in parser.dic()['players']:
             player = PlayerObject()
             player.init_dic(player_dic)
@@ -185,7 +187,8 @@ class WorldModel:
             if player.side().value == self._our_side:
                 if player.unum() == self._self_unum:
                     self._self = SelfObject(player)
-                self._teammates.append(player)
+                else:
+                    self._teammates.append(player)
             elif player.side() == SideID.NEUTRAL:
                 self._unknown_players.append(player)
             else:
@@ -1157,6 +1160,10 @@ class WorldModel:
         
         self._all_players.append(self.self())
         self._our_players.append(self.self())
+        for i in range(12):
+            self._our_players_array[i] = None
+            self._their_players_array[i] = None
+
         self._our_players_array[self.self().unum()] = self.self()
         for p in self._teammates:
             self._all_players.append(p)
@@ -1349,31 +1356,23 @@ class WorldModel:
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
             self.update(act, current_time)
-            
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()
         self.update_player_stamina_by_hear()
-
         # TODO UPDATE BALL BY COLLISION
-        
         self.ball().update_by_game_mode(self.game_mode())
         self.ball().update_self_related(self.self(), self._prev_ball)
-        
         self.self().update_ball_info(self.ball())
-
         self.update_player_state_cache()
         self.update_player_type()
-        
         # TODO update player cards and player types
         # TODO update players collision
         self.update_offside_line()
-        
         # self.update_last_kicker() # TODO IMP FUNC
         self.update_intercept_table()
-        
+
         # TODO update maybe kickable teammates
-        
         self.self().update_kickable_state(self.ball(),
                                           self.intercept_table().self_reach_cycle(),
                                           self.intercept_table().teammate_reach_cycle(),
@@ -1381,23 +1380,23 @@ class WorldModel:
 
         if DEBUG:
             log.sw_log().world().add_text('===After processing see message===')
-            log.sw_log().world().add_text('===Our Players===')
+            log.sw_log().world().add_text(f'===Our Players=== {len(self.our_players())} {self._name}')
             for p in self.our_players():
                 log.sw_log().world().add_text(str(p))
-            log.sw_log().world().add_text('===Their Players===')
+            log.sw_log().world().add_text(f'===Their Players=== {len(self.their_players())} {self._name}')
             for p in self.their_players():
                 log.sw_log().world().add_text(str(p))
             log.os_log().debug('===After processing see message===')
-            log.os_log().debug('===Ball===\n' + str(self.ball().long_str()))
-            log.os_log().debug('===Our Players===')
-            log.os_log().debug('-----------------------')
-            for p in self.our_players():
-                log.os_log().debug('-----------------------')
-                log.os_log().debug(str(self.self()) if p.is_self() else str(p.long_str()))
-            log.os_log().debug('===Their Players===')
-            for p in self.their_players():
-                log.os_log().debug('-----------------------')
-                log.os_log().debug(str(p.long_str()))
+            # log.os_log().debug('===Ball===\n' + str(self.ball().long_str()))
+            log.os_log().debug(f'===Our Players=== {len(self.our_players())} {self._name}')
+            # log.os_log().debug('-----------------------')
+            # for p in self.our_players():
+            #     log.os_log().debug('-----------------------')
+            #     log.os_log().debug(str(self.self()) if p.is_self() else str(p.long_str()))
+            log.os_log().debug(f'===Their Players=== {len(self.their_players())} {self._name}')
+            # for p in self.their_players():
+            #     log.os_log().debug('-----------------------')
+            #     log.os_log().debug(str(p.long_str()))
 
     def update_just_after_decision(self, act: 'ActionEffector'):
         self._decision_time = self.time().copy()

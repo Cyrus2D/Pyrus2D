@@ -25,6 +25,8 @@ from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.messenger.messenger import Messenger
 import team_config
+from lib.debug.timer import ProfileTimer as pt
+
 
 DEBUG = True
 
@@ -56,8 +58,8 @@ class PlayerAgent(SoccerAgent):
 
         self._goalie: bool = False
 
-        self._real_world = WorldModel()
-        self._full_world = WorldModel()
+        self._real_world = WorldModel('real')
+        self._full_world = WorldModel('full')
         self._last_body_command = []
         self._is_synch_mode = True
         self._effector = ActionEffector(self)
@@ -82,23 +84,37 @@ class PlayerAgent(SoccerAgent):
 
     def parse_sense_body_message(self, message: str):
         self._body_time_stamp = get_time_msec()
-
         self.parse_cycle_info(message, True)
+        self._sense_body_parser.parse(message, self._current_time)
+        self._see_state.update_by_sense_body(self._current_time,
+                                             self._sense_body_parser.view_width())
         if DEBUG:
             log.os_log().debug(f'##################{self.world().time().cycle()}#################')
-        self._sense_body_parser.parse(message, self._current_time)
-
-        if DEBUG:
             log.sw_log().sensor().add_text('===Received Sense Message===\n' + message)
             log.os_log().debug('===Received Sense Message===\n' + message)
             log.sw_log().sensor().add_text(str(self._sense_body_parser))
             log.os_log().debug(str(self._sense_body_parser))
 
-    def update_after_receive_sense_body_msg(self):
-        self._see_state.update_by_sense_body(self._current_time,
-                                             self._sense_body_parser.view_width())
+    def parse_see_message(self, message: str):
+        self.parse_cycle_info(message, False)
+        log.debug_client().add_message(f'rec see in {self.world().time().cycle()}\n')
+        self._see_parser.parse(message,
+                               self._team_name,
+                               self._current_time)
+        self._see_state.update_by_see(self._current_time,
+                                      self.real_world().self().view_width())
+
+        if DEBUG:
+            log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
+            log.os_log().debug(f'{"=" * 30}See Message Sensor{"=" * 30}\n' + message)
+            log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._see_parser))
+            log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._see_parser))
+
+    def update_after_receive_sense_see_msgs(self):
         self._effector.check_command_count(self._sense_body_parser)
-        self.world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
+        self.real_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
+        if self.full_world_exists():
+            self.full_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
         # TODO CHECK HERE FOR SEPARATE WORLD
 
         if DEBUG:
@@ -108,30 +124,12 @@ class PlayerAgent(SoccerAgent):
             log.os_log().debug("===Sense Body Results ball===\n" + str(self.world().ball()))
 
         KickTable.instance().create_tables()
-
-    def parse_see_message(self, message: str):
-        self.parse_cycle_info(message, False)
-        log.debug_client().add_message(f'rec see in {self.world().time().cycle()}\n')
-        self._see_parser.parse(message,
-                               self._team_name,
-                               self._current_time)
-
-        if DEBUG:
-            log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
-            log.os_log().debug(f'{"=" * 30}See Message Sensor{"=" * 30}\n' + message)
-            log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._see_parser))
-            log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._see_parser))
-
-    def update_after_receive_see_msg(self):
-        self._see_state.update_by_see(self._current_time,
-                                      self.world().self().view_width())
-
         if self._see_parser.time() == self._current_time and \
-                self.world().see_time() != self._current_time:
-            self.world().update_after_see(self._see_parser,
-                                          self._sense_body_parser,
-                                          self.effector(),
-                                          self._current_time)
+                self.real_world().see_time() != self._current_time:
+            self.real_world().update_after_see(self._see_parser,
+                                               self._sense_body_parser,
+                                               self.effector(),
+                                               self._current_time)
 
     def hear_parser(self, message: str):
         self.parse_cycle_info(message, False)
@@ -141,7 +139,8 @@ class PlayerAgent(SoccerAgent):
         cycle = int(cycle)
 
         if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
-            self.hear_player_parser(message)
+            # self.hear_player_parser(message)
+            pass
         elif sender == "referee":
             self.hear_referee_parser(message)
 
@@ -157,7 +156,7 @@ class PlayerAgent(SoccerAgent):
             return
         sender = int(data[4])
 
-        Messenger.decode_all(self.world()._messenger_memory,
+        Messenger.decode_all(self.real_world()._messenger_memory,
                              player_message,
                              sender,
                              self._current_time)
@@ -174,7 +173,7 @@ class PlayerAgent(SoccerAgent):
         if self._game_mode.type() is GameModeType.TimeOver:
             self.send_bye_command()
             return
-        self.world().update_game_mode(self._game_mode, self._current_time)
+        self.real_world().update_game_mode(self._game_mode, self._current_time)
         if self.full_world_exists():
             self.full_world().update_game_mode(self._game_mode, self._current_time)
 
@@ -342,6 +341,8 @@ class PlayerAgent(SoccerAgent):
                     log.os_log().error('@#### act dec time')
                     self.action()
             self.flush_logs()
+            if len(message) > 0:
+                print(pt.get())
         self.send_bye_command()
 
     def debug_players(self):
@@ -362,10 +363,8 @@ class PlayerAgent(SoccerAgent):
     def parse_message(self, message: str):
         if message.startswith("(sense_body"):
             self.parse_sense_body_message(message)
-            self.update_after_receive_sense_body_msg()
         elif message.startswith("(see"):
             self.parse_see_message(message)
-            self.update_after_receive_see_msg()
         elif message.startswith("(init"):
             self.parse_init(message)
         elif message.startswith("(server_param"):
@@ -551,29 +550,30 @@ class PlayerAgent(SoccerAgent):
             return True
         return False
 
+    def update_before_decision(self):
+        self.update_after_receive_sense_see_msgs()
+        self.real_world().update_just_before_decision(self._effector, self._current_time)
+        if self.full_world_exists():
+            self.full_world().update_just_before_decision(self._effector, self._current_time)
+
     def action(self):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
-
-        self.world().update_just_before_decision(self._effector, self._current_time)
-        if self.full_world_exists():
-            self.full_world().update_just_before_decision(self._effector, self._current_time)
-
+        self.update_before_decision()
         self._effector.reset()
-
         self.action_impl()
         self.do_view_action()
         self.do_neck_action()
         self.do_change_focus_action()
         self.communicate_impl()
-
         self._last_decision_time = self._current_time.copy()
-
         log.os_log().debug("body " + str(self.world().self().body()))
         log.os_log().debug("pos " + str(self.world().self().pos()))
 
-        self.world().update_just_after_decision(self._effector)
+        self.real_world().update_just_after_decision(self._effector)
+        if self.full_world_exists():
+            self.full_world().update_just_after_decision(self._effector)
         if DEBUG:
             log.os_log().debug("======Self after decision======")
             log.os_log().debug("turn " + str(self.effector().get_turn_info()))
