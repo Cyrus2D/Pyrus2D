@@ -160,45 +160,9 @@ class WorldModel:
         return self._time
 
     def parse(self, message):
-        if message.find("fullstate") != -1:
-            self.fullstate_parser(message)
-        elif 0 < message.find("player_type") < 3:
+        if 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
 
-    def fullstate_parser(self, message):
-        parser = FullStateWorldMessageParser()
-        parser.parse(message)
-        self._time._cycle = int(parser.dic()['time'])
-        self._game_mode.set_game_mode(GameModeType(parser.dic()['pmode']))
-
-        # TODO vmode counters and arm
-
-        self._ball.init_str(parser.dic()['b'])
-        self._teammates.clear()
-        self._opponents.clear()
-        self._unknown_players.clear()
-        self._all_players.clear()
-        self._our_players.clear()
-        self._their_players.clear()
-        for player_dic in parser.dic()['players']:
-            player = PlayerObject()
-            player.init_dic(player_dic)
-            player.set_player_type(self._player_types[player.player_type_id()])
-            if player.side().value == self._our_side:
-                if player.unum() == self._self_unum:
-                    self._self = SelfObject(player)
-                else:
-                    self._teammates.append(player)
-            elif player.side() == SideID.NEUTRAL:
-                self._unknown_players.append(player)
-            else:
-                self._opponents.append(player)
-        if self._our_side == SideID.RIGHT:
-            self.reverse()
-        
-        for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
-            o.update_more_with_full_state(self)
-        
     def __repr__(self):
         # Fixed By MM _ temp
         return "(time: {})(ball: {})(tm: {})(opp: {})".format(self._time, self.ball(), self._our_players,
@@ -1352,6 +1316,38 @@ class WorldModel:
                 if 1 <= r.sender_ <= 11:
                     self._our_stamina_capacity[r.sender_ - 1] = r.rate_
                     log.sw_log().world().add_text(f'(update player stamina by hear) u={r.sender_} s={r.rate_}')
+
+    def update_by_full_state_message(self, parser: FullStateWorldMessageParser):
+        self._time._cycle = int(parser.dic()['time'])
+        self._game_mode.set_game_mode(GameModeType(parser.dic()['pmode']))
+
+        # TODO vmode counters and arm
+
+        self._ball.init_str(parser.dic()['b'])
+        self._teammates.clear()
+        self._opponents.clear()
+        self._unknown_players.clear()
+        self._all_players.clear()
+        self._our_players.clear()
+        self._their_players.clear()
+        for player_dic in parser.dic()['players']:
+            player = PlayerObject()
+            player.init_dic(player_dic)
+            player.set_player_type(self._player_types[player.player_type_id()])
+            if player.side().value == self._our_side:
+                if player.unum() == self._self_unum:
+                    self._self = SelfObject(player)
+                else:
+                    self._teammates.append(player)
+            elif player.side() == SideID.NEUTRAL:
+                self._unknown_players.append(player)
+            else:
+                self._opponents.append(player)
+        if self._our_side == SideID.RIGHT:
+            self.reverse()
+
+        for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
+            o.update_more_with_full_state(self)
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:

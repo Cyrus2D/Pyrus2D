@@ -26,6 +26,7 @@ from lib.rcsc.types import UNUM_UNKNOWN, GameModeType, SideID, ViewWidth
 from lib.messenger.messenger import Messenger
 import team_config
 from lib.debug.timer import ProfileTimer as pt
+from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 
 
 DEBUG = True
@@ -44,6 +45,8 @@ class PlayerAgent(SoccerAgent):
 
         self._sense_body_parser: SenseBodyParser = SenseBodyParser()
         self._see_parser: SeeParser = SeeParser()
+        self._full_state_parser: FullStateWorldMessageParser = FullStateWorldMessageParser()
+
         self._see_state: SeeState = SeeState()
 
         self._team_name = team_config.TEAM_NAME
@@ -110,11 +113,14 @@ class PlayerAgent(SoccerAgent):
             log.sw_log().sensor().add_text('===Received See Message Visual Sensor===\n' + str(self._see_parser))
             log.os_log().debug(f'{"=" * 30}Visual Sensor{"=" * 30}\n' + str(self._see_parser))
 
+    def parse_full_state_message(self, message: str):
+        self._full_state_parser.parse(message)
+
     def update_after_receive_sense_see_msgs(self):
         self._effector.check_command_count(self._sense_body_parser)
         self.real_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
-        if self.full_world_exists():
-            self.full_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
+        # if self.full_world_exists():
+        #     self.full_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
         # TODO CHECK HERE FOR SEPARATE WORLD
 
         if DEBUG:
@@ -124,6 +130,7 @@ class PlayerAgent(SoccerAgent):
             log.os_log().debug("===Sense Body Results ball===\n" + str(self.world().ball()))
 
         KickTable.instance().create_tables()
+
         if self._see_parser.time() == self._current_time and \
                 self.real_world().see_time() != self._current_time:
             self.real_world().update_after_see(self._see_parser,
@@ -370,7 +377,7 @@ class PlayerAgent(SoccerAgent):
         elif message.startswith("(server_param"):
             ServerParam.i().parse(message)
         elif message.startswith("(fullstate"):
-            self._full_world.parse(message)
+            self.parse_full_state_message(message)
         elif message.startswith("(hear"):
             self.hear_parser(message)
         elif message.startswith("(player_type"):
@@ -552,6 +559,8 @@ class PlayerAgent(SoccerAgent):
 
     def update_before_decision(self):
         self.update_after_receive_sense_see_msgs()
+        if self.full_world_exists():
+            self.full_world().update_by_full_state_message(self._full_state_parser)
         self.real_world().update_just_before_decision(self._effector, self._current_time)
         if self.full_world_exists():
             self.full_world().update_just_before_decision(self._effector, self._current_time)
