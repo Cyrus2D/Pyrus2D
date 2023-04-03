@@ -50,6 +50,7 @@ class WorldModel:
     
     def __init__(self, name):
         self._name = name
+        self._is_full_state = True if name == 'full' else False
         self._player_types = [PlayerType() for _ in range(18)]
         self._self_unum: int = None
         self._team_name: str = ""
@@ -436,7 +437,7 @@ class WorldModel:
     def self_unum(self):
         return self._self_unum
 
-    def update(self, act: 'ActionEffector', current_time: GameTime):
+    def update_by_last_cycle(self, act: 'ActionEffector', current_time: GameTime):
         if self._time == current_time:
             log.os_log().warn(f"(update) player({self.self_unum()}) called twice.")
             return
@@ -444,8 +445,8 @@ class WorldModel:
         self._time = current_time.copy()
         self._prev_ball = self._ball.copy()
 
-        self.self().update(act, current_time)
-        self.ball().update(act, self.game_mode())
+        self.self().update_by_last_cycle(act, current_time)
+        self.ball().update_by_last_cycle(act, self.game_mode())
 
         self._previous_kickable_teammate = False
         self._previous_kickable_teammate_unum = UNUM_UNKNOWN
@@ -481,15 +482,15 @@ class WorldModel:
             self._unknown_players.clear()
         
         for p in self._teammates:
-            p.update(self)
+            p.update_by_last_cycle(self)
         self._teammates = list(filter(lambda p: p.pos_count() < 30,self._teammates))
 
         for p in self._opponents:
-            p.update(self)
+            p.update_by_last_cycle(self)
         self._opponents = list(filter(lambda p: p.pos_count() < 30,self._opponents))
         
         for p in self._unknown_players:
-            p.update(self)
+            p.update_by_last_cycle(self)
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
 
         self._dir_count = [c+1 for c in self._dir_count]
@@ -981,7 +982,7 @@ class WorldModel:
                          act: 'ActionEffector',
                          current_time: GameTime):
         if self._time != current_time:
-            self.update(act, current_time)
+            self.update_by_last_cycle(act, current_time)
         
         if self._see_time == current_time: # TODO see time
             return
@@ -1034,7 +1035,7 @@ class WorldModel:
             log.os_log().debug(str(self.self()))
 
         if self.time() != current_time:
-            self.update(act, current_time)
+            self.update_by_last_cycle(act, current_time)
     
     def update_game_mode(self, game_mode: GameMode, current_time: GameTime):
         pk_mode = game_mode.is_penalty_kick_mode()
@@ -1351,7 +1352,7 @@ class WorldModel:
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         if self.time() != current_time:
-            self.update(act, current_time)
+            self.update_by_last_cycle(act, current_time)
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()

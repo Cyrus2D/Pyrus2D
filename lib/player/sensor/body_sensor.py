@@ -58,6 +58,7 @@ class SenseBodyParser:
         self._view_width = ViewWidth(r[4].strip(')('))
         self._stamina = float(r[6].strip(')('))
         self._effort = float(r[7].strip(')('))
+        self._stamina_capacity = float(r[8].strip(')('))
         self._speed_mag = float(r[10].strip(')('))
         self._speed_dir_relative = float(r[11].strip(')('))
         self._neck_relative = float(r[13].strip(')('))

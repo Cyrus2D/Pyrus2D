@@ -64,7 +64,7 @@ class BallObject(Object):
         ball._angle_from_self = self._angle_from_self
         return ball
 
-    def update(self, act: 'ActionEffector', game_mode: GameMode):
+    def update_by_last_cycle(self, act: 'ActionEffector', game_mode: GameMode):
         SP = ServerParam.i()
 
         new_vel = Vector2D(0, 0)

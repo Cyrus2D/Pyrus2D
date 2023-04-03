@@ -113,7 +113,7 @@ class SelfObject(PlayerObject):
     def catch_time(self):
         return self._last_catch_time
     
-    def update(self, act: ActionEffector, current_time: GameTime):
+    def update_by_last_cycle(self, act: ActionEffector, current_time: GameTime):
         if self._time == current_time:
             return
         
@@ -274,7 +274,7 @@ class SelfObject(PlayerObject):
         
         self._sense_body_time = current_time.copy()
 
-        self.update(act, current_time)
+        self.update_by_last_cycle(act, current_time)
 
         self._kicking = act.last_body_command() == CommandType.KICK or act.last_body_command() == CommandType.TACKLE
         self._view_width = body.view_width()

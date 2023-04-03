@@ -202,7 +202,7 @@ class PlayerObject(Object):
     def body_valid(self):
         return self._body_count < self._body_count_thr
 
-    def update(self, wm: 'WorldModel'):
+    def update_by_last_cycle(self, wm: 'WorldModel'):
         self._pos_history = [self._pos] + self._pos_history
         if len(self._pos_history) > 100:
             self._pos_history = self._pos_history[:-1]
@@ -210,7 +210,6 @@ class PlayerObject(Object):
         if self.vel_valid():
             self._pos += self.vel()
         
-
         self._unum_count = min(1000, self._unum_count + 1)
         self._pos_count = min(1000, self._pos_count + 1)
         self._seen_pos_count = min(1000, self._seen_pos_count + 1)

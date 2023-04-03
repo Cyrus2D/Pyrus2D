@@ -92,7 +92,7 @@ class PlayerAgent(SoccerAgent):
         self._see_state.update_by_sense_body(self._current_time,
                                              self._sense_body_parser.view_width())
         if DEBUG:
-            log.os_log().debug(f'##################{self.world().time().cycle()}#################')
+            log.os_log().debug(f'##################{self._current_time}#################')
             log.sw_log().sensor().add_text('===Received Sense Message===\n' + message)
             log.os_log().debug('===Received Sense Message===\n' + message)
             log.sw_log().sensor().add_text(str(self._sense_body_parser))
@@ -115,6 +115,8 @@ class PlayerAgent(SoccerAgent):
 
     def parse_full_state_message(self, message: str):
         self._full_state_parser.parse(message)
+        log.os_log().debug('===Received Full State Message Sensor===\n' + message)
+        log.os_log().debug(f'{"=" * 30}Full State Message Sensor{"=" * 30}\n' + str(self._full_state_parser.dic()))
 
     def update_after_receive_sense_see_msgs(self):
         self._effector.check_command_count(self._sense_body_parser)
@@ -197,6 +199,10 @@ class PlayerAgent(SoccerAgent):
 
     def update_current_time(self, new_time: int, by_sense_body: bool):
         old_time: GameTime = self._current_time.copy()
+        if new_time < old_time.cycle():
+            log.os_log().warn(f"player({self.world().self_unum()}):"
+                              f"received an old message!!")
+            return
 
         if self._server_cycle_stopped:
             if new_time != self._current_time.cycle():
@@ -325,24 +331,24 @@ class PlayerAgent(SoccerAgent):
                 waited_msec += team_config.SOCKET_INTERVAL
                 timeout_count += 1
                 if time.time() - last_time_rec > 3:
-                    log.os_log().critical(f'@####time time.time() - last_time_rec')
+                    log.os_log().error(f'@####time time.time() - last_time_rec')
                     self._client.set_server_alive(False)
                     break
             else:
-                log.os_log().critical('@####' + str(message[:20]))
+                log.os_log().error('@####' + str(message[:20]))
                 self.parse_message(message.decode())
                 last_time_rec = time.time()
                 waited_msec = 0
                 timeout_count = 0
 
             if ServerParam.i().synch_mode():
-                log.os_log().critical('@## synch mode')
+                log.os_log().error('@## synch mode')
                 if self.think_received():
-                    log.os_log().critical('@## go action')
+                    log.os_log().error('@## go action')
                     self.action()
                     self.debug_players()
                     self._think_received = False
-                    log.os_log().critical('@## think false')
+                    log.os_log().error('@## think false')
             else:
                 if self.is_decision_time(timeout_count, waited_msec) or (self._last_decision_time != self._current_time and self.world().see_time() == self._current_time):
                     log.os_log().error('@#### act dec time')
@@ -557,13 +563,18 @@ class PlayerAgent(SoccerAgent):
             return True
         return False
 
-    def update_before_decision(self):
+    def update_real_world_before_decision(self):
         self.update_after_receive_sense_see_msgs()
-        if self.full_world_exists():
-            self.full_world().update_by_full_state_message(self._full_state_parser)
         self.real_world().update_just_before_decision(self._effector, self._current_time)
+
+    def update_full_world_before_decision(self):
+        self.full_world().update_by_full_state_message(self._full_state_parser)
+        self.full_world().update_just_before_decision(self._effector, self._current_time)
+
+    def update_before_decision(self):
+        self.update_real_world_before_decision()
         if self.full_world_exists():
-            self.full_world().update_just_before_decision(self._effector, self._current_time)
+            self.update_full_world_before_decision()
 
     def action(self):
         if (self.world().self_unum() is None
