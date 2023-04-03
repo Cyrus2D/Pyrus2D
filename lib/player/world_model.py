@@ -122,7 +122,6 @@ class WorldModel:
 
         self._dir_count:list[int] = [1000 for _ in range(WorldModel.DIR_CONF_DIVS)] 
         
-    
     def init(self,
              team_name: str,
              side: SideID,
@@ -136,7 +135,6 @@ class WorldModel:
         self.self().init(side, unum, is_goalie)
         self.self().set_player_type(self._player_types[HETERO_DEFAULT])
         self._self_unum = unum
-            
 
     def ball(self) -> BallObject:
         return self._ball
@@ -163,8 +161,6 @@ class WorldModel:
     def parse(self, message):
         if message.find("fullstate") != -1:
             self.fullstate_parser(message)
-        if message.find("(init") != -1:
-            self.self_parser(message)
         elif 0 < message.find("player_type") < 3:
             self.player_type_parser(message)
 
