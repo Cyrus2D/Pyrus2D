@@ -9,9 +9,10 @@ class SoccerAgent:
     def init(self,
              client: BasicClient,
              goalie: bool = False,
-             argv: list = None) -> bool:
+             argv: list = None):
         self._client = client
         self.init_impl(goalie)
+
     def init_impl(self, goalie: bool) -> bool:
         pass
 
