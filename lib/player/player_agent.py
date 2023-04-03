@@ -56,7 +56,7 @@ class PlayerAgent(SoccerAgent):
 
         self._goalie: bool = False
 
-        self._world = WorldModel()
+        self._real_world = WorldModel()
         self._full_world = WorldModel()
         self._last_body_command = []
         self._is_synch_mode = True
@@ -110,8 +110,6 @@ class PlayerAgent(SoccerAgent):
         KickTable.instance().create_tables()
 
     def parse_see_message(self, message: str):
-        if ServerParam.i().is_fullstate(self.world().our_side()) and not team_config.FULL_STATE_DEBUG:
-            return
         self.parse_cycle_info(message, False)
         log.debug_client().add_message(f'rec see in {self.world().time().cycle()}\n')
         self._see_parser.parse(message,
@@ -152,7 +150,7 @@ class PlayerAgent(SoccerAgent):
             return
         data = message.strip('()').split(' ')
         if len(data) < 6:
-            log.os_log().error(f"(hear player parser) message format is not matched! msg={message}")
+            # log.os_log().error(f"(hear player parser) message format is not matched! msg={message}")
             return
         player_message = message.split('"')[1]
         if not data[4].isdigit():
@@ -177,7 +175,7 @@ class PlayerAgent(SoccerAgent):
             self.send_bye_command()
             return
         self.world().update_game_mode(self._game_mode, self._current_time)
-        if ServerParam.i().is_fullstate(self.world().our_side()) and team_config.FULL_STATE_DEBUG:
+        if self.full_world_exists():
             self.full_world().update_game_mode(self._game_mode, self._current_time)
 
     def update_server_status(self):
@@ -305,7 +303,7 @@ class PlayerAgent(SoccerAgent):
     def handle_exit(self):
         if self._client.is_server_alive():
             self.send_bye_command()
-        log.os_log().info(f"player( {self._world.self_unum()} ): finished")  # TODO : Not working
+        log.os_log().info(f"player( {self._real_world.self_unum()} ): finished")  # TODO : Not working
 
     def see_state(self):
         return self._see_state
@@ -332,14 +330,19 @@ class PlayerAgent(SoccerAgent):
                 timeout_count = 0
 
             if ServerParam.i().synch_mode():
+                log.os_log().critical('@## synch mode')
                 if self.think_received():
+                    log.os_log().critical('@## go action')
                     self.action()
                     self.debug_players()
                     self._think_received = False
+                    log.os_log().critical('@## think false')
             else:
                 if self.is_decision_time(timeout_count, waited_msec) or (self._last_decision_time != self._current_time and self.world().see_time() == self._current_time):
                     log.os_log().error('@#### act dec time')
                     self.action()
+            self.flush_logs()
+        self.send_bye_command()
 
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
@@ -348,7 +351,7 @@ class PlayerAgent(SoccerAgent):
         if self.world().ball().pos_valid():
             log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
 
-        if ServerParam.i().is_fullstate(self.world().our_side()) and team_config.FULL_STATE_DEBUG:
+        if self.full_world_exists():
             for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
                 if p.pos_valid():
                     log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='red'))
@@ -372,42 +375,44 @@ class PlayerAgent(SoccerAgent):
         elif message.startswith("(hear"):
             self.hear_parser(message)
         elif message.startswith("(player_type"):
-            self._world.parse(message)
+            self._real_world.parse(message)
             self._full_world.parse(message)
         elif message.startswith("(think"):
             self._think_received = True
+        else:
+            log.os_log().error(f'Pyrus can not parse this message: {message}')
 
     def do_dash(self, power, angle=0):
         if self.world().self().is_frozen():
-            log.os_log().error(f"(do dash) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do dash) player({self._real_world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_dash(power, float(angle)))
         return True
 
     def do_turn(self, angle):
         if self.world().self().is_frozen():
-            log.os_log().error(f"(do turn) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do turn) player({self._real_world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_turn(float(angle)))
         return True
 
     def do_move(self, x, y):
         if self.world().self().is_frozen():
-            log.os_log().error(f"(do move) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do move) player({self._real_world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_move(x, y))
         return True
 
     def do_kick(self, power: float, rel_dir: AngleDeg):
         if self.world().self().is_frozen():
-            log.os_log().error(f"(do kick) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do kick) player({self._real_world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_kick(power, rel_dir))
         return True
 
     def do_tackle(self, power_or_dir: float, foul: bool):
         if self.world().self().is_frozen():
-            log.os_log().error(f"(do tackle) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do tackle) player({self._real_world.self_unum()} is frozen!")
             return False
         self._last_body_command.append(self._effector.set_tackle(power_or_dir, foul))
         return True
@@ -415,19 +420,19 @@ class PlayerAgent(SoccerAgent):
     def do_catch(self):
         wm = self.world()
         if wm.self().is_frozen():
-            log.os_log().error(f"(do catch) player({self._world.self_unum()} is frozen!")
+            log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is frozen!")
             return False
 
         if not wm.self().goalie():
-            log.os_log().error(f"(do catch) player({self._world.self_unum()} is not goalie!")
+            log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is not goalie!")
             return False
 
         if wm.game_mode().type() is not GameModeType.PlayOn and not wm.game_mode().type().is_penalty_taken():
-            log.os_log().error(f"(do catch) player({self._world.self_unum()} play mode is not play_on!")
+            log.os_log().error(f"(do catch) player({self._real_world.self_unum()} play mode is not play_on!")
             return False
 
         if not wm.ball().rpos_valid():
-            log.os_log().error(f"(do catch) player({self._world.self_unum()} ball rpos is not valid!")
+            log.os_log().error(f"(do catch) player({self._real_world.self_unum()} ball rpos is not valid!")
             return False
 
         self._last_body_command.append(self.effector().set_catch())
@@ -446,10 +451,10 @@ class PlayerAgent(SoccerAgent):
 
         aligned_moment_dist = moment_dist
         if self.world().self().focus_point_dist() + aligned_moment_dist < 0.0:
-            log.os_log().warn(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be less than 0")
+            log.os_log().warn(f"(do_change_focus) player({self._real_world.self_unum()} focus dist can not be less than 0")
             aligned_moment_dist = -self.world().self().focus_point_dist()
         if self.world().self().focus_point_dist() + aligned_moment_dist > 40.0:
-            log.os_log().warn(f"(do_change_focus) player({self._world.self_unum()} focus dist can not be more than 40")
+            log.os_log().warn(f"(do_change_focus) player({self._real_world.self_unum()} focus dist can not be more than 40")
             aligned_moment_dist = 40.0 - self.world().self().focus_point_dist()
         next_view = self.effector().queued_next_view_width()
         next_half_angle = next_view.width() * 0.5
@@ -471,19 +476,19 @@ class PlayerAgent(SoccerAgent):
 
     def do_attentionto(self, side: SideID, unum: int):
         if side is SideID.NEUTRAL:
-            log.os_log().error("(player agent do attentionto) side is neutral!")
+            # log.os_log().error("(player agent do attentionto) side is neutral!")
             return
 
         if unum == UNUM_UNKNOWN or not (1 <= unum <= 11):
-            log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
+            # log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
             return
 
         if self.world().our_side() == side and self.world().self().unum() == unum:
-            log.os_log().error(f"(player agent do attentionto) attentioning to self!")
+            # log.os_log().error(f"(player agent do attentionto) attentioning to self!")
             return
 
         if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
-            log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
+            # log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
             return
 
         self._last_body_command.append(self._effector.set_attentionto(side, unum))
@@ -491,12 +496,46 @@ class PlayerAgent(SoccerAgent):
     def do_attentionto_off(self):
         self._last_body_command.append(self._effector.set_attentionto_off())
 
-    if team_config.FULL_STATE_DEBUG:
+    if team_config.WORLD_IS_REAL_WORLD:
         def world(self):
-            return self._world
+            return self._real_world
+
+        def main_world(self):
+            return self._real_world
+
+        def first_world(self):
+            return self._real_world
     else:
         def world(self) -> WorldModel:
             return self._full_world
+
+        def main_world(self):
+            return self._full_world
+
+        def first_world(self):
+            return self._full_world
+
+    if team_config.S_WORLD_IS_REAL_WORLD:
+        def s_world(self):
+            return self._real_world
+
+        def secondary_world(self):
+            return self._real_world
+
+        def second_world(self):
+            return self._real_world
+    else:
+        def s_world(self) -> WorldModel:
+            return self._full_world
+
+        def secondary_world(self):
+            return self._full_world
+
+        def second_world(self):
+            return self._full_world
+
+    def real_world(self) -> WorldModel:
+        return self._real_world
 
     def full_world(self) -> WorldModel:
         return self._full_world
@@ -507,13 +546,18 @@ class PlayerAgent(SoccerAgent):
     def action_impl(self):
         pass
 
+    def full_world_exists(self):
+        if ServerParam.i().is_fullstate(self._real_world.our_side()):
+            return True
+        return False
+
     def action(self):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
             return
 
         self.world().update_just_before_decision(self._effector, self._current_time)
-        if ServerParam.i().is_fullstate(self._world.our_side()) and team_config.FULL_STATE_DEBUG:
+        if self.full_world_exists():
             self.full_world().update_just_before_decision(self._effector, self._current_time)
 
         self._effector.reset()
@@ -553,8 +597,7 @@ class PlayerAgent(SoccerAgent):
         if DEBUG:
             log.os_log().debug("sent message: " + str(message))
         self._client.send_message(message)
-        log.debug_client().write_all(self.world(), None)  # TODO add action effector
-        log.sw_log().flush()
+
         self._last_body_command = []
         self._effector.clear_all_commands()
 
@@ -569,9 +612,9 @@ class PlayerAgent(SoccerAgent):
         unum = int(message[2])
         side = message[1]
 
-        self._world.init(self._team_name, side, unum, self._goalie)
-        if ServerParam.i().is_fullstate(side) and team_config.FULL_STATE_DEBUG:
-            self._full_world.init(self._team_name, side, unum, False)
+        self._real_world.init(self._team_name, side, unum, self._goalie)
+        # if self.full_world_exists():
+        self._full_world.init(self._team_name, side, unum, False)
         log.setup(self._team_name, unum, self._current_time)
 
     def set_view_action(self, view_action: ViewAction):
@@ -582,3 +625,8 @@ class PlayerAgent(SoccerAgent):
 
     def set_focus_point_action(self, focus_point_action: FocusPointAction):
         self._focus_point_action = focus_point_action
+
+    def flush_logs(self):
+        if log.debug_client():
+            log.debug_client().write_all(self.world(), None)  # TODO add action effector
+            log.sw_log().flush()
