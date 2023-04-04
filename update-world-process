@@ -1,0 +1,49 @@
+BasicClient::run()
+    BasicClient::run_online() # TODO REMOVE IT?
+        PlayerAgent::run()
+            PlayerAgent::parse_message()
+                PlayerAgent::parse_sense_body_message()
+                    PlayerAgent::parse_cycle_info
+                    PlayerAgent::sensor_body_parser.parse
+                    PlayerAgent::see_state.update
+                PlayerAgent::parse_see_message
+                    PlayerAgent::parse_cycle_info
+                    PlayerAgent::see_parser.parse
+                    PlayerAgent::see_state.update
+                PlayerAgent::parse_full_state_message
+                    PlayerAgent::full_state_parser.parse
+                PlayerAgent::hear_parser
+                    PlayerAgent::parse_cycle_info
+                    PlayerAgent::hear_player_parser
+                    PlayerAgent::hear_referee_parser
+            PlayerAgent::action()
+                PlayerAgent::update_before_decision # TODO Call world.updates out of PlayerAgent::action()
+                    PlayerAgent::update_real_world_before_decision
+                        PlayerAgent::update_after_receive_sense_see_msgs
+                            ActionEffector::check_command_count
+                            real_world.update_world_after_sense_body
+                                SelfObject::update_self_after_sense_body
+                                WorldModel::update_by_last_cycle
+                                    SelfObject::update_by_last_cycle
+                                    BallObject::update_by_last_cycle
+                            KickTable::create_table
+                            real_world.update_after_see
+                                WorldModel::update_by_last_cycle
+                                WorldModel::localize_self
+                                WorldModel::localize_ball
+                                WorldModel::localize_players
+                                WorldModel::check_ghosts
+                                WorldModel::update_dir_count
+                        PlayerAgent::real_world.update_just_before_decision
+                            WorldModel::update_by_last_cycle
+                            # LOTS OF UPDATES
+                    PlayerAgent::update_full_world_before_decision
+                        PlayerAgent::full_world.update_by_full_state_message
+                            CreatePlayers # TODO just update their stats, don't delete them then create them again!!
+                        PlayerAgent::full_world.update_just_before_decision
+                            WorldModel::update_by_last_cycle
+                            # LOTS OF UPDATES
+                PlayerAgent::action_impl
+                real/full_world::update_just_after_decision
+                    decision_time -> update
+                    change_view/pointto/attention -> updates
