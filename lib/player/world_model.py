@@ -437,15 +437,15 @@ class WorldModel:
     def self_unum(self):
         return self._self_unum
 
-    def update_by_last_cycle(self, act: 'ActionEffector', current_time: GameTime):
-        if self._time == current_time:
+    def update_by_last_cycle(self, act: 'ActionEffector', agent_current_time: GameTime):
+        if self._time == agent_current_time:
             log.os_log().warn(f"(update) player({self.self_unum()}) called twice.")
             return
         
-        self._time = current_time.copy()
+        self._time = agent_current_time.copy()
         self._prev_ball = self._ball.copy()
 
-        self.self().update_by_last_cycle(act, current_time)
+        self.self().update_by_last_cycle(act, agent_current_time)
         self.ball().update_by_last_cycle(act, self.game_mode())
 
         self._previous_kickable_teammate = False
@@ -482,15 +482,15 @@ class WorldModel:
             self._unknown_players.clear()
         
         for p in self._teammates:
-            p.update_by_last_cycle(self)
+            p.update_by_last_cycle()
         self._teammates = list(filter(lambda p: p.pos_count() < 30,self._teammates))
 
         for p in self._opponents:
-            p.update_by_last_cycle(self)
+            p.update_by_last_cycle()
         self._opponents = list(filter(lambda p: p.pos_count() < 30,self._opponents))
         
         for p in self._unknown_players:
-            p.update_by_last_cycle(self)
+            p.update_by_last_cycle()
         self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
 
         self._dir_count = [c+1 for c in self._dir_count]
@@ -976,13 +976,11 @@ class WorldModel:
         for p in self._unknown_players:
             p.set_player_type(self._player_types[HETERO_DEFAULT]) 
 
-    def update_after_see(self,
-                         see: SeeParser,
-                         body: SenseBodyParser,
-                         act: 'ActionEffector',
-                         current_time: GameTime):
-        if self._time != current_time:
-            self.update_by_last_cycle(act, current_time)
+    def update_world_after_see(self,
+                               see: SeeParser,
+                               body: SenseBodyParser,
+                               act: 'ActionEffector',
+                               current_time: GameTime):
         
         if self._see_time == current_time: # TODO see time
             return
@@ -1010,33 +1008,28 @@ class WorldModel:
             self.check_ghost(varea) # TODO 
             self.update_dir_count(varea)
 
-    def update_world_after_sense_body(self, body_sensor: SenseBodyParser, act: 'ActionEffector', current_time: GameTime):
-        if self._sense_body_time == current_time:
+    def update_world_after_sense_body(self, body_sensor: SenseBodyParser, act: 'ActionEffector', agent_current_time: GameTime):
+        if self._sense_body_time == agent_current_time:
             log.os_log().critical(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             log.sw_log().sensor(f"({self.team_name()} {self.self().unum()}): update after sense body called twice in a cycle")
             return
-        
+
         self._sense_body_time = body_sensor.time().copy()
+
+        if body_sensor.time() == agent_current_time:
+            self.self().update_self_after_sense_body(body_sensor, act, agent_current_time)
+            self._our_recovery[self.self().unum() - 1] = self.self().recovery()
+            self._our_stamina_capacity[self.self().unum() - 1] = self.self().stamina_model().capacity()
+            self._our_card[self.self().unum() - 1] = body_sensor.card()
+        else:
+            log.os_log().error(f'body_sensor.time()[{body_sensor.time()}] != current_time[{agent_current_time}]')
 
         if DEBUG:
             log.sw_log().world().add_text("******** update world after sense body ********")
             log.os_log().debug("******** update world after sense body ********")
-
-        if body_sensor.time() == current_time:
-            self.self().update_self_after_sense_body(body_sensor, act, current_time)
-            # M_localize->updateBySenseBody( sense_body );
-
-        self._our_recovery[self.self().unum() - 1] = self.self().recovery()
-        self._our_stamina_capacity[self.self().unum() - 1] = self.self().stamina_model().capacity()
-        self._our_card[self.self().unum() - 1] = body_sensor.card()
-
-        if DEBUG:
             log.sw_log().world().add_text(str(self.self()))
             log.os_log().debug(str(self.self()))
 
-        if self.time() != current_time:
-            self.update_by_last_cycle(act, current_time)
-    
     def update_game_mode(self, game_mode: GameMode, current_time: GameTime):
         pk_mode = game_mode.is_penalty_kick_mode()
         if not pk_mode and self._game_mode.type() is not  GameModeType.PlayOn:
@@ -1351,8 +1344,6 @@ class WorldModel:
             o.update_more_with_full_state(self)
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
-        if self.time() != current_time:
-            self.update_by_last_cycle(act, current_time)
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()

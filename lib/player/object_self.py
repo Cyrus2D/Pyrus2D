@@ -267,7 +267,7 @@ class SelfObject(PlayerObject):
             or self._collides_with_post
         )
     
-    def update_self_after_sense_body(self, body: SenseBodyParser, act: ActionEffector, current_time: GameTime):
+    def update_self_after_sense_body(self, sense_body: SenseBodyParser, act: ActionEffector, current_time: GameTime):
         if self._sense_body_time == current_time:
             log.os_log().critical(f"(self update after see) called twice at {current_time}")
             return
@@ -277,32 +277,32 @@ class SelfObject(PlayerObject):
         self.update_by_last_cycle(act, current_time)
 
         self._kicking = act.last_body_command() == CommandType.KICK or act.last_body_command() == CommandType.TACKLE
-        self._view_width = body.view_width()
+        self._view_width = sense_body.view_width()
 
-        self._stamina_model.update_by_sense_body(body.stamina(),
-                                                 body.effort(),
-                                                 body.stamina_capacity(),
+        self._stamina_model.update_by_sense_body(sense_body.stamina(),
+                                                 sense_body.effort(),
+                                                 sense_body.stamina_capacity(),
                                                  current_time)
         
-        if abs(self._neck.degree() - body.neck_relative()) > 0.5:
-            self._neck = AngleDeg(body.neck_relative())
+        if abs(self._neck.degree() - sense_body.neck_relative()) > 0.5:
+            self._neck = AngleDeg(sense_body.neck_relative())
         
-        if (body.none_collided() 
-            or body.ball_collided()
-            or body.player_collided()
-            or body.post_collided()):
+        if (sense_body.none_collided()
+            or sense_body.ball_collided()
+            or sense_body.player_collided()
+            or sense_body.post_collided()):
             
             self._collision_estimated = False
             
-            if body.none_collided():
+            if sense_body.none_collided():
                 self._collides_with_none = True
-            if body.ball_collided():
+            if sense_body.ball_collided():
                 self._collides_with_ball = True
                 self._collision_estimated = True
-            if body.player_collided():
+            if sense_body.player_collided():
                 self._collides_with_player = True
                 self._collision_estimated = True
-            if body.post_collided():
+            if sense_body.post_collided():
                 self._collides_with_post = True
                 self._collision_estimated = True
 
@@ -310,21 +310,21 @@ class SelfObject(PlayerObject):
             self._face = self._body + self._neck
             
             estimate_vel = self._vel.copy()
-            sensed_speed_dir = body.speed_dir()
+            sensed_speed_dir = sense_body.speed_dir()
             if sensed_speed_dir > 0:
                 sensed_speed_dir = AngleDeg.normalize_angle(sensed_speed_dir + 0.5)
             elif sensed_speed_dir < 0:
                 sensed_speed_dir = AngleDeg.normalize_angle(sensed_speed_dir - 0.5)
             
             vel_ang = self._face + sensed_speed_dir
-            self._vel.set_polar(body.speed_mag(), vel_ang)
+            self._vel.set_polar(sense_body.speed_mag(), vel_ang)
 
             if (not self.has_sensed_collision()
                 and self.vel_valid()
-                and body.speed_mag() < self.player_type().real_speed_max()*self.player_type().player_decay()*0.11):
+                and sense_body.speed_mag() < self.player_type().real_speed_max()*self.player_type().player_decay()*0.11):
                 
                 if (estimate_vel.r() > 0.01
-                    and body.speed_mag() < estimate_vel.r() *0.2
+                    and sense_body.speed_mag() < estimate_vel.r() *0.2
                     and (estimate_vel.abs_x() < 0.08 or estimate_vel.x() * self._vel.x() < 0)
                     and (estimate_vel.abs_y() < 0.08 or estimate_vel.y() * self._vel.y() < 0)):
                     
@@ -332,7 +332,7 @@ class SelfObject(PlayerObject):
             
             self._vel_count = self.face_count()
 
-            if body.arm_expires() == 0:
+            if sense_body.arm_expires() == 0:
                 self._pointto_pos.invalidate()
                 self._pointto_count = 1000
             
@@ -345,16 +345,16 @@ class SelfObject(PlayerObject):
             if self._collision_estimated or self._collides_with_ball:
                 self._last_moves[0].invalidate()
         
-        self._attentionto_side = body.attentionto_side()
-        self._attentionto_unum = body.attentionto_unum()
-        self._tackle_expires = body.tackle_expires()
-        self._arm_movable = body.arm_movable()
-        self._arm_expires = body.arm_expires()
-        self._charge_expires = body.charged_expires()
-        self._card = body.card()
-        self._change_focus_count = body.change_focus_count()
-        self._focus_point_dist = body.focus_point_dist()
-        self._focus_point_dir = AngleDeg(body.focus_point_dir())
+        self._attentionto_side = sense_body.attentionto_side()
+        self._attentionto_unum = sense_body.attentionto_unum()
+        self._tackle_expires = sense_body.tackle_expires()
+        self._arm_movable = sense_body.arm_movable()
+        self._arm_expires = sense_body.arm_expires()
+        self._charge_expires = sense_body.charged_expires()
+        self._card = sense_body.card()
+        self._change_focus_count = sense_body.change_focus_count()
+        self._focus_point_dist = sense_body.focus_point_dist()
+        self._focus_point_dir = AngleDeg(sense_body.focus_point_dir())
 
     def set_pointto(self,point: Vector2D, done_time: GameTime):
         self._pointto_pos = point.copy()
@@ -515,3 +515,86 @@ class SelfObject(PlayerObject):
 
     def __str__(self):
         return f'''Self Player side:{self._side} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''
+
+        self._sense_body_time = current_time.copy()
+
+        self.update_by_last_cycle(act, current_time)
+
+        self._kicking = act.last_body_command() == CommandType.KICK or act.last_body_command() == CommandType.TACKLE
+        self._view_width = sense_body.view_width()
+
+        self._stamina_model.update_by_sense_body(sense_body.stamina(),
+                                                 sense_body.effort(),
+                                                 sense_body.stamina_capacity(),
+                                                 current_time)
+
+        if abs(self._neck.degree() - sense_body.neck_relative()) > 0.5:
+            self._neck = AngleDeg(sense_body.neck_relative())
+
+        if (sense_body.none_collided()
+                or sense_body.ball_collided()
+                or sense_body.player_collided()
+                or sense_body.post_collided()):
+
+            self._collision_estimated = False
+
+            if sense_body.none_collided():
+                self._collides_with_none = True
+            if sense_body.ball_collided():
+                self._collides_with_ball = True
+                self._collision_estimated = True
+            if sense_body.player_collided():
+                self._collides_with_player = True
+                self._collision_estimated = True
+            if sense_body.post_collided():
+                self._collides_with_post = True
+                self._collision_estimated = True
+
+        if self.face_valid():
+            self._face = self._body + self._neck
+
+            estimate_vel = self._vel.copy()
+            sensed_speed_dir = sense_body.speed_dir()
+            if sensed_speed_dir > 0:
+                sensed_speed_dir = AngleDeg.normalize_angle(sensed_speed_dir + 0.5)
+            elif sensed_speed_dir < 0:
+                sensed_speed_dir = AngleDeg.normalize_angle(sensed_speed_dir - 0.5)
+
+            vel_ang = self._face + sensed_speed_dir
+            self._vel.set_polar(sense_body.speed_mag(), vel_ang)
+
+            if (not self.has_sensed_collision()
+                    and self.vel_valid()
+                    and sense_body.speed_mag() < self.player_type().real_speed_max() * self.player_type().player_decay() * 0.11):
+
+                if (estimate_vel.r() > 0.01
+                        and sense_body.speed_mag() < estimate_vel.r() * 0.2
+                        and (estimate_vel.abs_x() < 0.08 or estimate_vel.x() * self._vel.x() < 0)
+                        and (estimate_vel.abs_y() < 0.08 or estimate_vel.y() * self._vel.y() < 0)):
+                    self._collision_estimated = True
+
+            self._vel_count = self.face_count()
+
+            if sense_body.arm_expires() == 0:
+                self._pointto_pos.invalidate()
+                self._pointto_count = 1000
+
+            if not self._collision_estimated:
+                new_last_move = self._vel / self.player_type().player_decay()
+                self._last_move.assign(new_last_move.x(), new_last_move.y())
+            else:
+                self._last_move.invalidate()
+
+            if self._collision_estimated or self._collides_with_ball:
+                self._last_moves[0].invalidate()
+
+        self._attentionto_side = sense_body.attentionto_side()
+        self._attentionto_unum = sense_body.attentionto_unum()
+        self._tackle_expires = sense_body.tackle_expires()
+        self._arm_movable = sense_body.arm_movable()
+        self._arm_expires = sense_body.arm_expires()
+        self._charge_expires = sense_body.charged_expires()
+        self._card = sense_body.card()
+        self._change_focus_count = sense_body.change_focus_count()
+        self._focus_point_dist = sense_body.focus_point_dist()
+        self._focus_point_dir = AngleDeg(sense_body.focus_point_dir())
