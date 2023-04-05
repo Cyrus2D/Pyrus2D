@@ -40,13 +40,28 @@ BasicClient::run()
                         PlayerAgent::real_world.update_just_before_decision
                             # LOTS OF UPDATES
                     PlayerAgent::update_full_world_before_decision
+                        // ActionEffector::check_command_count_by_full_state_parser
+                        //WorldModel::update_by_last_cycle
+                        //    SelfObject::update_by_last_cycle
+                        //    BallObject::update_by_last_cycle
+                        //   PlayerObject::update_by_last_cycle
+                        //real_world.update_world_after_sense_body
+                        //    SelfObject::update_self_after_sense_body
                         PlayerAgent::full_world.update_by_full_state_message
                             CreatePlayers # TODO just update their stats, don't delete them then create them again!!
                         PlayerAgent::full_world.update_just_before_decision
-                            WorldModel::update_by_last_cycle
                             # LOTS OF UPDATES
                 KickTable::create_table
                 PlayerAgent::action_impl
                 real/full_world::update_just_after_decision
                     decision_time -> update
                     change_view/pointto/attention -> updates
+
+
+
+fix bugs in full state
+kick table and update it
+intercept table
+neck
+check hear
+player type after change sub

@@ -561,6 +561,9 @@ class PlayerAgent(SoccerAgent):
         self.real_world().update_just_before_decision(self._effector, self._current_time)
 
     def update_full_world_before_decision(self):
+        self._effector.check_command_count(self._sense_body_parser)
+        self.full_world().update_by_last_cycle(self._effector, self._current_time)
+        self.full_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
         self.full_world().update_by_full_state_message(self._full_state_parser)
         self.full_world().update_just_before_decision(self._effector, self._current_time)
 
