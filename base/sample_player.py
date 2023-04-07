@@ -1,4 +1,5 @@
 from base.decision import get_decision
+from base.sample_communication import SampleCommunication
 from base.view_tactical import ViewTactical
 from lib.action.go_to_point import GoToPoint
 from lib.action.intercept import Intercept
@@ -6,9 +7,8 @@ from lib.action.neck_body_to_ball import NeckBodyToBall
 from lib.action.neck_turn_to_ball import NeckTurnToBall
 from lib.action.neck_turn_to_ball_or_scan import NeckTurnToBallOrScan
 from lib.action.scan_field import ScanField
-from lib.debug.debug_print import debug_print
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.player.player_agent import PlayerAgent
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType
@@ -17,25 +17,15 @@ from lib.rcsc.types import GameModeType
 class SamplePlayer(PlayerAgent):
     def __init__(self):
         super().__init__()
+
+        self._communication = SampleCommunication()
     
     def action_impl(self):
         wm = self.world()
-        debug_print(f"{'#'*20}{wm.time()}{'#'*20}")
-        debug_print(f"bpc={wm.ball().pos_count()}")
-        debug_print(f"bspc={wm.ball().seen_pos_count()}")
-        debug_print(f"brpc={wm.ball().rpos_count()}")
-        debug_print(f"bp={wm.ball().pos()}")
-        debug_print(f"bsp={wm.ball().seen_pos()}")
-        debug_print(f"sp={wm.self().pos()}")
-        debug_print(f"ssp={wm.self().seen_pos()}")
-        debug_print(f"spc={wm.self().pos_count()}")
-        debug_print(f"sspc={wm.self().seen_pos_count()}")
-        debug_print(f"spv={wm.self().pos_valid()}")
         if self.do_preprocess():
             return
 
         get_decision(self)
-        debug_print(f"{'#'*20}END{'#'*20}")
 
     def do_preprocess(self):
         wm = self.world()
@@ -46,7 +36,6 @@ class SamplePlayer(PlayerAgent):
             return True
 
         if not wm.self().pos_valid():
-            debug_print(f"INTO SCANFIELD")
             self.set_view_action(ViewTactical())
             ScanField().execute(self)
             return True
@@ -77,20 +66,20 @@ class SamplePlayer(PlayerAgent):
         intercept_pos = wm.ball().inertia_point(self_min)
         heard_pos = wm.messenger_memory().pass_()[0]._pos
 
-        dlog.add_text(Level.TEAM, f"(sample palyer do heard pass) heard_pos={heard_pos}, intercept_pos={intercept_pos}")
+        log.sw_log().team().add_text( f"(sample palyer do heard pass) heard_pos={heard_pos}, intercept_pos={intercept_pos}")
 
         if not wm.kickable_teammate() \
             and wm.ball().pos_count() <= 1 \
             and wm.ball().vel_count() <= 1 \
             and self_min < 20:
-            dlog.add_text(Level.TEAM, f"(sample palyer do heard pass) intercepting!, self_min={self_min}")
-            self.debug_client().add_message("Comm:Receive:Intercept")
+            log.sw_log().team().add_text( f"(sample palyer do heard pass) intercepting!, self_min={self_min}")
+            log.debug_client().add_message("Comm:Receive:Intercept")
             Intercept().execute(self)
             self.set_neck_action(NeckTurnToBall())
         else:
-            dlog.add_text(Level.TEAM, f"(sample palyer do heard pass) go to point!, cycle={self_min}")
-            self.debug_client().set_target(heard_pos)
-            self.debug_client().add_message("Comm:Receive:GoTo")
+            log.sw_log().team().add_text( f"(sample palyer do heard pass) go to point!, cycle={self_min}")
+            log.debug_client().set_target(heard_pos)
+            log.debug_client().add_message("Comm:Receive:GoTo")
 
             GoToPoint(heard_pos, 0.5, ServerParam.i().max_dash_power()).execute(self)
             self.set_neck_action(NeckTurnToBall())

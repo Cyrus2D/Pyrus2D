@@ -25,13 +25,18 @@ class KickAction:
         self.index = 0
 
     def evaluate(self):
-        self.eval = self.target_ball_pos.x() + max(0, 40 - self.target_ball_pos.dist(Vector2D(52, 0)))
+        self.eval = self.target_ball_pos.x() + max(0.0, 40.0 - self.target_ball_pos.dist(Vector2D(52, 0)))
 
     def __gt__(self, other):
         return self.eval > other.eval
 
     def __repr__(self):
-        return '{} Action {} to {} in {} eval:{}'.format(self.type.value, self.start_unum, self.target_unum, self.target_ball_pos, self.eval)
+        return '{} Action {} to {} in ({}, {}) eval:{}'.format(self.type.value,
+                                                               self.start_unum,
+                                                               self.target_unum,
+                                                               round(self.target_ball_pos.x(), 2),
+                                                               round(self.target_ball_pos.y(), 2),
+                                                               self.eval)
 
     def __str__(self):
         return self.__repr__()

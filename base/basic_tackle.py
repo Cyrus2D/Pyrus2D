@@ -6,6 +6,7 @@ from pyrusgeom.vector_2d import Vector2D
 
 from base.tackle_generator import TackleGenerator
 from lib.action.neck_turn_to_point import NeckTurnToPoint
+from lib.debug.debug import log
 from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import Card
 
@@ -70,7 +71,7 @@ class BasicTackle:
 
         ball_next = wm.ball().pos() + result._ball_vel
 
-        agent.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result._tackle_angle.degree()}")
+        log.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result._tackle_angle.degree()}")
         tackle_dir = (result._tackle_angle - wm.self().body()).degree()
 
         agent.do_tackle(tackle_dir, use_foul)

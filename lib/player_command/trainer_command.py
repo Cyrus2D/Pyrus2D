@@ -2,8 +2,9 @@ from enum import Enum, unique, auto
 
 from pyrusgeom.angle_deg import AngleDeg
 from pyrusgeom.vector_2d import Vector2D
+
+from lib.debug.debug import log
 from lib.rcsc.types import GameModeType
-from lib.debug.debug_print import debug_print
 
 
 class TrainerCommand:
@@ -122,7 +123,7 @@ class TrainerMovePlayerCommand(TrainerCommand):
 
     def check(self):
         if not 0 < self._unum < 12:
-            debug_print("Illegal uniform number")
+            log.os_log().error("Illegal uniform number")
             return False
         return True
 

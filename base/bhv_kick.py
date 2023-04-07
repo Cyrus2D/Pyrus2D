@@ -6,10 +6,10 @@ from base.generator_action import KickAction, ShootAction, KickActionType
 from base.generator_dribble import BhvDribbleGen
 from base.generator_pass import BhvPassGen
 from base.generator_shoot import BhvShhotGen
-from lib.debug.debug_print import debug_print
 
 from typing import TYPE_CHECKING
 
+from lib.debug.debug import log
 from lib.messenger.pass_messenger import PassMessenger
 
 if TYPE_CHECKING:
@@ -25,8 +25,8 @@ class BhvKick:
         wm: 'WorldModel' = agent.world()
         shoot_candidate: ShootAction = BhvShhotGen().generator(wm)
         if shoot_candidate:
-            agent.debug_client().set_target(shoot_candidate.target_point)
-            agent.debug_client().add_message(
+            log.debug_client().set_target(shoot_candidate.target_point)
+            log.debug_client().add_message(
                 'shoot' + 'to ' + shoot_candidate.target_point.__str__() + ' ' + str(shoot_candidate.first_ball_speed))
             SmartKick(shoot_candidate.target_point, shoot_candidate.first_ball_speed,
                       shoot_candidate.first_ball_speed - 1, 3).execute(agent)
@@ -44,9 +44,8 @@ class BhvKick:
             best_action: KickAction = max(action_candidates)
 
             target = best_action.target_ball_pos
-            debug_print(best_action)
-            agent.debug_client().set_target(target)
-            agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+            log.debug_client().set_target(target)
+            log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
             SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
 
             if best_action.type is KickActionType.Pass:

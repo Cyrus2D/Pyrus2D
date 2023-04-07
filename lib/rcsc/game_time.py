@@ -29,5 +29,11 @@ class GameTime:
     def __ne__(self, other):
         return not (self == other)
 
+    def __gt__(self, other):
+        return True if self.cycle() > other.cycle() or (self.cycle() == other.cycle() and self.stopped_cycle() > other.stopped_cycle()) else False
+
     def copy(self):
         return GameTime(self._cycle, self._stopped_cycle)
+
+    def __str__(self):
+        return f'GameTime cycle {self._cycle}.{self._stopped_cycle}'

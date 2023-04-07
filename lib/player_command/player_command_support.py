@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from lib.player.sensor.see_state import SeeState
 from lib.player_command.player_command import PlayerCommand, CommandType
-from lib.rcsc.types import ViewWidth, ViewQuality
+from lib.rcsc.types import ViewWidth
 
 
 class PlayerSupportCommand(PlayerCommand):
@@ -30,23 +30,37 @@ class PlayerTurnNeckCommand(PlayerSupportCommand):
         return self._moment
 
 
+class PlayerChangeFocusCommand(PlayerSupportCommand):
+    def __init__(self, moment_dist, moment_dir):
+        self._moment_dist = moment_dist
+        self._moment_dir = moment_dir
+
+    def str(self):
+        return f"(change_focus {self._moment_dist} {self._moment_dir})"
+
+    def type(self):
+        return CommandType.CHANGE_FOCUS
+
+    def moment_dist(self):
+        return self._moment_dist
+
+    def moment_dir(self):
+        return self._moment_dir
+
+
 class PlayerChangeViewCommand(PlayerSupportCommand):
-    def __init__(self, w: ViewWidth, q: ViewQuality, version: float = 8.0):
+    def __init__(self, w: ViewWidth, version: float = 8.0):
         self._width: ViewWidth = w
-        self._quality: ViewQuality = q
         self._version = version
 
     def type(self):
         return CommandType.CHANGE_VIEW
 
     def str(self):
-        return f"(change_view {self._width.value}" + (f" {self._quality.value})" if not SeeState.synch_see_mode() else ")")
+        return f"(change_view {self._width.value})"
 
     def width(self):
         return self._width
-
-    def quality(self):
-        return self._quality
 
 
 class PlayerSayCommand(PlayerSupportCommand):

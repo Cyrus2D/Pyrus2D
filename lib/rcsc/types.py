@@ -21,6 +21,9 @@ class SideID(Enum):
     def invert(self):
         return SideID.RIGHT if self == SideID.LEFT else SideID.LEFT if self != SideID.NEUTRAL else SideID.NEUTRAL
 
+    def __repr__(self):
+        return self.value
+
 
 """
   \ enum MarkerID
@@ -178,6 +181,7 @@ class GameModeType(Enum):
     GoalieCatchBall_Right = "goalie_catch_ball_r"
     IllegalDefense_Left = "illegal_defense_l"
     IllegalDefense_Right = "illegal_defense_r"
+    HalfTime = "half_time"
     MAX = "max"
 
     def is_kick_off(self):
@@ -377,16 +381,6 @@ BALL_STATUS_STRINGS = ["",
                        "goal_r",
                        "out_of_field",
                        ]
-
-
-@unique
-class ViewQuality(Enum):
-    HIGH = 'high'
-    LOW = 'low'
-    ILLEGAL = 'illegal'
-
-    def __repr__(self):
-        return self.value
 
 
 @unique

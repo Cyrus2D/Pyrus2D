@@ -2,7 +2,7 @@
   \ file basic_actions.py
   \ brief basic player actions
 """
-
+from lib.debug.debug import log
 from lib.player.soccer_action import *
 from pyrusgeom.soccer_math import *
 from lib.rcsc.server_param import ServerParam
@@ -128,6 +128,62 @@ class TackleToPoint(BodyAction):
 
         return agent.do_tackle(target_rel_angle.degree(), True)  # TODO need Check
 
+
+class SetFocusToPoint(FocusPointAction):
+    def __init__(self, next_focus_point: Vector2D):
+        super().__init__()
+        self.next_focus_point: Vector2D = next_focus_point
+
+    def execute(self, agent: 'PlayerAgent'):
+        next_view_width = agent.effector().queued_next_view_width().width()
+        my_next_pos = agent.effector().queued_next_self_pos()
+        my_next_face = agent.effector().queued_next_self_face()
+        current_focus_point_dist = agent.world().self().focus_point_dist()
+        current_focus_point_dir = agent.world().self().focus_point_dir()
+        current_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, current_focus_point_dir.degree(), next_view_width / 2.0))
+        next_focus_point_dist = my_next_pos.dist(self.next_focus_point)
+        if not (0.0 < next_focus_point_dist < 40.0):
+            log.os_log().info(f'(FocusToPoint execute) Next focus point dist should be 0<{next_focus_point_dist}<40')
+        next_focus_point_dist = min_max(0.0, next_focus_point_dist, 40.0)
+        change_focus_moment_dist = next_focus_point_dist - current_focus_point_dist
+
+        original_next_focus_point_dir_to_pos = (self.next_focus_point - my_next_pos).th()
+        next_focus_point_dir = (self.next_focus_point - my_next_pos).th() - my_next_face
+        if not (-next_view_width / 2.0 < next_focus_point_dir.degree() < next_view_width / 2.0):
+            log.os_log().info(f'(FocusToPoint execute) Next focus point dir should be {-next_view_width / 2.0}<{next_focus_point_dir.degree()}<{next_view_width/2.0}')
+        next_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, next_focus_point_dir.degree(), next_view_width / 2.0))
+        if abs(next_focus_point_dir.abs() - next_view_width) / 2.0 < 0.001:
+            positive = AngleDeg(next_view_width / 2.0) + my_next_face
+            negative = AngleDeg(-next_view_width / 2.0) + my_next_face
+            if (positive - original_next_focus_point_dir_to_pos).abs() < (negative - original_next_focus_point_dir_to_pos).abs():
+                next_focus_point_dir = AngleDeg(next_view_width / 2.0)
+            else:
+                next_focus_point_dir = AngleDeg(-next_view_width / 2.0)
+        change_focus_moment_dir = next_focus_point_dir - current_focus_point_dir
+        return agent.do_change_focus(change_focus_moment_dist, change_focus_moment_dir)
+
+
+class SetFocusToBall(FocusPointAction):
+    def __init__(self):
+        super().__init__()
+
+    def execute(self, agent: 'PlayerAgent'):
+        next_ball_pos = agent.effector().queued_next_ball_pos()
+        return SetFocusToPoint(next_ball_pos).execute(agent)
+
+
+class SetFocusToSelf(FocusPointAction):
+    def __init__(self):
+        super().__init__()
+
+    def execute(self, agent: 'PlayerAgent'):
+        next_self_pos = agent.effector().queued_next_self_pos()
+        return SetFocusToPoint(next_self_pos).execute(agent)
+
+
+class SetFocusToFlags(FocusPointAction):
+    # TODO this one and others should be implemented
+    pass
 
 """
   \ class Arm_Off

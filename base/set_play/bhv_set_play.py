@@ -3,8 +3,8 @@ from base.strategy_formation import *
 from lib.action.neck_scan_players import NeckScanPlayers
 from lib.action.neck_turn_to_ball_or_scan import NeckTurnToBallOrScan
 from lib.action.scan_field import ScanField
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from lib.action.go_to_point import *
 from lib.messenger.pass_messenger import PassMessenger
 from lib.rcsc.types import GameModeType
@@ -29,7 +29,7 @@ class Bhv_SetPlay:
         if self.kick(agent):
             return True
         
-        dlog.add_text(Level.TEAM, "Bhv_SetPlay")
+        log.sw_log().team().add_text( "Bhv_SetPlay")
         wm: WorldModel = agent.world()
         game_mode = wm.game_mode().type()
         game_side = wm.game_mode().side()
@@ -66,7 +66,7 @@ class Bhv_SetPlay:
         if wm.game_mode().mode_name() == "goalie_catch" and \
                 wm.game_mode().side() == wm.our_side() and \
                 not wm.self().goalie():
-            dlog.add_text(Level.TEAM, "(is_kicker) goalie free kick")
+            log.sw_log().team().add_text( "(is_kicker) goalie free kick")
             return False
         if not wm.self().goalie() and \
                 wm.game_mode().mode_name() == "goal_kick" and \
@@ -99,7 +99,7 @@ class Bhv_SetPlay:
                     second_min_dist2, min_dist2 = min_dist2, second_min_dist2
                     second_kicker_unum, kicker_unum = kicker_unum, second_kicker_unum
 
-        dlog.add_text(Level.TEAM, f"(is kicker) kicker_unum={kicker_unum}, second_kicker_unum={second_kicker_unum}")
+        log.sw_log().team().add_text( f"(is kicker) kicker_unum={kicker_unum}, second_kicker_unum={second_kicker_unum}")
 
         kicker: 'PlayerObject' = None
         second_kicker: 'PlayerObject' = None
@@ -112,10 +112,10 @@ class Bhv_SetPlay:
         if kicker is None:
             if len(wm.teammates_from_ball()) > 0 and \
                     wm.teammates_from_ball()[0].dist_from_ball() < wm.ball().dist_from_self() * 0.9:
-                dlog.add_text(Level.TEAM, "(is kicker) first kicker")
+                log.sw_log().team().add_text( "(is kicker) first kicker")
                 return False
 
-            dlog.add_text(Level.TEAM, "(is_kicker) self(1)")
+            log.sw_log().team().add_text( "(is_kicker) self(1)")
             return True
 
         if kicker is not None and \
@@ -123,20 +123,20 @@ class Bhv_SetPlay:
                 (kicker.unum() == wm.self().unum() or \
                  second_kicker.unum() == wm.self().unum()):
             if min_dist2 ** 0.5 < (second_min_dist2 ** 0.5) * 0.95:
-                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (1)")
+                log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (1)")
                 return kicker.unum() == wm.self().unum()
             elif kicker.dist_from_ball() < second_kicker.dist_from_ball() * 0.95:
-                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (2)")
+                log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (2)")
                 return kicker.unum() == wm.self().unum()
             elif second_kicker.dist_from_ball() < kicker.dist_from_ball() * 0.95:
-                dlog.add_text(Level.TEAM, f"(is kicker) kicker->unum={kicker.unum()} (3)")
+                log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (3)")
                 return second_kicker.unum() == wm.self().unum()
             elif len(wm.teammates_from_ball()) > 0 and \
                     wm.teammates_from_ball()[0].dist_from_ball() < wm.self().dist_from_ball() * 0.95:
-                dlog.add_text(Level.TEAM, "(is kicker) other kicker")
+                log.sw_log().team().add_text( "(is kicker) other kicker")
                 return False
             else:
-                dlog.add_text(Level.TEAM, "(is kicker) self (2)")
+                log.sw_log().team().add_text( "(is kicker) self (2)")
                 return True
         return kicker.unum() == wm.self().unum()
     
@@ -164,9 +164,8 @@ class Bhv_SetPlay:
         best_action: KickAction = max(action_candidates)
 
         target = best_action.target_ball_pos
-        debug_print(best_action)
-        agent.debug_client().set_target(target)
-        agent.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+        log.debug_client().set_target(target)
+        log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
         SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
         agent.add_say_message(PassMessenger(best_action.target_unum,
                                             best_action.target_ball_pos,

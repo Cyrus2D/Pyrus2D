@@ -125,6 +125,29 @@ class ArmAction(AbstractAction):
     def clone(self, agent):
         pass
 
+#  #################################/
+
+"""
+\ class ViewAction
+\ brief abstract change view action
+"""
+
+
+class FocusPointAction(AbstractAction):
+
+    def __init__(self, ):
+        super().__init__()
+
+    def execute(self, agent):
+        pass
+
+    """
+    \ brief create cloned action object
+    \ return pointer to the cloned object instance.
+    """
+
+    def clone(self, agent):
+        pass
 
 #  #################################/
 

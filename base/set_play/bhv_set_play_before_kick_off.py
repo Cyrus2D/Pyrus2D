@@ -1,7 +1,6 @@
 from lib.action.neck_scan_field import NeckScanField
 from lib.action.scan_field import ScanField
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.angle_deg import AngleDeg
 from base.strategy_formation import StrategyFormation
 

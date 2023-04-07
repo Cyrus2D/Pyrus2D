@@ -9,16 +9,17 @@ class SoccerAgent:
     def init(self,
              client: BasicClient,
              goalie: bool = False,
-             argv: list = None) -> bool:
+             argv: list = None):
         self._client = client
         self.init_impl(goalie)
+
     def init_impl(self, goalie: bool) -> bool:
         pass
 
     def handle_start(self) -> bool:
         pass
 
-    def handle_message(self):
+    def run(self):
         pass
 
     def handle_exit(self):

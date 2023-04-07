@@ -36,9 +36,7 @@ class BasicClient:
             agent.handle_exit()
             return
 
-        while self.is_server_alive():
-            # TODO handle selects and rets and fds and timeout ... (I dont know what the hell are these)
-            agent.handle_message()
+        agent.run()
 
     def set_server_alive(self, mode: bool):
         self._server_alive = mode
@@ -47,8 +45,8 @@ class BasicClient:
         # TODO check function's return
         return self._socket.send_msg(msg)
 
-    def recv_message(self, msg_addr):
-        return self._socket.recieve_msg(msg_addr)
+    def recv_message(self):
+        return self._socket.receive_msg()
 
     def message(self):
         pass

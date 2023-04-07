@@ -12,10 +12,17 @@ if TYPE_CHECKING:
 
 
 class ViewTactical(ViewAction):
+    PREV1 = None
+    PREV2 = None
+
     def __init__(self):
         pass
 
     def execute(self, agent: 'PlayerAgent'):
+        ViewTactical.PREV2 = ViewTactical.PREV1
+        ViewTactical.PREV1 = agent.world().self().view_width().width()
+
+        best_width = None
         gm = agent.world().game_mode().type()
         if (gm is GameModeType.BeforeKickOff
             or gm.is_after_goal()
@@ -24,24 +31,29 @@ class ViewTactical(ViewAction):
             or gm.is_penalty_miss()
             or gm.is_penalty_score()):
 
-            return agent.do_change_view(ViewWidth.WIDE)
+            best_width = ViewWidth.WIDE
+        elif gm.is_penalty_taken():
+            best_width = ViewWidth.NARROW
 
-        if gm.is_penalty_taken():
-            return agent.do_change_view(ViewWidth.NARROW)
+        elif gm.is_goalie_catch_ball() and gm.side() == agent.world().our_side():
+            best_width = self.get_our_goalie_free_kick_view_width(agent)
+        else:
+            best_width = self.get_default_view_width(agent)
 
-        if gm.is_goalie_catch_ball():
-            if gm.side() == agent.world().our_side():
-                return self.do_our_goalie_free_kick(agent)
+        if ViewTactical.PREV1 == 180.0 and ViewTactical.PREV2 == 180.0 and agent.world().see_time().cycle() == agent.world().time().cycle() - 2:
+            best_width = ViewWidth.WIDE
+        elif ViewTactical.PREV1 == 120.0 and best_width.width() == 60.0 and agent.world().see_time().cycle() == agent.world().time().cycle() - 1:
+            best_width = ViewWidth.NORMAL
 
-        return self.do_default(agent)
+        return agent.do_change_view(best_width)
 
-    def do_default(self, agent: 'PlayerAgent'):
+    def get_default_view_width(self, agent: 'PlayerAgent'):
         wm = agent.world()
         ef = agent.effector()
         SP = ServerParam.i()
 
         if not wm.ball().pos_valid():
-            return agent.do_change_view(ViewWidth.WIDE)
+            return ViewWidth.WIDE
 
         self_min = wm.intercept_table().self_reach_cycle()
         mate_min = wm.intercept_table().teammate_reach_cycle()
@@ -57,20 +69,20 @@ class ViewTactical(ViewAction):
                 ball_angle = ef.queued_next_angle_from_body(ef.queued_next_ball_pos()) # TODO IMP FUNC
                 angle_diff = ball_angle.abs() - SP.max_neck_angle()
                 if angle_diff > ViewWidth.NORMAL.width()/2 -3:
-                    return agent.do_change_view(ViewWidth.WIDE)
+                    return ViewWidth.WIDE
                 if angle_diff > ViewWidth.NARROW.width()/2 -3:
-                    return agent.do_change_view(ViewWidth.NORMAL)
+                    return ViewWidth.NORMAL
 
         if ball_dist > 40:
-            return agent.do_change_view(ViewWidth.WIDE)
+            return ViewWidth.WIDE
 
         if ball_dist > 20:
-            return agent.do_change_view(ViewWidth.NORMAL)
+            return ViewWidth.NORMAL
 
         if ball_dist > 10:
             ball_angle = ef.queued_next_angle_from_body(ef.queued_next_ball_pos())
             if ball_angle.abs() > 120:
-                return agent.do_change_view(ViewWidth.WIDE)
+                return ViewWidth.WIDE
 
         teammate_ball_dist = 1000.
         opponent_ball_dist = 1000.
@@ -86,13 +98,13 @@ class ViewTactical(ViewAction):
             and ball_dist > 10
             and wm.ball().dist_from_self() > 10):
 
-            return agent.do_change_view(ViewWidth.NORMAL)
-        return agent.do_change_view(ViewWidth.NARROW)
+            return ViewWidth.NORMAL
+        return ViewWidth.NARROW
 
-    def do_our_goalie_free_kick(self, agent:'PlayerAgent'):
+    def get_our_goalie_free_kick_view_width(self, agent: 'PlayerAgent'):
         if agent.world().self().goalie():
-            return agent.do_change_view(ViewWidth.WIDE)
-        return self.do_default(agent)
+            return ViewWidth.WIDE
+        return self.get_default_view_width(agent)
 
 
 

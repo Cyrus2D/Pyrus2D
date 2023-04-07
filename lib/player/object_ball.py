@@ -1,6 +1,5 @@
-from lib.debug.debug_print import debug_print, debug_frame
+from lib.debug.debug import log
 from lib.debug.level import Level
-from lib.debug.logger import dlog
 from pyrusgeom.soccer_math import *
 from lib.player.object import *
 from lib.player_command.player_command import CommandType
@@ -16,26 +15,15 @@ if TYPE_CHECKING:
     from lib.player.action_effector import ActionEffector
 
 
-
-
-
 class BallObject(Object):
-    DEBUG= True
-    
-    VEL_COUNT_THR = 10
-    POS_COUNT_THR = 10
-    RPOS_COUNT_THR = 5
+    DEBUG = True
 
     def __init__(self, string=None):
         super().__init__()
-        self._pos = Vector2D.invalid()
-        self._vel = Vector2D.invalid()
-        
-        self._seen_rpos: Vector2D = Vector2D.invalid()
-        
-        self._rpos_count:int = 1000
-        self._heard_pos_count: int = 1000
-        self._heard_vel_count: int = 1000
+        self._pos_count_thr: Union[None, int] = 10
+        self._relation_pos_count_thr: Union[None, int] = 5
+        self._vel_count_thr: Union[None, int] = 10
+
         self._lost_count: int = 1000
         
         if string is None:
@@ -54,24 +42,6 @@ class BallObject(Object):
     def update_more_with_full_state(self, wm):
         self._rpos = self.pos() - wm.self().pos()
 
-    def dist_from_self(self):
-        return self._dist_from_self
-
-    def angle_from_self(self):
-        return self._angle_from_self
-    
-    def seen_rpos(self):
-        return self._seen_rpos
-
-    def vel_valid(self):
-        return self.vel_count() < BallObject.VEL_COUNT_THR
-
-    def pos_valid(self):
-        return self.pos_count() < BallObject.POS_COUNT_THR
-
-    def __repr__(self):
-        return f"(pos: {self.pos()}) (vel:{self.vel()})"
-
     def inertia_point(self, cycle: int) -> Vector2D:
         return inertia_n_step_point(self._pos,
                                     self._vel,
@@ -85,18 +55,16 @@ class BallObject(Object):
 
     def copy(self):
         ball = BallObject()
-        
-        ball._dist_from_self = self._dist_from_self
-        ball._angle_from_self = self._angle_from_self
         ball._pos = self._pos.copy()
         ball._vel = self._vel.copy()
         ball._rpos = self._rpos.copy()
         ball._seen_pos = self._seen_pos.copy()
         ball._seen_vel = self._seen_vel.copy()
-
+        ball._dist_from_self = self._dist_from_self
+        ball._angle_from_self = self._angle_from_self
         return ball
 
-    def update(self, act: 'ActionEffector', game_mode: GameMode):
+    def update_by_last_cycle(self, act: 'ActionEffector', game_mode: GameMode):
         SP = ServerParam.i()
 
         new_vel = Vector2D(0, 0)
@@ -145,40 +113,48 @@ class BallObject(Object):
         self._heard_vel_count = min(1000, self._heard_vel_count + 1)
         self._lost_count = min(1000, self._lost_count + 1)
     
-    def update_only_vel(self, vel: Vector2D, vel_count:int):
+    def update_only_vel(self, vel: Vector2D, vel_err: Vector2D, vel_count:int):
         self._vel = vel.copy()
+        self._vel_error = vel_err.copy()
         self._vel_count = vel_count
         self._seen_vel = vel.copy()
         self._seen_vel_count = vel_count
     
-    def update_only_relative_pos(self, rpos: Vector2D):
+    def update_only_relative_pos(self, rpos: Vector2D, rpos_err: Vector2D):
         self._rpos = rpos.copy()
+        self._rpos_error = rpos_err.copy()
         self._rpos_count = 0
         self._seen_rpos = rpos.copy()
     
     def update_pos(self,
                    pos: Vector2D,
+                   pos_err: Vector2D,
                    pos_count: int,
-                   rpos: Vector2D):
+                   rpos: Vector2D,
+                   rpos_err: Vector2D):
         self._pos = pos.copy()
+        self._pos_error = pos_err.copy()
         self._pos_count = pos_count
         self._seen_pos = pos.copy()
         self._seen_pos_count = 0
         
-        self.update_only_relative_pos(rpos)
+        self.update_only_relative_pos(rpos, rpos_err)
         
         self._lost_count = 0
         self._ghost_count = 0
     
     def update_all(self, 
                    pos: Vector2D,
+                   pos_err: Vector2D,
                    pos_count: int,
                    rpos: Vector2D,
+                   rpos_err: Vector2D,
                    vel: Vector2D,
+                   vel_err: Vector2D,
                    vel_count: int):
-        self.update_pos(pos, pos_count, rpos)
-        self.update_only_vel(vel, vel_count)
-    
+        self.update_pos(pos, pos_err, pos_count, rpos, rpos_err)
+        self.update_only_vel(vel, vel_err, vel_count)
+
     def update_by_game_mode(self, game_mode: GameMode):
         SP = ServerParam.i()
         GMT = GameModeType
@@ -222,26 +198,21 @@ class BallObject(Object):
 
     def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):
         if self.rpos_count() == 0:
-            debug_print("busr A")
             self._dist_from_self = self.rpos().r()
             self._angle_from_self = self.rpos().th()
         else:
             if prev.rpos().is_valid() and player.last_move().is_valid():
-                debug_print("busr B")
                 self._rpos = prev.rpos() + self.vel() / ServerParam.i().ball_decay() - player.last_move()
             
             if self.rpos().is_valid() and self.pos_count() > self.rpos_count():
-                debug_print("busr C")
                 self._pos = player.pos() + self.rpos()
                 self._dist_from_self = self.rpos().r()
                 self._angle_from_self = self.rpos().th()
             elif self.pos_valid() and player.pos_valid():
-                debug_print("busr D")
                 self._rpos = self.pos() - player.pos()
                 self._dist_from_self = self.rpos().r()
                 self._angle_from_self = self.rpos().th()
             else:
-                debug_print("busr F")
                 self._dist_from_self = 1000
                 self._angle_from_self = AngleDeg(0)
     
@@ -252,8 +223,8 @@ class BallObject(Object):
                        heard_vel: Vector2D,
                        is_pass: bool = False):
         if BallObject.DEBUG:
-            dlog.add_text(Level.SENSOR, f"(update ball by hear) prior_pos={self.pos()} new_pos={heard_pos}")
-            dlog.add_text(Level.SENSOR, f"(update ball by hear) prior_vel={self.vel()} new_pos={heard_vel}")
+            log.sw_log().sensor().add_text( f"(update ball by hear) prior_pos={self.pos()} new_pos={heard_pos}")
+            log.sw_log().sensor().add_text( f"(update ball by hear) prior_vel={self.vel()} new_pos={heard_vel}")
 
         self._heard_pos =heard_pos.copy()
         self._heard_vel = heard_vel.copy()
@@ -315,5 +286,5 @@ class BallObject(Object):
     def lost_count(self):
         return self._lost_count
 
-    def rpos_valid(self):
-        return self._rpos_count < BallObject.RPOS_COUNT_THR
+    def __str__(self):
+        return f'''Ball pos: {self.pos()} vel:{self.vel()}'''
