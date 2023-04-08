@@ -6,6 +6,7 @@ from lib.rcsc.types import Card, SideID, GameModeType, UNUM_UNKNOWN
 import team_config
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.object_player import PlayerObject
@@ -45,11 +46,12 @@ def player_printer(p: 'PlayerObject', our_side: SideID):
     s += ")"
     return s
 
+
 class DebugClient:
-    MAX_LINE = 50       # maximum number of lines in one message.
-    MAX_TRIANGLE = 50   # maximum number of triangles in one message.
-    MAX_RECT = 50       # maximum number of rectangles in one message.
-    MAX_CIRCLE = 50     # maximum number of circles in one message.
+    MAX_LINE = 50  # maximum number of lines in one message.
+    MAX_TRIANGLE = 50  # maximum number of triangles in one message.
+    MAX_RECT = 50  # maximum number of rectangles in one message.
+    MAX_CIRCLE = 50  # maximum number of circles in one message.
 
     def __init__(self):
         self._on = True
@@ -79,7 +81,7 @@ class DebugClient:
     def open(self, log_dir, teamname, unum):
         pass
 
-    def write_all( self, world, effector):
+    def write_all(self, world, effector):
         self.to_str(world, effector)
         self.send()
         self.clear()
@@ -87,8 +89,7 @@ class DebugClient:
     def close(self):
         pass
 
-    def to_str( self, world: 'WorldModel', effector ):
-        ostr = ''
+    def to_str(self, world: 'WorldModel', effector):
         if world.game_mode().type() is GameModeType.BeforeKickOff:
             ostr = f'((debug (format-version 5)) (time {str(world.time().cycle())},0)'
         else:
@@ -117,8 +118,8 @@ class DebugClient:
             ostr_ball = ' (b ' + str(round(world.ball().pos().x(), 2)) \
                         + ' ' + str(round(world.ball().pos().y(), 2))
             if world.ball().vel_valid():
-                    ostr_ball += (' ' + str(round(world.ball().vel().x(), 2))
-                                  + ' ' + str(round(world.ball().vel().y(), 2)))
+                ostr_ball += (' ' + str(round(world.ball().vel().x(), 2))
+                              + ' ' + str(round(world.ball().vel().y(), 2)))
             ostr_ball += (' (c \'g' + str(world.ball().pos_count()) + 'r'
                           + str(world.ball().rpos_count()) + 'v'
                           + str(world.ball().vel_count())) + '\'))'
@@ -133,7 +134,7 @@ class DebugClient:
             ostr += player_printer(p, world.our_side())
 
         if self._target_unum != 0:
-            ostr += (' (target-teammate ' + str(self._target_unum)+ ')')
+            ostr += (' (target-teammate ' + str(self._target_unum) + ')')
 
         if self._target_point.is_valid():
             ostr += (' (target-point ' + str(self._target_point.x())
@@ -142,10 +143,14 @@ class DebugClient:
         if len(self._message) != 0:
             ostr += f' (message "{str(self._message)}")'
 
-        for obj in self._lines: obj.to_str(ostr)
-        for obj in self._triangles: obj.to_str(ostr)
-        for obj in self._rectangles: obj.to_str(ostr)
-        for obj in self._circles: obj.to_str(ostr)
+        for obj in self._lines:
+            obj.to_str(ostr)
+        for obj in self._triangles:
+            obj.to_str(ostr)
+        for obj in self._rectangles:
+            obj.to_str(ostr)
+        for obj in self._circles:
+            obj.to_str(ostr)
 
         ostr += ')'
         self._main_buffer = ostr
@@ -155,7 +160,7 @@ class DebugClient:
             self._main_buffer += '\0'
         self._sock.sendto(self._main_buffer.encode(), (self._ip, self._port))
 
-    def write( self, cycle ):
+    def write(self, cycle):
         pass
 
     def clear(self):
@@ -168,7 +173,7 @@ class DebugClient:
         self._rectangles = []
         self._circles = []
 
-    def add_message( self, msg: str):
+    def add_message(self, msg: str):
         self._message += msg.replace('\n', '').replace('"', '')
 
     def set_target(self, unum_or_position):
