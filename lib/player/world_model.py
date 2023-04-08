@@ -244,12 +244,12 @@ class WorldModel:
         self._set_goalies_unum()  # TODO should it call here?!
         self._set_players_from_ball_and_self()
 
-        self._update_their_defense_line()
+        # self._update_their_defense_line()
         self.update_offside_line()
 
         self._intercept_table.update(self)
 
-    def _update_their_defense_line(self):
+    def update_their_defense_line(self):
         speed_rate = ServerParam.i().default_player_speed_max() * (0.8
                                                                    if self.ball().vel().x() < -1
                                                                    else 0.25)
@@ -292,8 +292,8 @@ class WorldModel:
         if new_line < 0:
             new_line = 0
 
-        if (self._game_mode.mode_name() != "before_kick_off"
-                and self._game_mode.mode_name() != "after_goal"
+        if (self._game_mode.type() == GameModeType.BeforeKickOff
+                and self._game_mode.type().is_after_goal()
                 and self.ball().pos_count() <= 3):
             ball_next = self.ball().pos() + self.ball().vel()
             if ball_next.x() > new_line:
@@ -1356,6 +1356,7 @@ class WorldModel:
         self.update_player_type()
         # TODO update player cards and player types
         # TODO update players collision
+        self.update_their_defense_line()
         self.update_offside_line()
         # self.update_last_kicker() # TODO IMP FUNC
         self.update_intercept_table()
