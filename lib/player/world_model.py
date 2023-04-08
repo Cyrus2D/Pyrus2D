@@ -1330,7 +1330,7 @@ class WorldModel:
             player.set_player_type(self._player_types[player.player_type_id()])
             if player.side().value == self._our_side:
                 if player.unum() == self._self_unum:
-                    self._self = SelfObject(player)
+                    self._self.update_by_player_info(player)
                 else:
                     self._teammates.append(player)
             elif player.side() == SideID.NEUTRAL:

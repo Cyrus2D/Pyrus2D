@@ -110,7 +110,7 @@ class PlayerObject(Object):
     def goalie(self):
         return self._goalie
 
-    def player_type(self)-> PlayerType:
+    def player_type(self) -> PlayerType:
         return self._player_type
 
     def pointto_angle(self):
@@ -152,7 +152,7 @@ class PlayerObject(Object):
         return self._kick_rate
 
     def player_type_id(self):
-        return self.player_type().id()
+        return self._player_type_id
 
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)

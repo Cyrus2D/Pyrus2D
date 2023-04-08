@@ -328,6 +328,7 @@ class _KickTable:
     debug_print_DEBUG: bool = False  # debug_prints IN KICKTABLE
 
     def __init__(self):
+        self._old_player_type_id = -1
         self._player_size = 0.0
         self._kickable_margin = 0.0
         self._ball_size = 0.0
@@ -351,11 +352,12 @@ class _KickTable:
     \ return result of table creation
     """
 
-    def create_tables(self):
+    def create_tables(self, player_type: PlayerType):
+        if player_type.id() == self._old_player_type_id:
+            return
+        self._old_player_type_id = player_type.id()
         player_type = PlayerType()  # default type
-        if self._tables != []:
-            return True
-        
+
         if (math.fabs(self._player_size - player_type.player_size()) < EPS
                 and math.fabs(self._kickable_margin - player_type.kickable_margin()) < EPS
                 and math.fabs(self._ball_size - ServerParam.i().ball_size()) < EPS):
