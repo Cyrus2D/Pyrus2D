@@ -10,6 +10,7 @@ from pyrusgeom.vector_2d import Vector2D
 from base.basic_tackle import BasicTackle
 from base.generator_action import KickAction
 from base.generator_pass import BhvPassGen
+from base.set_play.bhv_goalie_set_play import Bhv_GoalieSetPlay
 from lib.action.go_to_point import GoToPoint
 from lib.action.hold_ball import HoldBall
 from lib.action.intercept import Intercept
@@ -20,6 +21,7 @@ from lib.debug.color import Color
 from lib.debug.debug import log
 from lib.debug.level import Level
 from lib.rcsc.server_param import ServerParam
+from lib.rcsc.types import GameModeType
 
 if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
@@ -33,6 +35,10 @@ def decision(agent: 'PlayerAgent'):
 
     our_penalty = Rect2D(Vector2D(-SP.pitch_half_length(), -SP.penalty_area_half_width() + 1),
                          Size2D(SP.penalty_area_length() - 1, SP.penalty_area_width() - 2))
+
+    if wm.game_mode().type() != GameModeType.PlayOn:
+        if Bhv_GoalieSetPlay().execute(agent):
+            return True
 
     if (wm.time().cycle() > wm.self().catch_time().cycle() + SP.catch_ban_cycle()
         and wm.ball().dist_from_self() < SP.catchable_area() - 0.05
