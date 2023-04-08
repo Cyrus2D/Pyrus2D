@@ -38,16 +38,18 @@ class SmartKick(BodyAction):
 
     def execute(self, agent: 'PlayerAgent'):
         log.sw_log().kick().add_text( "Body_SmartKick")
+        log.os_log().debug(f'c{agent.world().time().cycle()}kick{self._target_point} {self._first_speed}')
+        log.sw_log().kick().add_text(f'c{agent.world().time().cycle()}kick{self._target_point} {self._first_speed}')
         wm = agent.world()
         if not wm.self().is_kickable():
             if SmartKick.debug_print_DEBUG:
                 log.os_log().info("----- NotKickable -----")
-                log.sw_log().kick().add_text( "not kickable")
+                log.sw_log().kick().add_text("not kickable")
             return False
         if not wm.ball().vel_valid():
             if SmartKick.debug_print_DEBUG:
                 log.os_log().info("-- NonValidBall -> StopBall --")
-                log.sw_log().kick().add_text( "unknown ball vel")
+                log.sw_log().kick().add_text("unknown ball vel")
             return StopBall().execute(agent)
         first_speed = min(self._first_speed, ServerParam.i().ball_speed_max())
         first_speed_thr = max(0.0, self._first_speed_thr)
@@ -60,12 +62,8 @@ class SmartKick(BodyAction):
                                             self._sequence)
         if ans[0] and SmartKick.debug_print_DEBUG:
             log.os_log().info(f"Smart kick : {ans[0]} seq -> speed : {ans[1].speed_} power : {ans[1].power_} score : {ans[1].score_} flag : {ans[1].flag_} next_pos : {ans[1].pos_list_[0]} {len(ans[1].pos_list_)} step {ans[1].pos_list_}")
+            log.sw_log().kick().add_text(f"Smart kick : {ans[0]} seq -> speed : {ans[1].speed_} power : {ans[1].power_} score : {ans[1].score_} flag : {ans[1].flag_} next_pos : {ans[1].pos_list_[0]} {len(ans[1].pos_list_)} step {ans[1].pos_list_}")
 
-
-            if ans[0]:
-                log.os_log().info("###################********False*******####################")
-            else:
-                log.os_log().info('##################*********True********####################')
         if ans[0]:
             self._sequence = ans[1]
             if self._sequence.speed_ >= first_speed_thr:  # double check
@@ -73,15 +71,17 @@ class SmartKick(BodyAction):
                 kick_accel = vel - wm.ball().vel()
                 if SmartKick.debug_print_DEBUG:
                     log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
+                    log.sw_log().kick().add_text(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
 
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())
                 if SmartKick.debug_print_DEBUG:
                     log.os_log().debug(f"----------------#### Player Number {wm.self().unum()} 'DO_KICK'ed in SmartKick at Time: {wm.time().cycle()} ####----------------")
+                    log.sw_log().kick().add_text(f"----------------#### Player Number {wm.self().unum()} 'DO_KICK'ed in SmartKick at Time: {wm.time().cycle()} ####----------------")
                 return True
 
         # failed to search the kick sequence
-
+        log.sw_log().kick().add_text("----->>>>>Hold Ball")
         HoldBall(False, self._target_point, self._target_point).execute(agent)
         return False
 
