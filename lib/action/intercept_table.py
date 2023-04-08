@@ -23,8 +23,8 @@ class InterceptTable:
         self._last_update_time: GameTime = GameTime(-10, -100)
         self._max_cycle: int = 30
 
-        self._ball_cache = []
-        self._self_cache = []
+        self._ball_cache: list[Vector2D] = []
+        self._self_cache: list[Vector2D] = []
 
         self._self_reach_cycle = 1000
         self._self_exhaust_reach_cycle = 1000
@@ -293,5 +293,5 @@ class InterceptTable:
         if self._fastest_teammate is not None and min_cycle < 1000:
             self._teammate_reach_cycle = min_cycle
 
-    def self_cache(self):
+    def self_cache(self) -> list[Vector2D]:
         return self._self_cache

@@ -29,7 +29,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._rpos_count: int = 1000
 
         self._seen_rpos: Vector2D = Vector2D.invalid()
-        self._seen_rpos_error: Vector2D = Vector2D.invalid()
+        self._seen_rpos_error: Vector2D = Vector2D(0, 0)
 
         self._dist_from_self: float = 0
         self._angle_from_self: AngleDeg = AngleDeg(0)
@@ -140,10 +140,15 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
     def update_with_world(self, wm):
         self._update_rpos(wm)
         self._update_dist_from_self(wm)
-        self._update_more_with_full_state(wm)
 
-    def _update_more_with_full_state(self, wm):
-        pass
+    def update_more_with_full_state(self, wm: 'WorldModel'):
+        self._rpos = self.pos() - wm.self().pos()
+        self._rpos_count = 0
+        self._seen_rpos = self.pos() - wm.self().pos()
+        self._dist_from_self: float = wm.self().pos().dist(self.pos())
+        self._angle_from_self: AngleDeg = (wm.self().pos() - self.pos()).th()
+        self._dist_from_ball: float = (wm.ball().pos() - self.pos())
+        self._angle_from_ball: AngleDeg = (wm.ball().pos() - self.pos()).th()
 
     def _update_rpos(self, wm):
         self._rpos: Vector2D = self._pos - wm.self().pos()

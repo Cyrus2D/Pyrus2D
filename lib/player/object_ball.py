@@ -33,14 +33,15 @@ class BallObject(Object):
     def init_str(self, string: str):
         data = string.split(" ")
         self._pos = Vector2D(float(data[0]), float(data[1]))
+        self._seen_pos = Vector2D(float(data[0]), float(data[1]))
         self._vel = Vector2D(float(data[2]), float(data[3]))
+        self._seen_vel = Vector2D(float(data[2]), float(data[3]))
+        self._pos_count = 0
+        self._seen_pos_count = 0
         self._rpos_count = 0
         self._vel_count = 0
-        self._pos_count = 0
+        self._seen_vel_count = 0
         self._ghost_count = 0
-
-    def update_more_with_full_state(self, wm):
-        self._rpos = self.pos() - wm.self().pos()
 
     def inertia_point(self, cycle: int) -> Vector2D:
         return inertia_n_step_point(self._pos,

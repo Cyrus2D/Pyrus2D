@@ -165,7 +165,7 @@ class Bhv_SetPlay:
 
         target = best_action.target_ball_pos
         log.debug_client().set_target(target)
-        log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+        log.debug_client().add_message(f'{best_action.type.value} to {best_action.target_ball_pos} {best_action.start_ball_speed}')
         SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
         agent.add_say_message(PassMessenger(best_action.target_unum,
                                             best_action.target_ball_pos,

@@ -142,7 +142,7 @@ class BhvDribbleGen(BhvKickGen):
                 candidate.target_unum = wm.self().unum()
                 candidate.start_ball_speed = first_vel.r()
                 candidate.index = self.index
-                candidate.evaluate()
+                candidate.evaluate(wm)
                 self.candidates.append(candidate)
                 if debug_dribble:
                     log.sw_log().dribble().add_text(

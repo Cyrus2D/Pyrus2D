@@ -83,10 +83,6 @@ class PlayerObject(Object):
         self._pos_count = 0
         self._body_count = 0
         self._ghost_count = 0
-        
-    # update other data
-    def update_more_with_full_state(self, wm):
-        self._rpos = self.pos() - wm.self().pos()
 
     def reverse_more(self):
         self._body.reverse()
