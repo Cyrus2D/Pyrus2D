@@ -51,37 +51,39 @@ class SelfObject(PlayerObject):
         self._last_move: Vector2D = Vector2D(0, 0)
         self._last_moves: list[Vector2D] = [Vector2D(0, 0) for _ in range(4)]
         self._arm_movable: int = 0
-        if player:
-            self._unum = player._unum
-            self._pos = player._pos
-            self._vel = player._vel
-            self._side = player._side
-            self._body = player._body
-            self._neck = player._neck
-            self._face = player._face
-            self._goalie = player._goalie
-            self._player_type_id = player._player_type_id
-            self._stamina_model = player._stamina_model
-            self._kick = player._kick
-            self._tackle = player._tackle
-            self._charged = player._charged
-            self._card = player._card
-            self._card = player._card
-            self._kick_rate = player._kick_rate
-            self._rpos_count = 0
-            self._vel_count = 0
-            self._pos_count = 0
-            self._body_count = 0
-            self._change_focus_count = 0
-            self._focus_point_dist = 0
-            self._focus_point_dir = AngleDeg(0)
-
         self._face_count_thr: Union[None, int] = 5
 
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
         self._unum = unum
         self._goalie = goalie
+
+    def update_by_player_info(self, player: PlayerObject):
+        self._unum = player._unum
+        self._pos = player._pos
+        self._vel = player._vel
+        self._side = player._side
+        self._body = player._body
+        self._neck = player._neck
+        self._face = player._face
+        self._goalie = player._goalie
+        self._player_type_id = player._player_type_id
+        self._player_type = player.player_type()
+        self._stamina_model = player._stamina_model
+        self._kick = player._kick
+        self._tackle = player._tackle
+        self._charged = player._charged
+        self._card = player._card
+        self._card = player._card
+        self._kick_rate = player._kick_rate
+        self._rpos_count = 0
+        self._vel_count = 0
+        self._pos_count = 0
+        self._body_count = 0
+        self._change_focus_count = 0
+        self._focus_point_dist = 0
+        self._focus_point_dir = AngleDeg(0)
+        self._ghost_count = 0
 
     def view_width(self):
         return self._view_width

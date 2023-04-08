@@ -591,7 +591,7 @@ class PlayerAgent(SoccerAgent):
                 or self.world().self().unum() != self.world().self_unum()):
             return
         self.update_before_decision()
-        KickTable.instance().create_tables()  # TODO should be moved!
+        KickTable.instance().create_tables(self.world().self().player_type())  # TODO should be moved!
         self._effector.reset()
         self.action_impl()
         self.do_view_action()
