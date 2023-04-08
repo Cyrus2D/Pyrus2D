@@ -316,7 +316,7 @@ class Intercept:
             chance_best: InterceptInfo = None
             for i in range(MAX):
                 if (cache[i].reach_cycle() <= cache[0].reach_cycle() + 3
-                        and cache[i].reach_cycle <= opp_min - 2):
+                        and cache[i].reach_cycle() <= opp_min - 2):
                     chance_best = cache[i]
 
             if chance_best is not None:
