@@ -25,6 +25,14 @@ from lib.parser.parser_message_params import MessageParamsParser
 class FullStateWorldMessageParser:
     def __init__(self):
         self._dic = {}
+        self._kick = 0
+        self._dash = 0
+        self._turn = 0
+        self._catch = 0
+        self._move = 0
+        self._turn_neck = 0
+        self._change_view = 0
+        self._say = 0
 
     def parse(self, message: str):
         self._dic['time'] = message.split(" ")[1]
@@ -34,12 +42,47 @@ class FullStateWorldMessageParser:
         msg = message[:message.find("((p")]
         MessageParamsParser._parse(self._dic, msg)
 
+        data = list(map(int, self._dic['count'].split(' ')))
+
+        self._kick = data[0]
+        self._dash = data[1]
+        self._turn = data[2]
+        self._catch = data[3]
+        self._move = data[4]
+        self._turn_neck = data[5]
+        self._change_view = data[6]
+        self._say = data[7]
+
         # and now parsing players
         msg = message[message.find("((p"):]
         self._dic.update(PlayerMessageParser().parse(msg))
 
     def dic(self):
         return self._dic
+
+    def kick_count(self):
+        return self._kick
+
+    def dash_count(self):
+        return self._dash
+
+    def turn_count(self):
+        return self._turn
+
+    def catch_count(self):
+        return self._catch
+
+    def move_count(self):
+        return self._move
+
+    def turn_neck_count(self):
+        return self._turn_neck
+
+    def change_view_count(self):
+        return self._change_view
+
+    def say_count(self):
+        return self._say
 
 
 class PlayerMessageParser:

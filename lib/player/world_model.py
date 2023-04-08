@@ -1675,3 +1675,23 @@ class WorldModel:
             if p.goalie():
                 return p
         return None
+
+    def set_our_player_type(self, unum: int, player_type_id: int):
+        if not (1 <= unum <= 11):
+            return
+
+        log.sw_log().world().add_text(f'(ste ourplayer type) unum={unum}, type={player_type_id}')
+
+        self._our_recovery[unum - 1] = 1.
+        self._our_stamina_capacity[unum - 1] = ServerParam.i().stamina_capacity()
+
+        self._our_players_type[unum - 1] = player_type_id
+        self._our_card[unum - 1] = Card.NO_CARD
+
+        if unum == self.self().unum():
+            tmp = self._player_types[player_type_id]
+            if tmp is None:
+                log.os_log().error(f'{self.team_name()} {self.self().unum()}: illegal player type id')
+                return
+            self.self().set_player_type(tmp)
+
