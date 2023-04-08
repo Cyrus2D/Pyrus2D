@@ -482,37 +482,35 @@ class SelfObject(PlayerObject):
 
     def long_str(self):
         res = super(SelfObject, self).long_str()
-        res += f'''
-                time: {self._time},
-                sense_body_time: {self._sense_body_time},
-                view_width: {self._view_width},
-                neck: {self._neck},
-                face_error: {self._face_error},
-                stamina_model: {self._stamina_model},
-                last_catch_time: {self._last_catch_time},
-                tackle_expires: {self._tackle_expires},
-                charge_expires: {self._charge_expires},
-                arm_moveable: {self._arm_moveable},
-                arm_expires: {self._arm_expires},
-                pointto_rpos: {self._pointto_rpos},
-                pointto_pos: {self._pointto_pos},
-                last_pointto_time: {self._last_pointto_time},
-                attentionto_side: {self._attentionto_side},
-                attentionto_unum: {self._attentionto_unum},
-                collision_estimated: {self._collision_estimated},
-                collides_with_none: {self._collides_with_none},
-                collides_with_ball: {self._collides_with_ball},
-                collides_with_player: {self._collides_with_player},
-                collides_with_post: {self._collides_with_post},
-                kickable: {self._kickable},
-                kick_rate: {self._kick_rate},
-                catch_probability: {self._catch_probability},
-                tackle_probability: {self._tackle_probability},
-                foul_probability: {self._foul_probability},
-                last_move: {self._last_move},
-                last_moves: {self._last_moves},
-                arm_movable: {self._arm_movable},        
-                '''
+        res += f'time: {self._time}, ' \
+               f'sense_body_time: {self._sense_body_time}, ' \
+               f'view_width: {self._view_width}, ' \
+               f'neck: {self._neck}, ' \
+               f'face_error: {self._face_error}, ' \
+               f'stamina_model: {self._stamina_model}, ' \
+               f'last_catch_time: {self._last_catch_time}, ' \
+               f'tackle_expires: {self._tackle_expires}, ' \
+               f'charge_expires: {self._charge_expires}, ' \
+               f'arm_moveable: {self._arm_moveable}, ' \
+               f'arm_expires: {self._arm_expires}, ' \
+               f'pointto_rpos: {self._pointto_rpos}, ' \
+               f'pointto_pos: {self._pointto_pos}, ' \
+               f'last_pointto_time: {self._last_pointto_time}, ' \
+               f'attentionto_side: {self._attentionto_side}, ' \
+               f'attentionto_unum: {self._attentionto_unum}, ' \
+               f'collision_estimated: {self._collision_estimated}, ' \
+               f'collides_with_none: {self._collides_with_none}, ' \
+               f'collides_with_ball: {self._collides_with_ball}, ' \
+               f'collides_with_player: {self._collides_with_player}, ' \
+               f'collides_with_post: {self._collides_with_post}, ' \
+               f'kickable: {self._kickable}, ' \
+               f'kick_rate: {self._kick_rate}, ' \
+               f'catch_probability: {self._catch_probability}, ' \
+               f'tackle_probability: {self._tackle_probability}, ' \
+               f'foul_probability: {self._foul_probability}, ' \
+               f'last_move: {self._last_move}, ' \
+               f'last_moves: {self._last_moves}, ' \
+               f'arm_movable: {self._arm_movable}, '
         return res
 
     def __str__(self):

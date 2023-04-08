@@ -51,7 +51,7 @@ class PlayerType:
         self.init_additional_params()
 
     def __repr__(self):
-        return f"kickable_margin: {self.kickable_margin()}"
+        return f"id: {self.id()}"
 
     def parse(self, message):
         parser = MessageParamsParser()
