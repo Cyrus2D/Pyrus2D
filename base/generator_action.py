@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class KickActionType(Enum):
-    No = 0
+    No = '0'
     Pass = 'Pass'
     Dribble = 'Dribble'
 

@@ -1,6 +1,6 @@
 from pyrusgeom.geom_2d import *
 import pyrusgeom.soccer_math as smath
-
+from lib.debug.color import Color
 from lib.debug.debug import log
 from lib.rcsc.server_param import ServerParam as SP
 from base.tools import Tools
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.object_player import PlayerObject
 
-debug_pass = False
+debug_pass = True
 max_pass_time = 0
 
 
@@ -28,7 +28,7 @@ class BhvPassGen(BhvKickGen):
         global max_pass_time
         start_time = time.time()
         self.update_receivers(wm)
-        log.sw_log().pass_().add_text( 'receivers:{}'.format(self.receivers))
+
         for r in self.receivers:
             if self.best_pass is not None \
                     and r.pos().x() < self.best_pass.target_ball_pos.x() - 5:
@@ -40,13 +40,11 @@ class BhvPassGen(BhvKickGen):
         if debug_pass:
             for candid in self.debug_list:
                 if candid[2]:
-                    log.sw_log().pass_().add_message( candid[1].x(), candid[1].y(), '{}'.format(candid[0]))
-                    log.sw_log().pass_().add_circle( cicle=Circle2D(candid[1], 0.2),
-                                    color=Color(string='green'))
+                    log.sw_log().pass_().add_message(candid[1].x(), candid[1].y(), '{}'.format(candid[0]))
+                    log.sw_log().pass_().add_circle(circle=Circle2D(candid[1], 0.2), color=Color(string='green'))
                 else:
-                    log.sw_log().pass_().add_message( candid[1].x(), candid[1].y(), '{}'.format(candid[0]))
-                    log.sw_log().pass_().add_circle( cicle=Circle2D(candid[1], 0.2),
-                                    color=Color(string='red'))
+                    log.sw_log().pass_().add_message(candid[1].x(), candid[1].y(), '{}'.format(candid[0]))
+                    log.sw_log().pass_().add_circle(circle=Circle2D(candid[1], 0.2), color=Color(string='red'))
         end_time = time.time()
         if end_time - start_time > max_pass_time:
             max_pass_time = end_time - start_time
@@ -55,23 +53,30 @@ class BhvPassGen(BhvKickGen):
 
     def update_receivers(self, wm: 'WorldModel'):
         sp = SP.i()
+        log.sw_log().pass_().add_text('===update receivers'.format())
         for tm in wm.teammates():
             if tm is None:
+                log.sw_log().pass_().add_text('-----<<< TM is none')
                 continue
             if tm.unum() <= 0:
+                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum()}')
                 continue
             if tm.unum() == wm.self().unum():
+                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum()} (self)')
                 continue
             if tm.pos_count() > 10:
+                log.sw_log().pass_().add_text(f'-----<<< TM unum pos count {tm.pos_count()}')
                 continue
             if tm.is_tackling():
+                log.sw_log().pass_().add_text(f'-----<<< TM is tackling')
                 continue
             if tm.pos().x() > wm.offside_line_x():
+                log.sw_log().pass_().add_text(f'-----<<< TM is in offside {tm.pos().x()} > {wm.offside_line_x()}')
                 continue
             if tm.goalie() and tm.pos().x() < sp.our_penalty_area_line_x() + 15:
+                log.sw_log().pass_().add_text(f'-----<<< TM is goalie and danger {tm.pos().x()} < {sp.our_penalty_area_line_x() + 15}')
                 continue
-            if tm.pos_count() > 10:
-                continue
+            log.sw_log().pass_().add_text(f'--->>>>> TM {tm.unum()} is added')
             self.receivers.append(tm)
         self.receivers = sorted(self.receivers, key=lambda p: p.pos().x(), reverse=True)
 
