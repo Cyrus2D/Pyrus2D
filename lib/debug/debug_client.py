@@ -139,8 +139,8 @@ class DebugClient:
             ostr += (' (target-point ' + str(self._target_point.x())
                      + ' ' + str(self._target_point.y()) + ')')
 
-        if self._message != '':
-            ostr += (' (message \"' + self._message + '\")')
+        if len(self._message) != 0:
+            ostr += f' (message "{str(self._message)}")'
 
         for obj in self._lines: obj.to_str(ostr)
         for obj in self._triangles: obj.to_str(ostr)
@@ -168,8 +168,8 @@ class DebugClient:
         self._rectangles = []
         self._circles = []
 
-    def add_message( self, msg):
-        self._message += msg
+    def add_message( self, msg: str):
+        self._message += msg.replace('\n', '').replace('"', '')
 
     def set_target(self, unum_or_position):
         if type(unum_or_position) == int:
