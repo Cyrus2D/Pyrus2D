@@ -1696,3 +1696,15 @@ class WorldModel:
                 return
             self.self().set_player_type(tmp)
 
+    def set_play_count(self):
+        return self._set_play_count
+
+    def exist_teammates_in(self, region: Region2D, count_thr: int, with_goalie: bool):
+        for p in self._teammates:
+            if p is None:
+                continue
+            if p.pos_count() > count_thr or p.is_ghost():
+                continue
+            if region.contains(p.pos()):
+                return True
+        return False

@@ -704,6 +704,8 @@ class ActionEffector:
             l += m.size()
         return l
 
+    def catch_time(self):
+        return self._catch_time
 
 
 
