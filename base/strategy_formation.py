@@ -1,7 +1,7 @@
 from lib.formation.delaunay_triangulation import *
 import os
 from enum import Enum
-
+from lib.debug.debug import log
 from lib.rcsc.types import GameModeType
 
 from typing import TYPE_CHECKING
@@ -34,8 +34,23 @@ class _StrategyFormation:
         self.current_formation = self.offense_formation
 
     def update(self, wm: 'WorldModel'):
+        log.os_log().debug(f'form{wm.time().cycle()},{wm.time().stopped_cycle()}, {wm.game_mode().type()} {wm.game_mode().is_our_set_play(wm.our_side())}')
+        tm_min = wm.intercept_table().teammate_reach_cycle()
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+        self_min = wm.intercept_table().self_reach_cycle()
+        all_min = min(tm_min, opp_min, self_min)
+        ball_pos = wm.ball().inertia_point(all_min)
+
         if wm.game_mode().type() is GameModeType.PlayOn:
-            self.current_situation = Situation.Offense_Situation # Todo add deffense situation
+            thr = 0
+            if wm.ball().inertia_point(min(self_min, tm_min, opp_min)).x() > 0:
+                thr += 1
+            if wm.self().unum() > 6:
+                thr += 1
+            if min(tm_min, self_min) < opp_min + thr:
+                self.current_situation = Situation.Offense_Situation
+            else:
+                self.current_situation = Situation.Defense_Situation
         else:
             if wm.game_mode().is_penalty_kick_mode():
                 self.current_situation = Situation.PenaltyKick_Situation
@@ -43,12 +58,6 @@ class _StrategyFormation:
                 self.current_situation = Situation.OurSetPlay_Situation
             else:
                 self.current_situation = Situation.OppSetPlay_Situation
-
-        tm_min = wm.intercept_table().teammate_reach_cycle()
-        opp_min = wm.intercept_table().opponent_reach_cycle()
-        self_min = wm.intercept_table().self_reach_cycle()
-        all_min = min(tm_min, opp_min, self_min)
-        ball_pos = wm.ball().inertia_point(all_min)
 
         if wm.game_mode().type() is GameModeType.PlayOn:
             if self.current_situation is Situation.Offense_Situation:
@@ -60,7 +69,7 @@ class _StrategyFormation:
                                        GameModeType.AfterGoal_Right]:
             self.current_formation = self.before_kick_off_formation
 
-        elif wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right]: # Todo add Goal Catch!!
+        elif wm.game_mode().type() in [GameModeType.GoalKick_Left, GameModeType.GoalKick_Right, GameModeType.GoalieCatchBall_Left, GameModeType.GoalieCatchBall_Right]: # Todo add Goal Catch!!
             if wm.game_mode().is_our_set_play(wm.our_side()):
                 self.current_formation = self.goalie_kick_our_formation
             else:

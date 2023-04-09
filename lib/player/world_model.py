@@ -244,12 +244,12 @@ class WorldModel:
         self._set_goalies_unum()  # TODO should it call here?!
         self._set_players_from_ball_and_self()
 
-        self._update_their_defense_line()
+        # self._update_their_defense_line()
         self.update_offside_line()
 
         self._intercept_table.update(self)
 
-    def _update_their_defense_line(self):
+    def update_their_defense_line(self):
         speed_rate = ServerParam.i().default_player_speed_max() * (0.8
                                                                    if self.ball().vel().x() < -1
                                                                    else 0.25)
@@ -292,8 +292,8 @@ class WorldModel:
         if new_line < 0:
             new_line = 0
 
-        if (self._game_mode.mode_name() != "before_kick_off"
-                and self._game_mode.mode_name() != "after_goal"
+        if (self._game_mode.type() == GameModeType.BeforeKickOff
+                and self._game_mode.type().is_after_goal()
                 and self.ball().pos_count() <= 3):
             ball_next = self.ball().pos() + self.ball().vel()
             if ball_next.x() > new_line:
@@ -1330,7 +1330,7 @@ class WorldModel:
             player.set_player_type(self._player_types[player.player_type_id()])
             if player.side().value == self._our_side:
                 if player.unum() == self._self_unum:
-                    self._self = SelfObject(player)
+                    self._self.update_by_player_info(player)
                 else:
                     self._teammates.append(player)
             elif player.side() == SideID.NEUTRAL:
@@ -1356,6 +1356,7 @@ class WorldModel:
         self.update_player_type()
         # TODO update player cards and player types
         # TODO update players collision
+        self.update_their_defense_line()
         self.update_offside_line()
         # self.update_last_kicker() # TODO IMP FUNC
         self.update_intercept_table()
@@ -1675,3 +1676,35 @@ class WorldModel:
             if p.goalie():
                 return p
         return None
+
+    def set_our_player_type(self, unum: int, player_type_id: int):
+        if not (1 <= unum <= 11):
+            return
+
+        log.sw_log().world().add_text(f'(ste ourplayer type) unum={unum}, type={player_type_id}')
+
+        self._our_recovery[unum - 1] = 1.
+        self._our_stamina_capacity[unum - 1] = ServerParam.i().stamina_capacity()
+
+        self._our_players_type[unum - 1] = player_type_id
+        self._our_card[unum - 1] = Card.NO_CARD
+
+        if unum == self.self().unum():
+            tmp = self._player_types[player_type_id]
+            if tmp is None:
+                log.os_log().error(f'{self.team_name()} {self.self().unum()}: illegal player type id')
+                return
+            self.self().set_player_type(tmp)
+
+    def set_play_count(self):
+        return self._set_play_count
+
+    def exist_teammates_in(self, region: Region2D, count_thr: int, with_goalie: bool):
+        for p in self._teammates:
+            if p is None:
+                continue
+            if p.pos_count() > count_thr or p.is_ghost():
+                continue
+            if region.contains(p.pos()):
+                return True
+        return False

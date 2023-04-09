@@ -51,37 +51,39 @@ class SelfObject(PlayerObject):
         self._last_move: Vector2D = Vector2D(0, 0)
         self._last_moves: list[Vector2D] = [Vector2D(0, 0) for _ in range(4)]
         self._arm_movable: int = 0
-        if player:
-            self._unum = player._unum
-            self._pos = player._pos
-            self._vel = player._vel
-            self._side = player._side
-            self._body = player._body
-            self._neck = player._neck
-            self._face = player._face
-            self._goalie = player._goalie
-            self._player_type_id = player._player_type_id
-            self._stamina_model = player._stamina_model
-            self._kick = player._kick
-            self._tackle = player._tackle
-            self._charged = player._charged
-            self._card = player._card
-            self._card = player._card
-            self._kick_rate = player._kick_rate
-            self._rpos_count = 0
-            self._vel_count = 0
-            self._pos_count = 0
-            self._body_count = 0
-            self._change_focus_count = 0
-            self._focus_point_dist = 0
-            self._focus_point_dir = AngleDeg(0)
-
         self._face_count_thr: Union[None, int] = 5
 
     def init(self, side: SideID, unum: int, goalie: bool):
         self._side = side
         self._unum = unum
         self._goalie = goalie
+
+    def update_by_player_info(self, player: PlayerObject):
+        self._unum = player._unum
+        self._pos = player._pos
+        self._vel = player._vel
+        self._side = player._side
+        self._body = player._body
+        self._neck = player._neck
+        self._face = player._face
+        self._goalie = player._goalie
+        self._player_type_id = player._player_type_id
+        self._player_type = player.player_type()
+        self._stamina_model = player._stamina_model
+        self._kick = player._kick
+        self._tackle = player._tackle
+        self._charged = player._charged
+        self._card = player._card
+        self._card = player._card
+        self._kick_rate = player._kick_rate
+        self._rpos_count = 0
+        self._vel_count = 0
+        self._pos_count = 0
+        self._body_count = 0
+        self._change_focus_count = 0
+        self._focus_point_dist = 0
+        self._focus_point_dir = AngleDeg(0)
+        self._ghost_count = 0
 
     def view_width(self):
         return self._view_width
@@ -238,8 +240,8 @@ class SelfObject(PlayerObject):
             if self._pos_error.y() < pos_err.y():
                 new_pos.set_y(pos.y() + (self.pos().y() - pos.y()) * (pos_err.y() / (self._pos_error.y() + pos_err.y())))
                 new_err.set_y((self._pos_error.y() + pos_err.y()) * 0.5)
-            self._pos = new_pos
-            self._pos_error = new_err
+            self._pos = new_pos.copy()
+            self._pos_error = new_err.copy()
             self._possible_posses = [self._pos.copy()]
             # TODO has sensed collision -> collisionEstimated
             if self._seen_pos_count == 1 and (self.has_sensed_collision() or not self.last_move().is_valid()):
@@ -480,37 +482,35 @@ class SelfObject(PlayerObject):
 
     def long_str(self):
         res = super(SelfObject, self).long_str()
-        res += f'''
-                time: {self._time},
-                sense_body_time: {self._sense_body_time},
-                view_width: {self._view_width},
-                neck: {self._neck},
-                face_error: {self._face_error},
-                stamina_model: {self._stamina_model},
-                last_catch_time: {self._last_catch_time},
-                tackle_expires: {self._tackle_expires},
-                charge_expires: {self._charge_expires},
-                arm_moveable: {self._arm_moveable},
-                arm_expires: {self._arm_expires},
-                pointto_rpos: {self._pointto_rpos},
-                pointto_pos: {self._pointto_pos},
-                last_pointto_time: {self._last_pointto_time},
-                attentionto_side: {self._attentionto_side},
-                attentionto_unum: {self._attentionto_unum},
-                collision_estimated: {self._collision_estimated},
-                collides_with_none: {self._collides_with_none},
-                collides_with_ball: {self._collides_with_ball},
-                collides_with_player: {self._collides_with_player},
-                collides_with_post: {self._collides_with_post},
-                kickable: {self._kickable},
-                kick_rate: {self._kick_rate},
-                catch_probability: {self._catch_probability},
-                tackle_probability: {self._tackle_probability},
-                foul_probability: {self._foul_probability},
-                last_move: {self._last_move},
-                last_moves: {self._last_moves},
-                arm_movable: {self._arm_movable},        
-                '''
+        res += f'time: {self._time}, ' \
+               f'sense_body_time: {self._sense_body_time}, ' \
+               f'view_width: {self._view_width}, ' \
+               f'neck: {self._neck}, ' \
+               f'face_error: {self._face_error}, ' \
+               f'stamina_model: {self._stamina_model}, ' \
+               f'last_catch_time: {self._last_catch_time}, ' \
+               f'tackle_expires: {self._tackle_expires}, ' \
+               f'charge_expires: {self._charge_expires}, ' \
+               f'arm_moveable: {self._arm_moveable}, ' \
+               f'arm_expires: {self._arm_expires}, ' \
+               f'pointto_rpos: {self._pointto_rpos}, ' \
+               f'pointto_pos: {self._pointto_pos}, ' \
+               f'last_pointto_time: {self._last_pointto_time}, ' \
+               f'attentionto_side: {self._attentionto_side}, ' \
+               f'attentionto_unum: {self._attentionto_unum}, ' \
+               f'collision_estimated: {self._collision_estimated}, ' \
+               f'collides_with_none: {self._collides_with_none}, ' \
+               f'collides_with_ball: {self._collides_with_ball}, ' \
+               f'collides_with_player: {self._collides_with_player}, ' \
+               f'collides_with_post: {self._collides_with_post}, ' \
+               f'kickable: {self._kickable}, ' \
+               f'kick_rate: {self._kick_rate}, ' \
+               f'catch_probability: {self._catch_probability}, ' \
+               f'tackle_probability: {self._tackle_probability}, ' \
+               f'foul_probability: {self._foul_probability}, ' \
+               f'last_move: {self._last_move}, ' \
+               f'last_moves: {self._last_moves}, ' \
+               f'arm_movable: {self._arm_movable}, '
         return res
 
     def __str__(self):

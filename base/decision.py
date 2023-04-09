@@ -20,7 +20,8 @@ if TYPE_CHECKING:
 
 
 # TODO TACKLE GEN
-
+# TODO GOAL KICK L/R
+# TODO GOAL L/R
 def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
@@ -38,16 +39,18 @@ def get_decision(agent: 'PlayerAgent'):
     else:
         agent.do_attentionto(wm.our_side(), 5)
 
+    if wm.self().goalie():
+        if goalie_decision.decision(agent):
+            return True
 
     if wm.game_mode().type() != GameModeType.PlayOn:
         if Bhv_SetPlay().execute(agent):
             return True
 
-    if wm.self().goalie() and wm.game_mode().type():
-        goalie_decision.decision(agent)
-        return True
-
-
+    log.sw_log().team().add_text(f'is kickable? dist {wm.ball().dist_from_self()} '
+                                 f'ka {wm.self().player_type().kickable_area()} '
+                                 f'seen pos count {wm.ball().seen_pos_count()} '
+                                 f'is? {wm.self()._kickable}')
     if wm.self().is_kickable():
         return BhvKick().execute(agent)
     if BhvMove().execute(agent):

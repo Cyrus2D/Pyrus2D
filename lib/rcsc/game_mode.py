@@ -1,5 +1,6 @@
 from lib.rcsc.game_time import GameTime
 from lib.rcsc.types import SideID, GameModeType
+from lib.debug.debug import log
 
 
 class GameMode:
@@ -50,23 +51,26 @@ class GameMode:
         self.__init__(play_mode)
 
     def is_teams_set_play(self, team_side: SideID):
-        mode_name = self.mode_name()
-        if mode_name == "kick_off" or \
-                mode_name == "kick_in" or \
-                mode_name == "corner_kick" or \
-                mode_name == "goal_kick" or \
-                mode_name == "free_kick" or \
-                mode_name == "goalie_catch" or \
-                mode_name == "indirect_free_kick":
-            return self.side() == team_side
-        elif mode_name == "off_side" or \
-                mode_name == "foul_charge" or \
-                mode_name == "foul_push" or \
-                mode_name == "free_kick_fault" or \
-                mode_name == "back_pass" or \
-                mode_name == "catch_fault":
-            return self.side() != team_side
-        return False
+        if team_side == SideID.LEFT:
+            if self.type() in [GameModeType.KickOff_Left,
+                               GameModeType.KickIn_Left,
+                               GameModeType.CornerKick_Left,
+                               GameModeType.GoalKick_Left,
+                               GameModeType.FreeKick_Left,
+                               GameModeType.GoalieCatchBall_Left,
+                               GameModeType.IndFreeKick_Left]:
+                return True
+            return False
+        else:
+            if self.type() in [GameModeType.KickOff_Right,
+                               GameModeType.KickIn_Right,
+                               GameModeType.CornerKick_Right,
+                               GameModeType.GoalKick_Right,
+                               GameModeType.FreeKick_Right,
+                               GameModeType.GoalieCatchBall_Right,
+                               GameModeType.IndFreeKick_Right]:
+                return True
+            return False
 
     def is_penalty_kick_mode(self):
         return self.type() in [
@@ -115,7 +119,6 @@ class GameMode:
         else:
             self._game_mode = game_mode
             self._side = self._game_mode.side()
-        
         self._time = current_time.copy()
         return True
     

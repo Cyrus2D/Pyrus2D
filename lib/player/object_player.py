@@ -83,10 +83,6 @@ class PlayerObject(Object):
         self._pos_count = 0
         self._body_count = 0
         self._ghost_count = 0
-        
-    # update other data
-    def update_more_with_full_state(self, wm):
-        self._rpos = self.pos() - wm.self().pos()
 
     def reverse_more(self):
         self._body.reverse()
@@ -94,6 +90,7 @@ class PlayerObject(Object):
 
     def set_player_type(self, player_type: PlayerType):
         self._player_type = player_type
+        self._player_type_id = player_type.id()
 
     def side(self):
         return self._side
@@ -110,7 +107,7 @@ class PlayerObject(Object):
     def goalie(self):
         return self._goalie
 
-    def player_type(self)-> PlayerType:
+    def player_type(self) -> PlayerType:
         return self._player_type
 
     def pointto_angle(self):
@@ -152,7 +149,7 @@ class PlayerObject(Object):
         return self._kick_rate
 
     def player_type_id(self):
-        return self.player_type().id()
+        return self._player_type_id
 
     def inertia_point(self, n_step):
         return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
@@ -367,19 +364,25 @@ class PlayerObject(Object):
         return self._unum_count
 
     def long_str(self):
-        res = f'unum: {self._unum} side: {self._side} body: {self._body} goalie: {self._goalie} ' \
-               f'player_type: {self._player_type} player_type_id: {self._player_type_id} pointto_angle: {self._pointto_angle} kick: {self._kick}' \
-               f'tackle: {self._tackle}' \
-               f'charged: {self._charged}' \
-               f'kicking: {self._kicking}' \
-               f'card: {self._card}' \
-               f'kick_rate: {self._kick_rate}' \
-               f'face: {self._face}' \
-               f'body_count: {self._body_count}' \
-               f'face_count: {self._face_count}' \
-               f'pointto_count: {self._pointto_count}' \
-               f'unum_count: {self._unum_count}' \
-               f'tackle_count: {self._tackle_count}'
+        res = f'unum: {self._unum} ' \
+              f'side: {self._side} ' \
+              f'body: {self._body} ' \
+              f'goalie: {self._goalie} ' \
+              f'player_type:({self._player_type}) ' \
+              f'player_type_id: {self._player_type_id} ' \
+              f'pointto_angle: {self._pointto_angle} ' \
+              f'kick: {self._kick}' \
+              f'tackle: {self._tackle}' \
+              f'charged: {self._charged}' \
+              f'kicking: {self._kicking}' \
+              f'card: {self._card}' \
+              f'kick_rate: {self._kick_rate}' \
+              f'face: {self._face}' \
+              f'body_count: {self._body_count}' \
+              f'face_count: {self._face_count}' \
+              f'pointto_count: {self._pointto_count}' \
+              f'unum_count: {self._unum_count}' \
+              f'tackle_count: {self._tackle_count}'
         res += super(PlayerObject, self).long_str()
         return res
 

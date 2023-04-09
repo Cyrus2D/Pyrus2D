@@ -22,7 +22,6 @@ class Bhv_SetPlay:
     _kickable_time: int = -1
     _waiting = False
     def __init__(self):
-        # nothing to say :)
         pass
 
     def execute(self, agent: 'PlayerAgent'):
@@ -34,7 +33,7 @@ class Bhv_SetPlay:
         game_mode = wm.game_mode().type()
         game_side = wm.game_mode().side()
 
-        if game_mode is GameModeType.BeforeKickOff:
+        if game_mode is GameModeType.BeforeKickOff or game_mode.is_after_goal():
             return Bhv_BeforeKickOff().execute(agent)
 
         st = StrategyFormation.i()
@@ -165,7 +164,7 @@ class Bhv_SetPlay:
 
         target = best_action.target_ball_pos
         log.debug_client().set_target(target)
-        log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+        log.debug_client().add_message(f'{best_action.type.value} to {best_action.target_ball_pos} {best_action.start_ball_speed}')
         SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
         agent.add_say_message(PassMessenger(best_action.target_unum,
                                             best_action.target_ball_pos,

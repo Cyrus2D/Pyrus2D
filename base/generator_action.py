@@ -8,9 +8,10 @@ if TYPE_CHECKING:
 
 
 class KickActionType(Enum):
-    No = 0
+    No = '0'
     Pass = 'Pass'
     Dribble = 'Dribble'
+    Clear = 'Clear'
 
 
 class KickAction:
@@ -23,9 +24,18 @@ class KickAction:
         self.type = KickActionType.No
         self.eval = -1000
         self.index = 0
+        self.min_opp_dist = 0.0
 
-    def evaluate(self):
+    def calculate_min_opp_dist(self, wm: 'WorldModel' = None):
+        if wm is None:
+            return 0.0
+        return min([opp.pos().dist(self.target_ball_pos) for opp in wm.opponents() if opp is not None and opp.unum() > 0])
+
+    def evaluate(self, wm: 'WorldModel' = None):
+        self.min_opp_dist = self.calculate_min_opp_dist(wm)
         self.eval = self.target_ball_pos.x() + max(0.0, 40.0 - self.target_ball_pos.dist(Vector2D(52, 0)))
+        if self.min_opp_dist < 5.0:
+            self.eval -= list([30, 20, 10, 5, 2])[int(self.min_opp_dist)]
 
     def __gt__(self, other):
         return self.eval > other.eval
@@ -40,6 +50,7 @@ class KickAction:
 
     def __str__(self):
         return self.__repr__()
+
 
 class TackleAction:
     def __init__(self, angle: AngleDeg = None, vel: Vector2D = None):

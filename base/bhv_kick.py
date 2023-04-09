@@ -6,6 +6,7 @@ from base.generator_action import KickAction, ShootAction, KickActionType
 from base.generator_dribble import BhvDribbleGen
 from base.generator_pass import BhvPassGen
 from base.generator_shoot import BhvShhotGen
+from base.generator_clear import BhvClearGen
 
 from typing import TYPE_CHECKING
 
@@ -38,8 +39,7 @@ class BhvKick:
             action_candidates += BhvDribbleGen().generator(wm)
 
             if len(action_candidates) == 0:
-                agent.set_neck_action(NeckScanPlayers())
-                return HoldBall().execute(agent)
+                return self.no_candidate_action(agent)
 
             best_action: KickAction = max(action_candidates)
 
@@ -56,3 +56,18 @@ class BhvKick:
 
             agent.set_neck_action(NeckScanPlayers())
             return True
+
+    def no_candidate_action(self, agent: 'PlayerAgent'):
+        wm = agent.world()
+        opp_min = wm.intercept_table().opponent_reach_cycle()
+        if opp_min <= 3:
+            action_candidates = BhvClearGen().generator(wm)
+            if len(action_candidates) > 0:
+                best_action: KickAction = max(action_candidates)
+                target = best_action.target_ball_pos
+                log.debug_client().set_target(target)
+                log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+                SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 2.0, 2).execute(agent)
+
+        agent.set_neck_action(NeckScanPlayers())
+        return HoldBall().execute(agent)

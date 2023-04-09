@@ -351,6 +351,18 @@ class PlayerAgent(SoccerAgent):
                 log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
                                                 fill=True)
 
+    def change_player_type_parser(self, msg: str):
+        data = msg.strip('\x00').strip(')(').split(' ')
+        if len(data) != 3:
+            return
+
+        u = int(data[1])
+        t = int(data[2])
+
+        self.real_world().set_our_player_type(u, t)
+        if self.full_world_exists():
+            self.full_world().set_our_player_type(u, t)
+
     def parse_message(self, message: str):
         if message.startswith("(sense_body"):
             self.parse_sense_body_message(message)
@@ -364,6 +376,8 @@ class PlayerAgent(SoccerAgent):
             self.parse_full_state_message(message)
         elif message.startswith("(hear"):
             self.hear_parser(message)
+        elif message.startswith('(change_player_type'):
+            self.change_player_type_parser(message)
         elif message.startswith("(player_type"):
             self._real_world.parse(message)
             self._full_world.parse(message)
@@ -561,7 +575,7 @@ class PlayerAgent(SoccerAgent):
         self.real_world().update_just_before_decision(self._effector, self._current_time)
 
     def update_full_world_before_decision(self):
-        self._effector.check_command_count(self._sense_body_parser)
+        self._effector.check_command_count_with_fullstate_parser(self._full_state_parser)
         self.full_world().update_by_last_cycle(self._effector, self._current_time)
         self.full_world().update_world_after_sense_body(self._sense_body_parser, self._effector, self._current_time)
         self.full_world().update_by_full_state_message(self._full_state_parser)
@@ -577,7 +591,7 @@ class PlayerAgent(SoccerAgent):
                 or self.world().self().unum() != self.world().self_unum()):
             return
         self.update_before_decision()
-        KickTable.instance().create_tables()  # TODO should be moved!
+        KickTable.instance().create_tables(self.world().self().player_type())  # TODO should be moved!
         self._effector.reset()
         self.action_impl()
         self.do_view_action()
