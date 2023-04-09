@@ -11,6 +11,7 @@ class KickActionType(Enum):
     No = '0'
     Pass = 'Pass'
     Dribble = 'Dribble'
+    Clear = 'Clear'
 
 
 class KickAction:
@@ -49,6 +50,7 @@ class KickAction:
 
     def __str__(self):
         return self.__repr__()
+
 
 class TackleAction:
     def __init__(self, angle: AngleDeg = None, vel: Vector2D = None):
