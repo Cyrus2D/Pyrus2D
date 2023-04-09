@@ -240,8 +240,8 @@ class SelfObject(PlayerObject):
             if self._pos_error.y() < pos_err.y():
                 new_pos.set_y(pos.y() + (self.pos().y() - pos.y()) * (pos_err.y() / (self._pos_error.y() + pos_err.y())))
                 new_err.set_y((self._pos_error.y() + pos_err.y()) * 0.5)
-            self._pos = new_pos
-            self._pos_error = new_err
+            self._pos = new_pos.copy()
+            self._pos_error = new_err.copy()
             self._possible_posses = [self._pos.copy()]
             # TODO has sensed collision -> collisionEstimated
             if self._seen_pos_count == 1 and (self.has_sensed_collision() or not self.last_move().is_valid()):

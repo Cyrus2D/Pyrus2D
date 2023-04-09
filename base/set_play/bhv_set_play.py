@@ -22,7 +22,6 @@ class Bhv_SetPlay:
     _kickable_time: int = -1
     _waiting = False
     def __init__(self):
-        # nothing to say :)
         pass
 
     def execute(self, agent: 'PlayerAgent'):
