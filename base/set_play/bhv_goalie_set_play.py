@@ -31,21 +31,27 @@ class Bhv_GoalieSetPlay:
         wm = agent.world()
         gm = wm.game_mode()
 
-        if gm.type().is_goalie_catch_ball() or gm.side() is not wm.our_side() or not wm.self().is_kickable():
+        if not gm.type().is_goalie_catch_ball() or gm.side() != wm.our_side() or not wm.self().is_kickable():
+            log.os_log().debug(f'### goalie set play gm.catch?={gm.type().is_goalie_catch_ball()}')
+            log.os_log().debug(f'### goalie set play gm.side,ourside={gm.side()}, {wm.our_side()}')
+            log.os_log().debug(f'### goalie set play iskick?={wm.self().is_kickable()}')
             log.sw_log().team().add_text('not a goalie catch mode')
             return False
 
-        time_diff = wm.time().cycle() - agent.effector().catch_time()
+        time_diff = wm.time().cycle() - agent.effector().catch_time().cycle()
+        log.os_log().debug(f'### goalie set play catch_time={agent.effector().catch_time()}')
+        log.os_log().debug(f'### goalie set play time diff={time_diff}')
         if time_diff <= 2:
             Bhv_GoalieSetPlay._first_move = False
             Bhv_GoalieSetPlay._second_move = False
             Bhv_GoalieSetPlay._wait_count = 0
 
-            self.do_wait(agent)  # TODO IMP FUNC
+            self.do_wait(agent)
             return True
 
         if not Bhv_GoalieSetPlay._first_move:
             move_point = Vector2D(SP.our_penalty_area_line_x() - 1.5, -13. if wm.ball().pos().y() < 0 else 13.)
+            log.os_log().debug(f'### goalie set play move_point={move_point}')
             Bhv_GoalieSetPlay._first_move = True
             Bhv_GoalieSetPlay._second_move = False
             Bhv_GoalieSetPlay._wait_count = 0
@@ -65,7 +71,8 @@ class Bhv_GoalieSetPlay:
             return True
 
         if not Bhv_GoalieSetPlay._second_move:
-            move_point = self.get_kick_point(agent)  # TODO IMP FUNC
+            move_point = self.get_kick_point(agent)
+            log.os_log().debug(f'goalie set play move_point 2 ={move_point}')
             agent.do_move(move_point.x(), move_point.y())
             agent.set_neck_action(NeckScanField())
             Bhv_GoalieSetPlay._second_move = True
@@ -82,7 +89,7 @@ class Bhv_GoalieSetPlay:
         Bhv_GoalieSetPlay._second_move = False
         Bhv_GoalieSetPlay._wait_count = 0
 
-        self.do_kick(agent)  # TODO IMP FUNC
+        self.do_kick(agent)
 
         return True
 

@@ -33,7 +33,7 @@ class Bhv_SetPlay:
         game_mode = wm.game_mode().type()
         game_side = wm.game_mode().side()
 
-        if game_mode is GameModeType.BeforeKickOff:
+        if game_mode is GameModeType.BeforeKickOff or game_mode.is_after_goal():
             return Bhv_BeforeKickOff().execute(agent)
 
         st = StrategyFormation.i()
