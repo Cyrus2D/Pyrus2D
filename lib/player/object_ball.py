@@ -70,15 +70,13 @@ class BallObject(Object):
 
         new_vel = Vector2D(0, 0)
         if self.vel_valid():
-            accel: Vector2D = Vector2D(0,0)
             new_vel = self.vel()
-            
             if act.last_body_command() == CommandType.KICK:
                 accel = act.get_kick_info()
-                
                 if accel.r() > SP.ball_accel_max():
                     accel.set_length(SP.ball_accel_max())
                 new_vel += accel
+                self._vel_count = 0
             
             if new_vel.r() > SP.ball_speed_max():
                 new_vel.set_length(SP.ball_speed_max())
@@ -95,9 +93,9 @@ class BallObject(Object):
             else:
                 self._pos_count = 1
             
-            new_vel.assign(0,0)
+            new_vel.assign(0, 0)
             self._vel_count = 0
-            self._seen_vel.assign(0,0)
+            self._seen_vel.assign(0, 0)
             self._seen_vel_count = 0
         
         if self.pos_valid():
