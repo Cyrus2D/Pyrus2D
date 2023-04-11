@@ -3,6 +3,7 @@ from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.action.neck_turn_to_relative import NeckTurnToRelative
+from lib.debug.debug import log
 from lib.player.soccer_action import NeckAction
 
 from typing import TYPE_CHECKING, Union
@@ -20,6 +21,7 @@ class NeckBodyToPoint(NeckAction):
         self._angle_buf = float(angle_buf)
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('BodyToPoint/')
         SP = ServerParam.i()
         wm = agent.world()
 

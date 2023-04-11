@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from lib.action.neck_scan_field import NeckScanField
 from lib.action.neck_scan_players import NeckScanPlayers
+from lib.debug.debug import log
 from lib.rcsc.server_param import ServerParam
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ class NeckTurnToBall(NeckAction):
         super().__init__()
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('TurnToBall/')
         SP = ServerParam.i()
         wm = agent.world()
 

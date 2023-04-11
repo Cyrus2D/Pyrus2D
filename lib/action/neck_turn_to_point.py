@@ -1,6 +1,7 @@
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.action.neck_scan_field import NeckScanField
+from lib.debug.debug import log
 from lib.player.soccer_action import NeckAction
 
 from typing import TYPE_CHECKING
@@ -20,6 +21,7 @@ class NeckTurnToPoint(NeckAction):
             self._points = list(points)
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('TurnToPoint/')
         ef = agent.effector()
         wm = agent.world()
         SP = ServerParam.i()

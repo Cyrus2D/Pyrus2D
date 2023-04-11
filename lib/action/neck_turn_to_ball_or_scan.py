@@ -1,5 +1,6 @@
 from lib.action.neck_scan_field import NeckScanField
 from lib.action.neck_turn_to_ball import NeckTurnToBall
+from lib.debug.debug import log
 from lib.player.soccer_action import NeckAction
 
 from typing import TYPE_CHECKING
@@ -16,6 +17,7 @@ class NeckTurnToBallOrScan(NeckAction):
         self._count_thr = count_thr
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('TurnToBallOrScan/')
         wm = agent.world()
         ef = agent.effector()
         SP = ServerParam.i()

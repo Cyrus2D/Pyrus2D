@@ -34,6 +34,7 @@ class NeckScanPlayers(NeckAction):
         self._max_neck_angle = max_neck_angle
         
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('ScanPlayers/')
         wm = agent.world()
         ef = agent.effector()
         

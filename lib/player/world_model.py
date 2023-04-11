@@ -1241,6 +1241,7 @@ class WorldModel:
     def update_goalie_by_hear(self):
         SP = ServerParam.i()
         # TODO CHECK FULL STATE TIME
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE GOALIE BY HEAR {"#"*20}')
 
         if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie()) == 0:
             return
@@ -1408,7 +1409,8 @@ class WorldModel:
     
     def update_players_by_hear(self):
         # TODO FULLSTATTE MODE CHECK
-        
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE PLAYER BY HEAR {"#"*20}')
+
         if self._messenger_memory.player_time() != self.time() or len(self._messenger_memory.players()) == 0:
             return
         
@@ -1485,6 +1487,7 @@ class WorldModel:
     def update_ball_by_hear(self, act: 'ActionEffector'):
         # TODO CHECK FULLSTATE MODE
 
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE BALL BY HEAR {"#"*20}')
         if self._messenger_memory.ball_time() != self.time() or len(self._messenger_memory.balls()) == 0:
             return
         
