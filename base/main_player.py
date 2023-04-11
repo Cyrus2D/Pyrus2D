@@ -7,16 +7,11 @@ import team_config
 
 
 def main(unum, goalie=False):
-    if team_config.OUT is team_config.OUT_OPTION.UNUM:
-        sys.stdout = open(f"player-{unum}-log.txt", 'w')
-        sys.stderr = open(f"player-{unum}-error.txt", 'w')
-    
     agent = SamplePlayer()
-    client = BasicClient()
-    agent.init(client, goalie)
-
-    client.run(agent)
-    # agent.run(team_name, goalie)
+    if not agent.handle_start():
+        agent.handle_exit()
+        return
+    agent.run()
 
 
 if __name__ == "__main__":

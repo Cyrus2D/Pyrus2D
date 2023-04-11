@@ -17,17 +17,6 @@ class BasicClient:
         self._socket = UDPSocket(host_port)
         return True
 
-    def run(self, agent):
-        self.run_online(agent)
-        agent.handle_exit()
-
-    def run_online(self, agent: 'SoccerAgent'):
-        if not agent.handle_start() or not self.is_server_alive():
-            agent.handle_exit()
-            return
-
-        agent.run()
-
     def set_server_alive(self, mode: bool):
         self._server_alive = mode
 

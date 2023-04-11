@@ -7,11 +7,10 @@ import sys
 
 def main():
     agent = SampleTrainer()
-    client = BasicClient()
-    agent.init(client)
-
-    client.run(agent)
-    # agent.run(team_name, goalie)
+    if not agent.handle_start():
+        agent.handle_exit()
+        return
+    agent.run()
 
 
 if __name__ == "__main__":

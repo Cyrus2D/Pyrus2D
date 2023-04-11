@@ -188,7 +188,6 @@ class SelfObject(PlayerObject):
         self._collides_with_player = False
         self._collides_with_post = False
 
-
     def update_angle_by_see(self, face: float, angle_face_error, current_time: GameTime):
         self._time = current_time.copy()
         self._face = AngleDeg(face)

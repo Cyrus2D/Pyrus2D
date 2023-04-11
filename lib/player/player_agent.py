@@ -38,6 +38,7 @@ def get_time_msec():
 
 class PlayerAgent(SoccerAgent):
     def __init__(self):
+        self._goalie: bool = False
         super().__init__()
         self._think_received = False
         self._current_time: GameTime = GameTime()
@@ -59,8 +60,6 @@ class PlayerAgent(SoccerAgent):
         self._view_action: Union[ViewAction, None] = None
         self._focus_point_action: Union[FocusPointAction, None] = None
 
-        self._goalie: bool = False
-
         self._real_world = WorldModel('real')
         self._full_world = WorldModel('full')
         self._last_body_command = []
@@ -78,6 +77,8 @@ class PlayerAgent(SoccerAgent):
         if self._client.send_message(com.str()) <= 0:
             log.os_log().error("ERROR failed to connect to server")
             self._client.set_server_alive(False)
+            return False
+        return True
 
     def send_bye_command(self):
         if self._client.is_server_alive() is True:  # TODO FALSE?
@@ -287,7 +288,8 @@ class PlayerAgent(SoccerAgent):
             self._client.set_server_alive(False)
             return False
 
-        self.send_init_command()
+        if not self.send_init_command():
+            return False
         return True
 
     def handle_exit(self):

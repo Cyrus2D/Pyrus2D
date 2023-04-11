@@ -21,118 +21,113 @@ import team_config
 # TODO PLAYER PARAMS?
 
 class CoachAgent(SoccerAgent):
-    class Impl:
-        def __init__(self, agent):
-            # TODO so many things....
-            self._agent: CoachAgent = agent
-            self._think_received: bool = True
-            self._server_cycle_stopped: bool = True
-            self._current_time: GameTime = GameTime(-1, 0)
-            self._game_mode: GameMode = GameMode()
-
-        def send_init_command(self):
-            # TODO check reconnection
-
-            # TODO make config class for these data
-            com = CoachInitCommand(team_config.TEAM_NAME, team_config.COACH_VERSION)
-
-            if self._agent._client.send_message(com.str()) <= 0:
-                log.os_log().error("ERROR failed to connect to server")
-                self._agent._client.set_server_alive(False)
-
-        def send_bye_command(self):
-            if self._agent._client.is_server_alive() is True:
-                # TODO Coach Bye Command needs to be implemented
-                # com = PlayerByeCommand()
-                # self._agent._client.send_message(com.str())
-                self._agent._client.set_server_alive(False)
-
-        @property  # TODO REMOVE PROPERTY
-        def think_received(self):
-            return self._think_received
-
-        def analyze_init(self, message):
-            self._agent.init_dlog(message)
-            self._agent.do_eye(True)
-
-        def see_parser(self, message: str):
-            if not message.startswith("(player_type"):
-                self.parse_cycle_info(message, True)
-
-            self._agent.world().parse(message)
-            self._agent.world().update_after_see(self._current_time)
-
-        def parse_cycle_info(self, message: str, by_see_global: bool):
-            cycle = int(message.split(' ')[1])
-            self.update_current_time(cycle, by_see_global)
-
-        def update_current_time(self, new_time: int, by_see_global: bool):
-            if self._server_cycle_stopped:
-                if new_time != self._current_time.cycle():
-                    self._current_time.assign(new_time, 0)
-                else:
-                    if by_see_global:
-                        self._current_time.assign(self._current_time.cycle(),
-                                                  self._current_time.stopped_cycle() + 1)
-            else:
-                self._current_time.assign(new_time, 0)
-
-        def hear_parser(self, message: str):
-            self.parse_cycle_info(message, False)
-
-            _, cycle, sender = tuple(
-                message.split(" ")[:3]
-            )
-            cycle = int(cycle)
-
-            if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
-                self.hear_player_parser(message)
-            elif sender == "referee":
-                self.hear_referee_parser(message)
-
-        def hear_player_parser(self, message):
-            pass
-
-        def update_server_status(self):
-            if self._server_cycle_stopped:
-                self._server_cycle_stopped = False
-
-            if self._game_mode.is_server_cycle_stopped_mode():
-                self._server_cycle_stopped = True
-
-        def hear_referee_parser(self, message: str):
-            mode = message.split(" ")[-1].strip(")")
-            self._game_mode.update(mode, self._current_time)
-
-            # TODO CARDS AND OTHER STUFF
-
-            self.update_server_status()
-
-            if self._game_mode.type() is GameModeType.TimeOver:
-                self.send_bye_command()
-                return
-            self._agent.world().update_game_mode(self._game_mode, self._current_time)
-            # TODO FULL STATE WORLD update
-
-        def analyze_change_player_type(self, msg: str):
-            data = msg.strip('()').split(' ')
-            n = len(data)
-            if n == 4:
-                pass
-            elif n == 3:
-                unum, type = int(data[1]), int(data[2].removesuffix(')\x00'))
-                self._agent.world().change_player_type(self._agent.world().our_side(), unum, type)
-            elif n == 2:
-                unum = int(data[1].removesuffix(')\x00'))
-                self._agent.world().change_player_type(self._agent.world().their_side(), unum, HETERO_UNKNOWN)
-
     def __init__(self):
         super().__init__()
-        self._impl: CoachAgent.Impl = CoachAgent.Impl(self)
+        self._think_received: bool = True
+        self._server_cycle_stopped: bool = True
+        self._current_time: GameTime = GameTime(-1, 0)
+        self._game_mode: GameMode = GameMode()
         self._world: GlobalWorldModel = GlobalWorldModel()
         self._is_synch_mode: bool = True
         self._last_body_command: list[CoachCommand] = []
         self._free_from_messages: list[FreeFormMessenger] = []
+
+    def send_init_command(self):
+        # TODO check reconnection
+
+        # TODO make config class for these data
+        com = CoachInitCommand(team_config.TEAM_NAME, team_config.COACH_VERSION)
+
+        if self._client.send_message(com.str()) <= 0:
+            log.os_log().error("ERROR failed to connect to server")
+            self._client.set_server_alive(False)
+            return False
+
+    def send_bye_command(self):
+        if self._client.is_server_alive() is True:
+            # TODO Coach Bye Command needs to be implemented
+            # com = PlayerByeCommand()
+            # self._agent._client.send_message(com.str())
+            self._client.set_server_alive(False)
+
+    @property  # TODO REMOVE PROPERTY
+    def think_received(self):
+        return self._think_received
+
+    def analyze_init(self, message):
+        self.init_dlog(message)
+        self.do_eye(True)
+
+    def see_parser(self, message: str):
+        if not message.startswith("(player_type"):
+            self.parse_cycle_info(message, True)
+
+        self.world().parse(message)
+        self.world().update_after_see(self._current_time)
+
+    def parse_cycle_info(self, message: str, by_see_global: bool):
+        cycle = int(message.split(' ')[1])
+        self.update_current_time(cycle, by_see_global)
+
+    def update_current_time(self, new_time: int, by_see_global: bool):
+        if self._server_cycle_stopped:
+            if new_time != self._current_time.cycle():
+                self._current_time.assign(new_time, 0)
+            else:
+                if by_see_global:
+                    self._current_time.assign(self._current_time.cycle(),
+                                              self._current_time.stopped_cycle() + 1)
+        else:
+            self._current_time.assign(new_time, 0)
+
+    def hear_parser(self, message: str):
+        self.parse_cycle_info(message, False)
+
+        _, cycle, sender = tuple(
+            message.split(" ")[:3]
+        )
+        cycle = int(cycle)
+
+        if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
+            self.hear_player_parser(message)
+        elif sender == "referee":
+            self.hear_referee_parser(message)
+
+    def hear_player_parser(self, message):
+        pass
+
+    def update_server_status(self):
+        if self._server_cycle_stopped:
+            self._server_cycle_stopped = False
+
+        if self._game_mode.is_server_cycle_stopped_mode():
+            self._server_cycle_stopped = True
+
+    def hear_referee_parser(self, message: str):
+        mode = message.split(" ")[-1].strip(")")
+        self._game_mode.update(mode, self._current_time)
+
+        # TODO CARDS AND OTHER STUFF
+
+        self.update_server_status()
+
+        if self._game_mode.type() is GameModeType.TimeOver:
+            self.send_bye_command()
+            return
+        self.world().update_game_mode(self._game_mode, self._current_time)
+        # TODO FULL STATE WORLD update
+
+    def analyze_change_player_type(self, msg: str):
+        data = msg.strip('()').split(' ')
+        n = len(data)
+        if n == 4:
+            pass
+        elif n == 3:
+            unum, type = int(data[1]), int(data[2].removesuffix(')\x00'))
+            self.world().change_player_type(self.world().our_side(), unum, type)
+        elif n == 2:
+            unum = int(data[1].removesuffix(')\x00'))
+            self.world().change_player_type(self.world().their_side(), unum, HETERO_UNKNOWN)
 
     def handle_start(self):
         if self._client is None:
@@ -150,7 +145,8 @@ class CoachAgent(SoccerAgent):
             self._client.set_server_alive(False)
             return False
 
-        self._impl.send_init_command()
+        if not self.send_init_command():
+            return False
         return True
 
     def run(self):
@@ -165,7 +161,7 @@ class CoachAgent(SoccerAgent):
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
-                if self._impl.think_received:
+                if self.think_received:
                     last_time_rec = time.time()
                     break
 
@@ -173,32 +169,32 @@ class CoachAgent(SoccerAgent):
                 log.os_log().info(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
-            if self._impl.think_received:
+            if self.think_received:
                 self.action()
-                self._impl._think_received = False
+                self._think_received = False
             # TODO elif for not sync mode
 
     def parse_message(self, message):
         if message.find("(init") != -1:  # TODO Use startwith instead of find
-            self._impl.analyze_init(message)
+            self.analyze_init(message)
         elif message.find("(server_param") != -1:
             ServerParam.i().parse(message)
         elif message.find("(player_param") != -1:
             pass  # TODO
         elif message.find("(change_player_type") != -1:
-            self._impl.analyze_change_player_type(message)
+            self.analyze_change_player_type(message)
         elif message.find("(see") != -1 or message.find("(player_type") != -1:
-            self._impl.see_parser(message)
-            self._impl._think_received = True
+            self.see_parser(message)
+            self._think_received = True
         elif message.find("(hear") != -1:
-            self._impl.hear_parser(message)
+            self.hear_parser(message)
         elif message.find("think") != -1:
-            self._impl._think_received = True
+            self._think_received = True
         elif message.find("(ok") != -1:
             self._client.send_message(CoachDoneCommand().str())
 
     def init_dlog(self, message):
-        log.setup(self.world().team_name_l(), 'coach', self._impl._current_time)
+        log.setup(self.world().team_name_l(), 'coach', self._current_time)
 
     def world(self) -> GlobalWorldModel:
         return self._world
