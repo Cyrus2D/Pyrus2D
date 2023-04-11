@@ -6,29 +6,19 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.soccer_agent import SoccerAgent
 
-class ClientMode(Enum):
-    offline = 0
-    Online = 1
-
 
 class BasicClient:
     def __init__(self):
-        self._client_mode = ClientMode.Online
         self._server_alive = True
         self._socket: UDPSocket = None
-        # self._interval_ms = 10
-        # self._compression_lvl = 0
 
     def connect_to(self,
-                   host_port: IPAddress,
-                   interval_ms=None):
+                   host_port: IPAddress):
         self._socket = UDPSocket(host_port)
         return True
 
     def run(self, agent):
-        if self._client_mode == ClientMode.Online:
-            self.run_online(agent)
-
+        self.run_online(agent)
         agent.handle_exit()
 
     def run_online(self, agent: 'SoccerAgent'):
@@ -50,9 +40,6 @@ class BasicClient:
 
     def message(self):
         pass
-
-    def client_mode(self):
-        return self._client_mode
 
     def is_server_alive(self):
         return self._server_alive

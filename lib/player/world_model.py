@@ -575,7 +575,7 @@ class WorldModel:
         return vel_count
                 
     def localize_self(self,
-                      see:SeeParser,
+                      see: SeeParser,
                       body: SenseBodyParser,
                       act: 'ActionEffector',
                       current_time: GameTime):
