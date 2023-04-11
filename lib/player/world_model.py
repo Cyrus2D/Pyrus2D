@@ -1554,10 +1554,10 @@ class WorldModel:
             dir += WorldModel.DIR_STEP
     
     def dir_count(self, angle: Union[AngleDeg, float]):
-        angle = float(angle)
+        angle = AngleDeg(angle).degree()
         
         idx = int((angle - 0.5 + 180) / WorldModel.DIR_STEP)
-        if not 0 <= idx < WorldModel.DIR_CONF_DIVS:
+        if not 0 <= idx <= WorldModel.DIR_CONF_DIVS:
             log.os_log().error(f"(world model dir conf) index out of range! idx={idx}")
             idx = 0
         return self._dir_count[idx]
