@@ -1,4 +1,4 @@
-from pyrusgeom.soccer_math import min_max
+from pyrusgeom.soccer_math import min_max, bound
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.messenger.converters import MessengerConverter
@@ -44,14 +44,16 @@ class PassMessenger(Messenger):
         self._ball_vel = ball_vel.copy()
 
     def encode(self) -> str:
+        SP = ServerParam.i()
+        ep = 0.001
         msg = PassMessenger.CONVERTER.convert_to_word([
-            self._receive_point.x(),
-            self._receive_point.y(),
+            bound(-SP.pitch_half_length() + ep, self._receive_point.x(), SP.pitch_half_length() - ep),
+            bound(-SP.pitch_half_width() + ep, self._receive_point.y(), SP.pitch_half_width() - ep),
             self._receiver_unum,
-            self._ball_pos.x(),
-            self._ball_pos.y(),
-            self._ball_vel.x(),
-            self._ball_vel.y()
+            bound(-SP.pitch_half_length() + ep, self._ball_pos.x(), SP.pitch_half_length() - ep),
+            bound(-SP.pitch_half_width() + ep, self._ball_pos.y(), SP.pitch_half_width() - ep),
+            bound(ep, self._ball_vel.x(), SP.ball_speed_max() - ep),
+            bound(ep, self._ball_vel.y(), SP.ball_speed_max() - ep),
         ])
 
         return f'{self._header}{msg}'

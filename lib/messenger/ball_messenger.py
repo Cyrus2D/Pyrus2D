@@ -1,4 +1,5 @@
 from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.debug.debug import log
@@ -43,11 +44,13 @@ class BallMessenger(Messenger):
                 or self._ball_pos.abs_y() > ServerParam.i().pitch_half_width():
             return ''
 
+        SP = ServerParam.i()
+        ep = 0.001
         msg = BallMessenger.CONVERTER.convert_to_word([
-            self._ball_pos.x(),
-            self._ball_pos.y(),
-            self._ball_vel.x(),
-            self._ball_vel.y(),
+            bound(-SP.pitch_half_length() + ep, self._ball_pos.x(), SP.pitch_half_length() - ep),
+            bound(-SP.pitch_half_width() + ep, self._ball_pos.y(), SP.pitch_half_width() - ep),
+            bound(ep, self._ball_vel.x(), SP.ball_speed_max() - ep),
+            bound(ep, self._ball_vel.y(), SP.ball_speed_max() - ep),
         ])
         return f'{self._header}{msg}'
 

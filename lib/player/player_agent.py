@@ -589,18 +589,6 @@ class PlayerAgent(SoccerAgent):
         if self.full_world_exists():
             self.update_full_world_before_decision()
 
-    def debug_communication(self):
-        wm = self.world()
-        att_com = self.effector().attentionto_command()
-        if att_com is None:
-            return
-        player = wm.our_player(att_com.number()) if att_com.side().value == 'our' else wm.their_player(att_com.number())
-        if player is None:
-            return
-
-        log.debug_client().add_circle(player.pos(), 3., color='#000088')
-        log.debug_client().add_line(player.pos(), wm.self().pos(), '#000088')
-
     def action(self):
         if (self.world().self_unum() is None
                 or self.world().self().unum() != self.world().self_unum()):
@@ -614,7 +602,6 @@ class PlayerAgent(SoccerAgent):
         self.do_change_focus_action()
 
         self.communicate_impl()
-        self.debug_communication()
 
         self._last_decision_time = self._current_time.copy()
         log.os_log().debug("body " + str(self.world().self().body()))
