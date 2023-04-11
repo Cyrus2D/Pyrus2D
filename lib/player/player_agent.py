@@ -134,17 +134,25 @@ class PlayerAgent(SoccerAgent):
             self.hear_referee_parser(message)
 
     def hear_player_parser(self, message: str):
+        log.debug_client().add_message(f'rcv msg:#{message}#')
+        log.sw_log().communication().add_text(f'rcv msg:#{message}#')
         if message.find('"') == -1:
+            log.sw_log().communication().add_text("parser error A")
             return
         data = message.strip('()').split(' ')
         if len(data) < 6:
             # log.os_log().error(f"(hear player parser) message format is not matched! msg={message}")
+            log.sw_log().communication().add_text("parser error B")
+            return
+        if data[3] == 'opp':
+            log.sw_log().communication().add_text("parser error C")
             return
         player_message = message.split('"')[1]
         if not data[4].isdigit():
+            log.sw_log().communication().add_text("parser error D")
             return
         sender = int(data[4])
-
+        log.sw_log().communication().add_text(f'sender is {sender}')
         Messenger.decode_all(self.real_world()._messenger_memory,
                              player_message,
                              sender,

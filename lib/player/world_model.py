@@ -1419,7 +1419,7 @@ class WorldModel:
             if player.unum_ == UNUM_UNKNOWN:
                 return
             
-            side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
+            side = self.our_side() if player.unum_ <= 11 else self.their_side()
             unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
             unum = round(unum)
 
