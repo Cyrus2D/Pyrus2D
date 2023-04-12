@@ -73,6 +73,8 @@ class BallObject(Object):
             new_vel = self.vel()
             if act.last_body_command() == CommandType.KICK:
                 accel = act.get_kick_info()
+                log.sw_log().world().add_text(f"ESTIMATING BALL VEL WITH KICK ACTION")
+                log.sw_log().world().add_text(f"accel={accel}, ball accel max={SP.ball_accel_max()}")
                 if accel.r() > SP.ball_accel_max():
                     accel.set_length(SP.ball_accel_max())
                 new_vel += accel
