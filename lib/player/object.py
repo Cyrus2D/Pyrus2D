@@ -36,7 +36,7 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._dist_from_ball: float = 0
         self._angle_from_ball: AngleDeg = AngleDeg(0)
 
-        self._ghost_count: int = 1000
+        self._ghost_count: int = 0
         self._pos_history: list[Vector2D] = []
 
         self._pos_count_thr: Union[None, int] = None

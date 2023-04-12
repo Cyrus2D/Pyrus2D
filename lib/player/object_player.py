@@ -43,11 +43,11 @@ class PlayerObject(Object):
             self._side = side
             self._unum = player.unum_
             self._goalie = player.goalie_
-            self._pos = player.pos_
+            self._pos = player.pos_.copy()
             self._pos_count = 0
-            self._seen_pos = player.pos_
+            self._seen_pos = player.pos_.copy()
             self._seen_pos_count = 0
-            
+
             if player.unum_ != UNUM_UNKNOWN:
                 self._unum_count = 0
 
