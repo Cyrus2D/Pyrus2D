@@ -1345,6 +1345,8 @@ class WorldModel:
             o.update_more_with_full_state(self)
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
+        self._set_play_count += 1
+
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()
@@ -1419,7 +1421,7 @@ class WorldModel:
             if player.unum_ == UNUM_UNKNOWN:
                 return
             
-            side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
+            side = self.our_side() if player.unum_ <= 11 else self.their_side()
             unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
             unum = round(unum)
 
@@ -1447,13 +1449,13 @@ class WorldModel:
                 
                 for p in self._unknown_players:
                     d = p.pos().dist(player.pos_)
-                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    if d < min_dist and d < p.pos_count()*1.2 + p.dist_from_self() *0.06:
                         min_dist = d
                         target_player = p
                         unknown = p
             if target_player:
                 target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) updating player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
                 if unknown:
@@ -1468,7 +1470,7 @@ class WorldModel:
                     
                     self._opponents.append(target_player)
                 target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) adding player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
             if target_player:
