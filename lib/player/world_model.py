@@ -74,8 +74,8 @@ class WorldModel:
         
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode(game_mode=GameModeType.BeforeKickOff)
-        self._our_goalie_unum: int = 0
-        self._their_goalie_unum: int = 0
+        self._our_goalie_unum: int = UNUM_UNKNOWN
+        self._their_goalie_unum: int = UNUM_UNKNOWN
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._exist_kickable_teammates: bool = False
         self._exist_kickable_opponents: bool = False
@@ -1115,7 +1115,11 @@ class WorldModel:
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
         self.estimate_goalie()
-        
+
+        log.sw_log().world().add_text(f'=== GOALIE UNUM ===')
+        log.sw_log().world().add_text(f'our/their goalie: {self._our_goalie_unum}/{self._their_goalie_unum}')
+
+
         self._all_players.append(self.self())
         self._our_players.append(self.self())
         for i in range(12):
@@ -1172,10 +1176,10 @@ class WorldModel:
         for p in self._opponents:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
         
@@ -1183,10 +1187,10 @@ class WorldModel:
         for p in self._unknown_players:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
                     from_unknown = True
@@ -1615,6 +1619,7 @@ class WorldModel:
                 if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
                     removing_opponents.append(p)
                     continue
+                log.sw_log().world().add_text(f'opponent is going to be a ghost: {p}')
                 p.set_ghost()
         for p in removing_opponents:
             self._opponents.remove(p)
