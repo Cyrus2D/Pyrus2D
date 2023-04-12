@@ -215,7 +215,7 @@ class PlayerObject(Object):
         self._body_count = min(1000, self._body_count + 1)
         self._face_count = min(1000, self._face_count + 1)
         self._pointto_count = min(1000, self._pointto_count + 1)
-        self._kicking = min(1000, self._kicking + 1)
+        # self._kicking = min(1000, self._kicking + 1)
         self._tackle_count = min(1000, self._tackle_count + 1)
     
     def forgot(self):
@@ -387,7 +387,7 @@ class PlayerObject(Object):
         return res
 
     def __str__(self):
-        return f'''Player side:{self._side.name} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body}'''
+        return f'''Player side:{self._side.name} unum:{self._unum} pos:{self.pos()} vel:{self.vel()} body:{self._body} poscount:{self._pos_count} ghostcount:{self._ghost_count}'''
 
     def __repr__(self):
         return self.__str__()
