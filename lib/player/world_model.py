@@ -1376,6 +1376,7 @@ class WorldModel:
 
         if DEBUG:
             log.sw_log().world().add_text('===After processing see message===')
+            log.sw_log().world().add_text(f'self.kickrate={self.self().kick_rate()}')
             log.sw_log().world().add_text(f'===Our Players=== {len(self.our_players())} {self._name}')
             for p in self.our_players():
                 log.sw_log().world().add_text(str(p))
