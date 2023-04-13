@@ -185,3 +185,6 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
 
     def __str__(self):
         return f'''pos: {self.pos()} vel:{self.vel()}'''
+
+    def heard_vel_count(self):
+        return self._heard_vel_count
