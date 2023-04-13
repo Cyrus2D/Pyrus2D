@@ -61,8 +61,21 @@ class BallObject(Object):
         ball._rpos = self._rpos.copy()
         ball._seen_pos = self._seen_pos.copy()
         ball._seen_vel = self._seen_vel.copy()
+        ball._heard_pos = self._heard_pos.copy()
+        ball._heard_vel = self._heard_vel.copy()
         ball._dist_from_self = self._dist_from_self
         ball._angle_from_self = self._angle_from_self
+
+        ball._pos_count = self.pos_count()
+        ball._vel_count = self.vel_count()
+        ball._ghost_count = self.ghost_count()
+        ball._seen_pos_count = self.seen_pos_count()
+        ball._rpos_count = self.rpos_count()
+        ball._heard_pos_count = self.heard_pos_count()
+        ball._heard_vel_count = self.heard_vel_count()
+        ball._lost_count = self.lost_count()
+        ball._seen_vel_count = self.seen_vel_count()
+
         return ball
 
     def update_by_last_cycle(self, act: 'ActionEffector', game_mode: GameMode):
