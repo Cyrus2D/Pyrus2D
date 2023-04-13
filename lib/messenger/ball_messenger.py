@@ -49,8 +49,8 @@ class BallMessenger(Messenger):
         msg = BallMessenger.CONVERTER.convert_to_word([
             bound(-SP.pitch_half_length() + ep, self._ball_pos.x(), SP.pitch_half_length() - ep),
             bound(-SP.pitch_half_width() + ep, self._ball_pos.y(), SP.pitch_half_width() - ep),
-            bound(ep, self._ball_vel.x(), SP.ball_speed_max() - ep),
-            bound(ep, self._ball_vel.y(), SP.ball_speed_max() - ep),
+            bound(-SP.ball_speed_max() + ep, self._ball_vel.x(), SP.ball_speed_max() - ep),
+            bound(-SP.ball_speed_max() + ep, self._ball_vel.y(), SP.ball_speed_max() - ep),
         ])
         return f'{self._header}{msg}'
 

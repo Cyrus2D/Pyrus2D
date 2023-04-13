@@ -26,18 +26,6 @@ def get_decision(agent: 'PlayerAgent'):
     wm: 'WorldModel' = agent.world()
     st = StrategyFormation().i()
     st.update(wm)
-    
-    fastest_teammate = wm.intercept_table().fastest_teammate()
-    nearest_teammate = None
-    if len(wm.teammates_from_ball()) > 0:
-        nearest_teammate = wm.teammates_from_ball()[0]
-
-    if fastest_teammate and fastest_teammate.unum() != UNUM_UNKNOWN:
-        agent.do_attentionto(wm.our_side(), fastest_teammate.unum())
-    elif nearest_teammate and nearest_teammate.unum() != UNUM_UNKNOWN:
-        agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
-    else:
-        agent.do_attentionto(wm.our_side(), 5)
 
     if wm.self().goalie():
         if goalie_decision.decision(agent):

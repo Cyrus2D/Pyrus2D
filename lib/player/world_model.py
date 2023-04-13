@@ -74,8 +74,8 @@ class WorldModel:
         
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode(game_mode=GameModeType.BeforeKickOff)
-        self._our_goalie_unum: int = 0
-        self._their_goalie_unum: int = 0
+        self._our_goalie_unum: int = UNUM_UNKNOWN
+        self._their_goalie_unum: int = UNUM_UNKNOWN
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._exist_kickable_teammates: bool = False
         self._exist_kickable_opponents: bool = False
@@ -1115,7 +1115,11 @@ class WorldModel:
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
         self.estimate_goalie()
-        
+
+        log.sw_log().world().add_text(f'=== GOALIE UNUM ===')
+        log.sw_log().world().add_text(f'our/their goalie: {self._our_goalie_unum}/{self._their_goalie_unum}')
+
+
         self._all_players.append(self.self())
         self._our_players.append(self.self())
         for i in range(12):
@@ -1172,10 +1176,10 @@ class WorldModel:
         for p in self._opponents:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
         
@@ -1183,10 +1187,10 @@ class WorldModel:
         for p in self._unknown_players:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
                     from_unknown = True
@@ -1345,6 +1349,8 @@ class WorldModel:
             o.update_more_with_full_state(self)
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
+        self._set_play_count += 1
+
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()
@@ -1370,6 +1376,7 @@ class WorldModel:
 
         if DEBUG:
             log.sw_log().world().add_text('===After processing see message===')
+            log.sw_log().world().add_text(f'self.kickrate={self.self().kick_rate()}')
             log.sw_log().world().add_text(f'===Our Players=== {len(self.our_players())} {self._name}')
             for p in self.our_players():
                 log.sw_log().world().add_text(str(p))
@@ -1447,13 +1454,13 @@ class WorldModel:
                 
                 for p in self._unknown_players:
                     d = p.pos().dist(player.pos_)
-                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    if d < min_dist and d < p.pos_count()*1.2 + p.dist_from_self() *0.06:
                         min_dist = d
                         target_player = p
                         unknown = p
             if target_player:
                 target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) updating player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
                 if unknown:
@@ -1468,7 +1475,7 @@ class WorldModel:
                     
                     self._opponents.append(target_player)
                 target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) adding player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
             if target_player:
@@ -1554,10 +1561,10 @@ class WorldModel:
             dir += WorldModel.DIR_STEP
     
     def dir_count(self, angle: Union[AngleDeg, float]):
-        angle = float(angle)
+        angle = AngleDeg(angle).degree()
         
         idx = int((angle - 0.5 + 180) / WorldModel.DIR_STEP)
-        if not 0 <= idx < WorldModel.DIR_CONF_DIVS:
+        if not 0 <= idx <= WorldModel.DIR_CONF_DIVS:
             log.os_log().error(f"(world model dir conf) index out of range! idx={idx}")
             idx = 0
         return self._dir_count[idx]
@@ -1613,6 +1620,7 @@ class WorldModel:
                 if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
                     removing_opponents.append(p)
                     continue
+                log.sw_log().world().add_text(f'opponent is going to be a ghost: {p}')
                 p.set_ghost()
         for p in removing_opponents:
             self._opponents.remove(p)

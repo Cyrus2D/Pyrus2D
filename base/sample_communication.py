@@ -61,9 +61,9 @@ class SampleCommunication:
 
         if wm.prev_ball().vel_valid():
             prev_ball_speed = wm.prev_ball().vel().r()
-            angle_diff = abs(wm.ball().vel().th() - wm.prev_ball().vel().th())
+            angle_diff = (wm.ball().vel().th() - wm.prev_ball().vel().th()).abs()
 
-            log.sw_log().communication(f'(sample communication)'
+            log.sw_log().communication().add_text(f'(sample communication)'
                                        f'prev vel={wm.prev_ball().vel()}, r={prev_ball_speed}'
                                        f'current_vel={wm.ball().vel()}, r={wm.ball().vel()}')
 
@@ -71,7 +71,7 @@ class SampleCommunication:
                     or (
                     prev_ball_speed > 0.5 and current_ball_speed < prev_ball_speed * ServerParam.i().ball_decay() / 2) \
                     or (prev_ball_speed > 0.5 and angle_diff > 20.):
-                log.sw_log().communication(f'(sample communication) ball vel changed')
+                log.sw_log().communication().add_text(f'(sample communication) ball vel changed')
                 ball_vel_changed = True
 
         if wm.self().is_kickable():
