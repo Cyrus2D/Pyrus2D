@@ -187,7 +187,7 @@ class WorldModel:
     def team_name(self):
         return self._team_name
 
-    def _update_players(self): # TODO Modify it based on teammates and opponent list
+    def _update_players(self): # TODO REMOVE IT
         self._exist_kickable_teammates = False
         self._exist_kickable_opponents = False
         for i in range(len(self._our_players)):
@@ -317,7 +317,7 @@ class WorldModel:
     def get_opponent_goalie(self):
         return self.their_player(self._their_goalie_unum)
 
-    def _set_goalies_unum(self):
+    def _set_goalies_unum(self): # TODO REMOVE IT
         for tm in self._our_players:
             if tm is None:
                 continue
@@ -369,7 +369,7 @@ class WorldModel:
     def exist_kickable_teammates(self):
         return self._exist_kickable_teammates
 
-    def _set_players_from_ball_and_self(self):
+    def _set_players_from_ball_and_self(self): # TODO REMOVE THIS AND INSIDE FUNCTIONS
         self._set_teammates_from_ball()
         self._set_opponents_from_ball()
         self._set_teammates_from_self()
