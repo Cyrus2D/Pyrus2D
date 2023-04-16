@@ -492,24 +492,26 @@ class PlayerAgent(SoccerAgent):
     def do_attentionto(self, side: SideID, unum: int):
         if side is SideID.NEUTRAL:
             # log.os_log().error("(player agent do attentionto) side is neutral!")
-            return
+            return False
 
         if unum == UNUM_UNKNOWN or not (1 <= unum <= 11):
             # log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
-            return
+            return False
 
         if self.world().our_side() == side and self.world().self().unum() == unum:
             # log.os_log().error(f"(player agent do attentionto) attentioning to self!")
-            return
+            return False
 
         if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
             # log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
-            return
+            return False
 
         self._last_body_command.append(self._effector.set_attentionto(side, unum))
+        return True
 
     def do_attentionto_off(self):
         self._last_body_command.append(self._effector.set_attentionto_off())
+        return True
 
     if team_config.WORLD_IS_REAL_WORLD:
         def world(self):

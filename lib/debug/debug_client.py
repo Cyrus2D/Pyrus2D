@@ -208,7 +208,7 @@ class DebugClient:
         self._circles = []
 
     def add_message(self, msg: str):
-        self._message += msg.replace('\n', '').replace('"', '')
+        self._message += ('/' + msg.replace('\n', '').replace('"', ''))
 
     def set_target(self, unum_or_position):
         if type(unum_or_position) == int:

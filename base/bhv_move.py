@@ -43,7 +43,7 @@ class BhvMove:
                       f"opp_min={opp_min}")
 
         if (not wm.exist_kickable_teammates()
-                and (self_min <= 5
+                and (self_min <= 2
                     or (self_min <= tm_min
                         and self_min < opp_min + 5))):
             log.sw_log().block().add_text( "INTERCEPTING")
