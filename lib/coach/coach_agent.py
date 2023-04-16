@@ -56,6 +56,7 @@ class CoachAgent(SoccerAgent):
         return self._think_received
 
     def analyze_init(self, message):
+        self.world().self_parser(message)
         self.init_dlog(message)
         self.do_eye(True)
 

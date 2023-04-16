@@ -108,7 +108,6 @@ class GlobalWorldModel:
 
     def self_parser(self, message):
         message = message.split(" ")
-        self._self_unum = int(message[2])
         self._our_side = message[1]
     
     def update_after_see(self, current_time: GameTime):
