@@ -588,7 +588,7 @@ class ActionEffector:
         say_command = PlayerSayCommand(Messenger.encode_all(self._messages))
         if len(say_command.message()) == 0:
             return None
-
+        self._say_command = say_command
         return say_command
 
     def set_attentionto(self, side: SideID, unum: int):
