@@ -1,0 +1,80 @@
+function decision_time:
+    if mode == synch_mode and recieved_done:
+        return True
+
+    if last_message_recieve_time - now() > wait_time:
+        return True
+    return False
+
+function update_real_world_by_last_cycle(action_effector):
+    update_self_object_with_last_action(action_effector)
+    update_ball_object_with_last_action(action_effector)
+
+    for player in teammates+opponents+unknown_players:
+        player.update_counters()
+
+function update_real_world_by_body_sensor(body_sensor):
+    action_effector.check_action_counters(body_sensor)
+
+    update_self_stamina(body_sensor)
+    update_self_velocity(body_sensor)
+
+function update_real_world_by_visual_sensor(visual_sensor):
+    localize_self(visual_sensor)
+    localize_ball(visual_sensor)
+    localize_players(visual_sensor)
+
+    update_real_world_by_localization()
+
+function update_real_world_by_hear_sensor(hear_sensor):
+    for heard_object in haer_sensor.heard_objects:
+        if pos_count_in_real_world(heard_object) > 1:
+            update_object_in_real_world(heard_object)
+
+function action():
+    if GameMode is not PlayOn:
+        return BhvSetPlay().execute()
+
+    if kick_able():
+        return BhvKick().execute()
+    return BhvMove().execute()
+
+function update_action_effector():
+    increment_action_counters()
+    save_action_variables()
+
+while true:
+	## receive message
+	if decision_time:
+		break
+
+body_sensor   = parse_body_sensor_message
+visual_sensor = parse_visual_sensor_message
+hear_sensor   = parse_hear_sensor_message
+if mode == fullstate:
+	fullstate_parser = parse fullstate message
+
+update_real_world_by_last_cycle(action_effector)
+
+update_real_world_by_body_sensor(body_sensor)
+update_real_world_by_visual_sensor(visual_sensor)
+update_real_world_by_hear_sensor(hear_sensor)
+
+update_real_world_players_information()
+
+if mode == fullstate:
+	update_fullstate_world(fullstate_parser)
+	update_fullstate_world_players_information()
+
+action()
+
+apply_view_action()
+apply_neck()
+apply_say_message()
+apply_attention()
+
+update_action_effector()
+
+make_commands
+
+send_commands
