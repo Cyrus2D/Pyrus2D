@@ -2,6 +2,7 @@ from pyrusgeom.angle_deg import AngleDeg
 
 from lib.action.neck_body_to_point import NeckBodyToPoint
 from lib.action.scan_field import ScanField
+from lib.debug.debug import log
 from lib.player.soccer_action import NeckAction
 
 from typing import TYPE_CHECKING, Union
@@ -15,6 +16,7 @@ class NeckBodyToBall(NeckAction):
         self._angle_buf = float(angle_buf)
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('BodyToBall/')
         wm = agent.world()
         if wm.ball().pos_valid():
             ball_next = wm.ball().pos() + wm.ball().vel()

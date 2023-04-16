@@ -28,6 +28,7 @@ class NeckScanField(NeckAction):
     
     def execute(self, agent: 'PlayerAgent'):
         from lib.action.neck_scan_players import NeckScanPlayers
+        log.debug_client().add_message('NeckScanField/')
         wm = agent.world()
         ef = agent.effector()
         
@@ -79,7 +80,7 @@ class NeckScanField(NeckAction):
             angle = self.calc_angle_default(agent, False)
         
         NeckScanField._cached_target_angle = angle
-        agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body().degree() - wm.self().neck().degree())
+        agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck())
         
         return True
     
@@ -176,7 +177,7 @@ class NeckScanField(NeckAction):
         
         next_self_pos = wm.self().pos() + wm.self().vel()
         pitch_x_thr = SP.pitch_half_length() - 15.
-        pitch_y_thr = SP.pitch_half_width() - 10. # TODO WIDTH MAYBE(it was on librcsc tho...)
+        pitch_y_thr = SP.pitch_half_length() - 10. # TODO WIDTH MAYBE(it was on librcsc tho...)
         
         target_angle = NeckScanField.INVALID_ANGLE
 

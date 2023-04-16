@@ -38,7 +38,8 @@ def get_time_msec():
 
 class PlayerAgent(SoccerAgent):
     def __init__(self):
-        super().__init__()
+        self._goalie: bool = False
+        super(PlayerAgent, self).__init__()
         self._think_received = False
         self._current_time: GameTime = GameTime()
         self._last_decision_time: GameTime = GameTime()
@@ -59,8 +60,6 @@ class PlayerAgent(SoccerAgent):
         self._view_action: Union[ViewAction, None] = None
         self._focus_point_action: Union[FocusPointAction, None] = None
 
-        self._goalie: bool = False
-
         self._real_world = WorldModel('real')
         self._full_world = WorldModel('full')
         self._last_body_command = []
@@ -78,6 +77,8 @@ class PlayerAgent(SoccerAgent):
         if self._client.send_message(com.str()) <= 0:
             log.os_log().error("ERROR failed to connect to server")
             self._client.set_server_alive(False)
+            return False
+        return True
 
     def send_bye_command(self):
         if self._client.is_server_alive() is True:  # TODO FALSE?
@@ -127,23 +128,31 @@ class PlayerAgent(SoccerAgent):
         cycle = int(cycle)
 
         if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
-            # self.hear_player_parser(message)
+            self.hear_player_parser(message)
             pass
         elif sender == "referee":
             self.hear_referee_parser(message)
 
     def hear_player_parser(self, message: str):
+        log.debug_client().add_message(f'rcv msg:#{message}#')
+        log.sw_log().communication().add_text(f'rcv msg:#{message}#')
         if message.find('"') == -1:
+            log.sw_log().communication().add_text("parser error A")
             return
         data = message.strip('()').split(' ')
         if len(data) < 6:
             # log.os_log().error(f"(hear player parser) message format is not matched! msg={message}")
+            log.sw_log().communication().add_text("parser error B")
+            return
+        if data[3] == 'opp':
+            log.sw_log().communication().add_text("parser error C")
             return
         player_message = message.split('"')[1]
         if not data[4].isdigit():
+            log.sw_log().communication().add_text("parser error D")
             return
         sender = int(data[4])
-
+        log.sw_log().communication().add_text(f'sender is {sender}')
         Messenger.decode_all(self.real_world()._messenger_memory,
                              player_message,
                              sender,
@@ -250,6 +259,7 @@ class PlayerAgent(SoccerAgent):
         return False
 
     def do_neck_action(self):
+        log.debug_client().add_message('NECK/')
         if self._neck_action:
             self._neck_action.execute(self)
             self._neck_action = None
@@ -287,7 +297,8 @@ class PlayerAgent(SoccerAgent):
             self._client.set_server_alive(False)
             return False
 
-        self.send_init_command()
+        if not self.send_init_command():
+            return False
         return True
 
     def handle_exit(self):
@@ -481,24 +492,26 @@ class PlayerAgent(SoccerAgent):
     def do_attentionto(self, side: SideID, unum: int):
         if side is SideID.NEUTRAL:
             # log.os_log().error("(player agent do attentionto) side is neutral!")
-            return
+            return False
 
         if unum == UNUM_UNKNOWN or not (1 <= unum <= 11):
             # log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
-            return
+            return False
 
         if self.world().our_side() == side and self.world().self().unum() == unum:
             # log.os_log().error(f"(player agent do attentionto) attentioning to self!")
-            return
+            return False
 
         if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
             # log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
-            return
+            return False
 
         self._last_body_command.append(self._effector.set_attentionto(side, unum))
+        return True
 
     def do_attentionto_off(self):
         self._last_body_command.append(self._effector.set_attentionto_off())
+        return True
 
     if team_config.WORLD_IS_REAL_WORLD:
         def world(self):
@@ -597,7 +610,9 @@ class PlayerAgent(SoccerAgent):
         self.do_view_action()
         self.do_neck_action()
         self.do_change_focus_action()
+
         self.communicate_impl()
+
         self._last_decision_time = self._current_time.copy()
         log.os_log().debug("body " + str(self.world().self().body()))
         log.os_log().debug("pos " + str(self.world().self().pos()))

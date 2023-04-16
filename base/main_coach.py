@@ -7,16 +7,11 @@ import sys
 
 
 def main():
-    if team_config.OUT is team_config.OUT_OPTION.UNUM:
-        sys.stdout = open(f"coach-log.txt", 'w')
-        sys.stderr = open(f"coach-error.txt", 'w')
-    
     agent = SampleCoach()
-    client = BasicClient()
-    agent.init(client)
-
-    client.run(agent)
-    # agent.run(team_name, goalie)
+    if not agent.handle_start():
+        agent.handle_exit()
+        return
+    agent.run()
 
 
 if __name__ == "__main__":

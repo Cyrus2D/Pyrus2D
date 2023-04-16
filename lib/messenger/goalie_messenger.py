@@ -1,4 +1,5 @@
 from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.debug.debug import log
@@ -47,10 +48,12 @@ class GoalieMessenger(Messenger):
                                                   f': {self._goalie_pos}')
             return ''
 
+        SP = ServerParam.i()
+        ep = 0.001
         msg = GoalieMessenger.CONVERTER.convert_to_word([
-            self._goalie_pos.x(),
-            self._goalie_pos.y(),
-            self._goalie_body.degree() + 180,
+            bound(-SP.pitch_half_length() + ep, self._goalie_pos.x(), SP.pitch_half_length() - ep),
+            bound(-SP.pitch_half_width() + ep, self._goalie_pos.y(), SP.pitch_half_width() - ep),
+            bound(ep, self._goalie_body.degree() + 180, 360-ep),
         ])
         return f'{self._header}{msg}'
 

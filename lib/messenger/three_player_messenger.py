@@ -1,4 +1,5 @@
 from pyrusgeom.angle_deg import AngleDeg
+from pyrusgeom.soccer_math import bound
 from pyrusgeom.vector_2d import Vector2D
 
 from lib.debug.debug import log
@@ -50,14 +51,16 @@ class ThreePlayerMessenger(Messenger):
 
     def encode(self) -> str:
         data = []
+        SP = ServerParam.i()
+        ep = 0.001
         for p, u in zip(self._player_poses,self._unums):
             if not 1 <= u <= 22:
                 log.os_log().error(f'(ball player messenger) illegal unum={u}')
                 log.sw_log().sensor().add_text(f'(ball player messenger) illegal unum={u}')
                 return ''
             data.append(u)
-            data.append(p.x())
-            data.append(p.y())
+            data.append(bound(-SP.pitch_half_length() + ep, p.x(), SP.pitch_half_length() - ep))
+            data.append(bound(-SP.pitch_half_width() + ep, p.y(), SP.pitch_half_width() - ep))
 
         msg = ThreePlayerMessenger.CONVERTER.convert_to_word(data)
         return f'{self._header}{msg}'

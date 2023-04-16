@@ -3,6 +3,7 @@ from pyrusgeom.vector_2d import Vector2D
 from lib.action.neck_body_to_point import NeckBodyToPoint
 from lib.action.neck_turn_to_relative import NeckTurnToRelative
 from lib.action.view_wide import ViewWide
+from lib.debug.debug import log
 from lib.player.soccer_action import BodyAction
 
 from typing import TYPE_CHECKING
@@ -18,6 +19,7 @@ class ScanField(BodyAction):
         pass
 
     def execute(self, agent: 'PlayerAgent'):
+        log.debug_client().add_message('ScanField/')
         wm = agent.world()
         if not wm.self().pos_valid():
             agent.do_turn(60.)

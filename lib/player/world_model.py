@@ -74,8 +74,8 @@ class WorldModel:
         
         self._intercept_table: InterceptTable = InterceptTable()
         self._game_mode: GameMode = GameMode(game_mode=GameModeType.BeforeKickOff)
-        self._our_goalie_unum: int = 0
-        self._their_goalie_unum: int = 0
+        self._our_goalie_unum: int = UNUM_UNKNOWN
+        self._their_goalie_unum: int = UNUM_UNKNOWN
         self._last_kicker_side: SideID = SideID.NEUTRAL
         self._exist_kickable_teammates: bool = False
         self._exist_kickable_opponents: bool = False
@@ -187,7 +187,7 @@ class WorldModel:
     def team_name(self):
         return self._team_name
 
-    def _update_players(self): # TODO Modify it based on teammates and opponent list
+    def _update_players(self): # TODO REMOVE IT
         self._exist_kickable_teammates = False
         self._exist_kickable_opponents = False
         for i in range(len(self._our_players)):
@@ -317,7 +317,7 @@ class WorldModel:
     def get_opponent_goalie(self):
         return self.their_player(self._their_goalie_unum)
 
-    def _set_goalies_unum(self):
+    def _set_goalies_unum(self): # TODO REMOVE IT
         for tm in self._our_players:
             if tm is None:
                 continue
@@ -369,7 +369,7 @@ class WorldModel:
     def exist_kickable_teammates(self):
         return self._exist_kickable_teammates
 
-    def _set_players_from_ball_and_self(self):
+    def _set_players_from_ball_and_self(self): # TODO REMOVE THIS AND INSIDE FUNCTIONS
         self._set_teammates_from_ball()
         self._set_opponents_from_ball()
         self._set_teammates_from_self()
@@ -575,7 +575,7 @@ class WorldModel:
         return vel_count
                 
     def localize_self(self,
-                      see:SeeParser,
+                      see: SeeParser,
                       body: SenseBodyParser,
                       act: 'ActionEffector',
                       current_time: GameTime):
@@ -1115,7 +1115,11 @@ class WorldModel:
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
         self.estimate_goalie()
-        
+
+        log.sw_log().world().add_text(f'=== GOALIE UNUM ===')
+        log.sw_log().world().add_text(f'our/their goalie: {self._our_goalie_unum}/{self._their_goalie_unum}')
+
+
         self._all_players.append(self.self())
         self._our_players.append(self.self())
         for i in range(12):
@@ -1172,10 +1176,10 @@ class WorldModel:
         for p in self._opponents:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
         
@@ -1183,10 +1187,10 @@ class WorldModel:
         for p in self._unknown_players:
             x = p.pos().x()
             
-            if x < second_max_x:
+            if x > second_max_x:
                 second_max_x = x
                 
-                if second_max_x < max_x:
+                if second_max_x > max_x:
                     max_x, second_max_x = second_max_x, max_x
                     candidate = p
                     from_unknown = True
@@ -1241,6 +1245,7 @@ class WorldModel:
     def update_goalie_by_hear(self):
         SP = ServerParam.i()
         # TODO CHECK FULL STATE TIME
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE GOALIE BY HEAR {"#"*20}')
 
         if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie()) == 0:
             return
@@ -1344,6 +1349,8 @@ class WorldModel:
             o.update_more_with_full_state(self)
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
+        self._set_play_count += 1
+
         self.update_ball_by_hear(act)
         self.update_goalie_by_hear()
         self.update_players_by_hear()
@@ -1369,6 +1376,7 @@ class WorldModel:
 
         if DEBUG:
             log.sw_log().world().add_text('===After processing see message===')
+            log.sw_log().world().add_text(f'self.kickrate={self.self().kick_rate()}')
             log.sw_log().world().add_text(f'===Our Players=== {len(self.our_players())} {self._name}')
             for p in self.our_players():
                 log.sw_log().world().add_text(str(p))
@@ -1408,7 +1416,8 @@ class WorldModel:
     
     def update_players_by_hear(self):
         # TODO FULLSTATTE MODE CHECK
-        
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE PLAYER BY HEAR {"#"*20}')
+
         if self._messenger_memory.player_time() != self.time() or len(self._messenger_memory.players()) == 0:
             return
         
@@ -1417,7 +1426,7 @@ class WorldModel:
             if player.unum_ == UNUM_UNKNOWN:
                 return
             
-            side = self.our_side() if player.unum_ // 11 == 0 else self.their_side()
+            side = self.our_side() if player.unum_ <= 11 else self.their_side()
             unum = player.unum_ if player.unum_ <= 11 else player.unum_ - 11
             unum = round(unum)
 
@@ -1445,13 +1454,13 @@ class WorldModel:
                 
                 for p in self._unknown_players:
                     d = p.pos().dist(player.pos_)
-                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    if d < min_dist and d < p.pos_count()*1.2 + p.dist_from_self() *0.06:
                         min_dist = d
                         target_player = p
                         unknown = p
             if target_player:
                 target_player.update_by_hear(side, unum, False, player.pos_, player.body_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) updating player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
                 if unknown:
@@ -1466,7 +1475,7 @@ class WorldModel:
                     
                     self._opponents.append(target_player)
                 target_player.update_by_hear(side, unum, False, player.pos_, player.unum_)
-                log.sw_log().world().add_text(f'(update player by hear) '
+                log.sw_log().world().add_text(f'(update player by hear) adding player '
                                                  f's={side} u={unum} p={player.pos_} b={player.body_}')
 
             if target_player:
@@ -1485,6 +1494,7 @@ class WorldModel:
     def update_ball_by_hear(self, act: 'ActionEffector'):
         # TODO CHECK FULLSTATE MODE
 
+        log.sw_log().world().add_text(f'{"#"*20} UPDATE BALL BY HEAR {"#"*20}')
         if self._messenger_memory.ball_time() != self.time() or len(self._messenger_memory.balls()) == 0:
             return
         
@@ -1551,10 +1561,10 @@ class WorldModel:
             dir += WorldModel.DIR_STEP
     
     def dir_count(self, angle: Union[AngleDeg, float]):
-        angle = float(angle)
+        angle = AngleDeg(angle).degree()
         
         idx = int((angle - 0.5 + 180) / WorldModel.DIR_STEP)
-        if not 0 <= idx < WorldModel.DIR_CONF_DIVS:
+        if not 0 <= idx <= WorldModel.DIR_CONF_DIVS:
             log.os_log().error(f"(world model dir conf) index out of range! idx={idx}")
             idx = 0
         return self._dir_count[idx]
@@ -1610,6 +1620,7 @@ class WorldModel:
                 if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
                     removing_opponents.append(p)
                     continue
+                log.sw_log().world().add_text(f'opponent is going to be a ghost: {p}')
                 p.set_ghost()
         for p in removing_opponents:
             self._opponents.remove(p)

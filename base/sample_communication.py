@@ -61,9 +61,9 @@ class SampleCommunication:
 
         if wm.prev_ball().vel_valid():
             prev_ball_speed = wm.prev_ball().vel().r()
-            angle_diff = abs(wm.ball().vel().th() - wm.prev_ball().vel().th())
+            angle_diff = (wm.ball().vel().th() - wm.prev_ball().vel().th()).abs()
 
-            log.sw_log().communication(f'(sample communication)'
+            log.sw_log().communication().add_text(f'(sample communication)'
                                        f'prev vel={wm.prev_ball().vel()}, r={prev_ball_speed}'
                                        f'current_vel={wm.ball().vel()}, r={wm.ball().vel()}')
 
@@ -71,7 +71,7 @@ class SampleCommunication:
                     or (
                     prev_ball_speed > 0.5 and current_ball_speed < prev_ball_speed * ServerParam.i().ball_decay() / 2) \
                     or (prev_ball_speed > 0.5 and angle_diff > 20.):
-                log.sw_log().communication(f'(sample communication) ball vel changed')
+                log.sw_log().communication().add_text(f'(sample communication) ball vel changed')
                 ball_vel_changed = True
 
         if wm.self().is_kickable():
@@ -504,6 +504,10 @@ class SampleCommunication:
             and wm.intercept_table().self_reach_cycle() <= 3:
             if self._current_sender_unum != wm.self().unum() and self._current_sender_unum != UNUM_UNKNOWN:
                 agent.do_attentionto(wm.our_side(), self._current_sender_unum)
+                player = wm.our_player(self._current_sender_unum)
+                if player is not None:
+                    log.debug_client().add_circle(player.pos(), 3., color='#000088')
+                    log.debug_client().add_line(player.pos(), wm.self().pos(), '#000088')
                 log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
             else:
                 candidates: list[PlayerObject] = []
@@ -529,6 +533,8 @@ class SampleCommunication:
                 if target_teammate is not None:
                     log.sw_log().communication().add_text(f'(attentionto someone) most front teammate')
                     log.debug_client().add_message(f'AttFrontMate{target_teammate.unum()}')
+                    log.debug_client().add_circle(target_teammate.pos(), 3., color='#000088')
+                    log.debug_client().add_line(target_teammate.pos(), wm.self().pos(), '#000088')
                     agent.do_attentionto(wm.our_side(), target_teammate.unum())
                     return
 
@@ -551,6 +557,8 @@ class SampleCommunication:
             and mate_min <= 5 + min(4, fastest_teammate.pos_count()) \
             and wm.ball().inertia_point(mate_min).dist2(ef.queued_next_self_pos()) < 35.**2:
             log.debug_client().add_message(f'AttBallOwner{fastest_teammate.unum()}')
+            log.debug_client().add_circle(fastest_teammate.pos(), 3., color='#000088')
+            log.debug_client().add_line(fastest_teammate.pos(), wm.self().pos(), '#000088')
             agent.do_attentionto(wm.our_side(), fastest_teammate.unum())
             return
 
@@ -563,6 +571,8 @@ class SampleCommunication:
             and nearest_teammate.dist_from_self() < 45. \
             and nearest_teammate.dist_from_ball() < 20.:
             log.debug_client().add_message(f'AttBallNearest(1){nearest_teammate.unum()}')
+            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
@@ -571,6 +581,8 @@ class SampleCommunication:
             and wm.ball().pos_count() >= 3 \
             and nearest_teammate.dist_from_ball() < 20.:
             log.debug_client().add_message(f'AttBallNearest(2){nearest_teammate.unum()}')
+            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
@@ -579,11 +591,17 @@ class SampleCommunication:
             and nearest_teammate.dist_from_self() < 45. \
             and nearest_teammate.dist_from_ball() < 3.5:
             log.debug_client().add_message(f'AttBallNearest(3){nearest_teammate.unum()}')
+            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
         if self._current_sender_unum != wm.self().unum() and self._current_sender_unum != UNUM_UNKNOWN:
             log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
+            player = wm.our_player(self._current_sender_unum)
+            if player is not None:
+                log.debug_client().add_circle(player.pos(), 3., color='#000088')
+                log.debug_client().add_line(player.pos(), wm.self().pos(), '#000088')
             agent.do_attentionto(wm.our_side(), self._current_sender_unum)
         else:
             log.debug_client().add_message(f'AttOff')

@@ -53,6 +53,39 @@ class DebugClient:
     MAX_RECT = 50  # maximum number of rectangles in one message.
     MAX_CIRCLE = 50  # maximum number of circles in one message.
 
+    class Line:
+        def __init__(self, start:Vector2D, end: Vector2D, color: str=''):
+            self._segment: Segment2D = Segment2D(start, end)
+            self._color = color
+
+        def to_str(self):
+            s = f"(line {self._segment.origin().x():.3f} " \
+                   f"{self._segment.origin().y():.3f} " \
+                   f"{self._segment.terminal().x():.3f} " \
+                   f"{self._segment.terminal().y():.3f}"
+
+            if len(self._color) > 0:
+                s += f' "{self._color}"'
+            s += ')'
+            return s
+
+    class Circle:
+        def __init__(self, center, radius, color):
+            self._circle = Circle2D(center, radius)
+            self._color = color
+
+        def to_str(self):
+            s = f"(circle {self._circle.center().x():.3f} " \
+                f"{self._circle.center().y():.3f} " \
+                f"{self._circle.radius():.3f}"
+
+            if len(self._color) > 0:
+                s += f' "{self._color}"'
+            s+= ')'
+            return s
+
+
+
     def __init__(self):
         self._on = True
         self._connected = True
@@ -70,10 +103,10 @@ class DebugClient:
         self._target_point: Vector2D = Vector2D.invalid()
         self._message = ''
 
-        self._lines = []
+        self._lines: list[DebugClient.Line] = []
         self._triangles = []
         self._rectangles = []
-        self._circles = []
+        self._circles: list[DebugClient.Circle] = []
 
     def connect(self, hostname=team_config.HOST, port=team_config.DEBUG_CLIENT_PORT):
         pass
@@ -83,6 +116,7 @@ class DebugClient:
 
     def write_all(self, world, effector):
         self.to_str(world, effector)
+        self._main_buffer
         self.send()
         self.clear()
 
@@ -144,13 +178,13 @@ class DebugClient:
             ostr += f' (message "{str(self._message)}")'
 
         for obj in self._lines:
+            ostr += obj.to_str()
+        for obj in self._triangles: # TODO return str
             obj.to_str(ostr)
-        for obj in self._triangles:
-            obj.to_str(ostr)
-        for obj in self._rectangles:
+        for obj in self._rectangles: # TODO return str
             obj.to_str(ostr)
         for obj in self._circles:
-            obj.to_str(ostr)
+            ostr += obj.to_str()
 
         ostr += ')'
         self._main_buffer = ostr
@@ -174,7 +208,7 @@ class DebugClient:
         self._circles = []
 
     def add_message(self, msg: str):
-        self._message += msg.replace('\n', '').replace('"', '')
+        self._message += ('/' + msg.replace('\n', '').replace('"', ''))
 
     def set_target(self, unum_or_position):
         if type(unum_or_position) == int:
@@ -182,9 +216,9 @@ class DebugClient:
         else:
             self._target_point = unum_or_position
 
-    def add_line(self, start, end):
+    def add_line(self, start, end, color=''):
         if len(self._lines) < DebugClient.MAX_LINE:
-            self._lines.append(Line2D(start, end))
+            self._lines.append(DebugClient.Line(start, end,color))
 
     def add_triangle(self, v1=None, v2=None, v3=None, tri=None):
         if len(self._triangles) < DebugClient.MAX_TRIANGLE:
@@ -197,9 +231,9 @@ class DebugClient:
         if len(self._rectangles) < DebugClient.MAX_RECT:
             self._rectangles.append(rect)
 
-    def add_circle(self, center=None, radius=None, circle=None):
+    def add_circle(self, center=None, radius=None, circle=None, color=''):
         if len(self._circles) < DebugClient.MAX_CIRCLE:
             if circle:
                 self._circles.append(circle)
             else:
-                self._circles.append(Circle2D(center, radius))
+                self._circles.append(DebugClient.Circle(center, radius, color))

@@ -20,72 +20,69 @@ import team_config
 
 
 class TrainerAgent(SoccerAgent):
-    class Impl:
-        def __init__(self, agent):
-            # TODO so many things....
-            self._agent: TrainerAgent = agent
-            self._think_received = True
-            self._game_mode: GameMode = GameMode()
-            self._current_time: GameTime = GameTime()
-
-        def hear_parser(self, message: str):
-            _, sender, cycle = tuple(
-                message.split(" ")[:3]
-            )
-            if cycle.isnumeric():
-                cycle = int(cycle)
-            else:
-                return
-
-            if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
-                self.hear_player_parser(message)
-            elif sender == "referee":
-                self.hear_referee_parser(message)
-
-        def hear_player_parser(self, message):
-            pass
-
-        def hear_referee_parser(self, message: str):
-            mode = message.split(" ")[-1].strip(")")
-            self._game_mode.update(mode, self._current_time)
-
-            # TODO CARDS AND OTHER STUFF
-
-            if self._game_mode.type() is GameModeType.TimeOver:
-                self.send_bye_command()
-                return
-            self._agent.world().update_game_mode(self._game_mode, self._current_time)
-            # TODO FULL STATE WORLD update
-        def send_init_command(self):
-            # TODO check reconnection
-
-            # TODO make config class for these data
-            com = TrainerInitCommand(team_config.COACH_VERSION)
-
-            if self._agent._client.send_message(com.str()) <= 0:
-                log.os_log().error("ERROR failed to connect to server")
-                self._agent._client.set_server_alive(False)
-
-        def send_bye_command(self):
-            self._agent._client.set_server_alive(False)
-
-        @property
-        def think_received(self):
-            return self._think_received
-
-        def analyze_init(self, message):
-            self._agent.init_dlog(message)
-            self._agent.do_eye(True)
-            self._agent.do_ear(True)
-
     def __init__(self):
         super().__init__()
-        self._impl: TrainerAgent.Impl = TrainerAgent.Impl(self)
+        self._think_received = True
+        self._game_mode: GameMode = GameMode()
+        self._current_time: GameTime = GameTime()
+        
         self._world = GlobalWorldModel()
-        self._full_world = GlobalWorldModel()
         self._is_synch_mode = True
         self._last_body_command = []
 
+    def hear_parser(self, message: str):
+        _, sender, cycle = tuple(
+            message.split(" ")[:3]
+        )
+        if cycle.isnumeric():
+            cycle = int(cycle)
+        else:
+            return
+
+        if sender[0].isnumeric() or sender[0] == '-':  # PLAYER MESSAGE
+            self.hear_player_parser(message)
+        elif sender == "referee":
+            self.hear_referee_parser(message)
+
+    def hear_player_parser(self, message):
+        pass
+
+    def hear_referee_parser(self, message: str):
+        mode = message.split(" ")[-1].strip(")")
+        self._game_mode.update(mode, self._current_time)
+
+        # TODO CARDS AND OTHER STUFF
+
+        if self._game_mode.type() is GameModeType.TimeOver:
+            self.send_bye_command()
+            return
+        self.world().update_game_mode(self._game_mode, self._current_time)
+        # TODO FULL STATE WORLD update
+
+    def send_init_command(self):
+        # TODO check reconnection
+
+        # TODO make config class for these data
+        com = TrainerInitCommand(team_config.COACH_VERSION)
+
+        if self._client.send_message(com.str()) <= 0:
+            log.os_log().error("ERROR failed to connect to server")
+            self._client.set_server_alive(False)
+            return False
+        return True
+
+    def send_bye_command(self):
+        self._client.set_server_alive(False)
+
+    @property
+    def think_received(self):
+        return self._think_received
+
+    def analyze_init(self, message):
+        self.init_dlog(message)
+        self.do_eye(True)
+        self.do_ear(True)
+            
     def handle_start(self):
         if self._client is None:
             return False
@@ -97,7 +94,8 @@ class TrainerAgent(SoccerAgent):
             self._client.set_server_alive(False)
             return False
 
-        self._impl.send_init_command()
+        if not self.send_init_command():
+            return False
         return True
 
     def run(self):
@@ -112,7 +110,7 @@ class TrainerAgent(SoccerAgent):
                 elif time.time() - last_time_rec > 3:
                     self._client.set_server_alive(False)
                     break
-                if self._impl.think_received:
+                if self.think_received:
                     last_time_rec = time.time()
                     break
 
@@ -120,33 +118,34 @@ class TrainerAgent(SoccerAgent):
                 log.os_log().info(f"{team_config.TEAM_NAME} Agent : Server Down")
                 break
 
-            if self._impl.think_received:
+            if self.think_received:
                 self.action()
-                self._impl._think_received = False
+                self._think_received = False
             # TODO elif for not sync mode
 
     def parse_message(self, message):
         if message.find("(init") is not -1:
-            self._impl.analyze_init(message)
+            self.analyze_init(message)
         if message.find("server_param") is not -1:
             ServerParam.i().parse(message)
         elif message.find("(see") is not -1 or message.find("(player_type") is not -1:
-            self._full_world.parse(message)
-            self._impl._think_received = False
+            self._world.parse(message)
+            self._think_received = False
         elif message.find("think") is not -1:
-            self._impl._think_received = True
+            self._think_received = True
         elif message.find("(ok") is not -1:
             self._client.send_message(TrainerDoneCommand().str())
         elif message.find("(hear") is not -1:
-            self._impl.hear_parser(message)
+            self.hear_parser(message)
 
     def init_dlog(self, message):
-        log.setup(self.world().team_name_l(), 'coach', self._impl._current_time)
+        log.setup(self.world().team_name_l(), 'coach', self._current_time)
+        
     def world(self) -> GlobalWorldModel:
-        return self._full_world
+        return self._world
 
     def full_world(self) -> GlobalWorldModel:
-        return self._full_world
+        return self._world
 
     def action(self):
         self.action_impl()
