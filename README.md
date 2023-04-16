@@ -84,4 +84,11 @@ Configurations are listed bellow:
 - Soccer Simulation 2D League: [https://rcsoccersim.github.io/](https://rcsoccersim.github.io/)
 - Server documentation: [https://rcsoccersim.readthedocs.io/](https://rcsoccersim.readthedocs.io/)
 
-### Cite and Support 
+## Related Papers:
+- Zare N, Amini O, Sayareh A, Sarvmaili M, Firouzkouhi A, Rad SR, Matwin S, Soares A. Cyrus2D Base: Source Code Base for RoboCup 2D Soccer Simulation League. InRoboCup 2022: Robot World Cup XXV 2023 Mar 24 (pp. 140-151). Cham: Springer International Publishing. [link](https://arxiv.org/abs/2211.08585)
+- Zare N, Sarvmaili M, Sayareh A, Amini O, Matwin S, Soares A. Engineering Features to Improve Pass Prediction in Soccer Simulation 2D Games. InRobot World Cup 2022 (pp. 140-152). Springer, Cham. [link](https://www.researchgate.net/profile/Nader-Zare/publication/352414392_Engineering_Features_to_Improve_Pass_Prediction_in_Soccer_Simulation_2D_Games/links/60c9207fa6fdcc0c5c866520/Engineering-Features-to-Improve-Pass-Prediction-in-Soccer-Simulation-2D-Games.pdf)
+- Zare N, Amini O, Sayareh A, Sarvmaili M, Firouzkouhi A, Matwin S, Soares A. Improving Dribbling, Passing, and Marking Actions in Soccer Simulation 2D Games Using Machine Learning. InRobot World Cup 2021 Jun 22 (pp. 340-351). Springer, Cham. [link](https://www.researchgate.net/profile/Nader-Zare/publication/355680673_Improving_Dribbling_Passing_and_Marking_Actions_in_Soccer_Simulation_2D_Games_Using_Machine_Learning/links/617971b0a767a03c14be3e42/Improving-Dribbling-Passing-and-Marking-Actions-in-Soccer-Simulation-2D-Games-Using-Machine-Learning.pdf)
+- Akiyama, H., Nakashima, T.: Helios base: An open source package for the robocup soccer 2d simulation. In Robot Soccer World Cup 2013 Jun 24 (pp. 528-535). Springer, Berlin, Heidelberg.
+
+## Cite and Support 
+Please don't forget to cite our papers and add a star to our repository. 
