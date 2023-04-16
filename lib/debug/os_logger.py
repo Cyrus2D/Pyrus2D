@@ -1,4 +1,5 @@
 import logging
+import os.path
 from typing import Union
 
 import coloredlogs
@@ -34,14 +35,14 @@ def get_logger(unum: Union[int, str] = None, on_file=False):
             file_name = f'player-{unum}.txt'
         else:
             file_name = f'coach-log.txt'
-        ch = logging.StreamHandler(stream=open(file_name, 'w'))
+        ch = logging.StreamHandler(stream=open(os.path.join('outlog', file_name), 'w'))
         ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
                                           '%H:%M:%S:%s'))
     else:
         ch = logging.StreamHandler(stream=sys.stdout)
         ch.setFormatter(fmt=coloredFormatter)
     logger.addHandler(hdlr=ch)
-    logger.setLevel(level=logging.DEBUG)
+    logger.setLevel(level=logging.ERROR)
     return logger
 
 # logger = get_logger()

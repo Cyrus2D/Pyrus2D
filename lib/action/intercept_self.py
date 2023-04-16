@@ -242,8 +242,6 @@ class SelfIntercept:
         forward_accel_rel: Vector2D = max_forward_accel.rotated_vector(-dash_angle)
         back_accel_rel: Vector2D = max_back_accel.rotated_vector(-dash_angle)
         dash_rate = me.dash_rate() * SP.dash_dir_rate(dash_dir.degree())
-        # debug_print(
-        # f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel} ,_____ max_forward_accel={max_forward_accel} rel={forward_accel_rel} , _____ max_back_accel={max_back_accel} rel={back_accel_rel}")
         log.sw_log().intercept().add_text(
             f"self pred one dash adjust dir={dash_dir}, ball_rel={ball_rel}")
         log.sw_log().intercept().add_text(

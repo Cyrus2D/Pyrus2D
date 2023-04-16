@@ -42,6 +42,7 @@ class CoachAgent(SoccerAgent):
             log.os_log().error("ERROR failed to connect to server")
             self._client.set_server_alive(False)
             return False
+        return True
 
     def send_bye_command(self):
         if self._client.is_server_alive() is True:

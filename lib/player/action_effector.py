@@ -453,12 +453,12 @@ class ActionEffector:
         wm = self._agent.world()
 
         moment = float(moment)
-        if not (SP.min_neck_moment() < moment < SP.max_neck_moment()):
+        if not (SP.min_neck_moment() <= moment <= SP.max_neck_moment()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
 
         next_neck_angle = wm.self().neck().degree() + moment
-        if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
+        if not(SP.min_neck_angle() <= next_neck_angle <= SP.max_neck_angle()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum()}) \
                 next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
             moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
