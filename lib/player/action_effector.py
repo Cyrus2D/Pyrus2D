@@ -17,23 +17,23 @@ from lib.rcsc.server_param import ServerParam
 from lib.rcsc.types import GameModeType, SideID, ViewWidth
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
-
 
 
 class ActionEffector:
     def __init__(self, agent=None) -> None:
         self._agent: 'PlayerAgent' = agent
 
-        self._body_command: PlayerBodyCommand = None
-        self._neck_command: PlayerTurnNeckCommand = None
-        self._pointto_command: PlayerPointtoCommand = None
-        self._change_view_command: PlayerChangeViewCommand = None
-        self._change_focus_command: PlayerChangeFocusCommand = None
-        self._say_command: PlayerSayCommand = None
-        self._attentionto_command: PlayerAttentiontoCommand = None
+        self._body_command: Union[None, PlayerBodyCommand] = None
+        self._neck_command: Union[None, PlayerTurnNeckCommand] = None
+        self._pointto_command: Union[None, PlayerPointtoCommand] = None
+        self._change_view_command: Union[None, PlayerChangeViewCommand] = None
+        self._change_focus_command: Union[None, PlayerChangeFocusCommand] = None
+        self._say_command: Union[None, PlayerSayCommand] = None
+        self._attentionto_command: Union[None, PlayerAttentiontoCommand] = None
 
         self._command_counter: list[int] = [0 for _ in range(len(CommandType))]
         self._last_body_commands: list[CommandType] = [CommandType.ILLEGAL for _ in range(2)]
@@ -87,8 +87,7 @@ class ActionEffector:
     def inc_command_type(self, type: CommandType):
         self._command_counter[type.value] += 1
 
-
-    def check_command_count_with_fullstate_parser(self, full_sensor: FullStateWorldMessageParser): # TODO CALL it
+    def check_command_count_with_fullstate_parser(self, full_sensor: FullStateWorldMessageParser):  # TODO CALL it
         wm = self._agent.world()
         if full_sensor.kick_count() != self._command_counter[CommandType.KICK.value]:
             log.os_log().error(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
@@ -170,13 +169,13 @@ class ActionEffector:
             log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            self._command_counter[CommandType.CHANGE_VIEW.value] =   full_sensor.change_view_count()
+            self._command_counter[CommandType.CHANGE_VIEW.value] = full_sensor.change_view_count()
 
         if full_sensor.say_count() != self._command_counter[CommandType.SAY.value]:
             log.os_log().error(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            self._command_counter[CommandType.SAY.value]  = full_sensor.say_count()
+            self._command_counter[CommandType.SAY.value] = full_sensor.say_count()
 
         # if body_sensor.pointto_count() != self._command_counter[CommandType.POINTTO.value]:
         #     log.os_log().error(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
@@ -189,7 +188,6 @@ class ActionEffector:
         #     log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
         #     log.debug_client().add_message(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
         #     self._command_counter[CommandType.ATTENTIONTO.value] =   full_sensor.attentionto_count()
-
 
     def check_command_count(self, body_sensor: SenseBodyParser):
         wm = self._agent.world()
@@ -277,49 +275,49 @@ class ActionEffector:
             log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            self._command_counter[CommandType.CHANGE_VIEW.value] =   body_sensor.change_view_count()
+            self._command_counter[CommandType.CHANGE_VIEW.value] = body_sensor.change_view_count()
 
         if body_sensor.say_count() != self._command_counter[CommandType.SAY.value]:
             log.os_log().error(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            self._command_counter[CommandType.SAY.value]  = body_sensor.say_count()
+            self._command_counter[CommandType.SAY.value] = body_sensor.say_count()
 
         if body_sensor.pointto_count() != self._command_counter[CommandType.POINTTO.value]:
             log.os_log().error(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-            self._command_counter[CommandType.POINTTO.value]  = body_sensor.pointto_count()
+            self._command_counter[CommandType.POINTTO.value] = body_sensor.pointto_count()
 
         if body_sensor.attentionto_count() != self._command_counter[CommandType.ATTENTIONTO.value]:
             log.os_log().error(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
             log.debug_client().add_message(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
-            self._command_counter[CommandType.ATTENTIONTO.value] =   body_sensor.attentionto_count()
+            self._command_counter[CommandType.ATTENTIONTO.value] = body_sensor.attentionto_count()
 
     @staticmethod
     def conserve_dash_power(wm: 'WorldModel', power, rel_dir):
-        log.sw_log().action().add_text( f"(conserved dash power) power={power}")
+        log.sw_log().action().add_text(f"(conserved dash power) power={power}")
 
         SP = ServerParam.i()
         required_stamina = power
         available_stamina = wm.self().stamina() + wm.self().player_type().extra_stamina()
 
         if available_stamina < required_stamina:
-            log.sw_log().action().add_text( f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")
+            log.sw_log().action().add_text(f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")
             power = available_stamina
 
         dir_rate = SP.dash_dir_rate(rel_dir)
-        accel_mag = abs(power*dir_rate*wm.self().dash_rate())
+        accel_mag = abs(power * dir_rate * wm.self().dash_rate())
         accel_angle = wm.self().body() + rel_dir
         _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel(),
-                                                accel_angle=accel_angle,
-                                                accel_mag=accel_mag)
+                                                               accel_angle=accel_angle,
+                                                               accel_mag=accel_mag)
 
         power = accel_mag / wm.self().dash_rate() / dir_rate
         power = SP.normalize_dash_power(power)
 
-        log.sw_log().action().add_text( f"(conserved dash power) conserved power={power}")
+        log.sw_log().action().add_text(f"(conserved dash power) conserved power={power}")
 
         return power
 
@@ -329,13 +327,13 @@ class ActionEffector:
         rel_dir = float(rel_dir)
 
         if power < ServerParam.i().min_power() or power > ServerParam.i().max_power():
-            log.os_log().error(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().warn(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             power = ServerParam.i().max_power() if power > 100 else ServerParam.i().min_power()
 
-        log.sw_log().action().add_text( f"(set kick) power={power}, rel_dir={rel_dir}")
+        log.sw_log().action().add_text(f"(set kick) power={power}, rel_dir={rel_dir}")
         self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate(),
                                                  wm.self().body() + rel_dir)
-        max_rand = wm.self().player_type().kick_rand()*power/ServerParam.i().max_power()
+        max_rand = wm.self().player_type().kick_rand() * power / ServerParam.i().max_power()
         self._kick_accel_error = Vector2D(max_rand, max_rand)
 
         self._body_command = PlayerKickCommand(power, rel_dir)
@@ -348,11 +346,11 @@ class ActionEffector:
         rel_dir = float(rel_dir)
 
         if power > SP.max_dash_power() or power < SP.min_dash_power():
-            log.os_log().error(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().warn(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_power(power)
 
         if rel_dir > SP.max_dash_angle() or rel_dir < SP.min_dash_angle():
-            log.os_log().error(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().warn(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_angle(rel_dir)
 
         rel_dir = SP.discretize_dash_angle(rel_dir)
@@ -360,7 +358,7 @@ class ActionEffector:
         power = ActionEffector.conserve_dash_power(wm, power, rel_dir)
 
         dir_rate = SP.dash_dir_rate(rel_dir)
-        accel_mag = abs(power*dir_rate*wm.self().dash_rate())
+        accel_mag = abs(power * dir_rate * wm.self().dash_rate())
         accel_mag = min(accel_mag, SP.player_accel_max())
         accel_angle = wm.self().body() + rel_dir
 
@@ -368,7 +366,7 @@ class ActionEffector:
         self._dash_dir = rel_dir
         self._dash_accel = Vector2D.polar2vector(accel_mag, accel_angle)
 
-        log.sw_log().action().add_text( f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
+        log.sw_log().action().add_text(f"(set dash) power={power}, rel_dir={rel_dir}, accel={self._dash_accel}")
 
         self._body_command = PlayerDashCommand(power, rel_dir)
         return self._body_command
@@ -381,13 +379,13 @@ class ActionEffector:
 
         moment *= 1 + speed * wm.self().player_type().inertia_moment()
         if moment > SP.max_moment() or moment < SP.min_moment():
-            log.os_log().error(f"(set turn) player({wm.self().unum()}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
+            log.os_log().warn(f"(set turn) player({wm.self().unum()}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
             moment = SP.max_moment() if moment > SP.max_moment() else SP.min_moment()
 
-        self._turn_actual = moment / (1 + speed*wm.self().player_type().inertia_moment())
-        self._turn_error = abs(SP.player_rand()*self._turn_actual)
+        self._turn_actual = moment / (1 + speed * wm.self().player_type().inertia_moment())
+        self._turn_error = abs(SP.player_rand() * self._turn_actual)
 
-        log.sw_log().action().add_text( f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
+        log.sw_log().action().add_text(f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
         log.os_log().debug(f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
 
         self._body_command = PlayerTurnCommand(round(moment, 2))
@@ -398,21 +396,21 @@ class ActionEffector:
         wm = self._agent.world()
 
         if abs(x) > SP.pitch_half_length() or abs(y) > SP.pitch_half_width():
-            log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
+            log.os_log().warn(f"(set move) player({wm.self().unum()}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
             x = min_max(-SP.pitch_half_length(), x, SP.pitch_half_length())
             y = min_max(-SP.pitch_half_width(), y, SP.pitch_half_width())
 
         if SP.kickoff_offside() and x > 0:
-            log.os_log().error(f"(set move) player({wm.self().unum()}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
+            log.os_log().warn(f"(set move) player({wm.self().unum()}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
             x = -0.1
 
         if wm.game_mode().type().is_goalie_catch_ball() and wm.game_mode().side() == wm.our_side():
             if x < -SP.pitch_half_length() + 1 or x > -SP.our_penalty_area_line_x() - 1:
-                log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
-                x = min_max(-SP.pitch_half_length()+1, x, -SP.our_penalty_area_line_x()-1)
-            if abs(y) > SP.penalty_area_half_width() -1:
-                log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
-                y = min_max(-SP.penalty_area_half_width(),y, SP.penalty_area_half_width())
+                log.os_log().warn(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                x = min_max(-SP.pitch_half_length() + 1, x, -SP.our_penalty_area_line_x() - 1)
+            if abs(y) > SP.penalty_area_half_width() - 1:
+                log.os_log().warn(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                y = min_max(-SP.penalty_area_half_width(), y, SP.penalty_area_half_width())
 
         self._move_pos.assign(x, y)
 
@@ -423,7 +421,7 @@ class ActionEffector:
         SP = ServerParam.i()
         wm = self._agent.world()
 
-        diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w()*0.5, SP.catch_area_l())
+        diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w() * 0.5, SP.catch_area_l())
         ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
         catch_angle = (ball_rel_angle + diagonal_angle).degree()
 
@@ -438,7 +436,7 @@ class ActionEffector:
 
         dir = float(dir)
         if abs(dir) > 180:
-            log.os_log().error(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. dir={dir}")
+            log.os_log().warn(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. dir={dir}")
             dir = AngleDeg.normalize_angle(dir)
 
         self._tackle_power = ServerParam.i().max_tackle_power()
@@ -451,15 +449,14 @@ class ActionEffector:
     def set_turn_neck(self, moment: Union[AngleDeg, float]):
         SP = ServerParam.i()
         wm = self._agent.world()
-
-        moment = float(moment)
+        moment = float(AngleDeg(moment))
         if not (SP.min_neck_moment() <= moment <= SP.max_neck_moment()):
-            log.os_log().error(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
+            log.os_log().warn(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
 
-        next_neck_angle = wm.self().neck().degree() + moment
-        if not(SP.min_neck_angle() <= next_neck_angle <= SP.max_neck_angle()):
-            log.os_log().error(f"(set turn neck) player({wm.self().unum()}) \
+        next_neck_angle = (wm.self().neck() + moment).degree()
+        if not (SP.min_neck_angle() <= next_neck_angle <= SP.max_neck_angle()):
+            log.os_log().warn(f"(set turn neck) player({wm.self().unum()}) \
                 next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
             moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
         self._turn_neck_moment = moment
@@ -480,7 +477,7 @@ class ActionEffector:
     def set_pointto(self, x, y):
         wm = self._agent.world()
 
-        target = Vector2D(x,y)
+        target = Vector2D(x, y)
         target = target - wm.self().pos()
         target.rotate(-wm.self().face())
 
@@ -588,7 +585,7 @@ class ActionEffector:
         if len(self._messages) == 0:
             return None
 
-        say_command =  PlayerSayCommand(Messenger.encode_all(self._messages))
+        say_command = PlayerSayCommand(Messenger.encode_all(self._messages))
         if len(say_command.message()) == 0:
             return None
 
@@ -657,8 +654,8 @@ class ActionEffector:
         if not wm.ball().pos_valid():
             return Vector2D.invalid()
 
-        vel = Vector2D(0,0)
-        accel = Vector2D(0,0)
+        vel = Vector2D(0, 0)
+        accel = Vector2D(0, 0)
 
         if wm.ball().vel_valid():
             vel = wm.ball().vel()
@@ -706,15 +703,3 @@ class ActionEffector:
 
     def catch_time(self):
         return self._catch_time
-
-
-
-
-
-
-
-
-
-
-
-
