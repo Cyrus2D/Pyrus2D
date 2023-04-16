@@ -310,7 +310,6 @@ class PlayerAgent(SoccerAgent):
         return self._see_state
 
     def run(self):
-        log.os_log().error('@#RUN')
         last_time_rec = time.time()
         waited_msec: int = 0
         timeout_count: int = 0
@@ -320,27 +319,21 @@ class PlayerAgent(SoccerAgent):
                 waited_msec += team_config.SOCKET_INTERVAL
                 timeout_count += 1
                 if time.time() - last_time_rec > 3:
-                    log.os_log().error(f'@####time time.time() - last_time_rec')
                     self._client.set_server_alive(False)
                     break
             else:
-                log.os_log().error('@####' + str(message[:20]))
                 self.parse_message(message.decode())
                 last_time_rec = time.time()
                 waited_msec = 0
                 timeout_count = 0
 
             if ServerParam.i().synch_mode():
-                log.os_log().error('@## synch mode')
                 if self.think_received():
-                    log.os_log().error('@## go action')
                     self.action()
                     self.debug_players()
                     self._think_received = False
-                    log.os_log().error('@## think false')
             else:
                 if self.is_decision_time(timeout_count, waited_msec) or (self._last_decision_time != self._current_time and self.world().see_time() == self._current_time):
-                    log.os_log().error('@#### act dec time')
                     self.action()
             self.flush_logs()
             if len(message) > 0:

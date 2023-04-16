@@ -16,7 +16,7 @@ class SoccerAgent:
                             help='Team name to display')
 
         parser.add_argument('-o', '--out',
-                            help='Output type(values->[std, unum]). std for print on standard stream, unum for print to seperated files.')
+                            help='Output type(values->[std, textfile]). std for print on standard stream, unum for print to seperated files.')
 
         parser.add_argument('-H', '--host',
                             help='Server IP address')
