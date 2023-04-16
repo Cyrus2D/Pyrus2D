@@ -19,7 +19,8 @@ binary/
 
 test.py
 
-*.txt
+player-*.txt
+player-*.err
 log
 .gitignore
 test-log
