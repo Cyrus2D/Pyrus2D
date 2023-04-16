@@ -11,13 +11,16 @@ can connect to RoboCup Soccer Server and play a game.
 Also, researchers can use the trainer to control the server for training proposes.
 
 
-### Dependencies
-#### RoboCup Soccer Simulation Server and Monitor
+## Dependencies
+
+---
+
+### RoboCup Soccer Simulation Server and Monitor
 Install rcssserver and rcssmonitor (soccer window for debugging proposes)
 - rcssserver: [https://github.com/rcsoccersim/rcssserver](https://github.com/rcsoccersim/rcssserver)
 - rcssmonitor: [https://github.com/rcsoccersim/rcssmonitor](https://github.com/rcsoccersim/rcssmonitor)
 - soccer window: [https://github.com/helios-base/soccerwindow2](https://github.com/helios-base/soccerwindow2)
-#### Python requirements
+### Python requirements
 - Python v3.9
 - coloredlogs==15.0.1
 - pyrusgeom==0.1.2
@@ -27,8 +30,11 @@ Install rcssserver and rcssmonitor (soccer window for debugging proposes)
 pip install -r requirements.txt
 ```
 
-### How to start quickly?
-#### Run team (11 players and 1 coach)
+## Quick Start
+
+---
+
+### Run team (11 players and 1 coach)
 To run the team there are some options,
 - running agents(players and coach execute separately)
 ```bash
@@ -47,7 +53,10 @@ cd Pyrus2D
 python main.py
 ```
 
-### Start team by arguments
+## Start team by arguments
+
+---
+
 To modify team configuration, you can pass the arguments or update ```team_config.py```.
 
 Configurations are listed bellow:
@@ -78,7 +87,7 @@ Configurations are listed bellow:
 ```
 
 
-### Useful links:
+## Useful links:
 - CYRUS team: [https://cyrus2d.com/](https://cyrus2d.com/)
 - RoboCup: [https://www.robocup.org/](https://www.robocup.org/)
 - Soccer Simulation 2D League: [https://rcsoccersim.github.io/](https://rcsoccersim.github.io/)
