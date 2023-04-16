@@ -3,11 +3,12 @@ from enum import Enum
 
 class OUT_OPTION(Enum):
     STDOUT = 'std'
-    UNUM= 'unum'
+    TEXTFILE = 'textfile'
+
 
 TEAM_NAME = "PYRUS"
-OUT = OUT_OPTION.UNUM
-HOST= 'localhost'
+OUT = OUT_OPTION.TEXTFILE
+HOST = 'localhost'
 PLAYER_PORT = 6000
 TRAINER_PORT = 6001
 COACH_PORT = 6002

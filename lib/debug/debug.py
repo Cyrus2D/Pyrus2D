@@ -17,7 +17,7 @@ class DebugLogger:
     def setup(self, team_name, unum, time):
         sys.stderr = open(f'player-{unum}.err', 'w')
         self._sw_log = SoccerWindow_Logger(team_name, unum, time)
-        self._os_log = get_logger(unum, team_config.OUT == team_config.OUT_OPTION.UNUM)
+        self._os_log = get_logger(unum, team_config.OUT == team_config.OUT_OPTION.TEXTFILE)
         self._debug_client = DebugClient()
 
     def sw_log(self):

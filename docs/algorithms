@@ -1,5 +1,5 @@
 BasicClient::run()
-    BasicClient::run_online() # TODO REMOVE IT?
+    BasicClient::run_online()
         PlayerAgent::run()
             PlayerAgent::parse_message()
                 PlayerAgent::parse_sense_body_message()
@@ -22,7 +22,7 @@ BasicClient::run()
                     PlayerAgent::hear_player_parser
                     PlayerAgent::hear_referee_parser
             PlayerAgent::action()
-                PlayerAgent::update_before_decision # TODO Call world.updates out of PlayerAgent::action()
+                PlayerAgent::update_before_decision
                     PlayerAgent::update_real_world_before_decision
                         ActionEffector::check_command_count
                         WorldModel::update_by_last_cycle
@@ -48,7 +48,7 @@ BasicClient::run()
                         //real_world.update_world_after_sense_body
                         //    SelfObject::update_self_after_sense_body
                         PlayerAgent::full_world.update_by_full_state_message
-                            CreatePlayers # TODO just update their stats, don't delete them then create them again!!
+                            CreatePlayers
                         PlayerAgent::full_world.update_just_before_decision
                             # LOTS OF UPDATES
                 KickTable::create_table
