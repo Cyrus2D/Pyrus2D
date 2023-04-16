@@ -116,7 +116,6 @@ class SoccerWindow_Logger:
         ]
 
     def flush(self):
-        print(self._time, self._time.cycle())
         if self._time is None or self._time.cycle() == 0:
             return
         for l in self._levels:
