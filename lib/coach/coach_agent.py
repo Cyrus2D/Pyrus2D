@@ -56,6 +56,7 @@ class CoachAgent(SoccerAgent):
         return self._think_received
 
     def analyze_init(self, message):
+        self.world().self_parser(message)
         self.init_dlog(message)
         self.do_eye(True)
 
@@ -176,6 +177,7 @@ class CoachAgent(SoccerAgent):
             # TODO elif for not sync mode
 
     def parse_message(self, message):
+        print(f"MSG: {message}")
         if message.find("(init") != -1:  # TODO Use startwith instead of find
             self.analyze_init(message)
         elif message.find("(server_param") != -1:
