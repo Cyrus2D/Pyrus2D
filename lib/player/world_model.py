@@ -185,7 +185,13 @@ class WorldModel:
         Object.reverse_list(self._their_players)
 
     def team_name(self):
-        return self._team_name
+        return self._our_team_name
+    
+    def our_team_name(self):
+        return self._our_team_name
+    
+    def their_team_name(self):
+        return self._their_team_name
 
     def _update_players(self): # TODO REMOVE IT
         self._exist_kickable_teammates = False
