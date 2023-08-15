@@ -43,78 +43,6 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._relation_pos_count_thr: Union[None, int] = None
         self._vel_count_thr: Union[None, int] = None
 
-    def pos(self) -> Vector2D:
-        return self._pos.copy()
-
-    def pos_error(self) -> Vector2D:
-        return self._pos_error.copy()
-
-    def pos_count(self) -> int:
-        return self._pos_count
-
-    def possible_posses(self) -> list[Vector2D]:
-        return self._possible_poses
-
-    def seen_pos(self) -> Vector2D:
-        return self._seen_pos.copy()
-
-    def seen_pos_error(self) -> Vector2D:
-        raise Exception("Object.seen_pos_error is not implemented")
-
-    def seen_pos_count(self) -> int:
-        return self._seen_pos_count
-
-    def heard_pos(self) -> Vector2D:
-        return self._heard_pos
-
-    def heard_pos_count(self) -> int:
-        return self._heard_pos_count
-
-    def vel(self) -> Vector2D:
-        return self._vel.copy()
-
-    def vel_error(self) -> Vector2D:
-        return self._vel_error.copy()
-
-    def vel_count(self) -> int:
-        return self._vel_count
-
-    def seen_vel(self) -> Vector2D:
-        return self._seen_vel.copy()
-
-    def seen_vel_count(self) -> int:
-        return self._seen_vel_count
-
-    def rpos(self) -> Vector2D:
-        return self._rpos.copy()
-
-    def rpos_error(self) -> Vector2D:
-        return self._rpos_error.copy()
-
-    def rpos_count(self) -> int:
-        return self._rpos_count
-
-    def seen_rpos(self) -> Vector2D:
-        return self._seen_rpos
-
-    def seen_rpos_error(self) -> Vector2D:
-        return self._seen_rpos_error
-
-    def dist_from_self(self) -> float:
-        return self._dist_from_self
-
-    def angle_from_self(self) -> AngleDeg:
-        return self._angle_from_self
-
-    def dist_from_ball(self) -> float:
-        return self._dist_from_ball
-
-    def angle_from_ball(self) -> AngleDeg:
-        return self._angle_from_ball
-
-    def ghost_count(self):
-        return self._ghost_count
-
     def vel_valid(self):
         return self.vel_count() < self._vel_count_thr
 
@@ -185,6 +113,3 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
 
     def __str__(self):
         return f'''pos: {self.pos()} vel:{self.vel()}'''
-
-    def heard_vel_count(self):
-        return self._heard_vel_count
