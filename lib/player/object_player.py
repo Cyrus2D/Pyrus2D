@@ -96,20 +96,20 @@ class PlayerObject(Object):
         self.kickable = ika
 
     def is_kickable(self, buf=0.05):
-        if self.player_type() is None:
+        if self.player_type is None:
             return self.dist_from_ball() < ServerParam.i().kickable_area()
-        return self.dist_from_ball() < self.player_type().kickable_area() - buf
+        return self.dist_from_ball() < self.player_type.kickable_area() - buf
 
     def inertia_point(self, n_step):
-        return self.player_type().inertia_point(self.pos(), self.vel(), n_step)
+        return self.player_type.inertia_point(self.pos, self.vel, n_step)
 
     def inertia_final_point(self):
-        return inertia_final_point(self.pos(),
-                                   self.vel(),
+        return inertia_final_point(self.pos,
+                                   self.vel,
                                    ServerParam.i().default_player_decay())
 
     def dash_rate(self):
-        return self.effort() * self.player_type().dash_power_rate()
+        return self.stamina_model.effort() * self.player_type.dash_power_rate()
 
     def is_frozen(self):
         return False
@@ -118,7 +118,7 @@ class PlayerObject(Object):
         return self.ghost_count > 0
 
     def get_safety_dash_power(self, dash_power):
-        return self.stamina_model().get_safety_dash_power(self.player_type(),
+        return self.stamina_model.get_safety_dash_power(self.player_type,
                                                           dash_power)
     
     def body_valid(self):
@@ -130,7 +130,7 @@ class PlayerObject(Object):
             self.pos_history = self.pos_history[:-1]
         
         if self.vel_valid():
-            self.pos += self.vel()
+            self.pos += self.vel
         
         self.unum_count = min(1000, self.unum_count + 1)
         self.pos_count = min(1000, self.pos_count + 1)
@@ -180,8 +180,8 @@ class PlayerObject(Object):
         elif (0 < self.pos_count <= 2
               and player.rpos_.r2() < 40**2):
             
-            speed_max = self.player_type().real_speed_max() if self.player_type else SP.default_player_real_speed_max()
-            decay = self.player_type().player_decay() if self.player_type() else SP.default_player_decay()
+            speed_max = self.player_type.real_speed_max() if self.player_type else SP.default_player_real_speed_max()
+            decay = self.player_type.player_decay() if self.player_type else SP.default_player_decay()
             self.vel = last_seen_move / last_seen_pos_count
             tmp = self.vel.r()
 
@@ -211,9 +211,9 @@ class PlayerObject(Object):
             self.body_count = max(0, last_seen_pos_count - 1)
             self.face = AngleDeg(0)
             self.face_count = 1000
-        elif self.vel_valid() and self.vel().r2() > 0.2**2:
-            self.body = self.vel().th()
-            self.body_count = self.vel_count()
+        elif self.vel_valid() and self.vel.r2() > 0.2**2:
+            self.body = self.vel.th()
+            self.body_count = self.vel_count
             self.face = AngleDeg(0)
             self.face_count = 1000
             
@@ -231,10 +231,10 @@ class PlayerObject(Object):
     def update_self_ball_related(self,
                                  self_pos: Vector2D,
                                  ball_pos: Vector2D):
-        self.dist_from_self = (self.pos() - self_pos).r()
-        self.angle_from_self = (self.pos() - self_pos).th()
-        self.dist_from_ball = (self.pos() - ball_pos).r()
-        self.angle_from_ball = (self.pos() - ball_pos).th()
+        self.dist_from_self = (self.pos - self_pos).r()
+        self.angle_from_self = (self.pos - self_pos).th()
+        self.dist_from_ball = (self.pos - ball_pos).r()
+        self.angle_from_ball = (self.pos - ball_pos).th()
     
     def set_team(self, side: SideID, unum: int, goalie: bool):
         self.side = side
@@ -267,7 +267,7 @@ class PlayerObject(Object):
             self.unum_count = 2
             
         if (self.seen_pos_count >= 2
-            or (self.seen_pos_count > 0 and self.dist_from_self() > 20)):
+            or (self.seen_pos_count > 0 and self.dist_from_self > 20)):
             self.pos = pos.copy()
             self.pos_count = 1
         
@@ -309,7 +309,7 @@ class PlayerObject(Object):
         return res
 
     def __str__(self):
-        return f'''Player side:{self.side.name} unum:{self.unum} pos:{self.pos()} vel:{self.vel()} body:{self.body} poscount:{self.pos_count} ghostcount:{self.ghost_count}'''
+        return f'''Player side:{self.side.name} unum:{self.unum} pos:{self.pos} vel:{self.vel} body:{self.body} poscount:{self.pos_count} ghostcount:{self.ghost_count}'''
 
     def __repr__(self):
         return self.__str__()
