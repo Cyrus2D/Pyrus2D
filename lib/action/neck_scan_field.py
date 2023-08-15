@@ -175,7 +175,7 @@ class NeckScanField(NeckAction):
         if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self() > 2:
             return NeckScanField.INVALID_ANGLE
         
-        next_self_pos = wm.self().pos() + wm.self().vel()
+        next_self_pos = wm.self().pos + wm.self().vel
         pitch_x_thr = SP.pitch_half_length() - 15.
         pitch_y_thr = SP.pitch_half_length() - 10. # TODO WIDTH MAYBE(it was on librcsc tho...)
         

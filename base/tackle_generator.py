@@ -110,16 +110,16 @@ class TackleGenerator:
 
     def evaluate(self, wm, result: TackleAction):
         SP = ServerParam.i()
-        ball_end_point = inertia_final_point(wm.ball().pos(),
+        ball_end_point = inertia_final_point(wm.ball().pos,
                                              result._ball_vel,
                                              SP.ball_decay())
 
-        ball_line = Segment2D(wm.ball().pos(), ball_end_point)
+        ball_line = Segment2D(wm.ball().pos, ball_end_point)
         ball_speed = result._ball_speed
         ball_move_angle = result._ball_move_angle
 
         if ball_end_point.x() > SP.pitch_half_length() \
-            and wm.ball().pos().dist2(SP.their_team_goal_pos()) < 20**2:
+            and wm.ball().pos.dist2(SP.their_team_goal_pos()) < 20**2:
 
             goal_line = Line2D(Vector2D(SP.pitch_half_length(), 10),
                                Vector2D(SP.pitch_half_length(), -10))
@@ -145,7 +145,7 @@ class TackleGenerator:
                 shoot_score = y_penalty + speed_bonus
                 return shoot_score
 
-        opponent_reach_step = self.predict_opponents_reach_step(wm, wm.ball().pos(), result._ball_vel, ball_move_angle)
+        opponent_reach_step = self.predict_opponents_reach_step(wm, wm.ball().pos, result._ball_vel, ball_move_angle)
         final_point = inertia_n_step_point(wm.ball().pos(), result._ball_vel, opponent_reach_step, SP.ball_decay())
 
         final_segment = Segment2D(wm.ball().pos(), final_point)

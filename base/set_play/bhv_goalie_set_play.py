@@ -50,7 +50,7 @@ class Bhv_GoalieSetPlay:
             return True
 
         if not Bhv_GoalieSetPlay._first_move:
-            move_point = Vector2D(SP.our_penalty_area_line_x() - 1.5, -13. if wm.ball().pos().y() < 0 else 13.)
+            move_point = Vector2D(SP.our_penalty_area_line_x() - 1.5, -13. if wm.ball().pos.y() < 0 else 13.)
             log.os_log().debug(f'### goalie set play move_point={move_point}')
             Bhv_GoalieSetPlay._first_move = True
             Bhv_GoalieSetPlay._second_move = False
@@ -107,7 +107,7 @@ class Bhv_GoalieSetPlay:
         for p in points:
             score = 0
             for o in agent.world().opponents_from_self():
-                score += 1. / o.pos().dist2(p)
+                score += 1. / o.pos.dist2(p)
             candids.append((p, score))
 
         best_pos = candids[0][0]

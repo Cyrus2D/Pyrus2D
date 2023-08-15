@@ -28,7 +28,7 @@ class TurnToPoint:
     def execute(self, agent: 'PlayerAgent'):
         me = agent.world().self()
 
-        if not me.pos().is_valid():
+        if not me.pos.is_valid():
             return agent.do_turn(60)
 
         my_point = me.inertia_point(self._cycle)

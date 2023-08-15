@@ -70,16 +70,16 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._update_dist_from_self(wm)
 
     def update_more_with_full_state(self, wm: 'WorldModel'):
-        self.rpos = self.pos - wm.self().pos()
+        self.rpos = self.pos - wm.self().pos
         self.rpos_count = 0
-        self.seen_rpos = self.pos - wm.self().pos()
-        self.dist_from_self: float = wm.self().pos().dist(self.pos)
-        self.angle_from_self: AngleDeg = (wm.self().pos() - self.pos).th()
-        self.dist_from_ball: float = (wm.ball().pos() - self.pos)
-        self.angle_from_ball: AngleDeg = (wm.ball().pos() - self.pos).th()
+        self.seen_rpos = self.pos - wm.self().pos
+        self.dist_from_self: float = wm.self().pos.dist(self.pos)
+        self.angle_from_self: AngleDeg = (wm.self().pos - self.pos).th()
+        self.dist_from_ball: float = (wm.ball().pos - self.pos)
+        self.angle_from_ball: AngleDeg = (wm.ball().pos - self.pos).th()
 
     def _update_rpos(self, wm):
-        self.rpos: Vector2D = self.pos - wm.self().pos()
+        self.rpos: Vector2D = self.pos - wm.self().pos
 
     def _update_dist_from_self(self, wm):
         self.dist_from_self = self.rpos.r()

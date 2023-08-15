@@ -30,9 +30,9 @@ class BhvShhotGen(BhvKickGen):
         goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos()) * 0.042)
         goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos()) * 0.042)
 
-        if wm.self().pos().x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos().abs_y() < SP.i().goal_half_width():
-            goal_l._x = wm.self().pos().x() + 1.5
-            goal_r._x = wm.self().pos().x() + 1.5
+        if wm.self().pos.x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos.abs_y() < SP.i().goal_half_width():
+            goal_l._x = wm.self().pos.x() + 1.5
+            goal_r._x = wm.self().pos.x() + 1.5
 
         DIST_DIVS = 25
         dist_step = abs(goal_l.y() - goal_r.y()) / (DIST_DIVS - 1)
@@ -68,7 +68,7 @@ class BhvShhotGen(BhvKickGen):
                                                 or wm.game_mode().is_penalty_kick_mode() \
             else wm.self().kick_rate() * sp.max_power()
 
-        ball_move_dist = wm.ball().pos().dist(target_point)
+        ball_move_dist = wm.ball().pos.dist(target_point)
 
         max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel())
         max_one_step_speed = max_one_step_vel.r()
@@ -123,14 +123,14 @@ class BhvShhotGen(BhvKickGen):
             if opp.is_tackling():
                 log.sw_log().shoot().add_text( '## opp {} can not, tackle')
                 continue
-            if opp.pos().x() < opponent_x_thr:
+            if opp.pos.x() < opponent_x_thr:
                 log.sw_log().shoot().add_text( '## opp {} can not, xthr')
                 continue
-            if opp.pos().abs_y() > opponent_y_thr:
+            if opp.pos.abs_y() > opponent_y_thr:
                 log.sw_log().shoot().add_text( '## opp {} can not, ythr')
                 continue
 
-            if (ball_move_angle - (opp.pos() - wm.ball().pos()).th()).abs() > 90.0:
+            if (ball_move_angle - (opp.pos - wm.ball().pos()).th()).abs() > 90.0:
                 log.sw_log().shoot().add_text( '## opp {} can not, angle')
                 continue
 
@@ -159,7 +159,7 @@ class BhvShhotGen(BhvKickGen):
         CONTROL_AREA_BUF = 0.15
         sp = SP.i()
         ptype = goalie.player_type()
-        min_cycle = Tools.estimate_min_reach_cycle(goalie.pos(), ptype.real_speed_max(), wm.ball().pos(),
+        min_cycle = Tools.estimate_min_reach_cycle(goalie.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
         if min_cycle < 0:
             return False
@@ -169,7 +169,7 @@ class BhvShhotGen(BhvKickGen):
         max_cycle = course.ball_reach_step
 
         for cycle in range(min_cycle, max_cycle):
-            ball_pos = smath.inertia_n_step_point(wm.ball().pos(), course.first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = smath.inertia_n_step_point(wm.ball().pos, course.first_ball_vel, cycle, sp.ball_decay())
             if ball_pos.x() > sp.pitch_half_length():
                 break
             in_penalty_area = penalty_area.contains(ball_pos)

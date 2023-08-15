@@ -112,8 +112,8 @@ class GoToPoint:
         goal_post_r = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(),
                                +SP.i().goal_half_width() + SP.i().goal_post_radius())
 
-        dist_post_l = wm.self().pos().dist2(goal_post_l)
-        dist_post_r = wm.self().pos().dist2(goal_post_r)
+        dist_post_l = wm.self().pos.dist2(goal_post_l)
+        dist_post_r = wm.self().pos.dist2(goal_post_r)
 
         nearest_post = goal_post_l
         if dist_post_l > dist_post_r:
@@ -124,7 +124,7 @@ class GoToPoint:
             return
 
         post_circle = Circle2D(nearest_post, collision_dist)
-        move_line = Segment2D(wm.self().pos(), self._target)
+        move_line = Segment2D(wm.self().pos, self._target)
         if len(post_circle.intersection(move_line)) == 0:
             return
 

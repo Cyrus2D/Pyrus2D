@@ -81,7 +81,7 @@ class InterceptTable:
                 log.sw_log().intercept().add_text( "(intercept update) GAMEMODE RETURN")
             return
 
-        if not wm.self().pos().is_valid() or not wm.ball().pos().is_valid():
+        if not wm.self().pos.is_valid() or not wm.ball().pos.is_valid():
             log.sw_log().intercept().add_text( "(intercept update) self pos or ball pos is not valid")
             return
         
@@ -93,19 +93,19 @@ class InterceptTable:
         if self._fastest_teammate is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Teammate, fastest reach step={self._teammate_reach_cycle}"
-                          f"teammate {self._fastest_teammate.unum()} {self._fastest_teammate.pos()}")
+                          f"teammate {self._fastest_teammate.unum()} {self._fastest_teammate.pos}")
         if self._second_teammate is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Teammate2nd, fastest reach step={self._second_teammate_reach_cycle}"
-                          f"teammate {self._second_teammate.unum()} {self._second_teammate.pos()}")
+                          f"teammate {self._second_teammate.unum()} {self._second_teammate.pos}")
         if self._fastest_opponent is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Opponent, fastest reach step={self._opponent_reach_cycle}"
-                          f"teammate {self._fastest_opponent.unum()} {self._fastest_opponent.pos()}")
+                          f"teammate {self._fastest_opponent.unum()} {self._fastest_opponent.pos}")
         if self._second_opponent is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Opponent2nd, fastest reach step={self._second_opponent_reach_cycle}"
-                          f"teammate {self._second_opponent.unum()} {self._second_opponent.pos()}")
+                          f"teammate {self._second_opponent.unum()} {self._second_opponent.pos}")
 
     def clear(self):
         self._ball_cache = []
@@ -131,8 +131,8 @@ class InterceptTable:
         pitch_max_y = SP.pitch_half_width() + 5
         ball_decay = SP.ball_decay()
 
-        ball_pos: Vector2D = wm.ball().pos()
-        ball_vel: Vector2D = wm.ball().vel()
+        ball_pos: Vector2D = wm.ball().pos.copy()
+        ball_vel: Vector2D = wm.ball().vel.copy()
 
         self._ball_cache.append(ball_pos)
 
@@ -222,7 +222,7 @@ class InterceptTable:
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
             log.sw_log().intercept().add_text(
-                          f"opp{it.unum()} {it.pos()} "
+                          f"opp{it.unum()} {it.pos} "
                           f"type={player_type.id()} cycle={cycle}")
 
             if cycle < second_min_cycle:
@@ -273,7 +273,7 @@ class InterceptTable:
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
             log.sw_log().intercept().add_text(
-                          f"tm{it.unum()} {it.pos()} "
+                          f"tm{it.unum()} {it.pos} "
                           f"type={player_type.id()} cycle={cycle}")
 
             if it.goalie():

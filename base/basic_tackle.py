@@ -27,8 +27,8 @@ class BasicTackle:
         tackle_prob = wm.self().tackle_probability()
 
         if wm.self().card() == Card.NO_CARD \
-                and (wm.ball().pos().x() > SP.our_penalty_area_line_x() + 0.5
-                     or wm.ball().pos().abs_y() > SP.penalty_area_half_width() + 0.5) \
+                and (wm.ball().pos.x() > SP.our_penalty_area_line_x() + 0.5
+                     or wm.ball().pos.abs_y() > SP.penalty_area_half_width() + 0.5) \
                 and tackle_prob < wm.self().foul_probability():
             tackle_prob = wm.self().foul_probability()
             use_foul = True
@@ -44,7 +44,7 @@ class BasicTackle:
 
         self_goal = False
         if self_reach_point.x() < - SP.pitch_half_length():
-            ball_ray = Ray2D(wm.ball().pos(), wm.ball().vel().th())
+            ball_ray = Ray2D(wm.ball().pos, wm.ball().vel().th())
             goal_line = Line2D(Vector2D(-SP.pitch_half_length(), +10),
                                Vector2D(-SP.pitch_half_length(), -10))
 
@@ -57,7 +57,7 @@ class BasicTackle:
                 or self_goal
                 or (opp_min < self_min - 3 and opp_min < mate_min - 3)
                 or (self_min >= 5
-                    and wm.ball().pos().dist2(SP.their_team_goal_pos()) < 10 **2
+                    and wm.ball().pos.dist2(SP.their_team_goal_pos()) < 10 **2
                     and ((SP.their_team_goal_pos() - wm.self().pos()).th() - wm.self().body()).abs() < 45.)):
 
             return False
@@ -69,7 +69,7 @@ class BasicTackle:
 
         result = TackleGenerator.instance().best_result(wm)
 
-        ball_next = wm.ball().pos() + result._ball_vel
+        ball_next = wm.ball().pos + result._ball_vel
 
         log.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result._tackle_angle.degree()}")
         tackle_dir = (result._tackle_angle - wm.self().body()).degree()

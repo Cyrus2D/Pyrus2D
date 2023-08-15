@@ -133,11 +133,11 @@ class SampleCommunication:
                 and goalie.unum() != UNUM_UNKNOWN \
                 and goalie.unum_count() == 0 \
                 and goalie.dist_from_self() < 25. \
-                and 51. - 16. < goalie.pos().x() < 52.5 \
-                and goalie.pos().abs_y() < 20.:
+                and 51. - 16. < goalie.pos.x() < 52.5 \
+                and goalie.pos.abs_y() < 20.:
 
             goal_pos = ServerParam.i().their_team_goal_pos()
-            ball_next = wm.ball().pos() + wm.ball().vel()
+            ball_next = wm.ball().pos + wm.ball().vel()
 
             if ball_next.dist2(goal_pos) < 18 ** 2:
                 return True
@@ -224,7 +224,7 @@ class SampleCommunication:
             if p is None or p.unum_count() >= 2:
                 objects[i].score = -1000
             else:
-                d = (((p.pos().x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
+                d = (((p.pos.x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
                 objects[i].score *= exp(-d ** 2 / (2 * variance ** 2))
                 objects[i].score *= 0.3 ** p.unum_count()
                 objects[i].player = p

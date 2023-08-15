@@ -489,7 +489,7 @@ class _KickTable:
             self._current_state.index_ = 0
 
         # self._current_state.pos_ = world.ball().rpos()
-        self._current_state.pos_ = world.ball().pos()
+        self._current_state.pos_ = world.ball().pos.copy()
         self._current_state.kick_rate_ = world.self().kick_rate()
 
         self.check_interfere_at(world, self._current_state)  # 0
@@ -498,8 +498,8 @@ class _KickTable:
         # create future state
         #
 
-        self_pos = world.self().pos()
-        self_vel = world.self().vel()
+        self_pos = world.self().pos.copy()
+        self_vel = world.self().vel.copy()
 
         for i in range(MAX_DEPTH):
             self._state_cache[i].clear()
@@ -565,8 +565,8 @@ class _KickTable:
 
         collide_dist2 = pow(self_type.player_size() + ServerParam.i().ball_size(), 2)
 
-        self_pos = world.self().pos()
-        self_vel = world.self().vel()
+        self_pos = world.self().pos.copy()
+        self_vel = world.self().vel.copy()
 
         # check the release kick from current state
 
@@ -630,7 +630,7 @@ class _KickTable:
             if o.dist_from_ball() > 10.0:
                 break
 
-            opp_next = o.pos() + o.vel()
+            opp_next = o.pos + o.vel
             opp_dist = opp_next.dist(state.pos_)
 
             if o.is_tackling():
@@ -742,7 +742,7 @@ class _KickTable:
                     break
                 opp_pos = o.inertia_point(cycle)
                 if not opp_pos.is_valid():
-                    opp_pos = o.pos() + o.vel()
+                    opp_pos = o.pos + o.vel
 
                 if o.is_tackling():
                     if opp_pos.dist(ball_pos) < (o.player_type().player_size() + ServerParam.i().ball_size()):
@@ -816,14 +816,14 @@ class _KickTable:
             accel = max_vel - world.ball().vel()
             self._candidates.append(Sequence())
             self._candidates[-1].flag_ = self._current_state.flag_
-            self._candidates[-1].pos_list_.append(world.ball().pos() + max_vel)
+            self._candidates[-1].pos_list_.append(world.ball().pos + max_vel)
             self._candidates[-1].speed_ = max_vel.r()
             self._candidates[-1].power_ = accel.r() / self._current_state.kick_rate_
             return False
 
         self._candidates.append(Sequence())
         self._candidates[-1].flag_ = self._current_state.flag_
-        self._candidates[-1].pos_list_.append(world.ball().pos() + target_vel)
+        self._candidates[-1].pos_list_.append(world.ball().pos + target_vel)
         self._candidates[-1].speed_ = first_speed
         self._candidates[-1].power_ = accel_r / self._current_state.kick_rate_
         """
@@ -869,7 +869,7 @@ class _KickTable:
 
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r() / (
                 param.ball_speed_max() * param.default_player_decay()))
-        # my_final_pos = world.self().pos() + world.self().vel() + world.self().vel() * self_type.player_decay()
+        # my_final_pos = world.self().pos + world.self().vel() + world.self().vel() * self_type.player_decay()
 
         success_count = 0
         max_speed2 = 0.0
@@ -891,7 +891,7 @@ class _KickTable:
             kick_miss_flag = SAFETY
             target_vel = (target_point - state.pos_).set_length_vector(first_speed)
 
-            vel = state.pos_ - world.ball().pos()
+            vel = state.pos_ - world.ball().pos
             accel = vel - world.ball().vel()
             accel_r = accel.r()
 
@@ -1020,7 +1020,7 @@ class _KickTable:
 
             kick_miss_flag = SAFETY
 
-            vel1 = state_1st.pos_ - world.ball().pos()
+            vel1 = state_1st.pos_ - world.ball().pos
             accel = vel1 - world.ball().vel()
             accel_r2 = accel.r2()
 

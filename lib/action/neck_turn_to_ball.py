@@ -61,8 +61,8 @@ class NeckTurnToBall(NeckAction):
             view_half = max(0, next_view_width*0.5 - 20)
 
         if (len(wm.opponents_from_self()) >= 11
-            and (wm.ball().pos().x() > 0
-                or wm.ball().pos().abs_y() > SP.pitch_half_width() - 8
+            and (wm.ball().pos.x() > 0
+                or wm.ball().pos.abs_y() > SP.pitch_half_width() - 8
                 or not opp
                 or opp.dist_from_ball() > 3)):
             best_angle = NeckScanPlayers.INVALID_ANGLE

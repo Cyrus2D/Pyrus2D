@@ -30,7 +30,7 @@ class PlayerIntercept:
                       if player.seen_pos_count() <= player.pos_count()
                       else player.pos())
         min_cycle = 0
-        ball_to_player = player_pos - wm.ball().pos()
+        ball_to_player = player_pos - wm.ball().pos
         ball_to_player.rotate(-wm.ball().vel().th())
         min_cycle = int(floor(ball_to_player.abs_y()
                               / player_type.real_speed_max()))

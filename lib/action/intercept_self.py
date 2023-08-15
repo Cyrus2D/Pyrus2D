@@ -49,7 +49,7 @@ class SelfIntercept:
 
     def predict_one_step(self, self_cache):
         wm = self._wm
-        ball_next: Vector2D = wm.ball().pos() + wm.ball().vel()
+        ball_next: Vector2D = wm.ball().pos + wm.ball().vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
         control_area: float = wm.self().player_type().catchable_area() if \
             goalie_mode else \
@@ -71,8 +71,8 @@ class SelfIntercept:
         wm: 'WorldModel' = self._wm
         me: PlayerObject = wm.self()
 
-        my_next: Vector2D = me.pos() + me.vel()
-        ball_next: Vector2D = wm.ball().pos() + wm.ball().vel()
+        my_next: Vector2D = me.pos + me.vel
+        ball_next: Vector2D = wm.ball().pos + wm.ball().vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
         control_area: float = me.player_type().catchable_area() if \
             goalie_mode else \
@@ -143,7 +143,7 @@ class SelfIntercept:
         me: PlayerObject = wm.self()
         ptype: PlayerType = me.player_type()
 
-        ball_next: Vector2D = ball.pos() + ball.vel()
+        ball_next: Vector2D = ball.pos + ball.vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
         control_area: float = ptype.catchable_area() if \
             goalie_mode else \
@@ -234,9 +234,9 @@ class SelfIntercept:
         me = wm.self()
 
         control_buf = control_area - 0.075
-        dash_dir: AngleDeg = dash_angle - me.body()
-        ball_next = wm.ball().pos() + wm.ball().vel()
-        me_next = me.pos() + me.vel()
+        dash_dir: AngleDeg = dash_angle - me.body
+        ball_next = wm.ball().pos + wm.ball().vel
+        me_next = me.pos + me.vel
 
         ball_rel: Vector2D = (ball_next - me_next).rotated_vector(-dash_angle)
         forward_accel_rel: Vector2D = max_forward_accel.rotated_vector(-dash_angle)
@@ -302,8 +302,8 @@ class SelfIntercept:
 
         mode = InterceptInfo.Mode.NORMAL
         accel = Vector2D.polar2vector(dash_power * dash_rate, dash_angle)
-        my_vel = me.vel() + accel
-        my_pos = me.pos() + my_vel
+        my_vel = me.vel + accel
+        my_pos = me.pos + my_vel
 
         stamina_model = me.stamina_model()
         stamina_model.simulate_dash(me.player_type(), dash_power)
@@ -388,7 +388,7 @@ class SelfIntercept:
         pen_area_x = SP.our_penalty_area_line_x() - 0.5
         pen_area_y = SP.penalty_area_half_width() - 0.5
 
-        ball_to_self = (me.pos() - ball.pos()).rotated_vector(-ball.vel().th())
+        ball_to_self = (me.pos - ball.pos()).rotated_vector(-ball.vel().th())
         min_cycle = int(ceil((ball_to_self.abs_y() - ptype.kickable_area())
                              / ptype.real_speed_max()))
 
@@ -410,7 +410,7 @@ class SelfIntercept:
             control_area = (ptype.catchable_area()
                             if goalie_mode
                             else ptype.kickable_area())
-            if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos().dist2(ball_pos):
+            if (control_area + ptype.real_speed_max() * cycle) ** 2 < me.pos.dist2(ball_pos):
                 log.sw_log().intercept().add_text("self pred short too far")
                 continue
 
@@ -441,7 +441,7 @@ class SelfIntercept:
             if len(tmp_cache) == 0:
                 continue
 
-            safety_ball_dist = max(control_area - 0.2 - ball.pos().dist(ball_pos) * SP.ball_rand(),
+            safety_ball_dist = max(control_area - 0.2 - ball.pos.dist(ball_pos) * SP.ball_rand(),
                                    ptype.player_size() + SP.ball_size() + ptype.kickable_margin() * 0.4)
             best: InterceptInfo = tmp_cache[0]
             for it in tmp_cache[1:]:
@@ -502,8 +502,8 @@ class SelfIntercept:
                 continue
 
             first_dash_power = 0
-            my_pos = me.pos()
-            my_vel = me.vel()
+            my_pos = me.pos.copy()
+            my_vel = me.vel.copy()
             stamina_model = me.stamina_model()
 
             n_omni_dash, first_dash_power = self.predict_adjust_omni_dash(cycle,
@@ -560,7 +560,7 @@ class SelfIntercept:
                 my_vel *= ptype.player_decay()
                 stamina_model.simulate_dash(ptype, dash_power)
 
-            my_move = my_pos - me.pos()
+            my_move = my_pos - me.pos
             if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
                     my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).abs_x():
                 mode = (InterceptInfo.Mode.EXHAUST
@@ -745,7 +745,7 @@ class SelfIntercept:
             stamina_model.simulate_dash(ptype, dash_power)
 
         if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
-                me.pos().dist2(my_pos) > me.pos().dist2(ball_pos):
+                me.pos.dist2(my_pos) > me.pos.dist2(ball_pos):
             mode = (InterceptInfo.Mode.EXHAUST
                     if stamina_model.stamina() < SP.recover_dec_thr_value()
                        and not stamina_model.capacity_is_empty()
@@ -820,7 +820,7 @@ class SelfIntercept:
         ptype = me.player_type()
 
         # calc y distance from ball line
-        ball_to_self = me.pos() - ball.pos()
+        ball_to_self = me.pos - ball.pos
         ball_to_self.rotate(-ball.vel().th())
         start_cycle = int(ceil((ball_to_self.abs_y()
                                 - ptype.kickable_area()
@@ -850,7 +850,7 @@ class SelfIntercept:
             control_area = ptype.catchable_area() if goalie_mode else ptype.kickable_area()
 
             # reach point is to far never reach
-            if control_area + ptype.real_speed_max() * cycle < me.pos().dist(ball_pos):
+            if control_area + ptype.real_speed_max() * cycle < me.pos.dist(ball_pos):
                 log.sw_log().intercept().add_text('-------> to far never reach')
                 log.sw_log().intercept().add_circle(cx=ball_pos.x(), cy=ball_pos.y(), r=0.3, color='r')
                 continue
@@ -1008,7 +1008,7 @@ class SelfIntercept:
 
         dash_angle_minus = -dash_angle
         ball_rel = (ball_pos - wm.self().pos()).rotated_vector(dash_angle_minus)
-        ball_noise = (wm.ball().pos().dist(ball_pos)
+        ball_noise = (wm.ball().pos.dist(ball_pos)
                       * SP.ball_rand()
                       * 0.5)
         noised_ball_x = ball_rel.x() + ball_noise
@@ -1080,7 +1080,7 @@ class SelfIntercept:
             if tmp_pos.x() * PLAYER_NOISE_RATE + 0.1 > noised_ball_x:
                 result_recovery = stamina_model.recovery()
                 inertia_pos = ptype.inertia_point(tmp_pos, tmp_vel, n_dash - (i + 1))
-                my_final_pos = wm.self().pos() + tmp_pos.rotate(dash_angle)
+                my_final_pos = wm.self().pos + tmp_pos.rotate(dash_angle)
                 if my_inertia.dist2(my_final_pos) > 0.01:
                     my_final_pos = Line2D(p1=my_inertia, p2=my_final_pos).projection(ball_pos)
                 stamina_model.simulate_waits(ptype, n_dash - (i + 1))
@@ -1105,7 +1105,7 @@ class SelfIntercept:
         buf += ball_noise
 
         if last_ball_dist < max(control_area - 0.225, control_area - buf):
-            my_final_pos = wm.self().pos() + tmp_pos.rotate(dash_angle)
+            my_final_pos = wm.self().pos + tmp_pos.rotate(dash_angle)
             result_recovery = stamina_model.recovery()
             mode = (InterceptInfo.Mode.EXHAUST
                     if stamina_model.recovery() < wm.self().recovery()

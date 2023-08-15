@@ -19,7 +19,7 @@ class NeckBodyToBall(NeckAction):
         log.debug_client().add_message('BodyToBall/')
         wm = agent.world()
         if wm.ball().pos_valid():
-            ball_next = wm.ball().pos() + wm.ball().vel()
+            ball_next = wm.ball().pos + wm.ball().vel()
 
             return NeckBodyToPoint(ball_next, self._angle_buf).execute(agent)
         return ScanField().execute(agent)

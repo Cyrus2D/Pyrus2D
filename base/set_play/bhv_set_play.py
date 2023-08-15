@@ -46,12 +46,12 @@ class Bhv_SetPlay:
                 if tm is None:
                     continue
                 if tm.unum() == i:
-                    dist = tm.pos().dist(wm.ball().pos())
+                    dist = tm.pos.dist(wm.ball().pos())
                     if dist < nearest_tm_dist:
                         nearest_tm_dist = dist
                         nearest_tm = i
             if nearest_tm is wm.self().unum():
-                target = wm.ball().pos()
+                target = wm.ball().pos.copy()
         if GoToPoint(target, 0.5, 100).execute(agent):
             agent.set_neck_action(NeckTurnToBallOrScan())
             return True

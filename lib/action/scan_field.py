@@ -38,7 +38,7 @@ class ScanField(BodyAction):
         if agent.effector().queued_next_view_width() is not ViewWidth.WIDE:
             agent.set_view_action(ViewWide())
 
-        my_next = wm.self().pos() + wm.self().vel()
+        my_next = wm.self().pos + wm.self().vel
         face_angle = (wm.ball().seen_pos() - my_next).th() if wm.ball().seen_pos().is_valid() else (my_next*-1).th()
 
         search_flag = wm.ball().lost_count() //3

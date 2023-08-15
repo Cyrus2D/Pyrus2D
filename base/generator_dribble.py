@@ -50,12 +50,12 @@ class BhvDribbleGen(BhvKickGen):
         for a in range(angle_div):
             dash_angle = wm.self().body() + (angle_step * a)
 
-            if wm.self().pos().x() < 16.0 and dash_angle.abs() > 100.0:
+            if wm.self().pos.x() < 16.0 and dash_angle.abs() > 100.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( '#dash angle:{} cancel is not safe1'.format(dash_angle))
                 continue
 
-            if wm.self().pos().x() < -36.0 and wm.self().pos().abs_y() < 20.0 and dash_angle.abs() > 45.0:
+            if wm.self().pos.x() < -36.0 and wm.self().pos.abs_y() < 20.0 and dash_angle.abs() > 45.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( '#dash angle:{} cancel is not safe2'.format(dash_angle))
                 continue
@@ -126,7 +126,7 @@ class BhvDribbleGen(BhvKickGen):
                     self.debug_list.append((self.index, ball_trap_pos, False))
                 continue
 
-            if (wm.ball().pos() + first_vel).dist2(self_cache[0]) < pow(ptype.player_size() + sp.ball_size() + 0.1, 2):
+            if (wm.ball().pos + first_vel).dist2(self_cache[0]) < pow(ptype.player_size() + sp.ball_size() + 0.1, 2):
                 if debug_dribble:
                     log.sw_log().dribble().add_text(
                                   '#index:{} target:{} in body, power:{}, accel:{}, vel:{}'.format(
@@ -137,7 +137,7 @@ class BhvDribbleGen(BhvKickGen):
             if self.check_opponent(wm, ball_trap_pos, 1 + n_turn + n_dash):
                 candidate = KickAction()
                 candidate.type = KickActionType.Dribble
-                candidate.start_ball_pos = wm.ball().pos()
+                candidate.start_ball_pos = wm.ball().pos.copy()
                 candidate.target_ball_pos = ball_trap_pos
                 candidate.target_unum = wm.self().unum()
                 candidate.start_ball_speed = first_vel.r()
@@ -164,8 +164,8 @@ class BhvDribbleGen(BhvKickGen):
 
         stamina_model = wm.self().stamina_model()
 
-        my_pos = wm.self().pos()
-        my_vel = wm.self().vel()
+        my_pos = wm.self().pos.copy()
+        my_vel = wm.self().vel.copy()
 
         my_pos += my_vel
         my_vel *= ptype.player_decay()
@@ -218,7 +218,7 @@ class BhvDribbleGen(BhvKickGen):
 
             opp_pos = opp.inertia_point( dribble_step )
 
-            ball_to_opp_rel = (opp.pos() - wm.ball().pos()).rotated_vector(-ball_move_angle)
+            ball_to_opp_rel = (opp.pos - wm.ball().pos()).rotated_vector(-ball_move_angle)
 
             if ball_to_opp_rel.x() < -4.0:
                 if debug_dribble:

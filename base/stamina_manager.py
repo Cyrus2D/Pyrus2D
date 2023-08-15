@@ -25,8 +25,8 @@ def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
     dash_power = SP.i().max_dash_power()
     my_inc = wm.self().player_type().stamina_inc_max() * wm.self().recovery()
 
-    # TODO wm.ourDefenseLineX() > wm.self().pos().x
-    # TODO wm.ball().pos().x() < wm.ourDefenseLineX() + 20.0
+    # TODO wm.ourDefenseLineX() > wm.self().pos.x
+    # TODO wm.ball().pos.x() < wm.ourDefenseLineX() + 20.0
     if wm.self().unum() <= 5 and wm.ball().inertia_point(ball_min_reach_cycle).x() < -20.0:
         dash_power = SP.i().max_dash_power()
     elif s_recover_mode:
@@ -35,9 +35,9 @@ def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
             dash_power = 0.0
     elif wm.exist_kickable_teammates() and wm.ball().dist_from_self() < 20.0:
         dash_power = min(my_inc * 1.1, SP.i().max_dash_power())
-    elif wm.self().pos().x() > wm.offside_line_x():
+    elif wm.self().pos.x() > wm.offside_line_x():
         dash_power = SP.i().max_dash_power()
-    elif wm.ball().pos().x() > 25.0 and wm.ball().pos().x() > wm.self().pos().x() + 10.0 and self_min < opp_min - 6 and mate_min < opp_min - 6:
+    elif wm.ball().pos.x() > 25.0 and wm.ball().pos.x() > wm.self().pos.x() + 10.0 and self_min < opp_min - 6 and mate_min < opp_min - 6:
         dash_power = smath.bound(SP.i().max_dash_power() * 0.1, my_inc * 0.5, SP.i().max_dash_power())
     else:
         dash_power = min(my_inc * 1.7, SP.i().max_dash_power())

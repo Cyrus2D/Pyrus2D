@@ -52,7 +52,7 @@ class Intercept:
         if best_intercept.dash_cycle() == 0:
             face_point = self._face_point.copy()
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.75)
+                face_point.assign(50.5, wm.self().pos.y() * 0.75)
 
             log.sw_log().intercept().add_text(
                           f"best_intercept.dash_cycle() == 0 (TurnToPoint)")
@@ -106,8 +106,8 @@ class Intercept:
             opp: PlayerObject = wm.opponents_from_ball()[0]
             if opp is not None:
                 goal_pos = Vector2D(-ServerParam.i().pitch_half_length(), 0)
-                my_next = wm.self().pos() + wm.self().vel()
-                attack_pos = opp.pos() + opp.vel()
+                my_next = wm.self().pos + wm.self().vel
+                attack_pos = opp.pos + opp.vel
 
                 if attack_pos.dist2(goal_pos) > my_next.dist2(goal_pos):
                     log.sw_log().intercept().add_text(
@@ -309,7 +309,7 @@ class Intercept:
         if nearest_best is not None:
             return nearest_best
 
-        if (wm.self().pos().x() > 40
+        if (wm.self().pos.x() > 40
                 and wm.ball().vel().r() > 1.8
                 and wm.ball().vel().th().abs() < 100
                 and cache[0].reach_cycle() > 1):
@@ -348,7 +348,7 @@ class Intercept:
         if info.reach_cycle() == 1 and info.turn_cycle() == 1:
             face_point = self._face_point
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.9)
+                face_point.assign(50.5, wm.self().pos.y() * 0.9)
 
             log.sw_log().intercept().add_text(
                           f"do wait turn (1) (TurnToPoint)")
@@ -372,12 +372,12 @@ class Intercept:
 
         face_point = self._face_point
         if info.reach_cycle() > 2:
-            face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(90)
+            face_point = my_inertia + (wm.ball().pos - my_inertia).rotated_vector(90)
             if face_point.x() < my_inertia.x():
-                face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(-90)
+                face_point = my_inertia + (wm.ball().pos - my_inertia).rotated_vector(-90)
 
         if not face_point.is_valid():
-            face_point.assign(50.5, wm.self().pos().y() * 0.9)
+            face_point.assign(50.5, wm.self().pos.y() * 0.9)
 
         face_rel = face_point - my_inertia
         face_angle = face_rel.th()
@@ -407,7 +407,7 @@ class Intercept:
             agent.do_dash(info.dash_power(), info.dash_angle())
             return True
 
-        target_rel = target_point - wm.self().pos()
+        target_rel = target_point - wm.self().pos
         target_rel.rotate(-wm.self().body())
 
         accel_angle = wm.self().body()
@@ -475,10 +475,10 @@ class Intercept:
             my_inertia = wm.self().inertia_point(info.reach_cycle())
             face_point = self._face_point
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.75)
+                face_point.assign(50.5, wm.self().pos.y() * 0.75)
             face_angle = (face_point - my_inertia).th()
 
-            ball_next = wm.ball().pos() + wm.ball().vel()
+            ball_next = wm.ball().pos + wm.ball().vel
             ball_angle = (ball_next - my_inertia).th()
             # normal_half_width = ViewWidth.width(ViewWidth.Mode.NORMAL) # TODO FIX THIS after view mode
             normal_half_width = ServerParam.i().visible_angle()

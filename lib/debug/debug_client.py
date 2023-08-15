@@ -36,7 +36,7 @@ def player_printer(p: 'PlayerObject', our_side: SideID):
         else:
             s += 'uo'
 
-    s += f" {round(p.pos().x(), 2)} {round(p.pos().y(), 2)}"
+    s += f" {round(p.pos.x(), 2)} {round(p.pos.y(), 2)}"
     if p.body_valid():
         s += f" (bd {round(p.body().degree())})"
 
@@ -131,13 +131,13 @@ class DebugClient:
 
         ostr_player = ''
         ostr_ball = ''
-        if world.self() and world.self().pos().is_valid():
+        if world.self() and world.self().pos.is_valid():
             ostr_player = ' (s ' \
                           + ('l ' if world.our_side() == SideID.LEFT else 'r ') \
                           + str(world.self().unum()) + ' ' \
                           + str(world.self().player_type_id()) + ' ' \
-                          + str(round(world.self().pos().x(), 2)) + ' ' \
-                          + str(round(world.self().pos().y(), 2)) + ' ' \
+                          + str(round(world.self().pos.x(), 2)) + ' ' \
+                          + str(round(world.self().pos.y(), 2)) + ' ' \
                           + str(round(world.self().vel().x(), 2)) + ' ' \
                           + str(round(world.self().vel().y(), 2)) + ' ' \
                           + str(round(world.self().body().degree(), 1)) + ' ' \
@@ -148,9 +148,9 @@ class DebugClient:
                 ostr_player += 'y'
             ostr_player += '"))'
 
-        if world.ball().pos().is_valid():
-            ostr_ball = ' (b ' + str(round(world.ball().pos().x(), 2)) \
-                        + ' ' + str(round(world.ball().pos().y(), 2))
+        if world.ball().pos.is_valid():
+            ostr_ball = ' (b ' + str(round(world.ball().pos.x(), 2)) \
+                        + ' ' + str(round(world.ball().pos.y(), 2))
             if world.ball().vel_valid():
                 ostr_ball += (' ' + str(round(world.ball().vel().x(), 2))
                               + ' ' + str(round(world.ball().vel().y(), 2)))

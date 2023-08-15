@@ -30,9 +30,9 @@ class BhvPassGen(BhvKickGen):
         self.update_receivers(wm)
 
         for r in self.receivers:
-            log.sw_log().pass_().add_text(f'=============== Lead Pass to {r.unum()} pos: {r.pos()}')
+            log.sw_log().pass_().add_text(f'=============== Lead Pass to {r.unum()} pos: {r.pos}')
             # if self.best_pass is not None \
-            #         and r.pos().x() < self.best_pass.target_ball_pos.x() - 5:
+            #         and r.pos.x() < self.best_pass.target_ball_pos.x() - 5:
             #     break
             self.generate_direct_pass(wm, r)
             self.generate_lead_pass(wm, r)
@@ -71,15 +71,15 @@ class BhvPassGen(BhvKickGen):
             if tm.is_tackling():
                 log.sw_log().pass_().add_text(f'-----<<< TM is tackling')
                 continue
-            if tm.pos().x() > wm.offside_line_x():
-                log.sw_log().pass_().add_text(f'-----<<< TM is in offside {tm.pos().x()} > {wm.offside_line_x()}')
+            if tm.pos.x() > wm.offside_line_x():
+                log.sw_log().pass_().add_text(f'-----<<< TM is in offside {tm.pos.x()} > {wm.offside_line_x()}')
                 continue
-            if tm.goalie() and tm.pos().x() < sp.our_penalty_area_line_x() + 15:
-                log.sw_log().pass_().add_text(f'-----<<< TM is goalie and danger {tm.pos().x()} < {sp.our_penalty_area_line_x() + 15}')
+            if tm.goalie() and tm.pos.x() < sp.our_penalty_area_line_x() + 15:
+                log.sw_log().pass_().add_text(f'-----<<< TM is goalie and danger {tm.pos.x()} < {sp.our_penalty_area_line_x() + 15}')
                 continue
             log.sw_log().pass_().add_text(f'--->>>>> TM {tm.unum()} is added')
             self.receivers.append(tm)
-        self.receivers = sorted(self.receivers, key=lambda p: p.pos().x(), reverse=True)
+        self.receivers = sorted(self.receivers, key=lambda p: p.pos.x(), reverse=True)
 
     def generate_direct_pass(self, wm: 'WorldModel', receiver: 'PlayerObject'):
         sp = SP.i()
@@ -87,14 +87,14 @@ class BhvPassGen(BhvKickGen):
         max_direct_pass_dist = 0.8 * smath.inertia_final_distance(sp.ball_speed_max(), sp.ball_decay())
         max_receive_ball_speed = sp.ball_speed_max() * pow(sp.ball_decay(), min_receive_step)
         min_direct_pass_dist = receiver.player_type().kickable_area() * 2.2
-        if receiver.pos().x() > sp.pitch_half_length() - 1.5 \
-                or receiver.pos().x() < -sp.pitch_half_length() + 5.0 \
-                or receiver.pos().abs_y() > sp.pitch_half_width() - 1.5:
+        if receiver.pos.x() > sp.pitch_half_length() - 1.5 \
+                or receiver.pos.x() < -sp.pitch_half_length() + 5.0 \
+                or receiver.pos.abs_y() > sp.pitch_half_width() - 1.5:
             if debug_pass:
                 log.sw_log().pass_().add_text( '#DPass to {} {}, out of field'.format(receiver.unum(), receiver.pos()))
             return
         # TODO sp.ourTeamGoalPos()
-        if receiver.pos().x() < wm.ball().pos().x() + 1.0 \
+        if receiver.pos.x() < wm.ball().pos().x() + 1.0 \
                 and receiver.pos().dist2(Vector2D(-52.5, 0)) < pow(18.0, 2):
             if debug_pass:
                 log.sw_log().pass_().add_text( '#DPass to {} {}, danger near goal'.format(receiver.unum(), receiver.pos()))

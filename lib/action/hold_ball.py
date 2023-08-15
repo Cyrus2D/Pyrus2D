@@ -111,7 +111,7 @@ class HoldBall(BodyAction):
         if not point.is_valid():
             log.sw_log().kick().add_text( "avoidOpponent() no candidate point")
             return False
-        ball_move = point - wm.ball().pos()
+        ball_move = point - wm.ball().pos
         kick_accel = ball_move - wm.ball().vel()
         kick_accel_r = kick_accel.r()
         agent.do_kick(kick_accel_r / wm.self().kick_rate(),
@@ -157,7 +157,7 @@ class HoldBall(BodyAction):
 
         # candidates = [] * dir_divs * 2
 
-        my_next = wm.self().pos() + wm.self().vel()
+        my_next = wm.self().pos + wm.self().vel()
 
         my_noise = wm.self().vel().r() * param.player_rand()
         current_dir_diff_rate = (wm.ball().angle_from_self() - wm.self().body()).abs() / 180.0
@@ -176,7 +176,7 @@ class HoldBall(BodyAction):
             near_pos = my_next + unit_pos.set_length_vector(near_dist)
             if (near_pos.abs_x() < max_pitch_x
                     and near_pos.abs_y() < max_pitch_y):
-                ball_move = near_pos - wm.ball().pos()
+                ball_move = near_pos - wm.ball().pos
                 kick_accel = ball_move - wm.ball().vel()
 
                 # can kick to the point by 1 step kick
@@ -191,7 +191,7 @@ class HoldBall(BodyAction):
             mid_pos = my_next + unit_pos.set_length_vector(mid_dist)
             if (mid_pos.abs_x() < max_pitch_x
                     and mid_pos.abs_y() < max_pitch_y):
-                ball_move = mid_pos - wm.ball().pos()
+                ball_move = mid_pos - wm.ball().pos
                 kick_accel = ball_move - wm.ball().vel()
                 kick_power = kick_accel.r() / wm.self().kick_rate()
 
@@ -217,7 +217,7 @@ class HoldBall(BodyAction):
             far_pos = my_next + unit_pos.set_length_vector(far_dist)
             if (far_pos.abs_x() < max_pitch_x
                     and far_pos.abs_y() < max_pitch_y):
-                ball_move = far_pos - wm.ball().pos()
+                ball_move = far_pos - wm.ball().pos
                 kick_accel = ball_move - wm.ball().vel()
                 kick_power = kick_accel.r() / wm.self().kick_rate()
 
@@ -271,7 +271,7 @@ class HoldBall(BodyAction):
         param = ServerParam.i()
         score = DEFAULT_SCORE
 
-        my_next = wm.self().pos() + wm.self().vel()
+        my_next = wm.self().pos + wm.self().vel()
         if len(wm.opponents_from_ball()) == 0:
             return score
         for o in wm.opponents_from_ball():
@@ -287,7 +287,7 @@ class HoldBall(BodyAction):
                 continue
 
             player_type = o.player_type()
-            opp_next = o.pos() + o.vel()
+            opp_next = o.pos + o.vel()
             control_area = o.player_type().catchable_area() if (
                     o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
                 keep_point)) else o.player_type().kickable_area()
@@ -380,8 +380,8 @@ class HoldBall(BodyAction):
         max_pitch_x = param.pitch_half_length() - 0.2
         max_pitch_y = param.pitch_half_width() - 0.2
         wm = agent.world()
-        my_next = wm.self().pos() + wm.self().vel()
-        ball_next = wm.ball().pos() + wm.ball().vel()
+        my_next = wm.self().pos + wm.self().vel()
+        ball_next = wm.ball().pos + wm.ball().vel()
 
         if (ball_next.abs_x() > max_pitch_x
                 or ball_next.abs_y() > max_pitch_y):
@@ -430,7 +430,7 @@ class HoldBall(BodyAction):
         wm = agent.world()
         front_keep_dist = wm.self().player_type().player_size() + param.ball_size() + 0.05
 
-        my_next = wm.self().pos() + wm.self().vel()
+        my_next = wm.self().pos + wm.self().vel()
 
         front_pos = my_next + Vector2D.polar2vector(front_keep_dist, wm.self().body())
 
@@ -438,7 +438,7 @@ class HoldBall(BodyAction):
                 or front_pos.abs_y() > max_pitch_y):
             return False
 
-        ball_move = front_pos - wm.ball().pos()
+        ball_move = front_pos - wm.ball().pos
         kick_accel = ball_move - wm.ball().vel()
         kick_power = kick_accel.r() / wm.self().kick_rate()
 
@@ -469,7 +469,7 @@ class HoldBall(BodyAction):
         max_pitch_y = param.pitch_half_width() - 0.2
         wm = agent.world()
 
-        my_inertia = wm.self().pos() + wm.self().vel()
+        my_inertia = wm.self().pos + wm.self().vel()
 
         my_noise = wm.self().vel().r() * param.player_rand()
         current_dir_diff_rate = (wm.ball().angle_from_self() - wm.self().body()).abs() / 180.0
@@ -498,7 +498,7 @@ class HoldBall(BodyAction):
                     or keep_pos.abs_y() > max_pitch_y):
                 continue
 
-            ball_move = keep_pos - wm.ball().pos()
+            ball_move = keep_pos - wm.ball().pos
             kick_accel = ball_move - wm.ball().vel()
             kick_power = kick_accel.r() / wm.self().kick_rate()
 
