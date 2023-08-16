@@ -102,7 +102,7 @@ class Intercept:
     def do_kickable_opponent_check(self,
                                    agent: 'PlayerAgent') -> bool:
         wm = agent.world()
-        if wm.ball().dist_from_self() < 2 and wm.exist_kickable_opponents():
+        if wm.ball().dist_from_self < 2 and wm.exist_kickable_opponents():
             opp: PlayerObject = wm.opponents_from_ball()[0]
             if opp is not None:
                 goal_pos = Vector2D(-ServerParam.i().pitch_half_length(), 0)
@@ -330,7 +330,7 @@ class Intercept:
                      info: InterceptInfo):
         wm = agent.world()
         opp: PlayerObject = wm.get_opponent_nearest_to_self(5)
-        if opp is not None and opp.dist_from_self() < 3:
+        if opp is not None and opp.dist_from_self < 3:
             return False
         opp_min = wm.intercept_table().opponent_reach_cycle()
         if info.reach_cycle() > opp_min - 5:
@@ -365,7 +365,7 @@ class Intercept:
             extra_buf = 0
 
         dist_buf = wm.self().player_type().kickable_area() - 0.3 + extra_buf
-        dist_buf -= 0.1 * wm.ball().seen_pos_count()
+        dist_buf -= 0.1 * wm.ball().seen_pos_count
 
         if target_dist > dist_buf:
             return False
@@ -447,7 +447,7 @@ class Intercept:
             target_rel -= Vector2D(buf, 0)
 
         used_power = info.dash_power()
-        if (wm.ball().seen_pos_count() <= 2
+        if (wm.ball().seen_pos_count <= 2
                 and wm.ball().vel.r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
                 and info.dash_angle().abs() < 5
                 and target_rel.abs_x() < (ptype.kickable_area()

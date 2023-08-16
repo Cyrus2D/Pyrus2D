@@ -366,10 +366,10 @@ class SelfObject(PlayerObject):
         if self.pos_count > 100 or not ball.pos_valid():
             return
         
-        self.dist_from_ball = ball.dist_from_self()
-        self.angle_from_ball = ball.angle_from_self() + 180
+        self.dist_from_ball = ball.dist_from_self
+        self.angle_from_ball = ball.angle_from_self + 180
 
-        if ball.ghost_count() > 0:
+        if ball.ghost_count > 0:
             return
         
         SP = ServerParam.i()
@@ -379,17 +379,17 @@ class SelfObject(PlayerObject):
             log.os_log().debug(f"(self obj update ball_info) player_type_id={ptype.id()}")
             log.os_log().debug(f"(self obj update ball_info) kickable_area={ptype.kickable_area()}")
 
-        if ball.dist_from_self() <= ptype.kickable_area():
+        if ball.dist_from_self <= ptype.kickable_area():
             buff = 0.055
-            if ball.seen_pos_count() >= 1:
+            if ball.seen_pos_count >= 1:
                 buff = 0.155
-            if ball.seen_pos_count() >= 2:
+            if ball.seen_pos_count >= 2:
                 buff = 0.255
-            if ball.dist_from_self() <= ptype.kickable_area() - buff:
+            if ball.dist_from_self <= ptype.kickable_area() - buff:
                 self.kickable = True
             
-            self.kick_rate = ptype.kick_rate(ball.dist_from_self(),
-                                             (ball.angle_from_self() - self.body).degree())
+            self.kick_rate = ptype.kick_rate(ball.dist_from_self,
+                                             (ball.angle_from_self - self.body).degree())
 
         if self.last_catch_time.cycle() + SP.catch_ban_cycle() <= self.time.cycle():
             self.catch_probability = ptype.get_catch_probability(self.pos, self.body, ball.pos, 0.055, 0.5)
@@ -416,8 +416,8 @@ class SelfObject(PlayerObject):
                               teammate_reach_cycle: int,
                               opponent_reach_cycle: int):
         if (not self.kickable
-            and ball.seen_pos_count() == 0
-            and ball.dist_from_self() < self.player_type.kickable_area() - 0.001):
+            and ball.seen_pos_count == 0
+            and ball.dist_from_self < self.player_type.kickable_area() - 0.001):
             
             if (self_reach_cycle >= 10
                 and opponent_reach_cycle < min(self_reach_cycle, teammate_reach_cycle) - 7):

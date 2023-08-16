@@ -39,7 +39,7 @@ class ScanField(BodyAction):
             agent.set_view_action(ViewWide())
 
         my_next = wm.self().pos + wm.self().vel
-        face_angle = (wm.ball().seen_pos() - my_next).th() if wm.ball().seen_pos().is_valid() else (my_next*-1).th()
+        face_angle = (wm.ball().seen_pos - my_next).th() if wm.ball().seen_pos.is_valid() else (my_next*-1).th()
 
         search_flag = wm.ball().lost_count() //3
         if search_flag%2==1:

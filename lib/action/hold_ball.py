@@ -160,9 +160,9 @@ class HoldBall(BodyAction):
         my_next = wm.self().pos + wm.self().vel
 
         my_noise = wm.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (wm.ball().angle_from_self() - wm.self().body()).abs() / 180.0
+        current_dir_diff_rate = (wm.ball().angle_from_self - wm.self().body()).abs() / 180.0
         current_dist_rate = (
-                                    wm.ball().dist_from_self() - wm.self().player_type().player_size() - param.ball_size()) / wm.self().player_type().kickable_margin()
+                                    wm.ball().dist_from_self - wm.self().player_type().player_size() - param.ball_size()) / wm.self().player_type().kickable_margin()
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
         current_speed_rate = 0.5 + 0.5 * (wm.ball().vel.r() / (param.ball_speed_max() * param.ball_decay()))
 
@@ -277,9 +277,9 @@ class HoldBall(BodyAction):
         for o in wm.opponents_from_ball():
             if o is None or o.player_type() is None:
                 continue
-            if o.dist_from_ball() > consider_dist:
+            if o.dist_from_ball > consider_dist:
                 break
-            if o.pos_count() > 10:
+            if o.pos_count > 10:
                 continue
             if o.is_ghost():
                 continue
@@ -472,9 +472,9 @@ class HoldBall(BodyAction):
         my_inertia = wm.self().pos + wm.self().vel
 
         my_noise = wm.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (wm.ball().angle_from_self() - wm.self().body()).abs() / 180.0
+        current_dir_diff_rate = (wm.ball().angle_from_self - wm.self().body()).abs() / 180.0
 
-        current_dist_rate = (wm.ball().dist_from_self()
+        current_dist_rate = (wm.ball().dist_from_self
                              - wm.self().player_type().player_size()
                              - param.ball_size()) / wm.self().player_type().kickable_margin()
 

@@ -128,11 +128,11 @@ class NeckScanPlayers(NeckAction):
             if not angle.is_right_of(reduced_left_angle) or not angle.is_left_of(reduced_right_angle):
                 continue
             
-            if p.ghost_count() >= 5:
+            if p.ghost_count >= 5:
                 continue
             
-            pos_count= p.seen_pos_count()
-            if p.is_ghost() and p.ghost_count() % 2 == 1:
+            pos_count= p.seen_pos_count
+            if p.is_ghost() and p.ghost_count % 2 == 1:
                 pos_count = min(2, pos_count)
             
             pos_count += 1
@@ -142,7 +142,7 @@ class NeckScanPlayers(NeckAction):
                     pos_count *=2
             
             base_val = pos_count**2
-            rate = exp(-(p.dist_from_self() ** 2) / (2*(20**2)))
+            rate = exp(-(p.dist_from_self ** 2) / (2*(20**2)))
 
             score += base_val * rate
             buf = min((angle-left_angle).abs(), (angle-right_angle).abs())

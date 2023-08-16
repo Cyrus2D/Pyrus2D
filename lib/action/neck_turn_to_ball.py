@@ -54,8 +54,8 @@ class NeckTurnToBall(NeckAction):
         if (SP.visible_distance() * 0.7 < ball_dist < 15
                 and (wm.kickable_teammate()
                     or wm.kickable_opponent()
-                    or (opp and opp.dist_from_ball() < opp.player_type().kickable_area()+0.3)
-                    or (mate and mate.dist_from_ball() < mate.player_type().kickable_area() + 0.3)
+                    or (opp and opp.dist_from_ball < opp.player_type().kickable_area()+0.3)
+                    or (mate and mate.dist_from_ball < mate.player_type().kickable_area() + 0.3)
                 )
             ):
             view_half = max(0, next_view_width*0.5 - 20)
@@ -64,10 +64,10 @@ class NeckTurnToBall(NeckAction):
             and (wm.ball().pos.x() > 0
                 or wm.ball().pos.abs_y() > SP.pitch_half_width() - 8
                 or not opp
-                or opp.dist_from_ball() > 3)):
+                or opp.dist_from_ball > 3)):
             best_angle = NeckScanPlayers.INVALID_ANGLE
 
-            if ball_dist > SP.visible_distance() - 0.3 or wm.ball().seen_pos_count() > 0:
+            if ball_dist > SP.visible_distance() - 0.3 or wm.ball().seen_pos_count > 0:
                 min_neck_angle = bound(SP.min_neck_angle(),
                                        ball_rel_angle_next.degree() - view_half,
                                        SP.max_neck_angle())

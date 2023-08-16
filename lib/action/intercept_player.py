@@ -25,10 +25,10 @@ class PlayerIntercept:
         penalty_x_abs = ServerParam.i().pitch_half_length() - ServerParam.i().penalty_area_length()
         penalty_y_abs = ServerParam.i().penalty_area_half_width()
 
-        pos_count = min(player.seen_pos_count(), player.pos_count())
-        player_pos = (player.seen_pos()
-                      if player.seen_pos_count() <= player.pos_count()
-                      else player.pos())
+        pos_count = min(player.seen_pos_count, player.pos_count())
+        player_pos = (player.seen_pos
+                      if player.seen_pos_count <= player.pos_count
+                      else player.pos)
         min_cycle = 0
         ball_to_player = player_pos - wm.ball().pos
         ball_to_player.rotate(-wm.ball().vel.th())
@@ -40,7 +40,7 @@ class PlayerIntercept:
                              ServerParam.i().tackle_cycles() - player.tackle_count() - 2)
 
         min_cycle = max(0,
-                        min_cycle - min(player.seen_pos_count(),
+                        min_cycle - min(player.seen_pos_count,
                                         player.pos_count()))
         if min_cycle > max_cycle:
             return self.predict_final(player, player_type)
@@ -73,13 +73,13 @@ class PlayerIntercept:
         penalty_x_abs = ServerParam.i().pitch_half_length() - ServerParam.i().penalty_area_length()
         penalty_y_abs = ServerParam.i().penalty_area_half_width()
 
-        pos_count = min(player.seen_pos_count(), player.pos_count())
-        ppos = (player.seen_pos()
-                if player.seen_pos_count() <= player.pos_count()
-                else player.pos())
-        pvel = (player.seen_vel()
-                if player.seen_vel_count() <= player.vel_count()
-                else player.vel())
+        pos_count = min(player.seen_pos_count, player.pos_count())
+        ppos = (player.seen_pos
+                if player.seen_pos_count <= player.pos_count
+                else player.pos)
+        pvel = (player.seen_vel
+                if player.seen_vel_count <= player.vel_count
+                else player.vel)
 
         ball_pos = self._ball_cache[-1]
         ball_step = len(self._ball_cache)
@@ -101,7 +101,7 @@ class PlayerIntercept:
         dash_dist -= control_area
 
         if player.side() != wm.our_side():
-            dash_dist -= player.dist_from_self() * 0.03
+            dash_dist -= player.dist_from_self * 0.03
 
         if dash_dist < 0:
             return ball_step
@@ -123,12 +123,12 @@ class PlayerIntercept:
                            player_type: PlayerType,
                            control_area: float,
                            ball_pos: Vector2D):
-        ppos = (player.seen_pos()
-                if player.seen_pos_count() <= player.pos_count()
-                else player.pos())
-        pvel = (player.seen_vel()
-                if player.seen_vel_count() <= player.vel_count()
-                else player.vel())
+        ppos = (player.seen_pos
+                if player.seen_pos_count <= player.pos_count
+                else player.pos)
+        pvel = (player.seen_vel
+                if player.seen_vel_count <= player.vel_count
+                else player.vel)
 
         inertia_pos = player_type.inertia_point(ppos, pvel, cycle)
         target_rel = ball_pos - inertia_pos
@@ -187,13 +187,13 @@ class PlayerIntercept:
                              control_area: float,
                              ball_pos: Vector2D):
         wm = self._wm
-        pos_count = min(player.seen_pos_count(), player.pos_count())
-        ppos = (player.seen_pos()
-                if player.seen_pos_count() <= player.pos_count()
-                else player.pos())
-        pvel = (player.seen_vel()
-                if player.seen_vel_count() <= player.vel_count()
-                else player.vel())
+        pos_count = min(player.seen_pos_count, player.pos_count())
+        ppos = (player.seen_pos
+                if player.seen_pos_count <= player.pos_count
+                else player.pos)
+        pvel = (player.seen_vel
+                if player.seen_vel_count <= player.vel_count
+                else player.vel)
 
         player_pos = inertia_n_step_point(ppos, pvel,
                                           n_turn + max_dash,
@@ -211,7 +211,7 @@ class PlayerIntercept:
         if player.side != wm.our_side():
             n_dash -= bound(0,
                             pos_count - n_turn,
-                            min(6, wm.ball().seen_pos_count() + 1))
+                            min(6, wm.ball().seen_pos_count + 1))
         else:
             n_dash -= bound(0,
                             pos_count - n_turn,

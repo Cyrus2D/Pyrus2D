@@ -203,7 +203,7 @@ class BhvDribbleGen(BhvKickGen):
                     log.sw_log().dribble().add_text( "###OPP {} is ghost".format(o))
                 continue
 
-            if opp.dist_from_self() > 20.0:
+            if opp.dist_from_self > 20.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( "###OPP {} is far".format(o))
                 continue
@@ -258,9 +258,9 @@ class BhvDribbleGen(BhvKickGen):
                 bonus_step = -5
 
             if ball_to_opp_rel.x() > 0.5:
-                bonus_step += smath.bound(0, opp.pos_count(), 8)
+                bonus_step += smath.bound(0, opp.pos_count, 8)
             else:
-                bonus_step += smath.bound(0, opp.pos_count(), 4)
+                bonus_step += smath.bound(0, opp.pos_count, 4)
 
             if n_step - bonus_step <= dribble_step:
                 if debug_dribble:

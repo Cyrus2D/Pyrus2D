@@ -57,7 +57,7 @@ class BhvShhotGen(BhvKickGen):
     def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
         ball_move_angle = (target_point - wm.ball().pos()).th()
         goalie = wm.get_opponent_goalie()
-        if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count() < 30):
+        if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
             log.sw_log().shoot().add_text( "#shoot {} didnt see goalie".format(self.total_count))
             return
@@ -140,10 +140,10 @@ class BhvShhotGen(BhvKickGen):
                 log.sw_log().shoot().add_text( '## opp {} can not, goalie catch')
                 continue
 
-            if opp.pos_count() > 10:
+            if opp.pos_count > 10:
                 log.sw_log().shoot().add_text( '## opp {} can not, pos count')
                 continue
-            if opp.is_ghost() and opp.pos_count() > 5:
+            if opp.is_ghost() and opp.pos_count > 5:
                 log.sw_log().shoot().add_text( '## opp {} can not, ghost')
                 continue
 
@@ -165,7 +165,7 @@ class BhvShhotGen(BhvKickGen):
             return False
 
         goalie_speed = goalie.vel.r()
-        seen_dist_noise = goalie.dist_from_self() * 0.02
+        seen_dist_noise = goalie.dist_from_self * 0.02
         max_cycle = course.ball_reach_step
 
         for cycle in range(min_cycle, max_cycle):
@@ -191,7 +191,7 @@ class BhvShhotGen(BhvKickGen):
 
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            if n_dash > cycle + goalie.pos_count():
+            if n_dash > cycle + goalie.pos_count:
                 continue
             n_turn = 0
             if goalie.body_count() <= 1:
@@ -201,8 +201,8 @@ class BhvShhotGen(BhvKickGen):
             if n_turn == 0:
                 n_step += 1
 
-            bonus_step = smath.bound(0, goalie.pos_count(), 5) if in_penalty_area else smath.bound(0,
-                                                                                                   goalie.pos_count() - 1,
+            bonus_step = smath.bound(0, goalie.pos_count, 5) if in_penalty_area else smath.bound(0,
+                                                                                                   goalie.pos_count - 1,
                                                                                                    1)
             if not in_penalty_area:
                 bonus_step -= 1
@@ -210,7 +210,7 @@ class BhvShhotGen(BhvKickGen):
             if n_step <= cycle + bonus_step:
                 return True
 
-            if in_penalty_area and n_step <= cycle + goalie.pos_count() + 1:
+            if in_penalty_area and n_step <= cycle + goalie.pos_count + 1:
                 course.goalie_never_reach_ = False
         return False
 
@@ -238,7 +238,7 @@ class BhvShhotGen(BhvKickGen):
                 dash_dist -= control_area * 0.8
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            if n_dash > cycle + opponent.pos_count():
+            if n_dash > cycle + opponent.pos_count:
                 continue
 
             n_turn = 1
@@ -248,7 +248,7 @@ class BhvShhotGen(BhvKickGen):
             n_step =  n_turn + n_dash
             if n_turn == 0:
                 n_step += 1
-            bonus_step = smath.bound(0, opponent.pos_count(), 1)
+            bonus_step = smath.bound(0, opponent.pos_count, 1)
             penalty_step = -1
 
             if opponent.is_tackling():
@@ -257,9 +257,9 @@ class BhvShhotGen(BhvKickGen):
             if n_step <= cycle + bonus_step + penalty_step:
                 return True
 
-            if n_step <= cycle + opponent.pos_count() + 1:
+            if n_step <= cycle + opponent.pos_count + 1:
                 maybe_reach = True
-                diff = cycle + opponent.pos_count() - n_step
+                diff = cycle + opponent.pos_count - n_step
                 if diff < nearest_step_diff:
                     nearest_step_diff = diff
             if maybe_reach:

@@ -56,7 +56,7 @@ class SelfIntercept:
             wm.self().player_type().kickable_area()
 
         # dist is to far never reach with one dash
-        if wm.ball().dist_from_self() > \
+        if wm.ball().dist_from_self > \
                 ServerParam.i().ball_speed_max() \
                 + wm.self().player_type().real_speed_max() \
                 + control_area:

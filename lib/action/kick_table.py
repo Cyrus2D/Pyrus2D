@@ -473,8 +473,8 @@ class _KickTable:
         mid_dist = calc_mid_dist(self_type)
         far_dist = calc_far_dist(self_type)
 
-        rpos = world.ball().rpos()
-        rpos.rotate(- world.self().body())
+        rpos = world.ball().rpos.copy()
+        rpos.rotate(- world.self().body)
 
         dist = rpos.r()
         angle = rpos.th()
@@ -488,7 +488,7 @@ class _KickTable:
         if self._current_state.index_ >= dir_div:
             self._current_state.index_ = 0
 
-        # self._current_state.pos_ = world.ball().rpos()
+        # self._current_state.pos_ = world.ball().rpos.copy()
         self._current_state.pos_ = world.ball().pos.copy()
         self._current_state.kick_rate_ = world.self().kick_rate()
 
@@ -623,11 +623,11 @@ class _KickTable:
         for o in OFB:
             if o is None or o.player_type() is None:
                 continue
-            if o.pos_count() >= 8:
+            if o.pos_count >= 8:
                 continue
             if o.is_ghost():
                 continue
-            if o.dist_from_ball() > 10.0:
+            if o.dist_from_ball > 10.0:
                 break
 
             opp_next = o.pos + o.vel
@@ -648,7 +648,7 @@ class _KickTable:
             #
             # check kick possibility
             #
-            if not o.is_ghost() and o.pos_count() <= 2 and opp_dist < control_area + 0.15:
+            if not o.is_ghost() and o.pos_count <= 2 and opp_dist < control_area + 0.15:
                 flag |= KICKABLE
                 break
 
@@ -734,11 +734,11 @@ class _KickTable:
             for o in OFB:
                 if o is None or o.player_type() is None:
                     continue
-                if o.pos_count() >= 8:
+                if o.pos_count >= 8:
                     continue
                 if o.is_ghost():
                     continue
-                if o.dist_from_ball() > 10.0:
+                if o.dist_from_ball > 10.0:
                     break
                 opp_pos = o.inertia_point(cycle)
                 if not opp_pos.is_valid():
@@ -859,9 +859,9 @@ class _KickTable:
         my_kickable_area = self_type.kickable_area()
 
         my_noise = world.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
+        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body()).abs() / 180.0
 
-        current_dist_rate = ((world.ball().dist_from_self()
+        current_dist_rate = ((world.ball().dist_from_self
                               - self_type.player_size()
                               - param.ball_size())
                              / self_type.kickable_margin())
@@ -968,8 +968,8 @@ class _KickTable:
         my_kickable_area = self_type.kickable_area()
 
         my_noise1 = world.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
-        current_dist_rate = ((world.ball().dist_from_self()
+        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body()).abs() / 180.0
+        current_dist_rate = ((world.ball().dist_from_self
                               - self_type.player_size()
                               - param.ball_size())
                              / self_type.kickable_margin())

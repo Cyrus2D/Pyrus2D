@@ -97,8 +97,8 @@ class PlayerObject(Object):
 
     def is_kickable(self, buf=0.05):
         if self.player_type is None:
-            return self.dist_from_ball() < ServerParam.i().kickable_area()
-        return self.dist_from_ball() < self.player_type.kickable_area() - buf
+            return self.dist_from_ball < ServerParam.i().kickable_area()
+        return self.dist_from_ball < self.player_type.kickable_area() - buf
 
     def inertia_point(self, n_step):
         return self.player_type.inertia_point(self.pos, self.vel, n_step)

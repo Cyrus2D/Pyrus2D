@@ -67,7 +67,7 @@ class StopBall(BodyAction):
 
         safety_dist = wm.self().player_type().player_size() + ServerParam.i().ball_size() + 0.1
 
-        target_dist = wm.ball().dist_from_self()
+        target_dist = wm.ball().dist_from_self
         if target_dist < safety_dist:
             target_dist = safety_dist
 

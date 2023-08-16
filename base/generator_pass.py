@@ -65,8 +65,8 @@ class BhvPassGen(BhvKickGen):
             if tm.unum() == wm.self().unum():
                 log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum()} (self)')
                 continue
-            if tm.pos_count() > 10:
-                log.sw_log().pass_().add_text(f'-----<<< TM unum pos count {tm.pos_count()}')
+            if tm.pos_count > 10:
+                log.sw_log().pass_().add_text(f'-----<<< TM unum pos count {tm.pos_count}')
                 continue
             if tm.is_tackling():
                 log.sw_log().pass_().add_text(f'-----<<< TM is tackling')
@@ -556,11 +556,11 @@ class BhvPassGen(BhvKickGen):
                 else:
                     dash_dist -= control_area + 0.2
 
-            if dash_dist > ptype.real_speed_max() * (cycle + min(opponent.pos_count(), 5)):
+            if dash_dist > ptype.real_speed_max() * (cycle + min(opponent.pos_count, 5)):
                 continue
 
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
-            if n_dash > cycle + opponent.pos_count():
+            if n_dash > cycle + opponent.pos_count:
                 continue
 
             n_turn = 0

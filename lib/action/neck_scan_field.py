@@ -50,7 +50,7 @@ class NeckScanField(NeckAction):
         
         existed_ghost = False
         for p in wm.all_players():
-            if p.is_ghost() and p.dist_from_self() < 30:
+            if p.is_ghost() and p.dist_from_self < 30:
                 existed_ghost = True
                 break
         
@@ -71,7 +71,7 @@ class NeckScanField(NeckAction):
             or (
                 not gt.is_ind_free_kick()
                 and not gt.is_back_pass()
-                and wm.ball().dist_from_self() < wm.self().player_type().player_size() + 0.15
+                and wm.ball().dist_from_self < wm.self().player_type().player_size() + 0.15
             )
         )
         angle = self.calc_angle_default(agent, consider_patch)
@@ -172,7 +172,7 @@ class NeckScanField(NeckAction):
             return NeckScanField.INVALID_ANGLE
         
         gt = wm.game_mode().type()
-        if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self() > 2:
+        if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self > 2:
             return NeckScanField.INVALID_ANGLE
         
         next_self_pos = wm.self().pos + wm.self().vel

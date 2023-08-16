@@ -80,7 +80,7 @@ class TackleGenerator:
         max_angle = SP.max_moment()
         angle_step = abs(max_angle - min_angle) / TackleGenerator.ANGLE_DIVS
 
-        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body
+        ball_rel_angle = wm.ball().angle_from_self - wm.self().body
         tackle_rate = SP.tackle_power_rate() * (1 - 0.5*ball_rel_angle.abs()/ 180.)
 
         for a in range(TackleGenerator.ANGLE_DIVS):

@@ -33,11 +33,11 @@ def player_accuracy_value(p: PlayerObject):
         value += -1000
     elif p.unum() == UNUM_UNKNOWN:
         value += 1000
-    value += p.pos_count() + p.ghost_count() * 10
+    value += p.pos_count + p.ghost_count * 10
     return value
 
 def player_count_value(p: PlayerObject):
-    return p.pos_count() + p.ghost_count() * 10
+    return p.pos_count + p.ghost_count * 10
 
 def player_valid_check(p: PlayerObject):
     return p.pos_valid()
@@ -264,16 +264,16 @@ class WorldModel:
 
         for it in self._opponents_from_ball:
             x = it.pos.x()
-            if it.vel_count() <= 1 and it.vel.x() > 0:
+            if it.vel_count <= 1 and it.vel.x() > 0:
                 x += min(0.8, it.vel.x() / it.player_type().player_decay())
             elif it.body_count() <= 3 and it.body.abs() < 100:
-                x -= speed_rate * min(10, it.pos_count() - 1.5)
+                x -= speed_rate * min(10, it.pos_count - 1.5)
             else:
                 x -= speed_rate * min(10, it.pos_count())
 
             if x > second:
                 second = x
-                second_count = it.pos_count()
+                second_count = it.pos_count
                 if second > first:
                     # swap
                     first, second = second, first
@@ -300,11 +300,11 @@ class WorldModel:
 
         if (self._game_mode.type() == GameModeType.BeforeKickOff
                 and self._game_mode.type().is_after_goal()
-                and self.ball().pos_count() <= 3):
+                and self.ball().pos_count <= 3):
             ball_next = self.ball().pos + self.ball().vel
             if ball_next.x() > new_line:
                 new_line = ball_next.x()
-                count = self.ball().pos_count()
+                count = self.ball().pos_count
         self._their_defense_line_x = new_line
         self._their_defense_line_count = count
 
@@ -435,7 +435,7 @@ class WorldModel:
             if not with_goalie and p.goalie():
                 continue
 
-            if not p.is_ghost() and p.pos_count() <= count_thr:
+            if not p.is_ghost() and p.pos_count <= count_thr:
                 return p
 
         return None
@@ -489,15 +489,15 @@ class WorldModel:
         
         for p in self._teammates:
             p.update_by_last_cycle()
-        self._teammates = list(filter(lambda p: p.pos_count() < 30,self._teammates))
+        self._teammates = list(filter(lambda p: p.pos_count < 30,self._teammates))
 
         for p in self._opponents:
             p.update_by_last_cycle()
-        self._opponents = list(filter(lambda p: p.pos_count() < 30,self._opponents))
+        self._opponents = list(filter(lambda p: p.pos_count < 30,self._opponents))
         
         for p in self._unknown_players:
             p.update_by_last_cycle()
-        self._unknown_players = list(filter(lambda p: p.pos_count() < 30,self._unknown_players))
+        self._unknown_players = list(filter(lambda p: p.pos_count < 30,self._unknown_players))
 
         self._dir_count = [c+1 for c in self._dir_count]
     
@@ -508,17 +508,17 @@ class WorldModel:
             if self.self()._collides_with_player or self.self()._collides_with_post:
                 return 1000
         
-        if self.ball().rpos_count() == 1:
+        if self.ball().rpos_count == 1:
             if (see.balls()[0].dist_ < SP.visible_distance()
-                    and self._prev_ball.rpos().is_valid()
+                    and self._prev_ball.rpos.is_valid()
                     and self.self().vel_valid()
                     and self.self().last_move().is_valid()):
-                rpos_diff = rpos - self._prev_ball.rpos()
+                rpos_diff = rpos - self._prev_ball.rpos
                 tmp_vel = (rpos_diff + self.self().last_move()) * SP.ball_decay()
-                tmp_vel_error = rpos_error + self.self().vel_error() * SP.ball_decay()
+                tmp_vel_error = rpos_error + self.self().vel_error * SP.ball_decay()
 
-                if (self.ball().seen_vel_count() <= 2
-                        and self._prev_ball.rpos().r() > 1.5
+                if (self.ball().seen_vel_count <= 2
+                        and self._prev_ball.rpos.r() > 1.5
                         and see.balls()[0].dist_ > 1.5
                         and abs(tmp_vel.x() - self.ball().vel.x()) < 0.1
                         and abs(tmp_vel.y() - self.ball().vel.y()) < 0.1):
@@ -527,15 +527,15 @@ class WorldModel:
                 vel_error.assign(tmp_vel_error.x(), tmp_vel_error.y())
                 return 1
         
-        elif self.ball().rpos_count() == 2:
+        elif self.ball().rpos_count == 2:
             if (see.balls()[0].dist_ < SP.visible_distance()
                     and act.last_body_command() is not CommandType.KICK
-                    and self.ball().seen_rpos().is_valid()
-                    and self.ball().seen_rpos().r() < SP.visible_distance()
+                    and self.ball().seen_rpos.is_valid()
+                    and self.ball().seen_rpos.r() < SP.visible_distance()
                     and self.self().vel_valid()
                     and self.self().last_move(0).is_valid()
                     and self.self().last_move(1).is_valid()):
-                ball_move: Vector2D = rpos - self.ball().seen_rpos()
+                ball_move: Vector2D = rpos - self.ball().seen_rpos
                 for i in range(2):
                     ball_move += self.self().last_move(i)
                 vel.set_vector(ball_move * ((SP.ball_decay() ** 2) / (1 + SP.ball_decay())))
@@ -552,18 +552,18 @@ class WorldModel:
                     vel_error *= SP.ball_decay()
                     return 2
         
-        elif self.ball().rpos_count() == 3:
+        elif self.ball().rpos_count == 3:
             if (see.balls()[0].dist_ < SP.visible_distance()
                 and act.last_body_command(0) is not CommandType.KICK
                 and act.last_body_command(1) is not CommandType.KICK
-                and self.ball().seen_rpos().is_valid()
-                and self.ball().seen_rpos().r() < SP.visible_distance()
+                and self.ball().seen_rpos.is_valid()
+                and self.ball().seen_rpos.r() < SP.visible_distance()
                 and self.self().vel_valid()
                 and self.self().last_move(0).is_valid()
                 and self.self().last_move(1).is_valid()
                 and self.self().last_move(2).is_valid()):
 
-                ball_move: Vector2D = rpos - self.ball().seen_rpos()
+                ball_move: Vector2D = rpos - self.ball().seen_rpos
                 for i in range(3):
                     ball_move += self.self().last_move(i)
                 vel.set_vector(ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2)))
@@ -619,11 +619,11 @@ class WorldModel:
             return
         
         if not self.self().pos_valid():
-            if (self._prev_ball.rpos_count() == 0
+            if (self._prev_ball.rpos_count == 0
                 and see.balls()[0].dist_ > self.self().player_type().player_size() + SP.ball_size() + 0.1
                 and self.self().last_move().is_valid()):
                 tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
-                tvel_err = rpos_err + self.self().vel_error()
+                tvel_err = rpos_err + self.self().vel_error
 
                 tvel *= SP.ball_decay()
                 tvel_err *= SP.ball_decay()
@@ -632,17 +632,17 @@ class WorldModel:
             return
         
         pos = self.self().pos + rpos
-        pos_err = self.self().pos_error() + rpos_err
+        pos_err = self.self().pos_error + rpos_err
         gvel = Vector2D.invalid()
         vel_count = 1000
         
         if WorldModel.DEBUG:
-            log.sw_log().world().add_text( f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count()}")
+            log.sw_log().world().add_text( f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count}")
             log.sw_log().world().add_text( f"(localize ball) rvel={rvel}, self_vel={self.self().vel}")
         
         if rvel.is_valid() and self.self().vel_valid():
             gvel = self.self().vel + rvel
-            vel_err += self.self().vel_error()
+            vel_err += self.self().vel_error
             vel_count = 0
         
         if not gvel.is_valid():
@@ -650,20 +650,20 @@ class WorldModel:
         
         if not gvel.is_valid():
             if (see.balls()[0].dist_ < 2
-                and self._prev_ball.seen_pos_count() == 0
-                and self._prev_ball.rpos_count() == 0
-                and self._prev_ball.rpos().r() < 5):
+                and self._prev_ball.seen_pos_count == 0
+                and self._prev_ball.rpos_count == 0
+                and self._prev_ball.rpos.r() < 5):
 
                 gvel = pos - self._prev_ball.pos
                 vel_err += pos_err + self._prev_ball._pos_error + self._prev_ball._vel_error
                 vel_count = 2
             elif (see.balls()[0].dist_ < 2
                   and not self.self().is_kicking()
-                  and 2 <= self._ball.seen_pos_count() <= 6
+                  and 2 <= self._ball.seen_pos_count <= 6
                   and self.self().last_move(0).is_valid()
                   and self.self().last_move(1).is_valid()):
-                prev_pos = self._ball.seen_pos()
-                move_step = self._ball.seen_pos_count()
+                prev_pos = self._ball.seen_pos
+                move_step = self._ball.seen_pos_count
                 ball_move: Vector2D = pos - prev_pos
                 dist = ball_move.r()
                 speed = SP.first_ball_speed(dist, move_step)
@@ -672,11 +672,11 @@ class WorldModel:
                 vel_count = move_step
         
         if gvel.is_valid():
-            self._ball.update_all(pos, pos_err, self.self().pos_count(),
+            self._ball.update_all(pos, pos_err, self.self().pos_count,
                                   rpos, rpos_err,
                                   gvel, vel_err, vel_count)
         else:
-            self._ball.update_pos(pos, pos_err, self.self().pos_count(), rpos, rpos_err)
+            self._ball.update_pos(pos, pos_err, self.self().pos_count, rpos, rpos_err)
     
     def their_side(self):
         return SideID.LEFT if self._our_side is SideID.RIGHT else SideID.RIGHT
@@ -710,11 +710,11 @@ class WorldModel:
             if p.unum() != UNUM_UNKNOWN and player.unum_ != UNUM_UNKNOWN and p.unum() != player.unum_:
                 log.os_log().debug(f'--------------<< No (unum)')
                 continue
-            count = p.seen_pos_count()
-            old_pos = p.seen_pos()
-            if p.heard_pos_count() < p.seen_pos_count():
-                count = p.heard_pos_count()
-                old_pos = p.heard_pos()
+            count = p.seen_pos_count
+            old_pos = p.seen_pos
+            if p.heard_pos_count < p.seen_pos_count:
+                count = p.heard_pos_count
+                old_pos = p.heard_pos
             
             d = player.pos_.dist(old_pos)
             if d > p.player_type().real_speed_max() * count + player.dist_error_ * 2.0:
@@ -732,11 +732,11 @@ class WorldModel:
                 log.os_log().debug(f'--------------<< No (unum)')
                 continue
             
-            count = p.seen_pos_count()
-            old_pos = p.seen_pos()
-            if p.heard_pos_count() < p.seen_pos_count():
-                count = p.heard_pos_count()
-                old_pos = p.heard_pos()
+            count = p.seen_pos_count
+            old_pos = p.seen_pos
+            if p.heard_pos_count < p.seen_pos_count:
+                count = p.heard_pos_count
+                old_pos = p.heard_pos
             
             d = player.pos_.dist(old_pos)
             if d > p.player_type().real_speed_max() * count + player.dist_error_ * 2.0:
@@ -792,11 +792,11 @@ class WorldModel:
                 and p.unum() != player.unum_):
                 continue
             
-            count = p.seen_pos_count()
-            old_pos = p.seen_pos()
-            if p.heard_pos_count() < p.seen_pos_count():
-                count = p.heard_pos_count()
-                old_pos = p.heard_pos()
+            count = p.seen_pos_count
+            old_pos = p.seen_pos
+            if p.heard_pos_count < p.seen_pos_count:
+                count = p.heard_pos_count
+                old_pos = p.heard_pos
             
             d = player.pos_.dist(old_pos)
             if d > p.player_type().real_speed_max() * count:
@@ -812,11 +812,11 @@ class WorldModel:
                 and p.unum() != player.unum_):
                 continue
             
-            count = p.seen_pos_count()
-            old_pos = p.seen_pos()
-            if p.heard_pos_count() < p.seen_pos_count():
-                count = p.heard_pos_count()
-                old_pos = p.heard_pos()
+            count = p.seen_pos_count
+            old_pos = p.seen_pos
+            if p.heard_pos_count < p.seen_pos_count:
+                count = p.heard_pos_count
+                old_pos = p.heard_pos
             
             d = player.pos_.dist(old_pos)
             if d > p.player_type().real_speed_max() * count:
@@ -832,11 +832,11 @@ class WorldModel:
                 and p.unum() != player.unum_):
                 continue
             
-            count = p.seen_pos_count()
-            old_pos = p.seen_pos()
-            if p.heard_pos_count() < p.seen_pos_count():
-                count = p.heard_pos_count()
-                old_pos = p.heard_pos()
+            count = p.seen_pos_count
+            old_pos = p.seen_pos
+            if p.heard_pos_count < p.seen_pos_count:
+                count = p.heard_pos_count
+                old_pos = p.heard_pos
             
             d = player.pos_.dist(old_pos)
             if d > p.player_type().real_speed_max() * count:
@@ -1006,7 +1006,7 @@ class WorldModel:
         self.localize_players(see)
         self.update_player_type()
         
-        if self.self().pos_count() <= 10:
+        if self.self().pos_count <= 10:
             varea = ViewArea(self.self().view_width().width(),
                              self.self().pos,
                              self.self().face(),
@@ -1075,17 +1075,17 @@ class WorldModel:
     
     def update_kickables(self):
         for p in self._teammates_from_ball:
-            if p.is_ghost() or p.is_tackling() or p.pos_count() > self.ball().pos_count():
+            if p.is_ghost() or p.is_tackling() or p.pos_count > self.ball().pos_count:
                 continue
             
             if p.is_kickable(0):
                 self._kickable_teammate = p
                 break
         for p in self._opponents_from_ball:
-            if p.is_ghost() or p.is_tackling() or p.pos_count() >= 10:
+            if p.is_ghost() or p.is_tackling() or p.pos_count >= 10:
                 continue
             
-            if p.dist_from_ball() > 5:
+            if p.dist_from_ball > 5:
                 break
             
             if p.is_kickable(0):
@@ -1263,7 +1263,7 @@ class WorldModel:
                 goalie = o
                 break
 
-        if goalie is not None and goalie.pos_count() == 0 and goalie.body_count() == 0:
+        if goalie is not None and goalie.pos_count == 0 and goalie.body_count() == 0:
             return
 
         heard_pos = Vector2D(0, 0)
@@ -1292,7 +1292,7 @@ class WorldModel:
                 continue
 
             d = o.pos.dist(heard_pos)
-            if d < min_dist and d < o.pos_count() * goalie_speed_max + o.dist_from_self() * 0.06:
+            if d < min_dist and d < o.pos_count * goalie_speed_max + o.dist_from_self * 0.06:
                 min_dist = d
                 goalie = o
 
@@ -1454,13 +1454,13 @@ class WorldModel:
                         continue
                     
                     d = p.pos.dist(player.pos_)
-                    if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    if d < min_dist and p.pos_count*1.2 + p.dist_from_self *0.06:
                         min_dist = d
                         target_player = p
                 
                 for p in self._unknown_players:
                     d = p.pos.dist(player.pos_)
-                    if d < min_dist and d < p.pos_count()*1.2 + p.dist_from_self() *0.06:
+                    if d < min_dist and d < p.pos_count*1.2 + p.dist_from_self *0.06:
                         min_dist = d
                         target_player = p
                         unknown = p
@@ -1592,7 +1592,7 @@ class WorldModel:
 
         angle_buf = 5.
         
-        if self.ball().rpos_count() > 0 and self.ball().pos_valid():
+        if self.ball().rpos_count > 0 and self.ball().pos_valid():
             ball_vis_dist2 = (
                 SP.visible_distance()
                 - (self.self().vel.r() / self.self().player_type().player_decay()) * 0.1
@@ -1612,8 +1612,8 @@ class WorldModel:
         
         removing_teammates = []
         for p in self._teammates:
-            if p.pos_count() > 0 and varea.contains(p.pos, angle_buf, vis_dist2):
-                if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
+            if p.pos_count > 0 and varea.contains(p.pos, angle_buf, vis_dist2):
+                if p.unum() == UNUM_UNKNOWN and p.pos_count >= 10 and p.ghost_count >= 2:
                     removing_teammates.append(p)
                     continue
                 p.set_ghost()
@@ -1622,8 +1622,8 @@ class WorldModel:
         
         removing_opponents = []
         for p in self._opponents:
-            if p.pos_count() > 0 and varea.contains(p.pos, 1., vis_dist2):
-                if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
+            if p.pos_count > 0 and varea.contains(p.pos, 1., vis_dist2):
+                if p.unum() == UNUM_UNKNOWN and p.pos_count >= 10 and p.ghost_count >= 2:
                     removing_opponents.append(p)
                     continue
                 log.sw_log().world().add_text(f'opponent is going to be a ghost: {p}')
@@ -1633,8 +1633,8 @@ class WorldModel:
         
         removing_unknown_players = []
         for p in self._unknown_players:
-            if p.pos_count() > 0 and varea.contains(p.pos, 1., vis_dist2):
-                if p.dist_from_self() < 40 *1.06 and p.is_ghost():
+            if p.pos_count > 0 and varea.contains(p.pos, 1., vis_dist2):
+                if p.dist_from_self < 40 *1.06 and p.is_ghost():
                     removing_unknown_players.append(p)
                     continue
                 p.set_ghost()
@@ -1720,7 +1720,7 @@ class WorldModel:
         for p in self._teammates:
             if p is None:
                 continue
-            if p.pos_count() > count_thr or p.is_ghost():
+            if p.pos_count > count_thr or p.is_ghost():
                 continue
             if region.contains(p.pos()):
                 return True

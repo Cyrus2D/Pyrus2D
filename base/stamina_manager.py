@@ -33,7 +33,7 @@ def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
         dash_power = my_inc - 25.0
         if dash_power < 0.0:
             dash_power = 0.0
-    elif wm.exist_kickable_teammates() and wm.ball().dist_from_self() < 20.0:
+    elif wm.exist_kickable_teammates() and wm.ball().dist_from_self < 20.0:
         dash_power = min(my_inc * 1.1, SP.i().max_dash_power())
     elif wm.self().pos.x() > wm.offside_line_x():
         dash_power = SP.i().max_dash_power()

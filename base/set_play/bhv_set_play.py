@@ -110,7 +110,7 @@ class Bhv_SetPlay:
 
         if kicker is None:
             if len(wm.teammates_from_ball()) > 0 and \
-                    wm.teammates_from_ball()[0].dist_from_ball() < wm.ball().dist_from_self() * 0.9:
+                    wm.teammates_from_ball()[0].dist_from_ball < wm.ball().dist_from_self * 0.9:
                 log.sw_log().team().add_text( "(is kicker) first kicker")
                 return False
 
@@ -124,14 +124,14 @@ class Bhv_SetPlay:
             if min_dist2 ** 0.5 < (second_min_dist2 ** 0.5) * 0.95:
                 log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (1)")
                 return kicker.unum() == wm.self().unum()
-            elif kicker.dist_from_ball() < second_kicker.dist_from_ball() * 0.95:
+            elif kicker.dist_from_ball < second_kicker.dist_from_ball * 0.95:
                 log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (2)")
                 return kicker.unum() == wm.self().unum()
-            elif second_kicker.dist_from_ball() < kicker.dist_from_ball() * 0.95:
+            elif second_kicker.dist_from_ball < kicker.dist_from_ball * 0.95:
                 log.sw_log().team().add_text( f"(is kicker) kicker->unum={kicker.unum()} (3)")
                 return second_kicker.unum() == wm.self().unum()
             elif len(wm.teammates_from_ball()) > 0 and \
-                    wm.teammates_from_ball()[0].dist_from_ball() < wm.self().dist_from_ball() * 0.95:
+                    wm.teammates_from_ball()[0].dist_from_ball < wm.self().dist_from_ball * 0.95:
                 log.sw_log().team().add_text( "(is kicker) other kicker")
                 return False
             else:

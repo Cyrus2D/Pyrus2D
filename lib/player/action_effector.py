@@ -424,7 +424,7 @@ class ActionEffector:
         wm = self._agent.world()
 
         diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w()*0.5, SP.catch_area_l())
-        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body
+        ball_rel_angle = wm.ball().angle_from_self - wm.self().body
         catch_angle = (ball_rel_angle + diagonal_angle).degree()
 
         if not (SP.min_catch_angle() < catch_angle < SP.max_catch_angle()):
@@ -690,7 +690,7 @@ class ActionEffector:
         return vel
 
     def queued_next_ball_kickable(self):
-        if self._agent.world().ball().rpos_count() >= 3:
+        if self._agent.world().ball().rpos_count >= 3:
             return False
 
         my_next = self.queued_next_self_pos()

@@ -113,7 +113,7 @@ class TackleToPoint(BodyAction):
         #         return agent.do_tackle(- sp.maxBackTacklePower())
         #     return False
 
-        ball_rel_angle = wm.ball().rpos().th() - wm.self().body
+        ball_rel_angle = wm.ball().rpos.th() - wm.self().body
 
         eff_power = sp.max_back_tackle_power() + (
                 (sp.max_tackle_power() - sp.max_back_tackle_power()) * (1.0 - target_rel_angle.abs() / 180.0))

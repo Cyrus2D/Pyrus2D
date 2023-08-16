@@ -41,7 +41,7 @@ class SamplePlayer(PlayerAgent):
             return True
 
         count_thr = 10 if wm.self().goalie() else 5
-        if wm.ball().pos_count() > count_thr or ( wm.game_mode().type() is not GameModeType.PlayOn and wm.ball().seen_pos_count() > count_thr + 10):
+        if wm.ball().pos_count > count_thr or ( wm.game_mode().type() is not GameModeType.PlayOn and wm.ball().seen_pos_count > count_thr + 10):
             self.set_view_action(ViewTactical())
             NeckBodyToBall().execute(self)
             return True
@@ -69,8 +69,8 @@ class SamplePlayer(PlayerAgent):
         log.sw_log().team().add_text( f"(sample palyer do heard pass) heard_pos={heard_pos}, intercept_pos={intercept_pos}")
 
         if not wm.kickable_teammate() \
-            and wm.ball().pos_count() <= 1 \
-            and wm.ball().vel_count() <= 1 \
+            and wm.ball().pos_count <= 1 \
+            and wm.ball().vel_count <= 1 \
             and self_min < 20:
             log.sw_log().team().add_text( f"(sample palyer do heard pass) intercepting!, self_min={self_min}")
             log.debug_client().add_message("Comm:Receive:Intercept")

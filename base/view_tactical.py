@@ -88,15 +88,15 @@ class ViewTactical(ViewAction):
         opponent_ball_dist = 1000.
 
         if len(wm.teammates_from_ball()) > 0:
-            teammate_ball_dist = wm.teammates_from_ball()[0].dist_from_ball()
+            teammate_ball_dist = wm.teammates_from_ball()[0].dist_from_ball
         if len(wm.opponents_from_ball()) > 0:
-            opponent_ball_dist = wm.opponents_from_ball()[0].dist_from_ball()
+            opponent_ball_dist = wm.opponents_from_ball()[0].dist_from_ball
 
         if (not wm.self().goalie()
             and teammate_ball_dist > 5
             and opponent_ball_dist > 5
             and ball_dist > 10
-            and wm.ball().dist_from_self() > 10):
+            and wm.ball().dist_from_self > 10):
 
             return ViewWidth.NORMAL
         return ViewWidth.NARROW

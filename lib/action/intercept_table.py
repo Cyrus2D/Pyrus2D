@@ -198,7 +198,7 @@ class InterceptTable:
                           "Intercept Opponent. exits kickable opponent")
             self._opponent_reach_cycle = 0
             for o in opponents:
-                if o.is_ghost() or o.pos_count() > wm.ball().pos_count() + 1:
+                if o.is_ghost() or o.pos_count > wm.ball().pos_count + 1:
                     continue
                 self._fastest_opponent = o
                 log.sw_log().intercept().add_text(
@@ -211,7 +211,7 @@ class InterceptTable:
 
         predictor = PlayerIntercept(wm, self._ball_cache)
         for it in opponents:
-            if it.pos_count() >= 15:
+            if it.pos_count >= 15:
                 continue
 
             player_type = it.player_type()
@@ -248,7 +248,7 @@ class InterceptTable:
                           "Intercept Teammates. exits kickable teammate")
             self._teammate_reach_cycle = 0
             for t in teammates:
-                if t.is_ghost() or t.pos_count() > wm.ball().pos_count() + 1:
+                if t.is_ghost() or t.pos_count > wm.ball().pos_count + 1:
                     continue
                 self._fastest_teammate = t
                 log.sw_log().intercept().add_text(
@@ -261,7 +261,7 @@ class InterceptTable:
 
         predictor = PlayerIntercept(wm, self._ball_cache)
         for it in teammates:
-            if it.pos_count() >= 10:
+            if it.pos_count >= 10:
                 continue
 
             player_type = it.player_type()

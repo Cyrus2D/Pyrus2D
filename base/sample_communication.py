@@ -49,7 +49,7 @@ class SampleCommunication:
         wm = agent.world()
         ef = agent.effector()
 
-        if wm.ball().seen_pos_count() > 0 or wm.ball().seen_vel_count() > 2:
+        if wm.ball().seen_pos_count > 0 or wm.ball().seen_vel_count > 2:
             return False
         if wm.game_mode().type() != GameModeType.PlayOn and ef.queued_next_ball_vel().r2() < 0.5 ** 2:
             return False
@@ -93,7 +93,7 @@ class SampleCommunication:
         for p in wm.teammates_from_ball():
             if p is None:
                 continue
-            if p.is_ghost() or p.pos_count() >= 10:
+            if p.is_ghost() or p.pos_count >= 10:
                 continue
 
             if ball_nearest_teammate is None:
@@ -106,7 +106,7 @@ class SampleCommunication:
         opp_min = wm.intercept_table().opponent_reach_cycle()
 
         if ball_nearest_teammate is None \
-                or ball_nearest_teammate.dist_from_ball() > wm.ball().dist_from_self() - 3.:
+                or ball_nearest_teammate.dist_from_ball > wm.ball().dist_from_self - 3.:
             log.sw_log().communication().add_text('(sample communication) maybe nearest to ball')
 
             if ball_vel_changed or (opp_min <= 1 and current_ball_speed > 1.):
@@ -114,8 +114,8 @@ class SampleCommunication:
                 return True
 
         if ball_nearest_teammate is not None \
-                and wm.ball().dist_from_self() < 20. \
-                and 1. < ball_nearest_teammate.dist_from_ball() < 6. \
+                and wm.ball().dist_from_self < 20. \
+                and 1. < ball_nearest_teammate.dist_from_ball < 6. \
                 and (opp_min <= our_min + 1 or ball_vel_changed):
             log.sw_log().communication().add_text('(sample communication) support nearset player')
             return True
@@ -128,11 +128,11 @@ class SampleCommunication:
         if goalie is None:
             return False
 
-        if goalie.seen_pos_count() == 0 \
+        if goalie.seen_pos_count == 0 \
                 and goalie.body_count() == 0 \
                 and goalie.unum() != UNUM_UNKNOWN \
                 and goalie.unum_count() == 0 \
-                and goalie.dist_from_self() < 25. \
+                and goalie.dist_from_self < 25. \
                 and 51. - 16. < goalie.pos.x() < 52.5 \
                 and goalie.pos.abs_y() < 20.:
 
@@ -194,7 +194,7 @@ class SampleCommunication:
                 objects[0].score = -1000
             else:
                 objects[0].score = 1000
-        elif wm.ball().seen_pos_count() > 0 or wm.ball().seen_vel_count() > 1 or wm.kickable_teammate():
+        elif wm.ball().seen_pos_count > 0 or wm.ball().seen_vel_count > 1 or wm.kickable_teammate():
             objects[0].score = -1000
         elif should_say_ball:
             objects[0].score = 1000
@@ -325,12 +325,12 @@ class SampleCommunication:
             goalie: PlayerObject = wm.get_their_goalie()
 
             if goalie is not None \
-                    and goalie.seen_pos_count() == 0 \
+                    and goalie.seen_pos_count == 0 \
                     and goalie.body_count() == 0 \
                     and goalie.pos.x() > 53. - 16 \
                     and goalie.pos.abs_y() < 20. \
                     and goalie.unum() != UNUM_UNKNOWN \
-                    and goalie.dist_from_self() < 25:
+                    and goalie.dist_from_self < 25:
                 if available_len >= Messenger.SIZES[Messenger.Types.GOALIE_PLAYER]:
                     player: PlayerObject = None
                     for p in send_players:
@@ -420,7 +420,7 @@ class SampleCommunication:
                     and p0.goalie() \
                     and p0.pos.x() > 53. - 16. \
                     and p0.pos.abs_y() < 20 \
-                    and p0.dist_from_self() < 25:
+                    and p0.dist_from_self < 25:
                 goalie_pos = p0.pos + p0.vel
                 goalie_pos.assign(
                     bound(53. - 16., goalie_pos.x(), 52.9),
@@ -514,7 +514,7 @@ class SampleCommunication:
                 for p in wm.teammates_from_self():
                     if p.goalie() or p.unum() == UNUM_UNKNOWN or p.pos.x() > wm.offside_line_x() + 1.:
                         continue
-                    if p.dist_from_self() > 20.:
+                    if p.dist_from_self > 20.:
                         break
 
                     candidates.append(p)
@@ -568,8 +568,8 @@ class SampleCommunication:
             and opp_min <= 3 \
             and opp_min <= mate_min \
             and opp_min <= self_min \
-            and nearest_teammate.dist_from_self() < 45. \
-            and nearest_teammate.dist_from_ball() < 20.:
+            and nearest_teammate.dist_from_self < 45. \
+            and nearest_teammate.dist_from_ball < 20.:
             log.debug_client().add_message(f'AttBallNearest(1){nearest_teammate.unum()}')
             log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
             log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')
@@ -578,8 +578,8 @@ class SampleCommunication:
 
         if nearest_teammate is not None \
             and nearest_teammate.unum() != UNUM_UNKNOWN \
-            and wm.ball().pos_count() >= 3 \
-            and nearest_teammate.dist_from_ball() < 20.:
+            and wm.ball().pos_count >= 3 \
+            and nearest_teammate.dist_from_ball < 20.:
             log.debug_client().add_message(f'AttBallNearest(2){nearest_teammate.unum()}')
             log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
             log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')
@@ -588,8 +588,8 @@ class SampleCommunication:
 
         if nearest_teammate is not None \
             and nearest_teammate.unum() != 45. \
-            and nearest_teammate.dist_from_self() < 45. \
-            and nearest_teammate.dist_from_ball() < 3.5:
+            and nearest_teammate.dist_from_self < 45. \
+            and nearest_teammate.dist_from_ball < 3.5:
             log.debug_client().add_message(f'AttBallNearest(3){nearest_teammate.unum()}')
             log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
             log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')

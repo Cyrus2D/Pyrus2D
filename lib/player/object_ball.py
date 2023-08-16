@@ -103,7 +103,7 @@ class BallObject(Object):
             self.pos_count = min(1000, self.pos_count + 1)
         else:
             if (self.pos_count >= 5 or (self.rpos_count >= 2
-                                         and self.dist_from_self() * 1.05 < SP.visible_distance())):
+                                         and self.dist_from_self * 1.05 < SP.visible_distance())):
                 self.pos_count = 1000
             else:
                 self.pos_count = 1
@@ -212,20 +212,20 @@ class BallObject(Object):
 
     def update_self_related(self, player: 'SelfObject' , prev: 'BallObject'):
         if self.rpos_count == 0:
-            self.dist_from_self = self.rpos().r()
-            self.angle_from_self = self.rpos().th()
+            self.dist_from_self = self.rpos.r()
+            self.angle_from_self = self.rpos.th()
         else:
             if prev.rpos.is_valid() and player.last_move().is_valid():
                 self.rpos = prev.rpos + self.vel / ServerParam.i().ball_decay() - player.last_move()
             
-            if self.rpos().is_valid() and self.pos_count > self.rpos_count:
-                self.pos = player.pos + self.rpos()
-                self.dist_from_self = self.rpos().r()
-                self.angle_from_self = self.rpos().th()
+            if self.rpos.is_valid() and self.pos_count > self.rpos_count:
+                self.pos = player.pos + self.rpos
+                self.dist_from_self = self.rpos.r()
+                self.angle_from_self = self.rpos.th()
             elif self.pos_valid() and player.pos_valid():
                 self.rpos = self.pos - player.pos
-                self.dist_from_self = self.rpos().r()
-                self.angle_from_self = self.rpos().th()
+                self.dist_from_self = self.rpos.r()
+                self.angle_from_self = self.rpos.th()
             else:
                 self.dist_from_self = 1000
                 self.angle_from_self = AngleDeg(0)
@@ -277,7 +277,7 @@ class BallObject(Object):
                 self.vel_count =1
             return
         
-        if self.pos_count > 0 and sender_to_ball_dist+ 1 < ServerParam.i().visible_distance() < self.dist_from_self():
+        if self.pos_count > 0 and sender_to_ball_dist+ 1 < ServerParam.i().visible_distance() < self.dist_from_self:
             self.pos = heard_pos.copy()
             self.pos_count = 1
             
