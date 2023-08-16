@@ -349,7 +349,7 @@ class SampleCommunication:
                                                                            goalie.body,
                                                                            (
                                                                                player.unum() if player.side() == wm.our_side() else player.unum() + 11),
-                                                                           player.pos + player.vel()))
+                                                                           player.pos + player.vel))
                         self.update_player_send_time(wm, goalie.side(), goalie.unum())
                         self.update_player_send_time(wm, player.side(), player.unum())
 
@@ -387,7 +387,7 @@ class SampleCommunication:
                                                               send_players[1].number,
                                                               p1.pos + p1.vel,
                                                               send_players[2].number,
-                                                              p2.pos + p2.vel()))
+                                                              p2.pos + p2.vel))
             self.update_player_send_time(wm, p0.side(), p0.unum())
             self.update_player_send_time(wm, p1.side(), p1.unum())
             self.update_player_send_time(wm, p2.side(), p2.unum())
@@ -405,7 +405,7 @@ class SampleCommunication:
             agent.add_say_message(TwoPlayerMessenger(send_players[0].number,
                                                             p0.pos + p0.vel,
                                                             send_players[1].number,
-                                                            p1.pos + p1.vel()))
+                                                            p1.pos + p1.vel))
             self.update_player_send_time(wm, p0.side(), p0.unum())
             self.update_player_send_time(wm, p1.side(), p1.unum())
 
@@ -440,7 +440,7 @@ class SampleCommunication:
             p0 = send_players[0].player
 
             agent.add_say_message(OnePlayerMessenger(send_players[0].number,
-                                                            p0.pos + p0.vel()))
+                                                            p0.pos + p0.vel))
 
             self.update_player_send_time(wm, p0.side(), p0.unum())
 

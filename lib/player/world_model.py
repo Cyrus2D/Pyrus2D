@@ -543,7 +543,7 @@ class WorldModel:
                 estimate_speed = self.ball().vel.r()
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*2) - 0.1
-                    or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
+                    or (vel - self.ball().vel).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
 
                     vel.invalidate()
                     return 1000
@@ -571,7 +571,7 @@ class WorldModel:
                 estimate_speed = self.ball().vel.r()
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*3) - 0.1
-                    or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
+                    or (vel - self.ball().vel).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
 
                     vel.invalidate()
                     return 1000

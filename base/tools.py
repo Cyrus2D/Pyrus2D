@@ -40,7 +40,7 @@ class Tools:
             return 1
 
         if kicker == wm.self().unum() and wm.self().is_kickable():
-            max_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel())
+            max_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel)
             if max_vel.r2() >= pow( first_ball_speed, 2):
                 return 1
         if first_ball_speed > 2.5:

@@ -812,7 +812,7 @@ class _KickTable:
         if accel_r > current_max_accel:
             max_vel = calc_max_velocity(target_vel.th(),
                                         self._current_state.kick_rate_,
-                                        world.ball().vel())
+                                        world.ball().vel)
             accel = max_vel - world.ball().vel
             self._candidates.append(Sequence())
             self._candidates[-1].flag_ = self._current_state.flag_

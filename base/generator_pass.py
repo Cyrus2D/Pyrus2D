@@ -108,7 +108,7 @@ class BhvPassGen(BhvKickGen):
         # TODO SP.defaultRealSpeedMax()
         min_ball_speed = 1.0
 
-        receive_point = ptype.inertiaFinalPoint(receiver.pos, receiver.vel())
+        receive_point = ptype.inertiaFinalPoint(receiver.pos, receiver.vel)
         ball_move_dist = wm.ball().pos.dist(receive_point)
 
         if ball_move_dist < min_direct_pass_dist or max_direct_pass_dist < ball_move_dist:

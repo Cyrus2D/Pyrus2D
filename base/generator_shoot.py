@@ -70,7 +70,7 @@ class BhvShhotGen(BhvKickGen):
 
         ball_move_dist = wm.ball().pos.dist(target_point)
 
-        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel())
+        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel)
         max_one_step_speed = max_one_step_vel.r()
 
         first_ball_speed = max((ball_move_dist + 5.0) * (1.0 - sp.ball_decay()), max_one_step_speed, 1.5)
