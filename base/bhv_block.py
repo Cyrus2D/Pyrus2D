@@ -26,12 +26,12 @@ class Bhv_Block:
             tm = wm.our_player(unum)
             if tm is None:
                 continue
-            if tm.unum() < 1:
+            if tm.unum < 1:
                 continue
             for c in range(1, 40):
                 dribble_pos = ball_pos + Vector2D.polar2vector(c * dribble_speed_etimate, dribble_angle_estimate)
-                turn_cycle = Tools.predict_player_turn_cycle(tm.player_type(), tm.body, tm.vel.r(), tm.pos.dist(dribble_pos), (dribble_pos - tm.pos).th(), 0.2, False)
-                tm_cycle = tm.player_type().cycles_to_reach_distance(tm.inertia_point(opp_min).dist(dribble_pos)) + turn_cycle
+                turn_cycle = Tools.predict_player_turn_cycle(tm.player_type, tm.body, tm.vel.r(), tm.pos.dist(dribble_pos), (dribble_pos - tm.pos).th(), 0.2, False)
+                tm_cycle = tm.player_type.cycles_to_reach_distance(tm.inertia_point(opp_min).dist(dribble_pos)) + turn_cycle
                 if tm_cycle <= opp_min + c:
                     if tm_cycle < block_cycle:
                         block_cycle = tm_cycle

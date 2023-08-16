@@ -93,19 +93,19 @@ class InterceptTable:
         if self._fastest_teammate is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Teammate, fastest reach step={self._teammate_reach_cycle}"
-                          f"teammate {self._fastest_teammate.unum()} {self._fastest_teammate.pos}")
+                          f"teammate {self._fastest_teammate.unum} {self._fastest_teammate.pos}")
         if self._second_teammate is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Teammate2nd, fastest reach step={self._second_teammate_reach_cycle}"
-                          f"teammate {self._second_teammate.unum()} {self._second_teammate.pos}")
+                          f"teammate {self._second_teammate.unum} {self._second_teammate.pos}")
         if self._fastest_opponent is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Opponent, fastest reach step={self._opponent_reach_cycle}"
-                          f"teammate {self._fastest_opponent.unum()} {self._fastest_opponent.pos}")
+                          f"teammate {self._fastest_opponent.unum} {self._fastest_opponent.pos}")
         if self._second_opponent is not None:
             log.sw_log().intercept().add_text(
                           f"Intercept Opponent2nd, fastest reach step={self._second_opponent_reach_cycle}"
-                          f"teammate {self._second_opponent.unum()} {self._second_opponent.pos}")
+                          f"teammate {self._second_opponent.unum} {self._second_opponent.pos}")
 
     def clear(self):
         self._ball_cache = []
@@ -214,15 +214,15 @@ class InterceptTable:
             if it.pos_count >= 15:
                 continue
 
-            player_type = it.player_type()
+            player_type = it.player_type
             if player_type is None:
                 log.sw_log().intercept().add_text(
-                              f"intercept opponents faild to get player{it.unum()} type")
+                              f"intercept opponents faild to get player{it.unum} type")
                 continue
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
             log.sw_log().intercept().add_text(
-                          f"opp{it.unum()} {it.pos} "
+                          f"opp{it.unum} {it.pos} "
                           f"type={player_type.id()} cycle={cycle}")
 
             if cycle < second_min_cycle:
@@ -264,19 +264,19 @@ class InterceptTable:
             if it.pos_count >= 10:
                 continue
 
-            player_type = it.player_type()
+            player_type = it.player_type
             if player_type is None:
                 log.sw_log().intercept().add_text(
-                              f"intercept teammate faild to get player{it.unum()} type")
+                              f"intercept teammate faild to get player{it.unum} type")
                 continue
 
             cycle = predictor.predict(it, player_type,
                                       second_min_cycle)
             log.sw_log().intercept().add_text(
-                          f"tm{it.unum()} {it.pos} "
+                          f"tm{it.unum} {it.pos} "
                           f"type={player_type.id()} cycle={cycle}")
 
-            if it.goalie():
+            if it.goalie:
                 self._goalie_reach_cycle = cycle
             elif cycle < second_min_cycle:
                 second_min_cycle = cycle

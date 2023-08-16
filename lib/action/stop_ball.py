@@ -40,10 +40,10 @@ class StopBall(BodyAction):
             return False
         if not wm.ball().vel_valid():  # Always true until NFS nice :)
             required_accel = wm.self().vel - (wm.self().pos - wm.ball().pos)
-            kick_power = required_accel.r() / wm.self().kick_rate()
+            kick_power = required_accel.r() / wm.self().kick_rate
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),
-                          required_accel.th() - wm.self().body())
+                          required_accel.th() - wm.self().body)
             return True
 
         self._accel_radius = 0.0
@@ -59,20 +59,20 @@ class StopBall(BodyAction):
         # kick_power = min(kick_power, i.maxPower())
 
         return agent.do_kick(kick_power,
-                             self._accel_angle - wm.self().body())
+                             self._accel_angle - wm.self().body)
 
     def calcAccel(self, agent):
 
         wm: 'WorldModel' = agent.world()
 
-        safety_dist = wm.self().player_type().player_size() + ServerParam.i().ball_size() + 0.1
+        safety_dist = wm.self().player_type.player_size() + ServerParam.i().ball_size() + 0.1
 
         target_dist = wm.ball().dist_from_self
         if target_dist < safety_dist:
             target_dist = safety_dist
 
-        if target_dist > wm.self().player_type().kickable_area() - 0.1:
-            target_dist = wm.self().player_type().kickable_area() - 0.1
+        if target_dist > wm.self().player_type.kickable_area() - 0.1:
+            target_dist = wm.self().player_type.kickable_area() - 0.1
 
         target_rel = wm.self().pos - wm.ball().pos
         target_rel.set_length(target_dist)
@@ -89,7 +89,7 @@ class StopBall(BodyAction):
 
             # check max accel with player's kick rate
 
-        max_accel = ServerParam.i().max_power() * wm.self().kick_rate()
+        max_accel = ServerParam.i().max_power() * wm.self().kick_rate
         if max_accel > self._accel_radius:
             # can accelerate -. can stop ball successfully
             self._accel_angle = required_accel.th()
@@ -102,7 +102,7 @@ class StopBall(BodyAction):
         next_ball_to_self -= wm.self().pos - wm.ball().pos
         next_ball_to_self -= wm.ball().vel
 
-        keep_dist = wm.self().player_type().player_size() + wm.self().player_type().kickable_margin() * 0.4
+        keep_dist = wm.self().player_type.player_size() + wm.self().player_type.kickable_margin() * 0.4
 
         self._accel_radius = min(max_accel, next_ball_to_self.r() - keep_dist)
         self._accel_angle = next_ball_to_self.th()

@@ -51,14 +51,14 @@ class SelfIntercept:
         wm = self._wm
         ball_next: Vector2D = wm.ball().pos + wm.ball().vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
-        control_area: float = wm.self().player_type().catchable_area() if \
+        control_area: float = wm.self().player_type.catchable_area() if \
             goalie_mode else \
-            wm.self().player_type().kickable_area()
+            wm.self().player_type.kickable_area()
 
         # dist is to far never reach with one dash
         if wm.ball().dist_from_self > \
                 ServerParam.i().ball_speed_max() \
-                + wm.self().player_type().real_speed_max() \
+                + wm.self().player_type.real_speed_max() \
                 + control_area:
             return
         if self.predict_no_dash(self_cache):
@@ -74,10 +74,10 @@ class SelfIntercept:
         my_next: Vector2D = me.pos + me.vel
         ball_next: Vector2D = wm.ball().pos + wm.ball().vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
-        control_area: float = me.player_type().catchable_area() if \
+        control_area: float = me.player_type.catchable_area() if \
             goalie_mode else \
-            me.player_type().kickable_area()
-        next_ball_rel: Vector2D = (ball_next - my_next).rotated_vector(-me.body())
+            me.player_type.kickable_area()
+        next_ball_rel: Vector2D = (ball_next - my_next).rotated_vector(-me.body)
         ball_noise: float = wm.ball().vel.r() * SP.ball_rand()
         next_ball_dist: float = next_ball_rel.r()
 
@@ -89,7 +89,7 @@ class SelfIntercept:
         # if goalie immediately success
         if goalie_mode:
             stamina_model: StaminaModel = me.stamina_model()
-            stamina_model.simulate_wait(me.player_type())
+            stamina_model.simulate_wait(me.player_type)
 
             self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
                                             1, 0,
@@ -101,7 +101,7 @@ class SelfIntercept:
             return True
 
         # check kick effectiveness
-        ptype: PlayerType = me.player_type()
+        ptype: PlayerType = me.player_type
         if next_ball_dist > ptype.player_size() + SP.ball_size():
             kick_rate: float = ptype.kick_rate(next_ball_dist,
                                                next_ball_rel.th().degree())
@@ -128,7 +128,7 @@ class SelfIntercept:
         if abs_y_limit is None:
             abs_y_limit = ServerParam.i().penalty_area_half_width()
 
-        return (wm.self().goalie() and
+        return (wm.self().goalie and
                 wm.last_kicker_side() != wm.our_side() and
                 ball_next.x() < x_limit and
                 ball_next.abs_y() < abs_y_limit)
@@ -141,7 +141,7 @@ class SelfIntercept:
         wm: 'WorldModel' = self._wm
         ball: BallObject = wm.ball()
         me: PlayerObject = wm.self()
-        ptype: PlayerType = me.player_type()
+        ptype: PlayerType = me.player_type
 
         ball_next: Vector2D = ball.pos + ball.vel
         goalie_mode: bool = self.is_goalie_mode(ball_next)
@@ -306,7 +306,7 @@ class SelfIntercept:
         my_pos = me.pos + my_vel
 
         stamina_model = me.stamina_model()
-        stamina_model.simulate_dash(me.player_type(), dash_power)
+        stamina_model.simulate_dash(me.player_type, dash_power)
 
         if stamina_model.stamina() < SP.recover_dec_thr_value() and \
                 not stamina_model.capacity_is_empty():
@@ -334,7 +334,7 @@ class SelfIntercept:
         wm = self._wm
 
         dash_rate = wm.self().dash_rate() * ServerParam.i().dash_dir_rate(dash_angle.degree())
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
         best_ctrl_dist_forward = (ptype.player_size()
                                   + ptype.kickable_margin() / 2
                                   + ServerParam.i().ball_size())
@@ -383,7 +383,7 @@ class SelfIntercept:
         wm = self._wm
         ball = wm.ball()
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         pen_area_x = SP.our_penalty_area_line_x() - 0.5
         pen_area_y = SP.penalty_area_half_width() - 0.5
@@ -471,7 +471,7 @@ class SelfIntercept:
         wm = self._wm
 
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         body_angle = me.body + 180 if back_dash else me.body.copy()
         my_inertia = me.inertia_point(cycle)
@@ -588,7 +588,7 @@ class SelfIntercept:
         SP = ServerParam.i()
         wm = self._wm
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         recover_dec_thr = SP.recover_dec_thr_value() + 1
         max_omni_dash = min(2, cycle)
@@ -678,7 +678,7 @@ class SelfIntercept:
         wm = self._wm
 
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         recover_dec_thr = SP.recover_dec_thr_value() + 1
         max_dash = cycle - n_turn
@@ -769,7 +769,7 @@ class SelfIntercept:
         max_moment = SP.max_moment()
 
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         dist_thr = turn_margin_control_area
         inertia_pos = me.inertia_point(cycle)
@@ -817,7 +817,7 @@ class SelfIntercept:
         wm = self._wm
         ball = wm.ball()
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         # calc y distance from ball line
         ball_to_self = me.pos - ball.pos
@@ -904,7 +904,7 @@ class SelfIntercept:
                            control_area: float,
                            dash_angle: AngleDeg) -> tuple:
         wm = self._wm
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
         back_dash = False
         n_turn = 0
@@ -957,11 +957,11 @@ class SelfIntercept:
         if angle_diff < self._back_dash_thr_angle:
             return False
 
-        if (not wm.self().goalie()
+        if (not wm.self().goalie
             or wm.last_kicker_side() == wm.our_side()) and cycle >= 5:
             return False
 
-        if (wm.self().goalie()
+        if (wm.self().goalie
                 and wm.last_kicker_side() != wm.our_side()
                 and cycle >= 5):
             if cycle >= 15:
@@ -974,7 +974,7 @@ class SelfIntercept:
 
         # check stamina consumed by one step
         total_consume = -ServerParam.i().min_dash_power() * 2 * cycle
-        total_recover = (wm.self().player_type().stamina_inc_max()
+        total_recover = (wm.self().player_type.stamina_inc_max()
                          * wm.self().recovery()
                          * (cycle - 1))
         result_stamina = (wm.self().stamina()
@@ -1001,7 +1001,7 @@ class SelfIntercept:
 
         SP = ServerParam.i()
         wm = self._wm
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
         my_inertia = wm.self().inertia_point(n_turn + n_dash)
         recover_dec_thr = SP.recover_dec_thr() * SP.stamina_max()
@@ -1122,7 +1122,7 @@ class SelfIntercept:
     def predict_final(self, max_cycle: int, self_cache: list):
         wm = self._wm
         me = wm.self()
-        ptype = me.player_type()
+        ptype = me.player_type
 
         my_final_pos = me.inertia_point(100)
         ball_final_pos = wm.ball().inertia_point(100)

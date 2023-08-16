@@ -468,7 +468,7 @@ class _KickTable:
         param = ServerParam.i()
         pitch = Rect2D(Vector2D(- param.pitch_half_length(), - param.pitch_half_width()), Size2D(param.pitch_length(),
                                                                                                  param.pitch_width()))
-        self_type = world.self().player_type()
+        self_type = world.self().player_type
         near_dist = calc_near_dist(self_type)
         mid_dist = calc_mid_dist(self_type)
         far_dist = calc_far_dist(self_type)
@@ -490,7 +490,7 @@ class _KickTable:
 
         # self._current_state.pos_ = world.ball().rpos.copy()
         self._current_state.pos_ = world.ball().pos.copy()
-        self._current_state.kick_rate_ = world.self().kick_rate()
+        self._current_state.kick_rate_ = world.self().kick_rate
 
         self.check_interfere_at(world, self._current_state)  # 0
 
@@ -512,7 +512,7 @@ class _KickTable:
                 pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(near_dist, pos.th().degree())
 
-                pos.rotate(world.self().body())
+                pos.rotate(world.self().body)
                 pos.set_length(near_dist)
                 pos += self_pos
                 self._state_cache[i].append(State(index, near_dist, pos, krate))
@@ -526,7 +526,7 @@ class _KickTable:
                 pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(mid_dist, pos.th().degree())
 
-                pos.rotate(world.self().body())
+                pos.rotate(world.self().body)
                 pos.set_length(mid_dist)
                 pos += self_pos
 
@@ -541,7 +541,7 @@ class _KickTable:
                 pos = self._state_list[index].pos_.copy()
                 krate = self_type.kick_rate(far_dist, pos.th().degree())
 
-                pos.rotate(world.self().body())
+                pos.rotate(world.self().body)
                 pos.set_length(far_dist)
                 pos += self_pos
 
@@ -561,7 +561,7 @@ class _KickTable:
 
     def check_collision_after_release(self, world: 'WorldModel', target_point: Vector2D, first_speed):
 
-        self_type = world.self().player_type()
+        self_type = world.self().player_type
 
         collide_dist2 = pow(self_type.player_size() + ServerParam.i().ball_size(), 2)
 
@@ -621,7 +621,7 @@ class _KickTable:
             state.flag_ = SAFETY
             return
         for o in OFB:
-            if o is None or o.player_type() is None:
+            if o is None or o.player_type is None:
                 continue
             if o.pos_count >= 8:
                 continue
@@ -641,9 +641,9 @@ class _KickTable:
 
                 continue
 
-            control_area = o.player_type().catchable_area() if (
-                    o.goalie() and penalty_area.contains(o.pos) and penalty_area.contains(state.pos_
-                                                                                            )) else o.player_type().kickable_area()
+            control_area = o.player_type.catchable_area() if (
+                    o.goalie and penalty_area.contains(o.pos) and penalty_area.contains(state.pos_
+                                                                                            )) else o.player_type.kickable_area()
 
             #
             # check kick possibility
@@ -652,7 +652,7 @@ class _KickTable:
                 flag |= KICKABLE
                 break
 
-            opp_body = o.body if o.body_count() <= 1 else (state.pos_ - opp_next).th()
+            opp_body = o.body if o.body_count <= 1 else (state.pos_ - opp_next).th()
             player_2_pos = Vector2D(state.pos_ - opp_next)
             player_2_pos.rotate(- opp_body)
             #
@@ -669,7 +669,7 @@ class _KickTable:
 
                     # check kick or tackle possibility after dash
 
-            player_type = o.player_type()
+            player_type = o.player_type
             max_accel = (ServerParam.i().max_dash_power()
                          * player_type.dash_power_rate()
                          * player_type.effort_max())
@@ -732,7 +732,7 @@ class _KickTable:
                 state.flag_ = SAFETY
                 return
             for o in OFB:
-                if o is None or o.player_type() is None:
+                if o is None or o.player_type is None:
                     continue
                 if o.pos_count >= 8:
                     continue
@@ -745,12 +745,12 @@ class _KickTable:
                     opp_pos = o.pos + o.vel
 
                 if o.is_tackling():
-                    if opp_pos.dist(ball_pos) < (o.player_type().player_size() + ServerParam.i().ball_size()):
+                    if opp_pos.dist(ball_pos) < (o.player_type.player_size() + ServerParam.i().ball_size()):
                         state.flag_ |= RELEASE_INTERFERE
                     continue
-                control_area = o.player_type().catchable_area() if (
-                        o.goalie() and penalty_area.contains(o.pos) and penalty_area.contains(
-                    state.pos_)) else o.player_type().kickable_area()
+                control_area = o.player_type.catchable_area() if (
+                        o.goalie and penalty_area.contains(o.pos) and penalty_area.contains(
+                    state.pos_)) else o.player_type.kickable_area()
 
                 control_area += 0.1
                 control_area2 = pow(control_area, 2)
@@ -762,7 +762,7 @@ class _KickTable:
                     else:
                         state.flag_ |= RELEASE_INTERFERE
                 else:  # if  cycle <= 1 :
-                    opp_body = o.body if o.body_count() <= 1 else (ball_pos - opp_pos).th()
+                    opp_body = o.body if o.body_count <= 1 else (ball_pos - opp_pos).th()
                     player_2_pos = ball_pos - opp_pos
                     player_2_pos.rotate(- opp_body)
 
@@ -774,7 +774,7 @@ class _KickTable:
                             ServerParam.i().tackle_exponent()))
                         if tackle_prob < 1.0 and 1.0 - tackle_prob > 0.8:  # success probability
                             state.flag_ |= MAYBE_RELEASE_INTERFERE
-                    player_type = o.player_type()
+                    player_type = o.player_type
                     max_accel = (ServerParam.i().max_dash_power()
                                  * player_type.dash_power_rate()
                                  * player_type.effort_max()) * 0.8
@@ -851,7 +851,7 @@ class _KickTable:
         accel_max = ServerParam.i().ball_accel_max()
         ball_decay = ServerParam.i().ball_decay()
 
-        self_type = world.self().player_type()
+        self_type = world.self().player_type
 
         current_max_accel = min(self._current_state.kick_rate_ * max_power, accel_max)
 
@@ -859,7 +859,7 @@ class _KickTable:
         my_kickable_area = self_type.kickable_area()
 
         my_noise = world.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body()).abs() / 180.0
+        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body).abs() / 180.0
 
         current_dist_rate = ((world.ball().dist_from_self
                               - self_type.player_size()
@@ -897,7 +897,7 @@ class _KickTable:
 
             if accel_r > current_max_accel:
                 continue
-            kick_power = accel_r / world.self().kick_rate()
+            kick_power = accel_r / world.self().kick_rate
             ball_noise = vel.r() * param.ball_rand()
             max_kick_rand = self_type.kick_rand() * (kick_power / param.max_power()) * (
                     current_pos_rate + current_speed_rate)
@@ -963,12 +963,12 @@ class _KickTable:
 
         param = ServerParam.i()
 
-        self_type = world.self().player_type()
+        self_type = world.self().player_type
 
         my_kickable_area = self_type.kickable_area()
 
         my_noise1 = world.self().vel.r() * param.player_rand()
-        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body()).abs() / 180.0
+        current_dir_diff_rate = (world.ball().angle_from_self - world.self().body).abs() / 180.0
         current_dist_rate = ((world.ball().dist_from_self
                               - self_type.player_size()
                               - param.ball_size())
@@ -1027,7 +1027,7 @@ class _KickTable:
             if accel_r2 > current_max_accel2:
                 continue
 
-            kick_power = math.sqrt(accel_r2) / world.self().kick_rate()
+            kick_power = math.sqrt(accel_r2) / world.self().kick_rate
             ball_noise = vel1.r() * param.ball_rand()
             max_kick_rand = self_type.kick_rand() * (kick_power / param.max_power()) * (
                     current_pos_rate + current_speed_rate)

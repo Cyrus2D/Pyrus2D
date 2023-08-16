@@ -35,7 +35,7 @@ class ViewTactical(ViewAction):
         elif gm.is_penalty_taken():
             best_width = ViewWidth.NARROW
 
-        elif gm.is_goalie_catch_ball() and gm.side() == agent.world().our_side():
+        elif gm.is_goalie_catch_ball() and gm.side == agent.world().our_side():
             best_width = self.get_our_goalie_free_kick_view_width(agent)
         else:
             best_width = self.get_default_view_width(agent)
@@ -63,7 +63,7 @@ class ViewTactical(ViewAction):
         ball_pos = wm.ball().inertia_point(ball_reach_cycle)
         ball_dist = ef.queued_next_self_pos().dist(ball_pos)
 
-        if wm.self().goalie() and not wm.self().is_kickable():
+        if wm.self().goalie and not wm.self().is_kickable():
             goal_pos = Vector2D(- SP.pitch_half_length(), 0)
             if ball_dist > 10 or ball_pos.x() > SP.our_penalty_area_line_x() or ball_pos.dist(goal_pos) > 20:
                 ball_angle = ef.queued_next_angle_from_body(ef.queued_next_ball_pos()) # TODO IMP FUNC
@@ -92,7 +92,7 @@ class ViewTactical(ViewAction):
         if len(wm.opponents_from_ball()) > 0:
             opponent_ball_dist = wm.opponents_from_ball()[0].dist_from_ball
 
-        if (not wm.self().goalie()
+        if (not wm.self().goalie
             and teammate_ball_dist > 5
             and opponent_ball_dist > 5
             and ball_dist > 10
@@ -102,7 +102,7 @@ class ViewTactical(ViewAction):
         return ViewWidth.NARROW
 
     def get_our_goalie_free_kick_view_width(self, agent: 'PlayerAgent'):
-        if agent.world().self().goalie():
+        if agent.world().self().goalie:
             return ViewWidth.WIDE
         return self.get_default_view_width(agent)
 

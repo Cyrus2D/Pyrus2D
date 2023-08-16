@@ -30,7 +30,7 @@ class BhvPassGen(BhvKickGen):
         self.update_receivers(wm)
 
         for r in self.receivers:
-            log.sw_log().pass_().add_text(f'=============== Lead Pass to {r.unum()} pos: {r.pos}')
+            log.sw_log().pass_().add_text(f'=============== Lead Pass to {r.unum} pos: {r.pos}')
             # if self.best_pass is not None \
             #         and r.pos.x() < self.best_pass.target_ball_pos.x() - 5:
             #     break
@@ -59,11 +59,11 @@ class BhvPassGen(BhvKickGen):
             if tm is None:
                 log.sw_log().pass_().add_text('-----<<< TM is none')
                 continue
-            if tm.unum() <= 0:
-                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum()}')
+            if tm.unum <= 0:
+                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum}')
                 continue
-            if tm.unum() == wm.self().unum():
-                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum()} (self)')
+            if tm.unum == wm.self().unum:
+                log.sw_log().pass_().add_text(f'-----<<< TM unum is {tm.unum} (self)')
                 continue
             if tm.pos_count > 10:
                 log.sw_log().pass_().add_text(f'-----<<< TM unum pos count {tm.pos_count}')
@@ -74,10 +74,10 @@ class BhvPassGen(BhvKickGen):
             if tm.pos.x() > wm.offside_line_x():
                 log.sw_log().pass_().add_text(f'-----<<< TM is in offside {tm.pos.x()} > {wm.offside_line_x()}')
                 continue
-            if tm.goalie() and tm.pos.x() < sp.our_penalty_area_line_x() + 15:
+            if tm.goalie and tm.pos.x() < sp.our_penalty_area_line_x() + 15:
                 log.sw_log().pass_().add_text(f'-----<<< TM is goalie and danger {tm.pos.x()} < {sp.our_penalty_area_line_x() + 15}')
                 continue
-            log.sw_log().pass_().add_text(f'--->>>>> TM {tm.unum()} is added')
+            log.sw_log().pass_().add_text(f'--->>>>> TM {tm.unum} is added')
             self.receivers.append(tm)
         self.receivers = sorted(self.receivers, key=lambda p: p.pos.x(), reverse=True)
 
@@ -86,22 +86,22 @@ class BhvPassGen(BhvKickGen):
         min_receive_step = 3
         max_direct_pass_dist = 0.8 * smath.inertia_final_distance(sp.ball_speed_max(), sp.ball_decay())
         max_receive_ball_speed = sp.ball_speed_max() * pow(sp.ball_decay(), min_receive_step)
-        min_direct_pass_dist = receiver.player_type().kickable_area() * 2.2
+        min_direct_pass_dist = receiver.player_type.kickable_area() * 2.2
         if receiver.pos.x() > sp.pitch_half_length() - 1.5 \
                 or receiver.pos.x() < -sp.pitch_half_length() + 5.0 \
                 or receiver.pos.abs_y() > sp.pitch_half_width() - 1.5:
             if debug_pass:
-                log.sw_log().pass_().add_text( '#DPass to {} {}, out of field'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text( '#DPass to {} {}, out of field'.format(receiver.unum, receiver.pos))
             return
         # TODO sp.ourTeamGoalPos()
         if receiver.pos.x() < wm.ball().pos.x() + 1.0 \
                 and receiver.pos.dist2(Vector2D(-52.5, 0)) < pow(18.0, 2):
             if debug_pass:
-                log.sw_log().pass_().add_text( '#DPass to {} {}, danger near goal'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text( '#DPass to {} {}, danger near goal'.format(receiver.unum, receiver.pos))
             return
 
-        ptype = receiver.player_type()
-        max_ball_speed = wm.self().kick_rate() * sp.max_power()
+        ptype = receiver.player_type
+        max_ball_speed = wm.self().kick_rate * sp.max_power()
         if wm.game_mode().type() == GameModeType.PlayOn:
             max_ball_speed = sp.ball_speed_max()
 
@@ -113,7 +113,7 @@ class BhvPassGen(BhvKickGen):
 
         if ball_move_dist < min_direct_pass_dist or max_direct_pass_dist < ball_move_dist:
             if debug_pass:
-                log.sw_log().pass_().add_text( '#DPass to {} {}, far or close'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text( '#DPass to {} {}, far or close'.format(receiver.unum, receiver.pos))
             return
 
         if wm.game_mode().type().is_goal_kick() \
@@ -121,7 +121,7 @@ class BhvPassGen(BhvKickGen):
                 and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
             if debug_pass:
                 log.sw_log().pass_().add_text(
-                              '#DPass to {} {}, in penalty area in goal kick mode'.format(receiver.unum(), receiver.pos))
+                              '#DPass to {} {}, in penalty area in goal kick mode'.format(receiver.unum, receiver.pos))
             return
 
         max_receive_ball_speed = min(max_receive_ball_speed, ptype.kickable_area() + (
@@ -134,7 +134,7 @@ class BhvPassGen(BhvKickGen):
         # TODO Penalty step
         start_step = max(max(min_receive_step, min_ball_step), 0)
         max_step = start_step + 2
-        log.sw_log().pass_().add_text( '#DPass to {} {}'.format(receiver.unum(), receiver.pos))
+        log.sw_log().pass_().add_text( '#DPass to {} {}'.format(receiver.unum, receiver.pos))
         self.create_pass(wm, receiver, receive_point,
                          start_step, max_step, min_ball_speed,
                          max_ball_speed, min_receive_ball_speed,
@@ -153,7 +153,7 @@ class BhvPassGen(BhvKickGen):
         max_player_distance = 35
         if receiver.pos.dist(wm.ball().pos) > max_player_distance:
             if debug_pass:
-                log.sw_log().pass_().add_text( '#####LPass to {} {}, player is far'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text( '#####LPass to {} {}, player is far'.format(receiver.unum, receiver.pos))
             return
 
         abgle_divs = 8
@@ -161,8 +161,8 @@ class BhvPassGen(BhvKickGen):
         dist_divs = 4
         dist_step = 1.1
 
-        ptype = receiver.player_type()
-        max_ball_speed = wm.self().kick_rate() * sp.max_power()
+        ptype = receiver.player_type
+        max_ball_speed = wm.self().kick_rate * sp.max_power()
         if wm.game_mode().type() == GameModeType.PlayOn:
             max_ball_speed = sp.ball_speed_max()
         min_ball_speed = sp.default_player_speed_max()
@@ -189,35 +189,35 @@ class BhvPassGen(BhvKickGen):
                         or receive_point.x() < -sp.pitch_half_length() + 5.0 \
                         or receive_point.abs_y() > sp.pitch_half_width() - 3.0:
                     if debug_pass:
-                        log.sw_log().pass_().add_text( '#####LPass to {} {}, out of field'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text( '#####LPass to {} {}, out of field'.format(receiver.unum, receive_point))
                     continue
 
                 if receive_point.x() < wm.ball().pos.x() \
                         and receive_point.dist2(our_goal) < our_goal_dist_thr2:
                     if debug_pass:
-                        log.sw_log().pass_().add_text( '#####LPass to {} {}, pass is danger'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text( '#####LPass to {} {}, pass is danger'.format(receiver.unum, receive_point))
                     continue
 
                 if wm.game_mode().type() in [GameModeType.GoalKick_Right, GameModeType.GoalKick_Left] \
                         and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
                         and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
                     if debug_pass:
-                        log.sw_log().pass_().add_text( '#####LPass to {} {}, in penalty area'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text( '#####LPass to {} {}, in penalty area'.format(receiver.unum, receive_point))
                     return
 
                 ball_move_dist = wm.ball().pos.dist(receive_point)
 
                 if ball_move_dist < min_leading_pass_dist or max_leading_pass_dist < ball_move_dist:
                     if debug_pass:
-                        log.sw_log().pass_().add_text( '#####LPass to {} {}, so far or so close'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text( '#####LPass to {} {}, so far or so close'.format(receiver.unum, receive_point))
                     continue
 
                 nearest_receiver = Tools.get_nearest_teammate(wm, receive_point, self.receivers)
-                if nearest_receiver.unum() != receiver.unum():
+                if nearest_receiver.unum != receiver.unum:
                     if debug_pass:
                         log.sw_log().pass_().add_text(
-                                      '#####LPass to {} {}, {} is closer than receiver '.format(receiver.unum(), receive_point,
-                                                                                            nearest_receiver.unum()))
+                                      '#####LPass to {} {}, {} is closer than receiver '.format(receiver.unum, receive_point,
+                                                                                            nearest_receiver.unum))
                     continue
 
                 receiver_step = self.predict_receiver_reach_step(receiver, receive_point, True,
@@ -231,7 +231,7 @@ class BhvPassGen(BhvKickGen):
                 # max_step = std::max(max_receive_step, start_step + 3);
                 # else
                 if debug_pass:
-                    log.sw_log().pass_().add_text( '#####LPass to {} {}'.format(receiver.unum(), receive_point))
+                    log.sw_log().pass_().add_text( '#####LPass to {} {}'.format(receiver.unum, receive_point))
                 max_step = start_step + 3
                 self.create_pass(wm, receiver, receive_point,
                                  start_step, max_step,
@@ -252,23 +252,23 @@ class BhvPassGen(BhvKickGen):
         max_player_distance = 35
         if receiver.pos.dist(wm.ball().pos) > max_player_distance:
             if debug_pass:
-                log.sw_log().pass_().add_text('#####TPass to {} {}, player is far'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text('#####TPass to {} {}, player is far'.format(receiver.unum, receiver.pos))
             return
         if receiver.pos.x() < teammate_min_x:
             if debug_pass:
-                log.sw_log().pass_().add_text('#####TPass to {} {}, player is far'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text('#####TPass to {} {}, player is far'.format(receiver.unum, receiver.pos))
             return
         if receiver.pos.x() < wm.offside_line_x() - 5.0:
             if debug_pass:
-                log.sw_log().pass_().add_text('#####TPass to {} {}, player is not close to offside line'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text('#####TPass to {} {}, player is not close to offside line'.format(receiver.unum, receiver.pos))
             return
         if receiver.pos.x() > wm.offside_line_x() - 0.5:
             if debug_pass:
-                log.sw_log().pass_().add_text('#####TPass to {} {}, player is in offside'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text('#####TPass to {} {}, player is in offside'.format(receiver.unum, receiver.pos))
             return
         if wm.ball().pos.x() < -10.0 or wm.ball().pos.x() > 30.0:
             if debug_pass:
-                log.sw_log().pass_().add_text('#####TPass to {} {}, ball x is low or high'.format(receiver.unum(), receiver.pos))
+                log.sw_log().pass_().add_text('#####TPass to {} {}, ball x is low or high'.format(receiver.unum, receiver.pos))
             return
 
         min_angle = -30
@@ -277,8 +277,8 @@ class BhvPassGen(BhvKickGen):
         dist_divs = 25
         dist_step = 1.0
 
-        ptype = receiver.player_type()
-        max_ball_speed = wm.self().kick_rate() * sp.max_power()
+        ptype = receiver.player_type
+        max_ball_speed = wm.self().kick_rate * sp.max_power()
         if wm.game_mode().type() == GameModeType.PlayOn:
             max_ball_speed = sp.ball_speed_max()
         min_ball_speed = sp.default_player_speed_max()
@@ -303,27 +303,27 @@ class BhvPassGen(BhvKickGen):
                         or receive_point.x() < -sp.pitch_half_length() + 5.0 \
                         or receive_point.abs_y() > sp.pitch_half_width() - 3.0:
                     if debug_pass:
-                        log.sw_log().pass_().add_text('#####TPass to {} {}, out of field'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text('#####TPass to {} {}, out of field'.format(receiver.unum, receive_point))
                     continue
 
                 if receive_point.x() < target_min_x:
                     if debug_pass:
-                        log.sw_log().pass_().add_text('#####TPass to {} {}, pass is danger'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text('#####TPass to {} {}, pass is danger'.format(receiver.unum, receive_point))
                     continue
 
                 ball_move_dist = wm.ball().pos.dist(receive_point)
 
                 if ball_move_dist < min_pass_dist or max_pass_dist < ball_move_dist:
                     if debug_pass:
-                        log.sw_log().pass_().add_text('#####TPass to {} {}, so far or so close'.format(receiver.unum(), receive_point))
+                        log.sw_log().pass_().add_text('#####TPass to {} {}, so far or so close'.format(receiver.unum, receive_point))
                     continue
 
                 nearest_receiver = Tools.get_nearest_teammate(wm, receive_point, self.receivers)
-                if nearest_receiver.unum() != receiver.unum():
+                if nearest_receiver.unum != receiver.unum:
                     if debug_pass:
                         log.sw_log().pass_().add_text(
-                            '#####TPass to {} {}, {} is closer than receiver '.format(receiver.unum(), receive_point,
-                                                                                      nearest_receiver.unum()))
+                            '#####TPass to {} {}, {} is closer than receiver '.format(receiver.unum, receive_point,
+                                                                                      nearest_receiver.unum))
                     continue
 
                 receiver_step = self.predict_receiver_reach_step(receiver, receive_point, True,
@@ -337,7 +337,7 @@ class BhvPassGen(BhvKickGen):
                 # max_step = std::max(max_receive_step, start_step + 3);
                 # else
                 if debug_pass:
-                    log.sw_log().pass_().add_text('#####TPass to {} {}'.format(receiver.unum(), receive_point))
+                    log.sw_log().pass_().add_text('#####TPass to {} {}'.format(receiver.unum, receive_point))
                 max_step = start_step + 3
                 self.create_pass(wm, receiver, receive_point,
                                  start_step, max_step,
@@ -347,10 +347,10 @@ class BhvPassGen(BhvKickGen):
                                  'T')
 
     def predict_receiver_reach_step(self, receiver, pos: Vector2D, use_penalty, pass_type):
-        ptype = receiver.player_type()
+        ptype = receiver.player_type
 
         target_dist = receiver.inertia_point(1).dist(pos)
-        n_turn = 1 if receiver.body_count() > 0 else Tools.predict_player_turn_cycle(ptype, receiver.body,
+        n_turn = 1 if receiver.body_count > 0 else Tools.predict_player_turn_cycle(ptype, receiver.body,
                                                                                      receiver.vel.r(), target_dist, (
                                                                                                  pos - receiver.inertia_point(
                                                                                              1)).th(),
@@ -365,7 +365,7 @@ class BhvPassGen(BhvKickGen):
 
             dash_angle = (pos - receiver.pos).th()
 
-            if dash_angle.abs() > 90.0 or receiver.body_count() > 1 or (dash_angle - receiver.body()).abs() > 30.0:
+            if dash_angle.abs() > 90.0 or receiver.body_count > 1 or (dash_angle - receiver.body).abs() > 30.0:
                 n_turn += 1
 
         n_dash = ptype.cycles_to_reach_distance(dash_dist)
@@ -388,7 +388,7 @@ class BhvPassGen(BhvKickGen):
                     log.sw_log().pass_().add_text(
                                   '##Pass {},to {} {}, step:{}, ball_speed:{}, first ball speed is low'.format(
                                       self.index,
-                                      receiver.unum(),
+                                      receiver.unum,
                                       receiver.pos,
                                       step,
                                       first_ball_speed))
@@ -400,7 +400,7 @@ class BhvPassGen(BhvKickGen):
                     log.sw_log().pass_().add_text(
                                   '##Pass {},to {} {}, step:{}, ball_speed:{}, first ball speed is high'.format(
                                       self.index,
-                                      receiver.unum(),
+                                      receiver.unum,
                                       receiver.pos,
                                       step,
                                       first_ball_speed))
@@ -414,7 +414,7 @@ class BhvPassGen(BhvKickGen):
                     log.sw_log().pass_().add_text(
                                   '##Pass {},to {} {}, step:{}, ball_speed:{}, rball_speed:{}, receive ball speed is low'.format(
                                       self.index,
-                                      receiver.unum(),
+                                      receiver.unum,
                                       receiver.pos,
                                       step,
                                       first_ball_speed,
@@ -427,7 +427,7 @@ class BhvPassGen(BhvKickGen):
                     log.sw_log().pass_().add_text(
                                   '##Pass {},to {} {}, step:{}, ball_speed:{}, rball_speed:{}, receive ball speed is high'.format(
                                       self.index,
-                                      receiver.unum(),
+                                      receiver.unum,
                                       receiver.pos,
                                       step,
                                       first_ball_speed,
@@ -435,7 +435,7 @@ class BhvPassGen(BhvKickGen):
                     self.debug_list.append((self.index, receive_point, False))
                 continue
 
-            kick_count = Tools.predict_kick_count(wm, wm.self().unum(), first_ball_speed, ball_move_angle)
+            kick_count = Tools.predict_kick_count(wm, wm.self().unum, first_ball_speed, ball_move_angle)
 
             o_step, o_unum, o_intercepted_pos = self.predict_opponents_reach_step(wm, wm.ball().pos,
                                                                                   first_ball_speed, ball_move_angle,
@@ -453,7 +453,7 @@ class BhvPassGen(BhvKickGen):
                 if debug_pass:
                     log.sw_log().pass_().add_text(
                                   '------<<<<<Failed Pass #{} to {} in {} speed {}, opp {} cut in {} cycle {}, max_step {} step {}'.format(self.index,
-                                                                                                                                  receiver.unum(),
+                                                                                                                                  receiver.unum,
                                                                                                                                   receive_point,
                                                                                                                                   first_ball_speed,
                                                                                                                                   o_unum,
@@ -466,7 +466,7 @@ class BhvPassGen(BhvKickGen):
             if debug_pass:
                 log.sw_log().pass_().add_text(
                               '------>>>>> OK Pass {} to {} {}, opp {} step {} max_step {}'.format(self.index,
-                                                                                                   receiver.unum(),
+                                                                                                   receiver.unum,
                                                                                                    receive_point,
                                                                                                    o_unum,
                                                                                                    o_step,
@@ -476,7 +476,7 @@ class BhvPassGen(BhvKickGen):
             candidate.type = KickActionType.Pass
             candidate.start_ball_pos = wm.ball().pos.copy()
             candidate.target_ball_pos = receive_point
-            candidate.target_unum = receiver.unum()
+            candidate.target_unum = receiver.unum
             candidate.start_ball_speed = first_ball_speed
             candidate.evaluate(wm)
             self.candidates.append(candidate)
@@ -501,13 +501,13 @@ class BhvPassGen(BhvKickGen):
         min_opp = 0
         intercepted_pos = None
         for opp in wm.opponents():
-            if opp is None or opp.unum() == 0:
+            if opp is None or opp.unum == 0:
                 continue
             step, intercepted_pos = self.predict_opponent_reach_step(wm, opp, first_ball_pos, first_ball_vel, ball_move_angle,
                                                                      receive_point, max_cycle, description)
             if step < min_step:
                 min_step = step
-                min_opp = opp.unum()
+                min_opp = opp.unum
         return min_step, min_opp, intercepted_pos
 
     def predict_opponent_reach_step(self, wm: 'WorldModel', opp: 'PlayerObject', first_ball_pos: Vector2D, first_ball_vel: Vector2D,
@@ -520,7 +520,7 @@ class BhvPassGen(BhvKickGen):
 
 
         opponent = opp
-        ptype = opponent.player_type()
+        ptype = opponent.player_type
         min_cycle = Tools.estimate_min_reach_cycle(opponent.pos, ptype.real_speed_max(), first_ball_pos,
                                                    ball_move_angle)
 
@@ -564,7 +564,7 @@ class BhvPassGen(BhvKickGen):
                 continue
 
             n_turn = 0
-            if opponent.body_count() > 1:
+            if opponent.body_count > 1:
                 n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body, opponent.vel.r(), target_dist,
                                                          (ball_pos - inertia_pos).th(), control_area, True)
 

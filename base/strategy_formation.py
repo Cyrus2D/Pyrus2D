@@ -45,7 +45,7 @@ class _StrategyFormation:
             thr = 0
             if wm.ball().inertia_point(min(self_min, tm_min, opp_min)).x() > 0:
                 thr += 1
-            if wm.self().unum() > 6:
+            if wm.self().unum > 6:
                 thr += 1
             if min(tm_min, self_min) < opp_min + thr:
                 self.current_situation = Situation.Offense_Situation

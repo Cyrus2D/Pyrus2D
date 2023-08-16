@@ -91,9 +91,9 @@ class ActionEffector:
     def check_command_count_with_fullstate_parser(self, full_sensor: FullStateWorldMessageParser): # TODO CALL it
         wm = self._agent.world()
         if full_sensor.kick_count() != self._command_counter[CommandType.KICK.value]:
-            log.os_log().error(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._kick_accel = Vector2D(0, 0)
@@ -101,9 +101,9 @@ class ActionEffector:
             self._command_counter[CommandType.KICK.value] = full_sensor.kick_count()
 
         if full_sensor.turn_count() != self._command_counter[CommandType.TURN.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._turn_actual = 0
@@ -111,9 +111,9 @@ class ActionEffector:
             self._command_counter[CommandType.TURN.value] = full_sensor.turn_count()
 
         if full_sensor.dash_count() != self._command_counter[CommandType.DASH.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._dash_accel = Vector2D(0, 0)
@@ -122,72 +122,72 @@ class ActionEffector:
             self._command_counter[CommandType.DASH.value] = full_sensor.dash_count()
 
         if full_sensor.move_count() != self._command_counter[CommandType.MOVE.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._move_pos = Vector2D(0, 0)
             self._command_counter[CommandType.MOVE.value] = full_sensor.move_count()
         if full_sensor.catch_count() != self._command_counter[CommandType.CATCH.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             # self._catch_time = GameTime()
             self._command_counter[CommandType.CATCH.value] = full_sensor.catch_count()
 
-        # if full_sensor.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
-        #     log.os_log().error(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
-        #     log.sw_log().action().add_text(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
-        #     log.debug_client().add_message(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
+        # if full_sensor.tackle_count != self._command_counter[CommandType.TACKLE.value]:
+        #     log.os_log().error(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
+        #     log.sw_log().action().add_text(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
+        #     log.debug_client().add_message(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
         #
         #     self._last_body_commands[0] = CommandType.ILLEGAL
         #     self._tackle_power = 0
         #     self._tackle_dir = 0
         #     self._tackle_foul = False
-        #     self._command_counter[CommandType.TACKLE.value] = full_sensor.tackle_count()
+        #     self._command_counter[CommandType.TACKLE.value] = full_sensor.tackle_count
 
         if full_sensor.turn_neck_count() != self._command_counter[CommandType.TURN_NECK.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
             self._command_counter[CommandType.TURN_NECK.value] = full_sensor.turn_neck_count()
             self._done_turn_neck = False
             self._turn_neck_moment = 0
 
         # if full_sensor.change_focus_count() != self._command_counter[CommandType.CHANGE_FOCUS.value]:
-        #     log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
-        #     log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
-        #     log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+        #     log.os_log().error(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+        #     log.sw_log().action().add_text(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+        #     log.debug_client().add_message(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
         #     self._command_counter[CommandType.CHANGE_FOCUS.value] = body_sensor.change_focus_count()
         #     self._done_change_focus = False
         #     self._change_focus_moment_dist = 0
         #     self._change_focus_moment_dir = AngleDeg(0)
 
         if full_sensor.change_view_count() != self._command_counter[CommandType.CHANGE_VIEW.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
             self._command_counter[CommandType.CHANGE_VIEW.value] =   full_sensor.change_view_count()
 
         if full_sensor.say_count() != self._command_counter[CommandType.SAY.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
             self._command_counter[CommandType.SAY.value]  = full_sensor.say_count()
 
-        # if body_sensor.pointto_count() != self._command_counter[CommandType.POINTTO.value]:
-        #     log.os_log().error(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-        #     log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-        #     log.debug_client().add_message(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-        #     self._command_counter[CommandType.POINTTO.value]  = full_sensor.pointto_count()
+        # if body_sensor.pointto_count != self._command_counter[CommandType.POINTTO.value]:
+        #     log.os_log().error(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+        #     log.sw_log().action().add_text(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+        #     log.debug_client().add_message(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+        #     self._command_counter[CommandType.POINTTO.value]  = full_sensor.pointto_count
 
         # if full_sensor.attentionto_count() != self._command_counter[CommandType.ATTENTIONTO.value]:
-        #     log.os_log().error(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
-        #     log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
-        #     log.debug_client().add_message(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
+        #     log.os_log().error(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
+        #     log.sw_log().action().add_text(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
+        #     log.debug_client().add_message(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
         #     self._command_counter[CommandType.ATTENTIONTO.value] =   full_sensor.attentionto_count()
 
 
@@ -195,9 +195,9 @@ class ActionEffector:
         wm = self._agent.world()
         if body_sensor.kick_count() != self._command_counter[CommandType.KICK.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()} lost kick at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum} lost kick at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._kick_accel = Vector2D(0, 0)
@@ -206,9 +206,9 @@ class ActionEffector:
 
         if body_sensor.turn_count() != self._command_counter[CommandType.TURN.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()}) lost TURN at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum}) lost TURN at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._turn_actual = 0
@@ -217,9 +217,9 @@ class ActionEffector:
 
         if body_sensor.dash_count() != self._command_counter[CommandType.DASH.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()}) lost DASH at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum}) lost DASH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._dash_accel = Vector2D(0, 0)
@@ -228,73 +228,73 @@ class ActionEffector:
             self._command_counter[CommandType.DASH.value] = body_sensor.dash_count()
         if body_sensor.move_count() != self._command_counter[CommandType.MOVE.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()}) lost MOVE at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum}) lost MOVE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._move_pos = Vector2D(0, 0)
             self._command_counter[CommandType.MOVE.value] = body_sensor.move_count()
         if body_sensor.catch_count() != self._command_counter[CommandType.CATCH.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()}) lost CATCH at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum}) lost CATCH at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             # self._catch_time = GameTime()
             self._command_counter[CommandType.CATCH.value] = body_sensor.catch_count()
-        if body_sensor.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
+        if body_sensor.tackle_count != self._command_counter[CommandType.TACKLE.value]:
             if body_sensor.charged_expires() == 0:
-                log.os_log().error(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
-                log.sw_log().action().add_text(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
-                log.debug_client().add_message(f"player({wm.self().unum()}) lost TACKLE at cycle {wm.time()}")
+                log.os_log().error(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
+                log.sw_log().action().add_text(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
+                log.debug_client().add_message(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
 
             self._last_body_commands[0] = CommandType.ILLEGAL
             self._tackle_power = 0
             self._tackle_dir = 0
             self._tackle_foul = False
-            self._command_counter[CommandType.TACKLE.value] = body_sensor.tackle_count()
+            self._command_counter[CommandType.TACKLE.value] = body_sensor.tackle_count
 
         if body_sensor.turn_neck_count() != self._command_counter[CommandType.TURN_NECK.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command TURN_NECK at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
             self._command_counter[CommandType.TURN_NECK.value] = body_sensor.turn_neck_count()
             self._done_turn_neck = False
             self._turn_neck_moment = 0
 
         if body_sensor.change_focus_count() != self._command_counter[CommandType.CHANGE_FOCUS.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command CHANGE_FOCUS at cycle {wm.time()}")
             self._command_counter[CommandType.CHANGE_FOCUS.value] = body_sensor.change_focus_count()
             self._done_change_focus = False
             self._change_focus_moment_dist = 0
             self._change_focus_moment_dir = AngleDeg(0)
 
         if body_sensor.change_view_count() != self._command_counter[CommandType.CHANGE_VIEW.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command CHANGE_VIEW at cycle {wm.time()}")
             self._command_counter[CommandType.CHANGE_VIEW.value] =   body_sensor.change_view_count()
 
         if body_sensor.say_count() != self._command_counter[CommandType.SAY.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command SAY at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command SAY at cycle {wm.time()}")
             self._command_counter[CommandType.SAY.value]  = body_sensor.say_count()
 
-        if body_sensor.pointto_count() != self._command_counter[CommandType.POINTTO.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command POINTTO at cycle {wm.time()}")
-            self._command_counter[CommandType.POINTTO.value]  = body_sensor.pointto_count()
+        if body_sensor.pointto_count != self._command_counter[CommandType.POINTTO.value]:
+            log.os_log().error(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command POINTTO at cycle {wm.time()}")
+            self._command_counter[CommandType.POINTTO.value]  = body_sensor.pointto_count
 
         if body_sensor.attentionto_count() != self._command_counter[CommandType.ATTENTIONTO.value]:
-            log.os_log().error(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
-            log.sw_log().action().add_text(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
-            log.debug_client().add_message(f"player({wm.self().unum()}) lost command ATTENTIONTO at cycle {wm.time()}")
+            log.os_log().error(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
+            log.sw_log().action().add_text(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
+            log.debug_client().add_message(f"player({wm.self().unum}) lost command ATTENTIONTO at cycle {wm.time()}")
             self._command_counter[CommandType.ATTENTIONTO.value] =   body_sensor.attentionto_count()
 
     @staticmethod
@@ -303,7 +303,7 @@ class ActionEffector:
 
         SP = ServerParam.i()
         required_stamina = power
-        available_stamina = wm.self().stamina() + wm.self().player_type().extra_stamina()
+        available_stamina = wm.self().stamina() + wm.self().player_type.extra_stamina()
 
         if available_stamina < required_stamina:
             log.sw_log().action().add_text( f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")
@@ -312,7 +312,7 @@ class ActionEffector:
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
         accel_angle = wm.self().body + rel_dir
-        _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel,
+        _, accel_mag = wm.self().player_type.normalize_accel(wm.self().vel,
                                                 accel_angle=accel_angle,
                                                 accel_mag=accel_mag)
 
@@ -329,13 +329,13 @@ class ActionEffector:
         rel_dir = float(rel_dir)
 
         if power < ServerParam.i().min_power() or power > ServerParam.i().max_power():
-            log.os_log().error(f"(set kick) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().error(f"(set kick) player({wm.self().unum}) power is out of boundary at cycle {wm.time()}. power={power}")
             power = ServerParam.i().max_power() if power > 100 else ServerParam.i().min_power()
 
         log.sw_log().action().add_text( f"(set kick) power={power}, rel_dir={rel_dir}")
-        self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate(),
+        self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate,
                                                  wm.self().body + rel_dir)
-        max_rand = wm.self().player_type().kick_rand()*power/ServerParam.i().max_power()
+        max_rand = wm.self().player_type.kick_rand()*power/ServerParam.i().max_power()
         self._kick_accel_error = Vector2D(max_rand, max_rand)
 
         self._body_command = PlayerKickCommand(power, rel_dir)
@@ -348,11 +348,11 @@ class ActionEffector:
         rel_dir = float(rel_dir)
 
         if power > SP.max_dash_power() or power < SP.min_dash_power():
-            log.os_log().error(f"(set dash) player({wm.self().unum()}) power is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().error(f"(set dash) player({wm.self().unum}) power is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_power(power)
 
         if rel_dir > SP.max_dash_angle() or rel_dir < SP.min_dash_angle():
-            log.os_log().error(f"(set dash) player({wm.self().unum()}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
+            log.os_log().error(f"(set dash) player({wm.self().unum}) rel_dir is out of boundary at cycle {wm.time()}. power={power}")
             SP.normalize_dash_angle(rel_dir)
 
         rel_dir = SP.discretize_dash_angle(rel_dir)
@@ -379,12 +379,12 @@ class ActionEffector:
         wm = self._agent.world()
         speed = wm.self().vel.r()
 
-        moment *= 1 + speed * wm.self().player_type().inertia_moment()
+        moment *= 1 + speed * wm.self().player_type.inertia_moment()
         if moment > SP.max_moment() or moment < SP.min_moment():
-            log.os_log().error(f"(set turn) player({wm.self().unum()}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
+            log.os_log().error(f"(set turn) player({wm.self().unum}) moment is out of boundary at cycle {wm.time()}. moment={moment}")
             moment = SP.max_moment() if moment > SP.max_moment() else SP.min_moment()
 
-        self._turn_actual = moment / (1 + speed*wm.self().player_type().inertia_moment())
+        self._turn_actual = moment / (1 + speed*wm.self().player_type.inertia_moment())
         self._turn_error = abs(SP.player_rand()*self._turn_actual)
 
         log.sw_log().action().add_text( f"(set turn) moment={moment}, actual_turn={self._turn_actual}, error={self._turn_error}")
@@ -398,20 +398,20 @@ class ActionEffector:
         wm = self._agent.world()
 
         if abs(x) > SP.pitch_half_length() or abs(y) > SP.pitch_half_width():
-            log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
+            log.os_log().error(f"(set move) player({wm.self().unum}) position is out of pitch at cycle {wm.time()}. pos=({x},{y})")
             x = min_max(-SP.pitch_half_length(), x, SP.pitch_half_length())
             y = min_max(-SP.pitch_half_width(), y, SP.pitch_half_width())
 
         if SP.kickoff_offside() and x > 0:
-            log.os_log().error(f"(set move) player({wm.self().unum()}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
+            log.os_log().error(f"(set move) player({wm.self().unum}) position is in opponent side at cycle {wm.time()}. pos=({x},{y})")
             x = -0.1
 
-        if wm.game_mode().type().is_goalie_catch_ball() and wm.game_mode().side() == wm.our_side():
+        if wm.game_mode().type().is_goalie_catch_ball() and wm.game_mode().side == wm.our_side():
             if x < -SP.pitch_half_length() + 1 or x > -SP.our_penalty_area_line_x() - 1:
-                log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                log.os_log().error(f"(set move) player({wm.self().unum}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
                 x = min_max(-SP.pitch_half_length()+1, x, -SP.our_penalty_area_line_x()-1)
             if abs(y) > SP.penalty_area_half_width() -1:
-                log.os_log().error(f"(set move) player({wm.self().unum()}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
+                log.os_log().error(f"(set move) player({wm.self().unum}) position is out of penalty area at cycle {wm.time()}. pos=({x},{y})")
                 y = min_max(-SP.penalty_area_half_width(),y, SP.penalty_area_half_width())
 
         self._move_pos.assign(x, y)
@@ -438,7 +438,7 @@ class ActionEffector:
 
         dir = float(dir)
         if abs(dir) > 180:
-            log.os_log().error(f"(set tackle) player({wm.self().unum()}) dir is out of range at cycle {wm.time()}. dir={dir}")
+            log.os_log().error(f"(set tackle) player({wm.self().unum}) dir is out of range at cycle {wm.time()}. dir={dir}")
             dir = AngleDeg.normalize_angle(dir)
 
         self._tackle_power = ServerParam.i().max_tackle_power()
@@ -454,12 +454,12 @@ class ActionEffector:
 
         moment = float(moment)
         if not (SP.min_neck_moment() < moment < SP.max_neck_moment()):
-            log.os_log().error(f"(set turn neck) player({wm.self().unum()}) moment is out of range at cycle {wm.time()}. moment={moment}")
+            log.os_log().error(f"(set turn neck) player({wm.self().unum}) moment is out of range at cycle {wm.time()}. moment={moment}")
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
 
         next_neck_angle = wm.self().neck().degree() + moment
         if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
-            log.os_log().error(f"(set turn neck) player({wm.self().unum()}) \
+            log.os_log().error(f"(set turn neck) player({wm.self().unum}) \
                 next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
             moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
         self._turn_neck_moment = moment
@@ -482,7 +482,7 @@ class ActionEffector:
 
         target = Vector2D(x,y)
         target = target - wm.self().pos
-        target.rotate(-wm.self().face())
+        target.rotate(-wm.self().face)
 
         self._pointto_command = PlayerPointtoCommand(target.r(), target.th())
         return self._pointto_command
@@ -647,8 +647,8 @@ class ActionEffector:
             vel += accel
 
             tmp = vel.r()
-            if tmp > me.player_type().player_speed_max():
-                vel *= me.player_type().player_speed_max() / tmp
+            if tmp > me.player_type.player_speed_max():
+                vel *= me.player_type.player_speed_max() / tmp
         return me.pos + vel
 
     def queued_next_ball_pos(self):
@@ -696,7 +696,7 @@ class ActionEffector:
         my_next = self.queued_next_self_pos()
         ball_next = self.queued_next_ball_pos()
 
-        return my_next.dist(ball_next) < self._agent.world().self().player_type().kickable_area() - 0.06
+        return my_next.dist(ball_next) < self._agent.world().self().player_type.kickable_area() - 0.06
 
     def get_say_message_length(self):
         l = 0

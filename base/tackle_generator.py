@@ -206,7 +206,7 @@ class TackleGenerator:
                                     ball_move_angle: AngleDeg,
                                     max_cycle):
         SP = ServerParam.i()
-        ptype = opponent.player_type()
+        ptype = opponent.player_type
 
         opponent_speed = opponent.vel.r()
 
@@ -245,7 +245,7 @@ class TackleGenerator:
             if n_dash > cycle:
                 continue
 
-            n_turn = 0 if opponent.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
+            n_turn = 0 if opponent.body_count > 1 else Tools.predict_player_turn_cycle(ptype,
                                                                                          opponent.body,
                                                                                          opponent_speed,
                                                                                          target_dist,

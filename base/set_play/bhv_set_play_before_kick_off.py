@@ -12,7 +12,7 @@ class Bhv_BeforeKickOff:
         pass
 
     def execute(self, agent: 'PlayerAgent'):
-        unum = agent.world().self().unum()
+        unum = agent.world().self().unum
         st = StrategyFormation.i()
         target = st.get_pos(unum)
         if target.dist(agent.world().self().pos) > 1.:

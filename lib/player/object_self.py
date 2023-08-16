@@ -343,7 +343,7 @@ class SelfObject(PlayerObject):
         self.arm_movable = sense_body.arm_movable()
         self.arm_expires = sense_body.arm_expires()
         self.charge_expires = sense_body.charged_expires()
-        self.card = sense_body.card()
+        self.card = sense_body.card
         self.change_focus_count = sense_body.change_focus_count()
         self.focus_point_dist = sense_body.focus_point_dist()
         self.focus_point_dir = AngleDeg(sense_body.focus_point_dir())
@@ -535,7 +535,7 @@ class SelfObject(PlayerObject):
 
             if (not self.has_sensed_collision()
                     and self.vel_valid()
-                    and sense_body.speed_mag() < self.player_type().real_speed_max() * self.player_type().player_decay() * 0.11):
+                    and sense_body.speed_mag() < self.player_type.real_speed_max() * self.player_type.player_decay() * 0.11):
 
                 if (estimate_vel.r() > 0.01
                         and sense_body.speed_mag() < estimate_vel.r() * 0.2
@@ -543,14 +543,14 @@ class SelfObject(PlayerObject):
                         and (estimate_vel.abs_y() < 0.08 or estimate_vel.y() * self.vel.y() < 0)):
                     self.collision_estimated = True
 
-            self.vel_count = self.face_count()
+            self.vel_count = self.face_count
 
             if sense_body.arm_expires() == 0:
                 self.pointto_pos.invalidate()
                 self.pointto_count = 1000
 
             if not self.collision_estimated:
-                new_last_move = self.vel / self.player_type().player_decay()
+                new_last_move = self.vel / self.player_type.player_decay()
                 self.last_move.assign(new_last_move.x(), new_last_move.y())
             else:
                 self.last_move.invalidate()
@@ -564,7 +564,7 @@ class SelfObject(PlayerObject):
         self.arm_movable = sense_body.arm_movable()
         self.arm_expires = sense_body.arm_expires()
         self.charge_expires = sense_body.charged_expires()
-        self.card = sense_body.card()
+        self.card = sense_body.card
         self.change_focus_count = sense_body.change_focus_count()
         self.focus_point_dist = sense_body.focus_point_dist()
         self.focus_point_dir = AngleDeg(sense_body.focus_point_dir())'''

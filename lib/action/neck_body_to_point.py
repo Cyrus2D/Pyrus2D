@@ -35,7 +35,7 @@ class NeckBodyToPoint(NeckAction):
             agent.set_neck_action(NeckTurnToRelative(target_rel_angle))
             return True
 
-        max_turn = wm.self().player_type().effective_turn(SP.max_moment(),wm.self().vel.r())
+        max_turn = wm.self().player_type.effective_turn(SP.max_moment(),wm.self().vel.r())
         if target_rel_angle.abs() < max_turn:
             agent.do_turn(target_rel_angle)
             agent.set_neck_action(NeckTurnToRelative(0.))

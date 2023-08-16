@@ -76,12 +76,12 @@ class BhvClearGen(BhvKickGen):
                 for opp in wm.opponents():
                     if not opp:
                         continue
-                    if opp.unum() <= 0:
+                    if opp.unum <= 0:
                         continue
-                    opp_cycle = opp.pos.dist(ball_pos) / opp.player_type().real_speed_max() - opp.player_type().kickable_area()
+                    opp_cycle = opp.pos.dist(ball_pos) / opp.player_type.real_speed_max() - opp.player_type.kickable_area()
                     opp_cycle -= min(0, opp.pos_count)
                     if opp_cycle <= c:
-                        receiver_opp = opp.unum()
+                        receiver_opp = opp.unum
                         break
                 if receiver_opp != 0:
                     break

@@ -15,22 +15,22 @@ if TYPE_CHECKING:
 def player_printer(p: 'PlayerObject', our_side: SideID):
     s = ' ('
 
-    if p.side() is SideID.NEUTRAL:
+    if p.side is SideID.NEUTRAL:
         s += 'u'
-    elif p.side() == our_side:
-        if p.unum() != UNUM_UNKNOWN:
-            s += f"t {p.unum()}"
-            if p.player_type():
-                s += f" {p.player_type().id()}"
+    elif p.side == our_side:
+        if p.unum != UNUM_UNKNOWN:
+            s += f"t {p.unum}"
+            if p.player_type:
+                s += f" {p.player_type.id()}"
             else:
                 s += ' -1'
         else:
             s += 'ut'
     else:
-        if p.unum() != UNUM_UNKNOWN:
-            s += f"o {p.unum()}"
-            if p.player_type():
-                s += f" {p.player_type().id()}"
+        if p.unum != UNUM_UNKNOWN:
+            s += f"o {p.unum}"
+            if p.player_type:
+                s += f" {p.player_type.id()}"
             else:
                 s += ' -1'
         else:
@@ -40,8 +40,8 @@ def player_printer(p: 'PlayerObject', our_side: SideID):
     if p.body_valid():
         s += f" (bd {round(p.body.degree())})"
 
-    if p.pointto_count() < 10:
-        s += f"(pt {round(float(p.pointto_angle()))})"
+    if p.pointto_count < 10:
+        s += f"(pt {round(float(p.pointto_angle))})"
 
     s += ")"
     return s
@@ -134,8 +134,8 @@ class DebugClient:
         if world.self() and world.self().pos.is_valid():
             ostr_player = ' (s ' \
                           + ('l ' if world.our_side() == SideID.LEFT else 'r ') \
-                          + str(world.self().unum()) + ' ' \
-                          + str(world.self().player_type_id()) + ' ' \
+                          + str(world.self().unum) + ' ' \
+                          + str(world.self().player_type_id) + ' ' \
                           + str(round(world.self().pos.x(), 2)) + ' ' \
                           + str(round(world.self().pos.y(), 2)) + ' ' \
                           + str(round(world.self().vel.x(), 2)) + ' ' \
@@ -143,8 +143,8 @@ class DebugClient:
                           + str(round(world.self().body.degree(), 1)) + ' ' \
                           + str(round(world.self().neck().degree(), 1)) \
                           + ' (c "' + str(world.self().pos_count) + ' ' \
-                          + str(world.self().vel_count) + ' ' + str(world.self().face_count())
-            if world.self().card() == Card.YELLOW:
+                          + str(world.self().vel_count) + ' ' + str(world.self().face_count)
+            if world.self().card == Card.YELLOW:
                 ostr_player += 'y'
             ostr_player += '"))'
 

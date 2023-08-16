@@ -71,12 +71,12 @@ class NeckScanField(NeckAction):
             or (
                 not gt.is_ind_free_kick()
                 and not gt.is_back_pass()
-                and wm.ball().dist_from_self < wm.self().player_type().player_size() + 0.15
+                and wm.ball().dist_from_self < wm.self().player_type.player_size() + 0.15
             )
         )
         angle = self.calc_angle_default(agent, consider_patch)
         
-        if consider_patch and (AngleDeg(angle) - wm.self().face()).abs() < 5:
+        if consider_patch and (AngleDeg(angle) - wm.self().face).abs() < 5:
             angle = self.calc_angle_default(agent, False)
         
         NeckScanField._cached_target_angle = angle

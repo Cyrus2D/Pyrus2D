@@ -39,8 +39,8 @@ class Tools:
         if wm.game_mode().type() != GameModeType.PlayOn and not wm.game_mode().is_penalty_kick_mode():
             return 1
 
-        if kicker == wm.self().unum() and wm.self().is_kickable():
-            max_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel)
+        if kicker == wm.self().unum and wm.self().is_kickable():
+            max_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate, wm.ball().vel)
             if max_vel.r2() >= pow( first_ball_speed, 2):
                 return 1
         if first_ball_speed > 2.5:
@@ -74,7 +74,7 @@ class Tools:
     @staticmethod
     def estimate_virtual_dash_distance(player: 'PlayerObject'):
         pos_count = min(10, player.pos_count, player.seen_pos_count)
-        max_speed = player.player_type().real_speed_max() * 0.8
+        max_speed = player.player_type.real_speed_max() * 0.8
 
         d = 0.
         for i in range(pos_count):

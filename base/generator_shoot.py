@@ -57,7 +57,7 @@ class BhvShhotGen(BhvKickGen):
     def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
         ball_move_angle = (target_point - wm.ball().pos).th()
         goalie = wm.get_opponent_goalie()
-        if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count < 30):
+        if goalie is None or (goalie.unum > 0 and 5 < goalie.pos_count < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
             log.sw_log().shoot().add_text( "#shoot {} didnt see goalie".format(self.total_count))
             return
@@ -66,11 +66,11 @@ class BhvShhotGen(BhvKickGen):
 
         ball_speed_max = sp.ball_speed_max() if wm.game_mode().type() == GameModeType.PlayOn \
                                                 or wm.game_mode().is_penalty_kick_mode() \
-            else wm.self().kick_rate() * sp.max_power()
+            else wm.self().kick_rate * sp.max_power()
 
         ball_move_dist = wm.ball().pos.dist(target_point)
 
-        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel)
+        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate, wm.ball().vel)
         max_one_step_speed = max_one_step_vel.r()
 
         first_ball_speed = max((ball_move_dist + 5.0) * (1.0 - sp.ball_decay()), max_one_step_speed, 1.5)
@@ -117,7 +117,7 @@ class BhvShhotGen(BhvKickGen):
 
         for o in range(1, 12):
             opp = wm.their_player(o)
-            if opp.unum() < 1:
+            if opp.unum < 1:
                 log.sw_log().shoot().add_text( '## opp {} can not, unum')
                 continue
             if opp.is_tackling():
@@ -134,7 +134,7 @@ class BhvShhotGen(BhvKickGen):
                 log.sw_log().shoot().add_text( '## opp {} can not, angle')
                 continue
 
-            if opp.goalie():
+            if opp.goalie:
                 if self.maybe_goalie_catch(opp, course, wm):
                     return False
                 log.sw_log().shoot().add_text( '## opp {} can not, goalie catch')
@@ -158,7 +158,7 @@ class BhvShhotGen(BhvKickGen):
                               Size2D(SP.i().penalty_area_length(), SP.i().penalty_area_width()))
         CONTROL_AREA_BUF = 0.15
         sp = SP.i()
-        ptype = goalie.player_type()
+        ptype = goalie.player_type
         min_cycle = Tools.estimate_min_reach_cycle(goalie.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
         if min_cycle < 0:
@@ -194,7 +194,7 @@ class BhvShhotGen(BhvKickGen):
             if n_dash > cycle + goalie.pos_count:
                 continue
             n_turn = 0
-            if goalie.body_count() <= 1:
+            if goalie.body_count <= 1:
                 Tools.predict_player_turn_cycle(ptype, goalie.body, goalie_speed, target_dist,
                                                 (ball_pos - inertia_pos).th(), control_area + 0.1, True)
             n_step = n_turn + n_dash
@@ -216,7 +216,7 @@ class BhvShhotGen(BhvKickGen):
 
     def opponent_can_reach(self, opponent, course: ShootAction, wm: 'WorldModel'):
         sp = SP.i()
-        ptype = opponent.player_type()
+        ptype = opponent.player_type
         control_area = ptype.kickable_area()
         min_cycle = Tools.estimate_min_reach_cycle(opponent.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
@@ -242,7 +242,7 @@ class BhvShhotGen(BhvKickGen):
                 continue
 
             n_turn = 1
-            if opponent.body_count() == 0:
+            if opponent.body_count == 0:
                 n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body, opponent_speed, target_dist,
                                                          (ball_pos - inertia_pos).th(), control_area, True)
             n_step =  n_turn + n_dash
@@ -287,7 +287,7 @@ class BhvShhotGen(BhvKickGen):
                 score += 100.0
 
             goalie_rate = 1.0
-            if goalie.unum() > 0:
+            if goalie.unum > 0:
                 variance2 = 1.0 if it.goalie_never_reach else pow(10.0, 2)
                 angle_diff = (it.ball_move_angle - goalie_angle).abs()
                 goalie_rate = 1.0 - math.exp(-pow(angle_diff, 2) / (2.0 * variance2) )

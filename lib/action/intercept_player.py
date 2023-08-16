@@ -37,7 +37,7 @@ class PlayerIntercept:
 
         if player.is_tackling():
             min_cycle += max(0,
-                             ServerParam.i().tackle_cycles() - player.tackle_count() - 2)
+                             ServerParam.i().tackle_cycles() - player.tackle_count - 2)
 
         min_cycle = max(0,
                         min_cycle - min(player.seen_pos_count,
@@ -50,7 +50,7 @@ class PlayerIntercept:
         for cycle in range(min_cycle, MAX_LOOP):
             ball_pos: Vector2D = self._ball_cache[cycle]
             control_area = (player_type.catchable_area()
-                            if (player.goalie()
+                            if (player.goalie
                                 and ball_pos.abs_x() > penalty_x_abs
                                 and ball_pos.abs_y() < penalty_y_abs)
                             else player_type.kickable_area())
@@ -85,7 +85,7 @@ class PlayerIntercept:
         ball_step = len(self._ball_cache)
 
         control_area = (player_type.catchable_area()
-                        if (player.goalie()
+                        if (player.goalie
                             and ball_pos.abs_x() > penalty_x_abs
                             and ball_pos.abs_y() < penalty_y_abs)
                         else player_type.kickable_area())
@@ -100,7 +100,7 @@ class PlayerIntercept:
         dash_dist = inertia_pos.dist(ball_pos)
         dash_dist -= control_area
 
-        if player.side() != wm.our_side():
+        if player.side != wm.our_side():
             dash_dist -= player.dist_from_self * 0.03
 
         if dash_dist < 0:
@@ -108,7 +108,7 @@ class PlayerIntercept:
 
         n_dash = player_type.cycles_to_reach_distance(dash_dist)
 
-        if player.side() != wm.our_side():
+        if player.side != wm.our_side():
             n_dash -= bound(0, pos_count - n_turn, 10)
         else:
             n_dash -= bound(0, pos_count - n_turn, 1)
@@ -138,7 +138,7 @@ class PlayerIntercept:
             turn_margin = AngleDeg.asin_deg(control_area / target_dist)
         turn_margin = max(turn_margin, 12)
 
-        angle_diff = (target_rel.th() - player.body()).abs()
+        angle_diff = (target_rel.th() - player.body).abs()
 
         if (target_dist < 5  # XXX MAGIC NUMBER XXX :|
                 and angle_diff > 90):
@@ -218,7 +218,7 @@ class PlayerIntercept:
                             min(1, wm.ball().seen_pos_count))
 
         if player.is_tackling():
-            n_dash += max(0, ServerParam.i().tackle_cycles() - player.tackle_count() - 2)
+            n_dash += max(0, ServerParam.i().tackle_cycles() - player.tackle_count - 2)
 
         if n_dash <= max_dash:
             return True

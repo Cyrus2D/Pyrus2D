@@ -51,7 +51,7 @@ class GoToPoint:
         inertia_pos: Vector2D = wm.self().inertia_point(self._cycle)
         target_rel: Vector2D = self._target - inertia_pos
         target_dist = target_rel.r()
-        max_turn = wm.self().player_type().effective_turn(SP.i().max_moment(), wm.self().vel.r())
+        max_turn = wm.self().player_type.effective_turn(SP.i().max_moment(), wm.self().vel.r())
         turn_moment: AngleDeg = target_rel.th() - wm.self().body
         if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model().stamina() > SP.i().recover_dec_thr_value() + 500.0:
             effective_power = SP.i().max_dash_power() * wm.self().dash_rate()
@@ -80,10 +80,10 @@ class GoToPoint:
             accel_angle += 180.0
 
         target_rel.rotate(-accel_angle)
-        first_speed = smath.calc_first_term_geom_series(target_rel.x(), wm.self().player_type().player_decay(),
+        first_speed = smath.calc_first_term_geom_series(target_rel.x(), wm.self().player_type.player_decay(),
                                                         self._cycle)
-        first_speed = smath.bound(- wm.self().player_type().player_speed_max(), first_speed,
-                                  wm.self().player_type().player_speed_max())
+        first_speed = smath.bound(- wm.self().player_type.player_speed_max(), first_speed,
+                                  wm.self().player_type.player_speed_max())
         if self._dash_speed > 0.0:
             if first_speed > 0.0:
                 first_speed = min(first_speed, self._dash_speed)
@@ -105,7 +105,7 @@ class GoToPoint:
     def check_collision(self, agent):
         wm: 'WorldModel' = agent.world()
 
-        collision_dist = wm.self().player_type().player_size() + SP.i().goal_post_radius() + 0.2
+        collision_dist = wm.self().player_type.player_size() + SP.i().goal_post_radius() + 0.2
 
         goal_post_l = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(),
                                -SP.i().goal_half_width() - SP.i().goal_post_radius())
@@ -120,7 +120,7 @@ class GoToPoint:
             nearest_post = goal_post_r
 
         dist_post = min(dist_post_l, dist_post_r)
-        if dist_post > collision_dist + wm.self().player_type().real_speed_max() + 0.5:
+        if dist_post > collision_dist + wm.self().player_type.real_speed_max() + 0.5:
             return
 
         post_circle = Circle2D(nearest_post, collision_dist)
@@ -131,7 +131,7 @@ class GoToPoint:
         post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos).th())
         new_target: Vector2D = nearest_post
 
-        if post_angle.is_left_of(wm.self().body()):
+        if post_angle.is_left_of(wm.self().body):
             new_target += Vector2D.from_polar(collision_dist + 0.1, post_angle + 90.0)
         else:
             new_target += Vector2D.from_polar(collision_dist + 0.1, post_angle - 90.0)

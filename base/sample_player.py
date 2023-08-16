@@ -40,7 +40,7 @@ class SamplePlayer(PlayerAgent):
             ScanField().execute(self)
             return True
 
-        count_thr = 10 if wm.self().goalie() else 5
+        count_thr = 10 if wm.self().goalie else 5
         if wm.ball().pos_count > count_thr or ( wm.game_mode().type() is not GameModeType.PlayOn and wm.ball().seen_pos_count > count_thr + 10):
             self.set_view_action(ViewTactical())
             NeckBodyToBall().execute(self)
@@ -58,7 +58,7 @@ class SamplePlayer(PlayerAgent):
 
         if wm.messenger_memory().pass_time() != wm.time() \
             or len(wm.messenger_memory().pass_()) == 0 \
-            or wm.messenger_memory().pass_()[0]._receiver != wm.self().unum():
+            or wm.messenger_memory().pass_()[0]._receiver != wm.self().unum:
 
             return False
 

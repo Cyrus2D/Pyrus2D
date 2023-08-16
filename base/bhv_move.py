@@ -57,7 +57,7 @@ class BhvMove:
                 agent.set_neck_action(NeckTurnToBall())
                 return True
         st = StrategyFormation().i()
-        target = st.get_pos(agent.world().self().unum())
+        target = st.get_pos(agent.world().self().unum)
 
         log.debug_client().set_target(target)
         log.debug_client().add_message('bhv_move')

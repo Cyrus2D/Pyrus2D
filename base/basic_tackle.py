@@ -26,7 +26,7 @@ class BasicTackle:
         use_foul = False
         tackle_prob = wm.self().tackle_probability()
 
-        if wm.self().card() == Card.NO_CARD \
+        if wm.self().card == Card.NO_CARD \
                 and (wm.ball().pos.x() > SP.our_penalty_area_line_x() + 0.5
                      or wm.ball().pos.abs_y() > SP.penalty_area_half_width() + 0.5) \
                 and tackle_prob < wm.self().foul_probability():
@@ -58,7 +58,7 @@ class BasicTackle:
                 or (opp_min < self_min - 3 and opp_min < mate_min - 3)
                 or (self_min >= 5
                     and wm.ball().pos.dist2(SP.their_team_goal_pos()) < 10 **2
-                    and ((SP.their_team_goal_pos() - wm.self().pos).th() - wm.self().body()).abs() < 45.)):
+                    and ((SP.their_team_goal_pos() - wm.self().pos).th() - wm.self().body).abs() < 45.)):
 
             return False
 
@@ -72,7 +72,7 @@ class BasicTackle:
         ball_next = wm.ball().pos + result._ball_vel
 
         log.debug_client().add_message(f"Basic{'Foul' if use_foul else 'Tackle'}{result._tackle_angle.degree()}")
-        tackle_dir = (result._tackle_angle - wm.self().body()).degree()
+        tackle_dir = (result._tackle_angle - wm.self().body).degree()
 
         agent.do_tackle(tackle_dir, use_foul)
         agent.set_neck_action(NeckTurnToPoint(ball_next))

@@ -31,9 +31,9 @@ class Bhv_GoalieSetPlay:
         wm = agent.world()
         gm = wm.game_mode()
 
-        if not gm.type().is_goalie_catch_ball() or gm.side() != wm.our_side() or not wm.self().is_kickable():
+        if not gm.type().is_goalie_catch_ball() or gm.side != wm.our_side() or not wm.self().is_kickable():
             log.os_log().debug(f'### goalie set play gm.catch?={gm.type().is_goalie_catch_ball()}')
-            log.os_log().debug(f'### goalie set play gm.side,ourside={gm.side()}, {wm.our_side()}')
+            log.os_log().debug(f'### goalie set play gm.side,ourside={gm.side}, {wm.our_side()}')
             log.os_log().debug(f'### goalie set play iskick?={wm.self().is_kickable()}')
             log.sw_log().team().add_text('not a goalie catch mode')
             return False

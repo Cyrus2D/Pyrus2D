@@ -54,8 +54,8 @@ class NeckTurnToBall(NeckAction):
         if (SP.visible_distance() * 0.7 < ball_dist < 15
                 and (wm.kickable_teammate()
                     or wm.kickable_opponent()
-                    or (opp and opp.dist_from_ball < opp.player_type().kickable_area()+0.3)
-                    or (mate and mate.dist_from_ball < mate.player_type().kickable_area() + 0.3)
+                    or (opp and opp.dist_from_ball < opp.player_type.kickable_area()+0.3)
+                    or (mate and mate.dist_from_ball < mate.player_type.kickable_area() + 0.3)
                 )
             ):
             view_half = max(0, next_view_width*0.5 - 20)

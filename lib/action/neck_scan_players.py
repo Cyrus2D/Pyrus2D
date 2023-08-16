@@ -138,7 +138,7 @@ class NeckScanPlayers(NeckAction):
             pos_count += 1
             
             if our_ball:
-                if p.side() == wm.our_side() and (p.pos.x() > wm.ball().pos.x() - 10 or p.pos.x() > 30):
+                if p.side == wm.our_side() and (p.pos.x() > wm.ball().pos.x() - 10 or p.pos.x() > 30):
                     pos_count *=2
             
             base_val = pos_count**2

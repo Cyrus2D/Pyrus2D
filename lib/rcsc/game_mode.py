@@ -37,7 +37,7 @@ class GameMode:
         return self._mode_name
 
     def _set_side(self) -> SideID:
-        return self._game_mode.side()
+        return self._game_mode.side
     
     def time(self):
         return self._time
@@ -111,14 +111,14 @@ class GameMode:
         
         if (self._game_mode.is_goalie_catch_ball()
             and game_mode.is_free_kick()
-            and self._game_mode.side() == game_mode.side()
+            and self._game_mode.side == game_mode.side
             and self._time == current_time):
             
             pass
 
         else:
             self._game_mode = game_mode
-            self._side = self._game_mode.side()
+            self._side = self._game_mode.side
         self._time = current_time.copy()
         return True
     

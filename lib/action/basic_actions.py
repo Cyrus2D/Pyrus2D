@@ -58,7 +58,7 @@ class TurnToAngle(BodyAction):
         #     agent.do_turn(0.0)
         #     return False
 
-        agent.do_turn(self._angle - me.body())
+        agent.do_turn(self._angle - me.body)
         return True
 
 

@@ -237,7 +237,7 @@ class PlayerAgent(SoccerAgent):
         if self._last_decision_time == self._current_time:
             return False
 
-        if self.world().self().unum() == UNUM_UNKNOWN:
+        if self.world().self().unum == UNUM_UNKNOWN:
             return False
 
         if self.world().see_time() == self._current_time:
@@ -431,7 +431,7 @@ class PlayerAgent(SoccerAgent):
             log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is frozen!")
             return False
 
-        if not wm.self().goalie():
+        if not wm.self().goalie:
             log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is not goalie!")
             return False
 
@@ -491,7 +491,7 @@ class PlayerAgent(SoccerAgent):
             # log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
             return False
 
-        if self.world().our_side() == side and self.world().self().unum() == unum:
+        if self.world().our_side() == side and self.world().self().unum == unum:
             # log.os_log().error(f"(player agent do attentionto) attentioning to self!")
             return False
 
@@ -594,10 +594,10 @@ class PlayerAgent(SoccerAgent):
 
     def action(self):
         if (self.world().self_unum() is None
-                or self.world().self().unum() != self.world().self_unum()):
+                or self.world().self().unum != self.world().self_unum()):
             return
         self.update_before_decision()
-        KickTable.instance().create_tables(self.world().self().player_type())  # TODO should be moved!
+        KickTable.instance().create_tables(self.world().self().player_type)  # TODO should be moved!
         self._effector.reset()
         self.action_impl()
         self.do_view_action()
@@ -607,7 +607,7 @@ class PlayerAgent(SoccerAgent):
         self.communicate_impl()
 
         self._last_decision_time = self._current_time.copy()
-        log.os_log().debug("body " + str(self.world().self().body()))
+        log.os_log().debug("body " + str(self.world().self().body))
         log.os_log().debug("pos " + str(self.world().self().pos))
 
         self.real_world().update_just_after_decision(self._effector)
