@@ -266,7 +266,7 @@ class WorldModel:
             x = it.pos.x()
             if it.vel_count() <= 1 and it.vel.x() > 0:
                 x += min(0.8, it.vel.x() / it.player_type().player_decay())
-            elif it.body_count() <= 3 and it.body().abs() < 100:
+            elif it.body_count() <= 3 and it.body.abs() < 100:
                 x -= speed_rate * min(10, it.pos_count() - 1.5)
             else:
                 x -= speed_rate * min(10, it.pos_count())

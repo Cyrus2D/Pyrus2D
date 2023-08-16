@@ -652,7 +652,7 @@ class _KickTable:
                 flag |= KICKABLE
                 break
 
-            opp_body = o.body() if o.body_count() <= 1 else (state.pos_ - opp_next).th()
+            opp_body = o.body if o.body_count() <= 1 else (state.pos_ - opp_next).th()
             player_2_pos = Vector2D(state.pos_ - opp_next)
             player_2_pos.rotate(- opp_body)
             #
@@ -762,7 +762,7 @@ class _KickTable:
                     else:
                         state.flag_ |= RELEASE_INTERFERE
                 else:  # if  cycle <= 1 :
-                    opp_body = o.body() if o.body_count() <= 1 else (ball_pos - opp_pos).th()
+                    opp_body = o.body if o.body_count() <= 1 else (ball_pos - opp_pos).th()
                     player_2_pos = ball_pos - opp_pos
                     player_2_pos.rotate(- opp_body)
 
@@ -977,7 +977,7 @@ class _KickTable:
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel.r()
                                           / (param.ball_speed_max() * param.ball_decay()))
 
-        target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
+        target_rel_angle = (target_point - world.self().pos()).th() - world.self().body
         angle_deg = target_rel_angle.degree() + 180.0
         target_angle_index = round(DEST_DIR_DIVS * (angle_deg / 360.0))
         if target_angle_index >= DEST_DIR_DIVS:

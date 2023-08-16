@@ -38,7 +38,7 @@ def player_printer(p: 'PlayerObject', our_side: SideID):
 
     s += f" {round(p.pos.x(), 2)} {round(p.pos.y(), 2)}"
     if p.body_valid():
-        s += f" (bd {round(p.body().degree())})"
+        s += f" (bd {round(p.body.degree())})"
 
     if p.pointto_count() < 10:
         s += f"(pt {round(float(p.pointto_angle()))})"
@@ -140,7 +140,7 @@ class DebugClient:
                           + str(round(world.self().pos.y(), 2)) + ' ' \
                           + str(round(world.self().vel.x(), 2)) + ' ' \
                           + str(round(world.self().vel.y(), 2)) + ' ' \
-                          + str(round(world.self().body().degree(), 1)) + ' ' \
+                          + str(round(world.self().body.degree(), 1)) + ' ' \
                           + str(round(world.self().neck().degree(), 1)) \
                           + ' (c "' + str(world.self().pos_count()) + ' ' \
                           + str(world.self().vel_count()) + ' ' + str(world.self().face_count())

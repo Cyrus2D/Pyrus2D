@@ -15,7 +15,7 @@ class TurnToPoint:
             return agent.do_turn(60)
         
         my_point = self_player.inertia_point(self._cycle)
-        target_rel_angle = (self._point - my_point).th() - self_player.body()
+        target_rel_angle = (self._point - my_point).th() - self_player.body
         
         agent.do_turn(target_rel_angle)
         if target_rel_angle.abs() < 1:

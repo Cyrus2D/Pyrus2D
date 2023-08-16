@@ -159,7 +159,7 @@ class SelfIntercept:
         n_steps = int((max_dash_angle - min_dash_angle) / dash_angle_step)
         dirs = [min_dash_angle + d * dash_angle_step for d in range(n_steps)]
         for dash_dir in dirs:
-            dash_angle: AngleDeg = me.body() + SP.discretize_dash_angle(SP.normalize_dash_angle(dash_dir))
+            dash_angle: AngleDeg = me.body + SP.discretize_dash_angle(SP.normalize_dash_angle(dash_dir))
             dash_rate: float = me.dash_rate() * SP.dash_dir_rate(dash_dir)
             log.sw_log().intercept().add_text(f"----- dash dir={dash_dir}, angle={dash_angle}, dash_rate={dash_rate}")
 
@@ -473,7 +473,7 @@ class SelfIntercept:
         me = wm.self()
         ptype = me.player_type()
 
-        body_angle = me.body() + 180 if back_dash else me.body()
+        body_angle = me.body + 180 if back_dash else me.body.copy()
         my_inertia = me.inertia_point(cycle)
         target_line = Line2D(p=ball_pos, a=body_angle)
 
@@ -593,7 +593,7 @@ class SelfIntercept:
         recover_dec_thr = SP.recover_dec_thr_value() + 1
         max_omni_dash = min(2, cycle)
 
-        body_angle = me.body() + 180 if back_dash else me.body()
+        body_angle = me.body + 180 if back_dash else me.body.copy()
         target_line = Line2D(p=ball_pos, a=body_angle)
         my_inertia = me.inertia_point(cycle)
 
@@ -654,7 +654,7 @@ class SelfIntercept:
                                 back_dash: bool,
                                 turn_margin_control_area: float,
                                 self_cache: list):
-        dash_angle = self._wm.self().body()
+        dash_angle = self._wm.self().body.copy()
         n_turn = self.predict_turn_cycle_short(cycle, ball_pos, control_area, back_dash,
                                                turn_margin_control_area,
                                                dash_angle)
@@ -777,7 +777,7 @@ class SelfIntercept:
         target_angle = (ball_pos - inertia_pos).th()
 
         n_turn = 0
-        body_angle = me.body() + 180 if back_dash else me.body()
+        body_angle = me.body + 180 if back_dash else me.body.copy()
         angle_diff = (target_angle - body_angle).abs()
 
         turn_margin = 180
@@ -882,7 +882,7 @@ class SelfIntercept:
                                        control_area,
                                        save_recovery,
                                        self_cache) -> tuple:
-        dash_angle = self._wm.self().body()
+        dash_angle = self._wm.self().body.copy()
         result_recovery = 0
         n_turn, dash_angle, back_dash = self.predict_turn_cycle(cycle,
                                                                 ball_pos,
@@ -1128,7 +1128,7 @@ class SelfIntercept:
         ball_final_pos = wm.ball().inertia_point(100)
         goalie_mode = self.is_goalie_mode(ball_final_pos)
         control_area = ptype.catchable_area() - 0.15 if goalie_mode else ptype.kickable_area()
-        dash_angle = me.body()
+        dash_angle = me.body.copy()
         n_turn, dash_angle, back_dash = self.predict_turn_cycle(100,
                                                                 ball_final_pos,
                                                                 control_area,

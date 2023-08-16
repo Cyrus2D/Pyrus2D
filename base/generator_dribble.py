@@ -48,7 +48,7 @@ class BhvDribbleGen(BhvKickGen):
         my_first_speed = wm.self().vel.r()
 
         for a in range(angle_div):
-            dash_angle = wm.self().body() + (angle_step * a)
+            dash_angle = wm.self().body + (angle_step * a)
 
             if wm.self().pos.x() < 16.0 and dash_angle.abs() > 100.0:
                 if debug_dribble:
@@ -238,7 +238,7 @@ class BhvDribbleGen(BhvKickGen):
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
             n_turn = 1 if opp.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
-                                                                                      opp.body(),
+                                                                                      opp.body,
                                                                                       opp.vel.r(),
                                                                                       target_dist,
                                                                                       (ball_trap_pos - opp_pos).th(),

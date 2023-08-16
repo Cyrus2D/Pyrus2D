@@ -350,7 +350,7 @@ class BhvPassGen(BhvKickGen):
         ptype = receiver.player_type()
 
         target_dist = receiver.inertia_point(1).dist(pos)
-        n_turn = 1 if receiver.body_count() > 0 else Tools.predict_player_turn_cycle(ptype, receiver.body(),
+        n_turn = 1 if receiver.body_count() > 0 else Tools.predict_player_turn_cycle(ptype, receiver.body,
                                                                                      receiver.vel.r(), target_dist, (
                                                                                                  pos - receiver.inertia_point(
                                                                                              1)).th(),
@@ -565,7 +565,7 @@ class BhvPassGen(BhvKickGen):
 
             n_turn = 0
             if opponent.body_count() > 1:
-                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body(), opponent.vel.r(), target_dist,
+                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body, opponent.vel.r(), target_dist,
                                                          (ball_pos - inertia_pos).th(), control_area, True)
 
             n_step = n_turn + n_dash if n_turn == 0 else n_turn + n_dash + 1

@@ -195,7 +195,7 @@ class BhvShhotGen(BhvKickGen):
                 continue
             n_turn = 0
             if goalie.body_count() <= 1:
-                Tools.predict_player_turn_cycle(ptype, goalie.body(), goalie_speed, target_dist,
+                Tools.predict_player_turn_cycle(ptype, goalie.body, goalie_speed, target_dist,
                                                 (ball_pos - inertia_pos).th(), control_area + 0.1, True)
             n_step = n_turn + n_dash
             if n_turn == 0:
@@ -243,7 +243,7 @@ class BhvShhotGen(BhvKickGen):
 
             n_turn = 1
             if opponent.body_count() == 0:
-                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body(), opponent_speed, target_dist,
+                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body, opponent_speed, target_dist,
                                                          (ball_pos - inertia_pos).th(), control_area, True)
             n_step =  n_turn + n_dash
             if n_turn == 0:

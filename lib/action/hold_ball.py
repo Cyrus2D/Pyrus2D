@@ -306,7 +306,7 @@ class HoldBall(BodyAction):
                 score -= 25.0
 
             if o.body_count() == 0:
-                opp_body = o.body()
+                opp_body = o.body
 
             elif o.vel.r() > 0.2:  # o.velCount() <= 1 #and
                 opp_body = o.vel.th()
@@ -406,7 +406,7 @@ class HoldBall(BodyAction):
         my_inertia = wm.self().inertia_final_point()
         target_angle = (face_point - my_inertia).th()
 
-        if (wm.self().body() - target_angle).abs() < 5.0:
+        if (wm.self().body - target_angle).abs() < 5.0:
             return False
 
         score = self.evaluateKeepPoint(wm, ball_next)

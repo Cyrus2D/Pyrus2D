@@ -70,8 +70,8 @@ class SmartKick(BodyAction):
                 vel = self._sequence.pos_list_[0] - wm.ball().pos
                 kick_accel = vel - wm.ball().vel
                 if SmartKick.debug_print_DEBUG:
-                    log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
-                    log.sw_log().kick().add_text(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
+                    log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body}")
+                    log.sw_log().kick().add_text(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body}")
 
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
                               kick_accel.th() - wm.self().body())

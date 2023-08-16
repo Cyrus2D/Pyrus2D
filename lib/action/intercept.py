@@ -410,14 +410,14 @@ class Intercept:
         target_rel = target_point - wm.self().pos
         target_rel.rotate(-wm.self().body())
 
-        accel_angle = wm.self().body()
+        accel_angle = wm.self().body.copy()
         if info.dash_power() < 0:
             accel_angle += 180
 
         ball_vel = wm.ball().vel * ServerParam.i().ball_decay() ** info.reach_cycle()
         if ((not wm.self().goalie()
              or wm.last_kicker_side() == wm.our_side())
-                and wm.self().body().abs() < 50):
+                and wm.self().body.abs() < 50):
             buf = 0.3
             if info.reach_cycle() >= 8:
                 buf = 0

@@ -80,7 +80,7 @@ class TackleGenerator:
         max_angle = SP.max_moment()
         angle_step = abs(max_angle - min_angle) / TackleGenerator.ANGLE_DIVS
 
-        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
+        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body
         tackle_rate = SP.tackle_power_rate() * (1 - 0.5*ball_rel_angle.abs()/ 180.)
 
         for a in range(TackleGenerator.ANGLE_DIVS):
@@ -90,7 +90,7 @@ class TackleGenerator:
                 * (1. - (dir.abs() / 180.))
             eff_power *= tackle_rate
 
-            angle = wm.self().body() + dir
+            angle = wm.self().body + dir
             accel = Vector2D(r=eff_power, a=angle)
 
             vel = wm.ball().vel + accel
@@ -246,7 +246,7 @@ class TackleGenerator:
                 continue
 
             n_turn = 0 if opponent.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
-                                                                                         opponent.body(),
+                                                                                         opponent.body,
                                                                                          opponent_speed,
                                                                                          target_dist,
                                                                                          (ball_pos - inertia_pos).th(),

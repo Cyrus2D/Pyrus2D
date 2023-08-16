@@ -32,7 +32,7 @@ class TurnToPoint:
             return agent.do_turn(60)
 
         my_point = me.inertia_point(self._cycle)
-        target_rel_angle = (self._point - my_point).th() - me.body()
+        target_rel_angle = (self._point - my_point).th() - me.body
 
         agent.do_turn(target_rel_angle)
         if target_rel_angle.abs() < 1:
@@ -103,7 +103,7 @@ class TackleToPoint(BodyAction):
             return False
 
         target_angle = (self._point - wm.ball().pos()).th()
-        target_rel_angle = target_angle - wm.self().body()
+        target_rel_angle = target_angle - wm.self().body
 
         # if agent.config().version() < 12.0:
         #     if target_rel_angle.abs() < 90.0:
@@ -113,7 +113,7 @@ class TackleToPoint(BodyAction):
         #         return agent.do_tackle(- sp.maxBackTacklePower())
         #     return False
 
-        ball_rel_angle = wm.ball().rpos().th() - wm.self().body()
+        ball_rel_angle = wm.ball().rpos().th() - wm.self().body
 
         eff_power = sp.max_back_tackle_power() + (
                 (sp.max_tackle_power() - sp.max_back_tackle_power()) * (1.0 - target_rel_angle.abs() / 180.0))

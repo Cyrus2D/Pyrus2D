@@ -346,7 +346,7 @@ class SampleCommunication:
                         )
                         agent.add_say_message(GoaliePlayerMessenger(goalie.unum(),
                                                                            goalie_pos,
-                                                                           goalie.body(),
+                                                                           goalie.body,
                                                                            (
                                                                                player.unum() if player.side() == wm.our_side() else player.unum() + 11),
                                                                            player.pos + player.vel()))
@@ -354,7 +354,7 @@ class SampleCommunication:
                         self.update_player_send_time(wm, player.side(), player.unum())
 
                         log.sw_log().communication().add_text(f'(sample communication) say goalie and player: '
-                                                              f'goalie({goalie.unum()}): p={goalie.pos} b={goalie.body()}'
+                                                              f'goalie({goalie.unum()}): p={goalie.pos} b={goalie.body}'
                                                               f'player({player.side()}{player.unum()}: {player.pos})')
                         return True
 
@@ -371,7 +371,7 @@ class SampleCommunication:
                     self._opponent_send_time[goalie.unum()] = wm.time().copy()
 
                     log.sw_log().communication().add_text(f'(sample communication) say goalie info:'
-                                                          f'{goalie.unum()} {goalie.pos} {goalie.body()}')
+                                                          f'{goalie.unum()} {goalie.pos} {goalie.body}')
                     return True
 
         if len(send_players) >= 3 and available_len >= Messenger.SIZES[Messenger.Types.THREE_PLAYER]:

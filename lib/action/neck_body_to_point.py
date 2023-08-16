@@ -28,7 +28,7 @@ class NeckBodyToPoint(NeckAction):
         angle_buf = bound(0., self._angle_buf, 180.)
 
         my_next = wm.self().pos + wm.self().vel
-        target_rel_angle = (self._point - my_next).th() - wm.self().body()
+        target_rel_angle = (self._point - my_next).th() - wm.self().body
 
         if SP.min_neck_angle() + angle_buf < target_rel_angle.degree() < SP.max_neck_angle() - angle_buf:
             agent.do_turn(0.)

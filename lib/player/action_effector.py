@@ -311,7 +311,7 @@ class ActionEffector:
 
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
-        accel_angle = wm.self().body() + rel_dir
+        accel_angle = wm.self().body + rel_dir
         _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel,
                                                 accel_angle=accel_angle,
                                                 accel_mag=accel_mag)
@@ -334,7 +334,7 @@ class ActionEffector:
 
         log.sw_log().action().add_text( f"(set kick) power={power}, rel_dir={rel_dir}")
         self._kick_accel = Vector2D.polar2vector(power * wm.self().kick_rate(),
-                                                 wm.self().body() + rel_dir)
+                                                 wm.self().body + rel_dir)
         max_rand = wm.self().player_type().kick_rand()*power/ServerParam.i().max_power()
         self._kick_accel_error = Vector2D(max_rand, max_rand)
 
@@ -362,7 +362,7 @@ class ActionEffector:
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
         accel_mag = min(accel_mag, SP.player_accel_max())
-        accel_angle = wm.self().body() + rel_dir
+        accel_angle = wm.self().body + rel_dir
 
         self._dash_power = power
         self._dash_dir = rel_dir
@@ -424,7 +424,7 @@ class ActionEffector:
         wm = self._agent.world()
 
         diagonal_angle = AngleDeg.atan2_deg(SP.catch_area_w()*0.5, SP.catch_area_l())
-        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
+        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body
         catch_angle = (ball_rel_angle + diagonal_angle).degree()
 
         if not (SP.min_catch_angle() < catch_angle < SP.max_catch_angle()):
@@ -611,7 +611,7 @@ class ActionEffector:
         return self._attentionto_command
 
     def queued_next_self_body(self) -> AngleDeg:
-        next_angle = self._agent.world().self().body().copy()
+        next_angle = self._agent.world().self().body.copy()
         if self._body_command and self._body_command.type() is CommandType.TURN:
             moment = self.get_turn_info()
             next_angle += moment
