@@ -111,4 +111,4 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
                f'ghost_count: {self.ghost_count},'
 
     def __str__(self):
-        return f'''pos: {self.pos()} vel:{self.vel()}'''
+        return f'''pos: {self.pos} vel:{self.vel}'''

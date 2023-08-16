@@ -120,7 +120,7 @@ class TackleToPoint(BodyAction):
         eff_power *= sp.tackle_power_rate()
         eff_power *= 1.0 - 0.5 * (ball_rel_angle.abs() / 180.0)
 
-        vel = wm.ball().vel() + Vector2D.polar2vector(eff_power, target_angle)
+        vel = wm.ball().vel + Vector2D.polar2vector(eff_power, target_angle)
 
         if ((vel.th() - target_angle).abs() > 90.0  # never accelerate to the target direction
                 or vel.r() < self._min_speed):  # too small speed

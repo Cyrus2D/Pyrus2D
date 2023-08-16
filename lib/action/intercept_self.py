@@ -78,7 +78,7 @@ class SelfIntercept:
             goalie_mode else \
             me.player_type().kickable_area()
         next_ball_rel: Vector2D = (ball_next - my_next).rotated_vector(-me.body())
-        ball_noise: float = wm.ball().vel().r() * SP.ball_rand()
+        ball_noise: float = wm.ball().vel.r() * SP.ball_rand()
         next_ball_dist: float = next_ball_rel.r()
 
         # out of control area
@@ -105,7 +105,7 @@ class SelfIntercept:
         if next_ball_dist > ptype.player_size() + SP.ball_size():
             kick_rate: float = ptype.kick_rate(next_ball_dist,
                                                next_ball_rel.th().degree())
-            next_ball_vel: Vector2D = wm.ball().vel() * SP.ball_decay()
+            next_ball_vel: Vector2D = wm.ball().vel * SP.ball_decay()
             if SP.max_power() * kick_rate <= next_ball_vel.r() * SP.ball_decay() * 1.1:
                 log.sw_log().intercept().add_text("------>>>>> NO can not control the ball")
                 return False
@@ -175,8 +175,8 @@ class SelfIntercept:
                                                       dash_angle)
             max_back_accel = Vector2D.polar2vector(back_dash_power * dash_rate,
                                                    dash_angle)
-            ptype.normalize_accel(me.vel(), max_forward_accel)
-            ptype.normalize_accel(me.vel(), max_back_accel)
+            ptype.normalize_accel(me.vel, max_forward_accel)
+            ptype.normalize_accel(me.vel, max_back_accel)
 
             info: InterceptInfo = InterceptInfo()
             if self.predict_one_dash_adjust(dash_angle,
@@ -198,8 +198,8 @@ class SelfIntercept:
                                                       dash_angle)
             max_back_accel = Vector2D.polar2vector(SP.min_dash_power() * dash_rate,
                                                    dash_angle)
-            ptype.normalize_accel(me.vel(), max_forward_accel)
-            ptype.normalize_accel(me.vel(), max_back_accel)
+            ptype.normalize_accel(me.vel, max_forward_accel)
+            ptype.normalize_accel(me.vel, max_back_accel)
 
             info: InterceptInfo = InterceptInfo()
             if self.predict_one_dash_adjust(dash_angle,
@@ -388,7 +388,7 @@ class SelfIntercept:
         pen_area_x = SP.our_penalty_area_line_x() - 0.5
         pen_area_y = SP.penalty_area_half_width() - 0.5
 
-        ball_to_self = (me.pos - ball.pos()).rotated_vector(-ball.vel().th())
+        ball_to_self = (me.pos - ball.pos()).rotated_vector(-ball.vel.th())
         min_cycle = int(ceil((ball_to_self.abs_y() - ptype.kickable_area())
                              / ptype.real_speed_max()))
 
@@ -398,7 +398,7 @@ class SelfIntercept:
             min_cycle = 2
 
         ball_pos = ball.inertia_point(min_cycle - 1)
-        ball_vel = ball.vel() * SP.ball_decay() ** (min_cycle - 1)
+        ball_vel = ball.vel * SP.ball_decay() ** (min_cycle - 1)
 
         for cycle in range(min_cycle, max_loop + 1):
             tmp_cache = []
@@ -685,7 +685,7 @@ class SelfIntercept:
 
         my_inertia = me.inertia_point(cycle)
         my_pos = me.inertia_point(n_turn)
-        my_vel = me.vel() * ptype.player_decay() ** n_turn
+        my_vel = me.vel * ptype.player_decay() ** n_turn
 
         stamina_model = me.stamina_model()
         stamina_model.simulate_waits(ptype, n_turn)
@@ -785,7 +785,7 @@ class SelfIntercept:
             turn_margin = max(self._min_turn_thr,
                               AngleDeg.asin_deg(dist_thr / target_dist))
         if angle_diff > turn_margin:
-            my_speed = me.vel().r()
+            my_speed = me.vel.r()
             while angle_diff > turn_margin:
                 angle_diff -= ptype.effective_turn(max_moment, my_speed)
                 my_speed *= ptype.player_decay()
@@ -821,7 +821,7 @@ class SelfIntercept:
 
         # calc y distance from ball line
         ball_to_self = me.pos - ball.pos
-        ball_to_self.rotate(-ball.vel().th())
+        ball_to_self.rotate(-ball.vel.th())
         start_cycle = int(ceil((ball_to_self.abs_y()
                                 - ptype.kickable_area()
                                 - 0.2)
@@ -830,7 +830,7 @@ class SelfIntercept:
         #     start_cycle = self._max_short_step + 1
 
         ball_pos = ball.inertia_point(start_cycle - 1)
-        ball_vel = ball.vel() * SP.ball_decay() ** (start_cycle - 1)
+        ball_vel = ball.vel * SP.ball_decay() ** (start_cycle - 1)
         found = False
 
         max_loop = max_cycle
@@ -933,7 +933,7 @@ class SelfIntercept:
 
         # predict turn cycles
         max_moment = ServerParam.i().max_moment() * (1 - ServerParam.i().player_rand())
-        player_speed = wm.self().vel().r()
+        player_speed = wm.self().vel.r()
         while angle_diff > turn_margin:
             max_turnable = ptype.effective_turn(max_moment, player_speed)
             angle_diff -= max_turnable
@@ -1016,10 +1016,10 @@ class SelfIntercept:
         # prepare loop variables
         # ORIGIN: first player pos.
         # X - axis: dash angle
-        tmp_pos = ptype.inertia_travel(wm.self().vel(), n_turn)
+        tmp_pos = ptype.inertia_travel(wm.self().vel, n_turn)
         tmp_pos.rotate(dash_angle_minus)
 
-        tmp_vel = wm.self().vel()
+        tmp_vel = wm.self().vel.copy()
         tmp_vel *= ptype.player_decay() ** n_turn
         tmp_vel.rotate(dash_angle_minus)
 

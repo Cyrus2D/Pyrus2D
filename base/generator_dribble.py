@@ -45,7 +45,7 @@ class BhvDribbleGen(BhvKickGen):
         sp = SP.i()
         ptype = wm.self().player_type()
 
-        my_first_speed = wm.self().vel().r()
+        my_first_speed = wm.self().vel.r()
 
         for a in range(angle_div):
             dash_angle = wm.self().body() + (angle_step * a)
@@ -114,7 +114,7 @@ class BhvDribbleGen(BhvKickGen):
 
             term = (1.0 - pow(sp.ball_decay(), 1 + n_turn + n_dash ) ) / (1.0 - sp.ball_decay())
             first_vel: Vector2D = (ball_trap_pos - wm.ball().pos()) / term
-            kick_accel: Vector2D = first_vel - wm.ball().vel()
+            kick_accel: Vector2D = first_vel - wm.ball().vel
             kick_power = kick_accel.r() / wm.self().kick_rate()
 
             if kick_power > sp.max_power() or kick_accel.r2() > pow(sp.ball_accel_max(), 2) or first_vel.r2() > pow(
@@ -239,7 +239,7 @@ class BhvDribbleGen(BhvKickGen):
 
             n_turn = 1 if opp.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
                                                                                       opp.body(),
-                                                                                      opp.vel().r(),
+                                                                                      opp.vel.r(),
                                                                                       target_dist,
                                                                                       (ball_trap_pos - opp_pos).th(),
                                                                                       control_area,

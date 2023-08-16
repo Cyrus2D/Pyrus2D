@@ -343,16 +343,16 @@ class PlayerAgent(SoccerAgent):
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
-                log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='blue'))
+                log.sw_log().world().add_circle(1, center=p.pos, color=Color(string='blue'))
         if self.world().ball().pos_valid():
-            log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
+            log.sw_log().world().add_circle(center=self.world().ball().pos, r=0.5, color=Color(string="blue"), fill=True)
 
         if self.full_world_exists():
             for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
                 if p.pos_valid():
-                    log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='red'))
+                    log.sw_log().world().add_circle(1, center=p.pos, color=Color(string='red'))
             if self.world().ball().pos_valid():
-                log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
+                log.sw_log().world().add_circle(center=self.world().ball().pos, r=0.5, color=Color(string="red"),
                                                 fill=True)
 
     def change_player_type_parser(self, msg: str):

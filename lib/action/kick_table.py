@@ -807,13 +807,13 @@ class _KickTable:
         target_vel = (target_point - world.ball().pos())
         target_vel.set_length(first_speed)
 
-        accel = target_vel - world.ball().vel()
+        accel = target_vel - world.ball().vel
         accel_r = accel.r()
         if accel_r > current_max_accel:
             max_vel = calc_max_velocity(target_vel.th(),
                                         self._current_state.kick_rate_,
                                         world.ball().vel())
-            accel = max_vel - world.ball().vel()
+            accel = max_vel - world.ball().vel
             self._candidates.append(Sequence())
             self._candidates[-1].flag_ = self._current_state.flag_
             self._candidates[-1].pos_list_.append(world.ball().pos + max_vel)
@@ -858,7 +858,7 @@ class _KickTable:
         param = ServerParam.i()
         my_kickable_area = self_type.kickable_area()
 
-        my_noise = world.self().vel().r() * param.player_rand()
+        my_noise = world.self().vel.r() * param.player_rand()
         current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
 
         current_dist_rate = ((world.ball().dist_from_self()
@@ -867,9 +867,9 @@ class _KickTable:
                              / self_type.kickable_margin())
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
 
-        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r() / (
+        current_speed_rate = 0.5 + 0.5 * (world.ball().vel.r() / (
                 param.ball_speed_max() * param.default_player_decay()))
-        # my_final_pos = world.self().pos + world.self().vel() + world.self().vel() * self_type.player_decay()
+        # my_final_pos = world.self().pos + world.self().vel + world.self().vel * self_type.player_decay()
 
         success_count = 0
         max_speed2 = 0.0
@@ -892,7 +892,7 @@ class _KickTable:
             target_vel = (target_point - state.pos_).set_length_vector(first_speed)
 
             vel = state.pos_ - world.ball().pos
-            accel = vel - world.ball().vel()
+            accel = vel - world.ball().vel
             accel_r = accel.r()
 
             if accel_r > current_max_accel:
@@ -967,14 +967,14 @@ class _KickTable:
 
         my_kickable_area = self_type.kickable_area()
 
-        my_noise1 = world.self().vel().r() * param.player_rand()
+        my_noise1 = world.self().vel.r() * param.player_rand()
         current_dir_diff_rate = (world.ball().angle_from_self() - world.self().body()).abs() / 180.0
         current_dist_rate = ((world.ball().dist_from_self()
                               - self_type.player_size()
                               - param.ball_size())
                              / self_type.kickable_margin())
         current_pos_rate = 0.5 + 0.25 * (current_dir_diff_rate + current_dist_rate)
-        current_speed_rate = 0.5 + 0.5 * (world.ball().vel().r()
+        current_speed_rate = 0.5 + 0.5 * (world.ball().vel.r()
                                           / (param.ball_speed_max() * param.ball_decay()))
 
         target_rel_angle = (target_point - world.self().pos()).th() - world.self().body()
@@ -1021,7 +1021,7 @@ class _KickTable:
             kick_miss_flag = SAFETY
 
             vel1 = state_1st.pos_ - world.ball().pos
-            accel = vel1 - world.ball().vel()
+            accel = vel1 - world.ball().vel
             accel_r2 = accel.r2()
 
             if accel_r2 > current_max_accel2:

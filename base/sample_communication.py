@@ -57,15 +57,15 @@ class SampleCommunication:
             return False
 
         ball_vel_changed = False
-        current_ball_speed = wm.ball().vel().r()
+        current_ball_speed = wm.ball().vel.r()
 
         if wm.prev_ball().vel_valid():
-            prev_ball_speed = wm.prev_ball().vel().r()
-            angle_diff = (wm.ball().vel().th() - wm.prev_ball().vel().th()).abs()
+            prev_ball_speed = wm.prev_ball().vel.r()
+            angle_diff = (wm.ball().vel.th() - wm.prev_ball().vel.th()).abs()
 
             log.sw_log().communication().add_text(f'(sample communication)'
-                                       f'prev vel={wm.prev_ball().vel()}, r={prev_ball_speed}'
-                                       f'current_vel={wm.ball().vel()}, r={wm.ball().vel()}')
+                                       f'prev vel={wm.prev_ball().vel}, r={prev_ball_speed}'
+                                       f'current_vel={wm.ball().vel}, r={wm.ball().vel}')
 
             if current_ball_speed > prev_ball_speed + 0.1 \
                     or (
@@ -137,7 +137,7 @@ class SampleCommunication:
                 and goalie.pos.abs_y() < 20.:
 
             goal_pos = ServerParam.i().their_team_goal_pos()
-            ball_next = wm.ball().pos + wm.ball().vel()
+            ball_next = wm.ball().pos + wm.ball().vel
 
             if ball_next.dist2(goal_pos) < 18 ** 2:
                 return True
@@ -200,9 +200,9 @@ class SampleCommunication:
             objects[0].score = 1000
         elif objects[0].score > 0:
             if wm.prev_ball().vel_valid():
-                angle_diff = (wm.ball().vel().th() - wm.prev_ball().vel().th()).abs()
-                prev_speed = wm.prev_ball().vel().r()
-                current_speed = wm.ball().vel().r()
+                angle_diff = (wm.ball().vel.th() - wm.prev_ball().vel.th()).abs()
+                prev_speed = wm.prev_ball().vel.r()
+                current_speed = wm.ball().vel.r()
 
                 if (current_speed > prev_speed + 0.1
                         or (prev_speed > 0.5 and current_speed < prev_speed * SP.ball_decay() * 0.5)
@@ -224,7 +224,7 @@ class SampleCommunication:
             if p is None or p.unum_count() >= 2:
                 objects[i].score = -1000
             else:
-                d = (((p.pos.x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
+                d = (((p.pos.x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos.y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
                 objects[i].score *= exp(-d ** 2 / (2 * variance ** 2))
                 objects[i].score *= 0.3 ** p.unum_count()
                 objects[i].player = p
@@ -233,7 +233,7 @@ class SampleCommunication:
             if p is None or p.unum_count() >= 2:
                 objects[i + 11].score = -1000
             else:
-                d = (((p.pos().x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos().y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
+                d = (((p.pos.x() - ball_pos.x()) * x_rate) ** 2 + ((p.pos.y() - ball_pos.y()) * y_rate) ** 2) ** 0.5
                 objects[i + 11].score *= exp(-d ** 2 / (2 * variance ** 2))
                 objects[i + 11].score *= 0.3 ** p.unum_count()
                 objects[i + 11].player = p
@@ -292,7 +292,7 @@ class SampleCommunication:
                 goalie = wm.get_their_goalie()
                 agent.add_say_message(BallGoalieMessenger(ef.queued_next_ball_pos(),
                                                                  ball_vel,
-                                                                 goalie.pos() + goalie.vel(),
+                                                                 goalie.pos + goalie.vel,
                                                                  goalie.body()))
                 self._ball_send_time = wm.time().copy()
                 self.update_player_send_time(wm, goalie.side(), goalie.unum())
@@ -312,7 +312,7 @@ class SampleCommunication:
                     agent.add_say_message(BallPlayerMessenger(ef.queued_next_ball_pos(),
                                                                      ball_vel,
                                                                      send_players[0].number,
-                                                                     p.pos() + p.vel(),
+                                                                     p.pos + p.vel,
                                                                      p.body()))
 
                 self._ball_send_time = wm.time().copy()
@@ -321,14 +321,14 @@ class SampleCommunication:
                 log.sw_log().communication().add_text(f'(sample communication) ball and player {p.side()}{p.unum()}')
                 return True
 
-        if wm.ball().pos().x() > 34 and wm.ball().pos().abs_y() < 20:
+        if wm.ball().pos.x() > 34 and wm.ball().pos.abs_y() < 20:
             goalie: PlayerObject = wm.get_their_goalie()
 
             if goalie is not None \
                     and goalie.seen_pos_count() == 0 \
                     and goalie.body_count() == 0 \
-                    and goalie.pos().x() > 53. - 16 \
-                    and goalie.pos().abs_y() < 20. \
+                    and goalie.pos.x() > 53. - 16 \
+                    and goalie.pos.abs_y() < 20. \
                     and goalie.unum() != UNUM_UNKNOWN \
                     and goalie.dist_from_self() < 25:
                 if available_len >= Messenger.SIZES[Messenger.Types.GOALIE_PLAYER]:
@@ -339,7 +339,7 @@ class SampleCommunication:
                             break
 
                     if player is not None:
-                        goalie_pos = goalie.pos() + goalie.vel()
+                        goalie_pos = goalie.pos + goalie.vel
                         goalie_pos.assign(
                             bound(53. - 16., goalie_pos.x(), 52.9),
                             bound(-20, goalie_pos.y(), 20),
@@ -349,17 +349,17 @@ class SampleCommunication:
                                                                            goalie.body(),
                                                                            (
                                                                                player.unum() if player.side() == wm.our_side() else player.unum() + 11),
-                                                                           player.pos() + player.vel()))
+                                                                           player.pos + player.vel()))
                         self.update_player_send_time(wm, goalie.side(), goalie.unum())
                         self.update_player_send_time(wm, player.side(), player.unum())
 
                         log.sw_log().communication().add_text(f'(sample communication) say goalie and player: '
-                                                              f'goalie({goalie.unum()}): p={goalie.pos()} b={goalie.body()}'
-                                                              f'player({player.side()}{player.unum()}: {player.pos()})')
+                                                              f'goalie({goalie.unum()}): p={goalie.pos} b={goalie.body()}'
+                                                              f'player({player.side()}{player.unum()}: {player.pos})')
                         return True
 
                 if available_len >= Messenger.SIZES[Messenger.Types.GOALIE]:
-                    goalie_pos = goalie.pos() + goalie.vel()
+                    goalie_pos = goalie.pos + goalie.vel
                     goalie_pos.assign(
                         bound(53. - 16., goalie_pos.x(), 52.9),
                         bound(-20, goalie_pos.y(), 20),
@@ -371,7 +371,7 @@ class SampleCommunication:
                     self._opponent_send_time[goalie.unum()] = wm.time().copy()
 
                     log.sw_log().communication().add_text(f'(sample communication) say goalie info:'
-                                                          f'{goalie.unum()} {goalie.pos()} {goalie.body()}')
+                                                          f'{goalie.unum()} {goalie.pos} {goalie.body()}')
                     return True
 
         if len(send_players) >= 3 and available_len >= Messenger.SIZES[Messenger.Types.THREE_PLAYER]:
@@ -383,11 +383,11 @@ class SampleCommunication:
             p2 = send_players[2].player
 
             agent.add_say_message(ThreePlayerMessenger(send_players[0].number,
-                                                              p0.pos() + p0.vel(),
+                                                              p0.pos + p0.vel,
                                                               send_players[1].number,
-                                                              p1.pos() + p1.vel(),
+                                                              p1.pos + p1.vel,
                                                               send_players[2].number,
-                                                              p2.pos() + p2.vel()))
+                                                              p2.pos + p2.vel()))
             self.update_player_send_time(wm, p0.side(), p0.unum())
             self.update_player_send_time(wm, p1.side(), p1.unum())
             self.update_player_send_time(wm, p2.side(), p2.unum())
@@ -403,9 +403,9 @@ class SampleCommunication:
             p1 = send_players[1].player
 
             agent.add_say_message(TwoPlayerMessenger(send_players[0].number,
-                                                            p0.pos() + p0.vel(),
+                                                            p0.pos + p0.vel,
                                                             send_players[1].number,
-                                                            p1.pos() + p1.vel()))
+                                                            p1.pos + p1.vel()))
             self.update_player_send_time(wm, p0.side(), p0.unum())
             self.update_player_send_time(wm, p1.side(), p1.unum())
 
@@ -418,10 +418,10 @@ class SampleCommunication:
             p0 = send_players[0].player
             if p0.side() == wm.their_side() \
                     and p0.goalie() \
-                    and p0.pos().x() > 53. - 16. \
-                    and p0.pos().abs_y() < 20 \
+                    and p0.pos.x() > 53. - 16. \
+                    and p0.pos.abs_y() < 20 \
                     and p0.dist_from_self() < 25:
-                goalie_pos = p0.pos() + p0.vel()
+                goalie_pos = p0.pos + p0.vel
                 goalie_pos.assign(
                     bound(53. - 16., goalie_pos.x(), 52.9),
                     bound(-20, goalie_pos.y(), 20),
@@ -440,7 +440,7 @@ class SampleCommunication:
             p0 = send_players[0].player
 
             agent.add_say_message(OnePlayerMessenger(send_players[0].number,
-                                                            p0.pos() + p0.vel()))
+                                                            p0.pos + p0.vel()))
 
             self.update_player_send_time(wm, p0.side(), p0.unum())
 
@@ -459,7 +459,7 @@ class SampleCommunication:
         self._current_sender_unum = UNUM_UNKNOWN
         candidate_unum: list[int] = []
 
-        if wm.ball().pos().x() < -10. or wm.game_mode().type() != GameModeType.PlayOn:
+        if wm.ball().pos.x() < -10. or wm.game_mode().type() != GameModeType.PlayOn:
             for unum in range(1, 12):
                 candidate_unum.append(unum)
         else:
@@ -500,19 +500,19 @@ class SampleCommunication:
         wm = agent.world()
         ef = agent.effector()
 
-        if wm.self().pos().x() > wm.offside_line_x() - 15. \
+        if wm.self().pos.x() > wm.offside_line_x() - 15. \
             and wm.intercept_table().self_reach_cycle() <= 3:
             if self._current_sender_unum != wm.self().unum() and self._current_sender_unum != UNUM_UNKNOWN:
                 agent.do_attentionto(wm.our_side(), self._current_sender_unum)
                 player = wm.our_player(self._current_sender_unum)
                 if player is not None:
-                    log.debug_client().add_circle(player.pos(), 3., color='#000088')
-                    log.debug_client().add_line(player.pos(), wm.self().pos(), '#000088')
+                    log.debug_client().add_circle(player.pos, 3., color='#000088')
+                    log.debug_client().add_line(player.pos, wm.self().pos, '#000088')
                 log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
             else:
                 candidates: list[PlayerObject] = []
                 for p in wm.teammates_from_self():
-                    if p.goalie() or p.unum() == UNUM_UNKNOWN or p.pos().x() > wm.offside_line_x() + 1.:
+                    if p.goalie() or p.unum() == UNUM_UNKNOWN or p.pos.x() > wm.offside_line_x() + 1.:
                         continue
                     if p.dist_from_self() > 20.:
                         break
@@ -524,7 +524,7 @@ class SampleCommunication:
                 target_teammate: PlayerObject = None
                 max_x = -100000
                 for p in candidates:
-                    diff = p.pos() + p.vel() - self_next
+                    diff = p.pos + p.vel - self_next
                     x = diff.x() * (1. - diff.abs_y() / 40)
                     if x > max_x:
                         max_x = x
@@ -533,8 +533,8 @@ class SampleCommunication:
                 if target_teammate is not None:
                     log.sw_log().communication().add_text(f'(attentionto someone) most front teammate')
                     log.debug_client().add_message(f'AttFrontMate{target_teammate.unum()}')
-                    log.debug_client().add_circle(target_teammate.pos(), 3., color='#000088')
-                    log.debug_client().add_line(target_teammate.pos(), wm.self().pos(), '#000088')
+                    log.debug_client().add_circle(target_teammate.pos, 3., color='#000088')
+                    log.debug_client().add_line(target_teammate.pos, wm.self().pos, '#000088')
                     agent.do_attentionto(wm.our_side(), target_teammate.unum())
                     return
 
@@ -557,8 +557,8 @@ class SampleCommunication:
             and mate_min <= 5 + min(4, fastest_teammate.pos_count()) \
             and wm.ball().inertia_point(mate_min).dist2(ef.queued_next_self_pos()) < 35.**2:
             log.debug_client().add_message(f'AttBallOwner{fastest_teammate.unum()}')
-            log.debug_client().add_circle(fastest_teammate.pos(), 3., color='#000088')
-            log.debug_client().add_line(fastest_teammate.pos(), wm.self().pos(), '#000088')
+            log.debug_client().add_circle(fastest_teammate.pos, 3., color='#000088')
+            log.debug_client().add_line(fastest_teammate.pos, wm.self().pos, '#000088')
             agent.do_attentionto(wm.our_side(), fastest_teammate.unum())
             return
 
@@ -571,8 +571,8 @@ class SampleCommunication:
             and nearest_teammate.dist_from_self() < 45. \
             and nearest_teammate.dist_from_ball() < 20.:
             log.debug_client().add_message(f'AttBallNearest(1){nearest_teammate.unum()}')
-            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
-            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
+            log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
@@ -581,8 +581,8 @@ class SampleCommunication:
             and wm.ball().pos_count() >= 3 \
             and nearest_teammate.dist_from_ball() < 20.:
             log.debug_client().add_message(f'AttBallNearest(2){nearest_teammate.unum()}')
-            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
-            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
+            log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
@@ -591,8 +591,8 @@ class SampleCommunication:
             and nearest_teammate.dist_from_self() < 45. \
             and nearest_teammate.dist_from_ball() < 3.5:
             log.debug_client().add_message(f'AttBallNearest(3){nearest_teammate.unum()}')
-            log.debug_client().add_circle(nearest_teammate.pos(), 3., color='#000088')
-            log.debug_client().add_line(nearest_teammate.pos(), wm.self().pos(), '#000088')
+            log.debug_client().add_circle(nearest_teammate.pos, 3., color='#000088')
+            log.debug_client().add_line(nearest_teammate.pos, wm.self().pos, '#000088')
             agent.do_attentionto(wm.our_side(), nearest_teammate.unum())
             return
 
@@ -600,8 +600,8 @@ class SampleCommunication:
             log.debug_client().add_message(f'AttCurSender{self._current_sender_unum}')
             player = wm.our_player(self._current_sender_unum)
             if player is not None:
-                log.debug_client().add_circle(player.pos(), 3., color='#000088')
-                log.debug_client().add_line(player.pos(), wm.self().pos(), '#000088')
+                log.debug_client().add_circle(player.pos, 3., color='#000088')
+                log.debug_client().add_line(player.pos, wm.self().pos, '#000088')
             agent.do_attentionto(wm.our_side(), self._current_sender_unum)
         else:
             log.debug_client().add_message(f'AttOff')

@@ -312,7 +312,7 @@ class ActionEffector:
         dir_rate = SP.dash_dir_rate(rel_dir)
         accel_mag = abs(power*dir_rate*wm.self().dash_rate())
         accel_angle = wm.self().body() + rel_dir
-        _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel(),
+        _, accel_mag = wm.self().player_type().normalize_accel(wm.self().vel,
                                                 accel_angle=accel_angle,
                                                 accel_mag=accel_mag)
 
@@ -377,7 +377,7 @@ class ActionEffector:
         moment = float(AngleDeg(moment))
         SP = ServerParam.i()
         wm = self._agent.world()
-        speed = wm.self().vel().r()
+        speed = wm.self().vel.r()
 
         moment *= 1 + speed * wm.self().player_type().inertia_moment()
         if moment > SP.max_moment() or moment < SP.min_moment():
@@ -481,7 +481,7 @@ class ActionEffector:
         wm = self._agent.world()
 
         target = Vector2D(x,y)
-        target = target - wm.self().pos()
+        target = target - wm.self().pos
         target.rotate(-wm.self().face())
 
         self._pointto_command = PlayerPointtoCommand(target.r(), target.th())
@@ -641,7 +641,7 @@ class ActionEffector:
 
     def queued_next_self_pos(self) -> Vector2D:
         me = self._agent.world().self()
-        vel = me.vel()
+        vel = me.vel.copy()
         if self._body_command and self._body_command.type() is CommandType.DASH:
             accel, _ = self.get_dash_info()
             vel += accel
@@ -649,7 +649,7 @@ class ActionEffector:
             tmp = vel.r()
             if tmp > me.player_type().player_speed_max():
                 vel *= me.player_type().player_speed_max() / tmp
-        return me.pos() + vel
+        return me.pos + vel
 
     def queued_next_ball_pos(self):
         wm = self._agent.world()
@@ -661,13 +661,13 @@ class ActionEffector:
         accel = Vector2D(0,0)
 
         if wm.ball().vel_valid():
-            vel = wm.ball().vel()
+            vel = wm.ball().vel.copy()
 
         if self._body_command and self._body_command.type() == CommandType.KICK:
             accel = self.get_kick_info()
 
         vel += accel
-        return wm.ball().pos() + vel
+        return wm.ball().pos + vel
 
     def queued_next_angle_from_body(self, target: Vector2D):
         next_rpos = target - self.queued_next_self_pos()
@@ -680,7 +680,7 @@ class ActionEffector:
         wm = self._agent.world()
 
         if wm.ball().vel_valid():
-            vel = wm.ball().vel().copy()
+            vel = wm.ball().vel.copy()
 
         if self._body_command and self._body_command.type() == CommandType.KICK:
             accel = self.get_kick_info()

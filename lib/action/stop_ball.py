@@ -39,7 +39,7 @@ class StopBall(BodyAction):
         if not wm.self().is_kickable():
             return False
         if not wm.ball().vel_valid():  # Always true until NFS nice :)
-            required_accel = wm.self().vel() - (wm.self().pos - wm.ball().pos())
+            required_accel = wm.self().vel - (wm.self().pos - wm.ball().pos())
             kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),
@@ -77,10 +77,10 @@ class StopBall(BodyAction):
         target_rel = wm.self().pos - wm.ball().pos
         target_rel.set_length(target_dist)
 
-        required_accel = wm.self().vel()
+        required_accel = wm.self().vel.copy()
         required_accel += target_rel  # target relative to current
         required_accel -= wm.self().pos - wm.ball().pos  # vel = pos diff
-        required_accel -= wm.ball().vel()  # required accel
+        required_accel -= wm.ball().vel  # required accel
 
         self._accel_radius = required_accel.r()
 
@@ -98,9 +98,9 @@ class StopBall(BodyAction):
         ##################################
         # keep the ball as much as possible near the best point
 
-        next_ball_to_self = wm.self().vel()
+        next_ball_to_self = wm.self().vel.copy()
         next_ball_to_self -= wm.self().pos - wm.ball().pos
-        next_ball_to_self -= wm.ball().vel()
+        next_ball_to_self -= wm.ball().vel
 
         keep_dist = wm.self().player_type().player_size() + wm.self().player_type().kickable_margin() * 0.4
 

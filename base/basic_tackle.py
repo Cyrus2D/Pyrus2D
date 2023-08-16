@@ -44,7 +44,7 @@ class BasicTackle:
 
         self_goal = False
         if self_reach_point.x() < - SP.pitch_half_length():
-            ball_ray = Ray2D(wm.ball().pos, wm.ball().vel().th())
+            ball_ray = Ray2D(wm.ball().pos, wm.ball().vel.th())
             goal_line = Line2D(Vector2D(-SP.pitch_half_length(), +10),
                                Vector2D(-SP.pitch_half_length(), -10))
 

@@ -138,8 +138,8 @@ class DebugClient:
                           + str(world.self().player_type_id()) + ' ' \
                           + str(round(world.self().pos.x(), 2)) + ' ' \
                           + str(round(world.self().pos.y(), 2)) + ' ' \
-                          + str(round(world.self().vel().x(), 2)) + ' ' \
-                          + str(round(world.self().vel().y(), 2)) + ' ' \
+                          + str(round(world.self().vel.x(), 2)) + ' ' \
+                          + str(round(world.self().vel.y(), 2)) + ' ' \
                           + str(round(world.self().body().degree(), 1)) + ' ' \
                           + str(round(world.self().neck().degree(), 1)) \
                           + ' (c "' + str(world.self().pos_count()) + ' ' \
@@ -152,8 +152,8 @@ class DebugClient:
             ostr_ball = ' (b ' + str(round(world.ball().pos.x(), 2)) \
                         + ' ' + str(round(world.ball().pos.y(), 2))
             if world.ball().vel_valid():
-                ostr_ball += (' ' + str(round(world.ball().vel().x(), 2))
-                              + ' ' + str(round(world.ball().vel().y(), 2)))
+                ostr_ball += (' ' + str(round(world.ball().vel.x(), 2))
+                              + ' ' + str(round(world.ball().vel.y(), 2)))
             ostr_ball += (' (c \'g' + str(world.ball().pos_count()) + 'r'
                           + str(world.ball().rpos_count()) + 'v'
                           + str(world.ball().vel_count())) + '\'))'

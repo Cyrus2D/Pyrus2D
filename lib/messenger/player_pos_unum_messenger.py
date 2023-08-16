@@ -41,7 +41,7 @@ class PlayerPosUnumMessenger(Messenger):
         
         SP = ServerParam.i()
         
-        pos = player.pos()
+        pos = player.pos
         x:float = min_max(-SP.pitch_half_length(), pos.x(), SP.pitch_half_length()) + SP.pitch_half_length()
         y:float = min_max(-SP.pitch_half_width(), pos.y(), SP.pitch_half_width()) + SP.pitch_half_width()
 

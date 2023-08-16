@@ -164,7 +164,7 @@ class BhvShhotGen(BhvKickGen):
         if min_cycle < 0:
             return False
 
-        goalie_speed = goalie.vel().r()
+        goalie_speed = goalie.vel.r()
         seen_dist_noise = goalie.dist_from_self() * 0.02
         max_cycle = course.ball_reach_step
 
@@ -218,17 +218,17 @@ class BhvShhotGen(BhvKickGen):
         sp = SP.i()
         ptype = opponent.player_type()
         control_area = ptype.kickable_area()
-        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(), ptype.real_speed_max(), wm.ball().pos(),
+        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
         if min_cycle < 0:
             return False
 
-        opponent_speed = opponent.vel().r()
+        opponent_speed = opponent.vel.r()
         max_cycle = course.ball_reach_step
         maybe_reach = False
         nearest_step_diff = 1000
         for cycle in range(min_cycle, max_cycle):
-            ball_pos = smath.inertia_n_step_point(wm.ball().pos(), course.first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = smath.inertia_n_step_point(wm.ball().pos, course.first_ball_vel, cycle, sp.ball_decay())
             inertia_pos = opponent.inertia_point(cycle)
             target_dist = inertia_pos.dist(ball_pos)
             if target_dist - control_area < 0.001:
@@ -272,7 +272,7 @@ class BhvShhotGen(BhvKickGen):
 
         sp = SP.i()
         goalie = wm.get_opponent_goalie()
-        goalie_angle = (goalie.pos() - wm.ball().pos()).th() if goalie else 180.0
+        goalie_angle = (goalie.pos - wm.ball().pos()).th() if goalie else 180.0
 
         for it in self.candidates:
             score = 1.0

@@ -219,11 +219,11 @@ class BallObject(Object):
                 self.rpos = prev.rpos + self.vel / ServerParam.i().ball_decay() - player.last_move()
             
             if self.rpos().is_valid() and self.pos_count > self.rpos_count:
-                self.pos = player.pos() + self.rpos()
+                self.pos = player.pos + self.rpos()
                 self.dist_from_self = self.rpos().r()
                 self.angle_from_self = self.rpos().th()
             elif self.pos_valid() and player.pos_valid():
-                self.rpos = self.pos() - player.pos()
+                self.rpos = self.pos - player.pos
                 self.dist_from_self = self.rpos().r()
                 self.angle_from_self = self.rpos().th()
             else:

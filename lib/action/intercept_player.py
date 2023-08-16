@@ -31,7 +31,7 @@ class PlayerIntercept:
                       else player.pos())
         min_cycle = 0
         ball_to_player = player_pos - wm.ball().pos
-        ball_to_player.rotate(-wm.ball().vel().th())
+        ball_to_player.rotate(-wm.ball().vel.th())
         min_cycle = int(floor(ball_to_player.abs_y()
                               / player_type.real_speed_max()))
 
@@ -146,7 +146,7 @@ class PlayerIntercept:
             angle_diff = 180 - angle_diff
 
         n_turn = 0
-        speed = player.vel().r()
+        speed = player.vel.r()
         while angle_diff > turn_margin:
             max_turn = player_type.effective_turn(ServerParam.i().max_moment(),
                                                   speed)

@@ -206,7 +206,7 @@ class SelfObject(PlayerObject):
             
             self.vel.set_polar(sense.speed_mag(), vel_ang)
             self.vel_count = 0
-            self.seen_vel = self.vel().copy()
+            self.seen_vel = self.vel.copy()
             self.seen_vel_count = 0
 
             # TODO cos_min_max and sin_min_max should be implemented
@@ -392,9 +392,9 @@ class SelfObject(PlayerObject):
                                              (ball.angle_from_self() - self.body).degree())
 
         if self.last_catch_time.cycle() + SP.catch_ban_cycle() <= self.time.cycle():
-            self.catch_probability = ptype.get_catch_probability(self.pos(), self.body, ball.pos(), 0.055, 0.5)
+            self.catch_probability = ptype.get_catch_probability(self.pos, self.body, ball.pos, 0.055, 0.5)
         
-        player2ball = (ball.pos() - self.pos()).rotated_vector(-self.body)
+        player2ball = (ball.pos - self.pos()).rotated_vector(-self.body)
         tackle_dist = SP.tackle_dist() if player2ball.x() > 0 else SP.tackle_back_dist()
         tackle_fail_prob = 1
         foul_fail_prob = 1
@@ -483,7 +483,7 @@ class SelfObject(PlayerObject):
         return res
 
     def __str__(self):
-        return f'''Self Player side:{self.side} unum:{self.unum} pos:{self.pos()} vel:{self.vel()} body:{self.body}'''
+        return f'''Self Player side:{self.side} unum:{self.unum} pos:{self.pos} vel:{self.vel} body:{self.body}'''
 
 # TODO CHECK IT
 '''        self.sense_body_time = current_time.copy()

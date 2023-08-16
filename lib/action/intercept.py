@@ -171,7 +171,7 @@ class Intercept:
             cycle = cache[i].reach_cycle()
             self_pos = wm.self().inertia_point(cycle)
             ball_pos = wm.ball().inertia_point(cycle)
-            ball_vel = wm.ball().vel() * SP.ball_decay() ** cycle
+            ball_vel = wm.ball().vel * SP.ball_decay() ** cycle
 
             if ball_pos.abs_x() > max_pitch_x or \
                     ball_pos.abs_y() > max_pitch_y:
@@ -252,7 +252,7 @@ class Intercept:
             return attacker_best
 
         if noturn_best is not None and forward_best is not None:
-            noturn_ball_vel = (wm.ball().vel()
+            noturn_ball_vel = (wm.ball().vel
                                * SP.ball_decay() ** noturn_best.reach_cycle())
             noturn_ball_speed = noturn_ball_vel.r()
             if (noturn_ball_vel.x() > 0.1
@@ -264,7 +264,7 @@ class Intercept:
             return forward_best
 
         fastest_pos = wm.ball().inertia_point(cache[0].reach_cycle())
-        fastest_vel = wm.ball().vel() * SP.ball_decay() ** cache[0].reach_cycle()
+        fastest_vel = wm.ball().vel * SP.ball_decay() ** cache[0].reach_cycle()
 
         if ((fastest_pos.x() > -33
              or fastest_pos.abs_y() > 20)
@@ -282,13 +282,13 @@ class Intercept:
                 return noturn_best
 
             if nearest_best.reach_cycle() <= noturn_best.reach_cycle() + 2:
-                nearest_ball_vel = (wm.ball().vel()
+                nearest_ball_vel = (wm.ball().vel
                                     * SP.ball_decay() ** nearest_best.reach_cycle())
                 nearest_ball_speed = nearest_ball_vel.r()
                 if nearest_ball_speed < 0.7:
                     return nearest_best
 
-                noturn_ball_vel = (wm.ball().vel()
+                noturn_ball_vel = (wm.ball().vel
                                    * SP.ball_decay() ** noturn_best.reach_cycle())
                 if (nearest_best.ball_dist() < wm.self().player_type().kickable_area() - 0.4
                         and nearest_best.ball_dist() < noturn_best.ball_dist()
@@ -310,8 +310,8 @@ class Intercept:
             return nearest_best
 
         if (wm.self().pos.x() > 40
-                and wm.ball().vel().r() > 1.8
-                and wm.ball().vel().th().abs() < 100
+                and wm.ball().vel.r() > 1.8
+                and wm.ball().vel.th().abs() < 100
                 and cache[0].reach_cycle() > 1):
             chance_best: InterceptInfo = None
             for i in range(MAX):
@@ -340,7 +340,7 @@ class Intercept:
         target_rel = (target_point - my_inertia).rotated_vector(-wm.self().body())
         target_dist = target_rel.r()
 
-        ball_travel = inertia_n_step_distance(wm.ball().vel().r(),
+        ball_travel = inertia_n_step_distance(wm.ball().vel.r(),
                                               info.reach_cycle(),
                                               ServerParam.i().ball_decay())
         ball_noise = ball_travel * ServerParam.i().ball_rand()
@@ -360,7 +360,7 @@ class Intercept:
             return True
 
         extra_buf = 0.1 * bound(0, info.reach_cycle() - 1, 4)
-        angle_diff = (wm.ball().vel().th() - wm.self().body()).abs()
+        angle_diff = (wm.ball().vel.th() - wm.self().body()).abs()
         if angle_diff < 10 or 170 < angle_diff:
             extra_buf = 0
 
@@ -414,7 +414,7 @@ class Intercept:
         if info.dash_power() < 0:
             accel_angle += 180
 
-        ball_vel = wm.ball().vel() * ServerParam.i().ball_decay() ** info.reach_cycle()
+        ball_vel = wm.ball().vel * ServerParam.i().ball_decay() ** info.reach_cycle()
         if ((not wm.self().goalie()
              or wm.last_kicker_side() == wm.our_side())
                 and wm.self().body().abs() < 50):
@@ -448,7 +448,7 @@ class Intercept:
 
         used_power = info.dash_power()
         if (wm.ball().seen_pos_count() <= 2
-                and wm.ball().vel().r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
+                and wm.ball().vel.r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
                 and info.dash_angle().abs() < 5
                 and target_rel.abs_x() < (ptype.kickable_area()
                                          + ptype.dash_rate(wm.self().effort())
@@ -460,7 +460,7 @@ class Intercept:
             first_speed = min_max(-ptype.player_speed_max(),
                                   first_speed,
                                   ptype.player_speed_max())
-            rel_vel = wm.self().vel().rotated_vector(-wm.self().body())
+            rel_vel = wm.self().vel.rotated_vector(-wm.self().body())
             required_accel = first_speed - rel_vel.x()
             used_power = required_accel / wm.self().dash_rate()
             used_power /= ServerParam.i().dash_dir_rate(info.dash_angle().degree())

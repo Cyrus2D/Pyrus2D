@@ -51,7 +51,7 @@ class GoToPoint:
         inertia_pos: Vector2D = wm.self().inertia_point(self._cycle)
         target_rel: Vector2D = self._target - inertia_pos
         target_dist = target_rel.r()
-        max_turn = wm.self().player_type().effective_turn(SP.i().max_moment(), wm.self().vel().r())
+        max_turn = wm.self().player_type().effective_turn(SP.i().max_moment(), wm.self().vel.r())
         turn_moment: AngleDeg = target_rel.th() - wm.self().body()
         if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model().stamina() > SP.i().recover_dec_thr_value() + 500.0:
             effective_power = SP.i().max_dash_power() * wm.self().dash_rate()
@@ -89,7 +89,7 @@ class GoToPoint:
                 first_speed = min(first_speed, self._dash_speed)
             else:
                 first_speed = max(first_speed, -self._dash_speed)
-        rel_vel = wm.self().vel()
+        rel_vel = wm.self().vel.copy()
         rel_vel.rotate(-accel_angle)
         required_accel = first_speed - rel_vel.x()
         if math.fabs(required_accel) < 0.05:

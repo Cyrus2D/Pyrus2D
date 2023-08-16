@@ -249,7 +249,7 @@ class PlayerObject(Object):
                        body: float):
         
         if PlayerObject.DEBUG:
-            log.sw_log().sensor().add_text( f"(update player by hear) unum={unum} prior_pos={self.pos()} new_pos={pos}")
+            log.sw_log().sensor().add_text( f"(update player by hear) unum={unum} prior_pos={self.pos} new_pos={pos}")
         
         self.heard_pos = pos.copy()
         self.heard_pos_count = 0

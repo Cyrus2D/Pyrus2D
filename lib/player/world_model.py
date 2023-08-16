@@ -257,15 +257,15 @@ class WorldModel:
 
     def update_their_defense_line(self):
         speed_rate = ServerParam.i().default_player_speed_max() * (0.8
-                                                                   if self.ball().vel().x() < -1
+                                                                   if self.ball().vel.x() < -1
                                                                    else 0.25)
         first, second = 0, 0
         first_count, second_count = 1000, 1000
 
         for it in self._opponents_from_ball:
-            x = it.pos().x()
-            if it.vel_count() <= 1 and it.vel().x() > 0:
-                x += min(0.8, it.vel().x() / it.player_type().player_decay())
+            x = it.pos.x()
+            if it.vel_count() <= 1 and it.vel.x() > 0:
+                x += min(0.8, it.vel.x() / it.player_type().player_decay())
             elif it.body_count() <= 3 and it.body().abs() < 100:
                 x -= speed_rate * min(10, it.pos_count() - 1.5)
             else:
@@ -283,7 +283,7 @@ class WorldModel:
 
         goalie = self.get_opponent_goalie()
         if goalie is None:
-            if 20 < self.ball().pos().x() < ServerParam.i().their_penalty_area_line_x():
+            if 20 < self.ball().pos.x() < ServerParam.i().their_penalty_area_line_x():
                 if first < ServerParam.i().their_penalty_area_line_x():
                     new_line = first
                     count = 30
@@ -301,7 +301,7 @@ class WorldModel:
         if (self._game_mode.type() == GameModeType.BeforeKickOff
                 and self._game_mode.type().is_after_goal()
                 and self.ball().pos_count() <= 3):
-            ball_next = self.ball().pos() + self.ball().vel()
+            ball_next = self.ball().pos + self.ball().vel
             if ball_next.x() > new_line:
                 new_line = ball_next.x()
                 count = self.ball().pos_count()
@@ -520,8 +520,8 @@ class WorldModel:
                 if (self.ball().seen_vel_count() <= 2
                         and self._prev_ball.rpos().r() > 1.5
                         and see.balls()[0].dist_ > 1.5
-                        and abs(tmp_vel.x() - self.ball().vel().x()) < 0.1
-                        and abs(tmp_vel.y() - self.ball().vel().y()) < 0.1):
+                        and abs(tmp_vel.x() - self.ball().vel.x()) < 0.1
+                        and abs(tmp_vel.y() - self.ball().vel.y()) < 0.1):
                     return 1000
                 vel.assign(tmp_vel.x(), tmp_vel.y())
                 vel_error.assign(tmp_vel_error.x(), tmp_vel_error.y())
@@ -540,7 +540,7 @@ class WorldModel:
                     ball_move += self.self().last_move(i)
                 vel.set_vector(ball_move * ((SP.ball_decay() ** 2) / (1 + SP.ball_decay())))
                 vel_r = vel.r()
-                estimate_speed = self.ball().vel().r() 
+                estimate_speed = self.ball().vel.r()
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*2) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*2 + 0.1):
@@ -568,7 +568,7 @@ class WorldModel:
                     ball_move += self.self().last_move(i)
                 vel.set_vector(ball_move * (SP.ball_decay()**3 / (1 + SP.ball_decay() + SP.ball_decay()**2)))
                 vel_r = vel.r()
-                estimate_speed = self.ball().vel().r()
+                estimate_speed = self.ball().vel.r()
                 if (vel_r > estimate_speed + 0.1
                     or vel_r < estimate_speed*(1-SP.ball_rand()*3) - 0.1
                     or (vel - self.ball().vel()).r() > estimate_speed * SP.ball_rand()*3 + 0.1):
@@ -631,17 +631,17 @@ class WorldModel:
             self._ball.update_only_relative_pos(rpos, rpos_err)
             return
         
-        pos = self.self().pos() + rpos
+        pos = self.self().pos + rpos
         pos_err = self.self().pos_error() + rpos_err
         gvel = Vector2D.invalid()
         vel_count = 1000
         
         if WorldModel.DEBUG:
             log.sw_log().world().add_text( f"(localize ball) rvel_valid={rvel.is_valid()}, self_vel_valid={self.self().vel_valid()}, self_vel_count={self.self().vel_count()}")
-            log.sw_log().world().add_text( f"(localize ball) rvel={rvel}, self_vel={self.self().vel()}")
+            log.sw_log().world().add_text( f"(localize ball) rvel={rvel}, self_vel={self.self().vel}")
         
         if rvel.is_valid() and self.self().vel_valid():
-            gvel = self.self().vel() + rvel
+            gvel = self.self().vel + rvel
             vel_err += self.self().vel_error()
             vel_count = 0
         
@@ -654,7 +654,7 @@ class WorldModel:
                 and self._prev_ball.rpos_count() == 0
                 and self._prev_ball.rpos().r() < 5):
 
-                gvel = pos - self._prev_ball.pos()
+                gvel = pos - self._prev_ball.pos
                 vel_err += pos_err + self._prev_ball._pos_error + self._prev_ball._vel_error
                 vel_count = 2
             elif (see.balls()[0].dist_ < 2
@@ -889,8 +889,8 @@ class WorldModel:
         new_opponents: list[PlayerObject] = []
         new_unknown_players: list[PlayerObject] = []
         
-        my_pos = self.self().pos()
-        my_vel = self.self().vel()
+        my_pos = self.self().pos
+        my_vel = self.self().vel
         my_face = self.self().face()
         my_face_err = self.self().face_error()
 
@@ -1008,7 +1008,7 @@ class WorldModel:
         
         if self.self().pos_count() <= 10:
             varea = ViewArea(self.self().view_width().width(),
-                             self.self().pos(),
+                             self.self().pos,
                              self.self().face(),
                              current_time)
             self.check_ghost(varea) # TODO 
@@ -1100,17 +1100,17 @@ class WorldModel:
         self.create_set_player(self._teammates,
                                self._teammates_from_self,
                                self._teammates_from_ball,
-                               self.self().pos(),
+                               self.self().pos,
                                self.ball().pos())
         self.create_set_player(self._opponents,
                                self._opponents_from_self,
                                self._opponents_from_ball,
-                               self.self().pos(),
+                               self.self().pos,
                                self.ball().pos())
         self.create_set_player(self._unknown_players,
                                self._opponents_from_self,
                                self._opponents_from_ball,
-                               self.self().pos(),
+                               self.self().pos,
                                self.ball().pos())
         
         self._teammates_from_ball.sort(key=lambda p: p.dist_from_ball())
@@ -1180,7 +1180,7 @@ class WorldModel:
         max_x: float = 0
         second_max_x: float = 0    
         for p in self._opponents:
-            x = p.pos().x()
+            x = p.pos.x()
             
             if x > second_max_x:
                 second_max_x = x
@@ -1191,7 +1191,7 @@ class WorldModel:
         
         from_unknown = False
         for p in self._unknown_players:
-            x = p.pos().x()
+            x = p.pos.x()
             
             if x > second_max_x:
                 second_max_x = x
@@ -1215,7 +1215,7 @@ class WorldModel:
         min_x: float = 0
         second_min_x: float = 0    
         for p in self._teammates:
-            x = p.pos().x()
+            x = p.pos.x()
             
             if x < second_min_x:
                 second_min_x = x
@@ -1226,7 +1226,7 @@ class WorldModel:
         
         from_unknown = False
         for p in self._unknown_players:
-            x = p.pos().x()
+            x = p.pos.x()
             
             if x < second_min_x:
                 second_min_x = x
@@ -1288,10 +1288,10 @@ class WorldModel:
         for o in self._opponents + self._unknown_players:
             if o.unum() != UNUM_UNKNOWN:
                 continue
-            if o.pos().x() < SP.their_penalty_area_line_x() or o.pos().abs_y() > SP.penalty_area_half_width():
+            if o.pos.x() < SP.their_penalty_area_line_x() or o.pos.abs_y() > SP.penalty_area_half_width():
                 continue
 
-            d = o.pos().dist(heard_pos)
+            d = o.pos.dist(heard_pos)
             if d < min_dist and d < o.pos_count() * goalie_speed_max + o.dist_from_self() * 0.06:
                 min_dist = d
                 goalie = o
@@ -1453,13 +1453,13 @@ class WorldModel:
                     if p.unum() != UNUM_UNKNOWN and p.unum() != unum:
                         continue
                     
-                    d = p.pos().dist(player.pos_)
+                    d = p.pos.dist(player.pos_)
                     if d < min_dist and p.pos_count()*1.2 + p.dist_from_self() *0.06:
                         min_dist = d
                         target_player = p
                 
                 for p in self._unknown_players:
-                    d = p.pos().dist(player.pos_)
+                    d = p.pos.dist(player.pos_)
                     if d < min_dist and d < p.pos_count()*1.2 + p.dist_from_self() *0.06:
                         min_dist = d
                         target_player = p
@@ -1517,7 +1517,7 @@ class WorldModel:
                     break
             
             if sender:
-                dist = sender.pos().dist(self.ball().pos())
+                dist = sender.pos.dist(self.ball().pos())
                 if dist < min_dist:
                     min_dist = dist
                     heared_pos = ball.pos_
@@ -1595,24 +1595,24 @@ class WorldModel:
         if self.ball().rpos_count() > 0 and self.ball().pos_valid():
             ball_vis_dist2 = (
                 SP.visible_distance()
-                - (self.self().vel().r() / self.self().player_type().player_decay()) * 0.1
-                - (self.ball().vel().r() / SP.ball_decay()) * 0.05
+                - (self.self().vel.r() / self.self().player_type().player_decay()) * 0.1
+                - (self.ball().vel.r() / SP.ball_decay()) * 0.05
                 - (0.12 * min(4, self.ball().pos_count()))
                 - 0.25
             )**2
             
-            if varea.contains(self.ball().pos(), angle_buf, ball_vis_dist2):
+            if varea.contains(self.ball().pos, angle_buf, ball_vis_dist2):
                 self._ball.set_ghost()
         
         vis_dist2 = (
             SP.visible_distance()
-            - (self.self().vel().r() / self.self().player_type().player_decay()) * 0.1
+            - (self.self().vel.r() / self.self().player_type().player_decay()) * 0.1
             - 0.25
             )**2
         
         removing_teammates = []
         for p in self._teammates:
-            if p.pos_count() > 0 and varea.contains(p.pos(), angle_buf, vis_dist2):
+            if p.pos_count() > 0 and varea.contains(p.pos, angle_buf, vis_dist2):
                 if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
                     removing_teammates.append(p)
                     continue
@@ -1622,7 +1622,7 @@ class WorldModel:
         
         removing_opponents = []
         for p in self._opponents:
-            if p.pos_count() > 0 and varea.contains(p.pos(), 1., vis_dist2):
+            if p.pos_count() > 0 and varea.contains(p.pos, 1., vis_dist2):
                 if p.unum() == UNUM_UNKNOWN and p.pos_count() >= 10 and p.ghost_count() >= 2:
                     removing_opponents.append(p)
                     continue
@@ -1633,7 +1633,7 @@ class WorldModel:
         
         removing_unknown_players = []
         for p in self._unknown_players:
-            if p.pos_count() > 0 and varea.contains(p.pos(), 1., vis_dist2):
+            if p.pos_count() > 0 and varea.contains(p.pos, 1., vis_dist2):
                 if p.dist_from_self() < 40 *1.06 and p.is_ghost():
                     removing_unknown_players.append(p)
                     continue

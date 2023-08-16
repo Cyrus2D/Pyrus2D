@@ -93,7 +93,7 @@ class TackleGenerator:
             angle = wm.self().body() + dir
             accel = Vector2D(r=eff_power, a=angle)
 
-            vel = wm.ball().vel() + accel
+            vel = wm.ball().vel + accel
             speed = vel.r()
             if speed > SP.ball_speed_max():
                 vel.set_length(SP.ball_speed_max())
@@ -146,9 +146,9 @@ class TackleGenerator:
                 return shoot_score
 
         opponent_reach_step = self.predict_opponents_reach_step(wm, wm.ball().pos, result._ball_vel, ball_move_angle)
-        final_point = inertia_n_step_point(wm.ball().pos(), result._ball_vel, opponent_reach_step, SP.ball_decay())
+        final_point = inertia_n_step_point(wm.ball().pos, result._ball_vel, opponent_reach_step, SP.ball_decay())
 
-        final_segment = Segment2D(wm.ball().pos(), final_point)
+        final_segment = Segment2D(wm.ball().pos, final_point)
         pitch = Rect2D.from_center(0., 0., SP.pitch_length(), SP.pitch_width())
         intersections = pitch.intersection(final_segment)
 
@@ -208,9 +208,9 @@ class TackleGenerator:
         SP = ServerParam.i()
         ptype = opponent.player_type()
 
-        opponent_speed = opponent.vel().r()
+        opponent_speed = opponent.vel.r()
 
-        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(),
+        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos,
                                                    ptype.real_speed_max(),
                                                    first_ball_pos,
                                                    ball_move_angle)
