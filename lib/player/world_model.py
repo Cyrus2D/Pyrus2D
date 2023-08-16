@@ -269,7 +269,7 @@ class WorldModel:
             elif it.body_count() <= 3 and it.body.abs() < 100:
                 x -= speed_rate * min(10, it.pos_count - 1.5)
             else:
-                x -= speed_rate * min(10, it.pos_count())
+                x -= speed_rate * min(10, it.pos_count)
 
             if x > second:
                 second = x
@@ -358,7 +358,7 @@ class WorldModel:
 
             self._teammates_from_ball.append(tm)
 
-        self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball())
+        self._teammates_from_ball.sort(key=lambda player: player.dist_from_ball)
 
     def last_kicker_side(self) -> SideID:
         return self._last_kicker_side
@@ -389,7 +389,7 @@ class WorldModel:
 
             self._teammates_from_self.append(tm)
 
-        self._teammates_from_self.sort(key=lambda player: player.dist_from_self())
+        self._teammates_from_self.sort(key=lambda player: player.dist_from_self)
 
     def _set_opponents_from_self(self):
         self._opponents_from_self = []
@@ -399,7 +399,7 @@ class WorldModel:
 
             self._opponents_from_self.append(opp)
 
-        self._opponents_from_self.sort(key=lambda player: player.dist_from_self())
+        self._opponents_from_self.sort(key=lambda player: player.dist_from_self)
 
     def _set_opponents_from_ball(self):
         self._opponents_from_ball = []
@@ -409,7 +409,7 @@ class WorldModel:
 
             self._opponents_from_ball.append(opp)
 
-        self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball())
+        self._opponents_from_ball.sort(key=lambda player: player.dist_from_ball)
 
     def offside_line_x(self) -> float:
         return self._offside_line_x
@@ -548,7 +548,7 @@ class WorldModel:
                     vel.invalidate()
                     return 1000
                 else:
-                    vel_error.set_vector((rpos_error * 2.0) + self.self().vel_error())
+                    vel_error.set_vector((rpos_error * 2.0) + self.self().vel_error)
                     vel_error *= SP.ball_decay()
                     return 2
         
@@ -576,7 +576,7 @@ class WorldModel:
                     vel.invalidate()
                     return 1000
                 else:
-                    vel_error.set_vector((rpos_error * 3.0) + self.self().vel_error())
+                    vel_error.set_vector((rpos_error * 3.0) + self.self().vel_error)
                     return 3
         return vel_count
                 
@@ -622,7 +622,7 @@ class WorldModel:
             if (self._prev_ball.rpos_count == 0
                 and see.balls()[0].dist_ > self.self().player_type().player_size() + SP.ball_size() + 0.1
                 and self.self().last_move().is_valid()):
-                tvel = (rpos - self._prev_ball.rpos()) + self.self().last_move()
+                tvel = (rpos - self._prev_ball.rpos) + self.self().last_move()
                 tvel_err = rpos_err + self.self().vel_error
 
                 tvel *= SP.ball_decay()
@@ -1113,11 +1113,11 @@ class WorldModel:
                                self.self().pos,
                                self.ball().pos)
         
-        self._teammates_from_ball.sort(key=lambda p: p.dist_from_ball())
-        self._opponents_from_ball.sort(key=lambda p: p.dist_from_ball())
+        self._teammates_from_ball.sort(key=lambda p: p.dist_from_ball)
+        self._opponents_from_ball.sort(key=lambda p: p.dist_from_ball)
         
-        self._teammates_from_self.sort(key=lambda p: p.dist_from_self())
-        self._opponents_from_self.sort(key=lambda p: p.dist_from_self())
+        self._teammates_from_self.sort(key=lambda p: p.dist_from_self)
+        self._opponents_from_self.sort(key=lambda p: p.dist_from_self)
         
         # self.estimate_unknown_player_unum() # TODO IMP FUNC?!
         self.estimate_goalie()
@@ -1597,7 +1597,7 @@ class WorldModel:
                 SP.visible_distance()
                 - (self.self().vel.r() / self.self().player_type().player_decay()) * 0.1
                 - (self.ball().vel.r() / SP.ball_decay()) * 0.05
-                - (0.12 * min(4, self.ball().pos_count()))
+                - (0.12 * min(4, self.ball().pos_count))
                 - 0.25
             )**2
             

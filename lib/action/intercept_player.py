@@ -25,7 +25,7 @@ class PlayerIntercept:
         penalty_x_abs = ServerParam.i().pitch_half_length() - ServerParam.i().penalty_area_length()
         penalty_y_abs = ServerParam.i().penalty_area_half_width()
 
-        pos_count = min(player.seen_pos_count, player.pos_count())
+        pos_count = min(player.seen_pos_count, player.pos_count)
         player_pos = (player.seen_pos
                       if player.seen_pos_count <= player.pos_count
                       else player.pos)
@@ -41,7 +41,7 @@ class PlayerIntercept:
 
         min_cycle = max(0,
                         min_cycle - min(player.seen_pos_count,
-                                        player.pos_count()))
+                                        player.pos_count))
         if min_cycle > max_cycle:
             return self.predict_final(player, player_type)
 
@@ -73,7 +73,7 @@ class PlayerIntercept:
         penalty_x_abs = ServerParam.i().pitch_half_length() - ServerParam.i().penalty_area_length()
         penalty_y_abs = ServerParam.i().penalty_area_half_width()
 
-        pos_count = min(player.seen_pos_count, player.pos_count())
+        pos_count = min(player.seen_pos_count, player.pos_count)
         ppos = (player.seen_pos
                 if player.seen_pos_count <= player.pos_count
                 else player.pos)
@@ -187,7 +187,7 @@ class PlayerIntercept:
                              control_area: float,
                              ball_pos: Vector2D):
         wm = self._wm
-        pos_count = min(player.seen_pos_count, player.pos_count())
+        pos_count = min(player.seen_pos_count, player.pos_count)
         ppos = (player.seen_pos
                 if player.seen_pos_count <= player.pos_count
                 else player.pos)
@@ -215,7 +215,7 @@ class PlayerIntercept:
         else:
             n_dash -= bound(0,
                             pos_count - n_turn,
-                            min(1, wm.ball().seen_pos_count()))
+                            min(1, wm.ball().seen_pos_count))
 
         if player.is_tackling():
             n_dash += max(0, ServerParam.i().tackle_cycles() - player.tackle_count() - 2)

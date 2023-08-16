@@ -142,8 +142,8 @@ class DebugClient:
                           + str(round(world.self().vel.y(), 2)) + ' ' \
                           + str(round(world.self().body.degree(), 1)) + ' ' \
                           + str(round(world.self().neck().degree(), 1)) \
-                          + ' (c "' + str(world.self().pos_count()) + ' ' \
-                          + str(world.self().vel_count()) + ' ' + str(world.self().face_count())
+                          + ' (c "' + str(world.self().pos_count) + ' ' \
+                          + str(world.self().vel_count) + ' ' + str(world.self().face_count())
             if world.self().card() == Card.YELLOW:
                 ostr_player += 'y'
             ostr_player += '"))'
@@ -154,9 +154,9 @@ class DebugClient:
             if world.ball().vel_valid():
                 ostr_ball += (' ' + str(round(world.ball().vel.x(), 2))
                               + ' ' + str(round(world.ball().vel.y(), 2)))
-            ostr_ball += (' (c \'g' + str(world.ball().pos_count()) + 'r'
-                          + str(world.ball().rpos_count()) + 'v'
-                          + str(world.ball().vel_count())) + '\'))'
+            ostr_ball += (' (c \'g' + str(world.ball().pos_count) + 'r'
+                          + str(world.ball().rpos_count) + 'v'
+                          + str(world.ball().vel_count)) + '\'))'
 
         ostr += ostr_player
         ostr += ostr_ball

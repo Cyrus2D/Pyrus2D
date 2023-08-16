@@ -257,7 +257,7 @@ class TackleGenerator:
             if opponent.is_tackling():
                 n_step += 5
 
-            n_step -= min(3, opponent.pos_count())
+            n_step -= min(3, opponent.pos_count)
             if n_step <= cycle:
                 return cycle
         return 1000

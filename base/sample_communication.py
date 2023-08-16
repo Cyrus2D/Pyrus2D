@@ -554,7 +554,7 @@ class SampleCommunication:
             and mate_min <= 1 \
             and mate_min < self_min \
             and mate_min <= opp_min + 1 \
-            and mate_min <= 5 + min(4, fastest_teammate.pos_count()) \
+            and mate_min <= 5 + min(4, fastest_teammate.pos_count) \
             and wm.ball().inertia_point(mate_min).dist2(ef.queued_next_self_pos()) < 35.**2:
             log.debug_client().add_message(f'AttBallOwner{fastest_teammate.unum()}')
             log.debug_client().add_circle(fastest_teammate.pos, 3., color='#000088')

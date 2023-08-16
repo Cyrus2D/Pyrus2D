@@ -73,7 +73,7 @@ class Tools:
 
     @staticmethod
     def estimate_virtual_dash_distance(player: 'PlayerObject'):
-        pos_count = min(10, player.pos_count, player.seen_pos_count())
+        pos_count = min(10, player.pos_count, player.seen_pos_count)
         max_speed = player.player_type().real_speed_max() * 0.8
 
         d = 0.

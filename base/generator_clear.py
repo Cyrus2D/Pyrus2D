@@ -79,7 +79,7 @@ class BhvClearGen(BhvKickGen):
                     if opp.unum() <= 0:
                         continue
                     opp_cycle = opp.pos.dist(ball_pos) / opp.player_type().real_speed_max() - opp.player_type().kickable_area()
-                    opp_cycle -= min(0, opp.pos_count())
+                    opp_cycle -= min(0, opp.pos_count)
                     if opp_cycle <= c:
                         receiver_opp = opp.unum()
                         break
