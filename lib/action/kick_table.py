@@ -642,7 +642,7 @@ class _KickTable:
                 continue
 
             control_area = o.player_type().catchable_area() if (
-                    o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(state.pos_
+                    o.goalie() and penalty_area.contains(o.pos) and penalty_area.contains(state.pos_
                                                                                             )) else o.player_type().kickable_area()
 
             #
@@ -749,7 +749,7 @@ class _KickTable:
                         state.flag_ |= RELEASE_INTERFERE
                     continue
                 control_area = o.player_type().catchable_area() if (
-                        o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
+                        o.goalie() and penalty_area.contains(o.pos) and penalty_area.contains(
                     state.pos_)) else o.player_type().kickable_area()
 
                 control_area += 0.1
@@ -804,7 +804,7 @@ class _KickTable:
 
         current_max_accel = min(self._current_state.kick_rate_ * ServerParam.i().max_power(),
                                 ServerParam.i().ball_accel_max())
-        target_vel = (target_point - world.ball().pos())
+        target_vel = (target_point - world.ball().pos)
         target_vel.set_length(first_speed)
 
         accel = target_vel - world.ball().vel
@@ -977,7 +977,7 @@ class _KickTable:
         current_speed_rate = 0.5 + 0.5 * (world.ball().vel.r()
                                           / (param.ball_speed_max() * param.ball_decay()))
 
-        target_rel_angle = (target_point - world.self().pos()).th() - world.self().body
+        target_rel_angle = (target_point - world.self().pos).th() - world.self().body
         angle_deg = target_rel_angle.degree() + 180.0
         target_angle_index = round(DEST_DIR_DIVS * (angle_deg / 360.0))
         if target_angle_index >= DEST_DIR_DIVS:

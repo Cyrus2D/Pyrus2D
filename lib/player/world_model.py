@@ -1101,17 +1101,17 @@ class WorldModel:
                                self._teammates_from_self,
                                self._teammates_from_ball,
                                self.self().pos,
-                               self.ball().pos())
+                               self.ball().pos)
         self.create_set_player(self._opponents,
                                self._opponents_from_self,
                                self._opponents_from_ball,
                                self.self().pos,
-                               self.ball().pos())
+                               self.ball().pos)
         self.create_set_player(self._unknown_players,
                                self._opponents_from_self,
                                self._opponents_from_ball,
                                self.self().pos,
-                               self.ball().pos())
+                               self.ball().pos)
         
         self._teammates_from_ball.sort(key=lambda p: p.dist_from_ball())
         self._opponents_from_ball.sort(key=lambda p: p.dist_from_ball())
@@ -1517,7 +1517,7 @@ class WorldModel:
                     break
             
             if sender:
-                dist = sender.pos.dist(self.ball().pos())
+                dist = sender.pos.dist(self.ball().pos)
                 if dist < min_dist:
                     min_dist = dist
                     heared_pos = ball.pos_
@@ -1722,6 +1722,6 @@ class WorldModel:
                 continue
             if p.pos_count > count_thr or p.is_ghost():
                 continue
-            if region.contains(p.pos()):
+            if region.contains(p.pos):
                 return True
         return False

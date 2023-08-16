@@ -102,7 +102,7 @@ class TackleToPoint(BodyAction):
         if wm.self().tackle_probability() < self._min_prob:
             return False
 
-        target_angle = (self._point - wm.ball().pos()).th()
+        target_angle = (self._point - wm.ball().pos).th()
         target_rel_angle = target_angle - wm.self().body
 
         # if agent.config().version() < 12.0:

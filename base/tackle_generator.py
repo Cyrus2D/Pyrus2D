@@ -155,7 +155,7 @@ class TackleGenerator:
         if len(intersections) > 0:
             final_point = intersections[0]
 
-        our_goal_angle = (SP.our_team_goal_pos() - wm.ball().pos()).th()
+        our_goal_angle = (SP.our_team_goal_pos() - wm.ball().pos).th()
         our_goal_angle_diff = (our_goal_angle - ball_move_angle).abs()
         our_goal_angle_rate = 1 - exp(-our_goal_angle_diff**2 / (2*40**2))
 

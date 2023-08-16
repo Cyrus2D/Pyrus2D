@@ -249,7 +249,7 @@ class HoldBall(BodyAction):
         for it in keep_points:
             it.score_ = self.evaluateKeepPoint(wm, it.pos_)
             if it.score_ < DEFAULT_SCORE:
-                it.score_ += it.pos_.dist(wm.ball().pos())
+                it.score_ += it.pos_.dist(wm.ball().pos)
             else:
                 it.score_ += it.kick_rate_ * 1000.0
 
@@ -289,7 +289,7 @@ class HoldBall(BodyAction):
             player_type = o.player_type()
             opp_next = o.pos + o.vel
             control_area = o.player_type().catchable_area() if (
-                    o.goalie() and penalty_area.contains(o.pos()) and penalty_area.contains(
+                    o.goalie() and penalty_area.contains(o.pos) and penalty_area.contains(
                 keep_point)) else o.player_type().kickable_area()
             opp_dist = opp_next.dist(keep_point)
 
@@ -361,7 +361,7 @@ class HoldBall(BodyAction):
                   and player_2_pos.x() - max_accel < param.tackle_dist() - 0.25):
                 score -= 10.0
 
-        ball_move_dist = (keep_point - wm.ball().pos()).r()
+        ball_move_dist = (keep_point - wm.ball().pos).r()
         if ball_move_dist > wm.self().player_type().kickable_area() * 1.6:
             next_ball_dist = my_next.dist(keep_point)
             threshold = wm.self().player_type().kickable_area() - 0.4

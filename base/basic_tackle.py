@@ -58,7 +58,7 @@ class BasicTackle:
                 or (opp_min < self_min - 3 and opp_min < mate_min - 3)
                 or (self_min >= 5
                     and wm.ball().pos.dist2(SP.their_team_goal_pos()) < 10 **2
-                    and ((SP.their_team_goal_pos() - wm.self().pos()).th() - wm.self().body()).abs() < 45.)):
+                    and ((SP.their_team_goal_pos() - wm.self().pos).th() - wm.self().body()).abs() < 45.)):
 
             return False
 

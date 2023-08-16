@@ -128,7 +128,7 @@ class GoToPoint:
         if len(post_circle.intersection(move_line)) == 0:
             return
 
-        post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos()).th())
+        post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos).th())
         new_target: Vector2D = nearest_post
 
         if post_angle.is_left_of(wm.self().body()):

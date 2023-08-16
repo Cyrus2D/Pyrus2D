@@ -608,7 +608,7 @@ class PlayerAgent(SoccerAgent):
 
         self._last_decision_time = self._current_time.copy()
         log.os_log().debug("body " + str(self.world().self().body()))
-        log.os_log().debug("pos " + str(self.world().self().pos()))
+        log.os_log().debug("pos " + str(self.world().self().pos))
 
         self.real_world().update_just_after_decision(self._effector)
         if self.full_world_exists():

@@ -27,8 +27,8 @@ class BhvShhotGen(BhvKickGen):
         goal_l = Vector2D(SP.i().pitch_half_length(), -SP.i().goal_half_width())
         goal_r = Vector2D(SP.i().pitch_half_length(), +SP.i().goal_half_width())
 
-        goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos()) * 0.042)
-        goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos()) * 0.042)
+        goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos) * 0.042)
+        goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos) * 0.042)
 
         if wm.self().pos.x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos.abs_y() < SP.i().goal_half_width():
             goal_l._x = wm.self().pos.x() + 1.5
@@ -55,7 +55,7 @@ class BhvShhotGen(BhvKickGen):
         return self.candidates[0]
 
     def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
-        ball_move_angle = (target_point - wm.ball().pos()).th()
+        ball_move_angle = (target_point - wm.ball().pos).th()
         goalie = wm.get_opponent_goalie()
         if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
@@ -130,7 +130,7 @@ class BhvShhotGen(BhvKickGen):
                 log.sw_log().shoot().add_text( '## opp {} can not, ythr')
                 continue
 
-            if (ball_move_angle - (opp.pos - wm.ball().pos()).th()).abs() > 90.0:
+            if (ball_move_angle - (opp.pos - wm.ball().pos).th()).abs() > 90.0:
                 log.sw_log().shoot().add_text( '## opp {} can not, angle')
                 continue
 
@@ -272,7 +272,7 @@ class BhvShhotGen(BhvKickGen):
 
         sp = SP.i()
         goalie = wm.get_opponent_goalie()
-        goalie_angle = (goalie.pos - wm.ball().pos()).th() if goalie else 180.0
+        goalie_angle = (goalie.pos - wm.ball().pos).th() if goalie else 180.0
 
         for it in self.candidates:
             score = 1.0
@@ -293,7 +293,7 @@ class BhvShhotGen(BhvKickGen):
                 goalie_rate = 1.0 - math.exp(-pow(angle_diff, 2) / (2.0 * variance2) )
 
             y_rate = 1.0
-            if it.target_point.dist2(wm.ball().pos()) > y_dist_thr2:
+            if it.target_point.dist2(wm.ball().pos) > y_dist_thr2:
                 y_dist = max(0.0, it.target_point.abs_y() - 4.0 )
                 y_rate = math.exp(-pow(y_dist, 2.0) / (2.0 * pow( sp.goal_half_width() - 1.5, 2)))
 

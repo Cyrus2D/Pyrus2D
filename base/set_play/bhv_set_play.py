@@ -46,7 +46,7 @@ class Bhv_SetPlay:
                 if tm is None:
                     continue
                 if tm.unum() == i:
-                    dist = tm.pos.dist(wm.ball().pos())
+                    dist = tm.pos.dist(wm.ball().pos)
                     if dist < nearest_tm_dist:
                         nearest_tm_dist = dist
                         nearest_tm = i
@@ -88,7 +88,7 @@ class Bhv_SetPlay:
             if not home_pos.is_valid():
                 continue
 
-            d2 = home_pos.dist2(wm.ball().pos())
+            d2 = home_pos.dist2(wm.ball().pos)
             if d2 < second_min_dist2:
                 second_kicker_unum = unum
                 second_min_dist2 = d2

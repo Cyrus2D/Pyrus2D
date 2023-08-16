@@ -388,7 +388,7 @@ class SelfIntercept:
         pen_area_x = SP.our_penalty_area_line_x() - 0.5
         pen_area_y = SP.penalty_area_half_width() - 0.5
 
-        ball_to_self = (me.pos - ball.pos()).rotated_vector(-ball.vel.th())
+        ball_to_self = (me.pos - ball.pos).rotated_vector(-ball.vel.th())
         min_cycle = int(ceil((ball_to_self.abs_y() - ptype.kickable_area())
                              / ptype.real_speed_max()))
 
@@ -562,7 +562,7 @@ class SelfIntercept:
 
             my_move = my_pos - me.pos
             if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
-                    my_move.r() > (ball_pos - me.pos()).rotated_vector(-my_move.th()).abs_x():
+                    my_move.r() > (ball_pos - me.pos).rotated_vector(-my_move.th()).abs_x():
                 mode = (InterceptInfo.Mode.EXHAUST
                         if stamina_model.recovery() < me.stamina_model().recovery()
                            and not stamina_model.capacity_is_empty()
@@ -1007,7 +1007,7 @@ class SelfIntercept:
         recover_dec_thr = SP.recover_dec_thr() * SP.stamina_max()
 
         dash_angle_minus = -dash_angle
-        ball_rel = (ball_pos - wm.self().pos()).rotated_vector(dash_angle_minus)
+        ball_rel = (ball_pos - wm.self().pos).rotated_vector(dash_angle_minus)
         ball_noise = (wm.ball().pos.dist(ball_pos)
                       * SP.ball_rand()
                       * 0.5)

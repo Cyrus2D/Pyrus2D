@@ -113,7 +113,7 @@ class BhvDribbleGen(BhvKickGen):
                 continue
 
             term = (1.0 - pow(sp.ball_decay(), 1 + n_turn + n_dash ) ) / (1.0 - sp.ball_decay())
-            first_vel: Vector2D = (ball_trap_pos - wm.ball().pos()) / term
+            first_vel: Vector2D = (ball_trap_pos - wm.ball().pos) / term
             kick_accel: Vector2D = first_vel - wm.ball().vel
             kick_power = kick_accel.r() / wm.self().kick_rate()
 
@@ -194,7 +194,7 @@ class BhvDribbleGen(BhvKickGen):
 
     def check_opponent(self, wm: 'WorldModel', ball_trap_pos: Vector2D, dribble_step: int):
         sp = SP.i()
-        ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos()).th()
+        ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos).th()
 
         for o in range(12):
             opp: 'PlayerObject' = wm.their_player(o)
@@ -218,7 +218,7 @@ class BhvDribbleGen(BhvKickGen):
 
             opp_pos = opp.inertia_point( dribble_step )
 
-            ball_to_opp_rel = (opp.pos - wm.ball().pos()).rotated_vector(-ball_move_angle)
+            ball_to_opp_rel = (opp.pos - wm.ball().pos).rotated_vector(-ball_move_angle)
 
             if ball_to_opp_rel.x() < -4.0:
                 if debug_dribble:

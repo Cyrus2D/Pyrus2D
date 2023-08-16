@@ -39,7 +39,7 @@ class StopBall(BodyAction):
         if not wm.self().is_kickable():
             return False
         if not wm.ball().vel_valid():  # Always true until NFS nice :)
-            required_accel = wm.self().vel - (wm.self().pos - wm.ball().pos())
+            required_accel = wm.self().vel - (wm.self().pos - wm.ball().pos)
             kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),

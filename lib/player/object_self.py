@@ -353,7 +353,7 @@ class SelfObject(PlayerObject):
         self.last_pointto_time = done_time
         
         if self.pos_valid():
-            self.pointto_angle = (point - self.pos()).th()
+            self.pointto_angle = (point - self.pos).th()
             self.pointto_count = 0
     
     def update_ball_info(self, ball: BallObject):
@@ -394,7 +394,7 @@ class SelfObject(PlayerObject):
         if self.last_catch_time.cycle() + SP.catch_ban_cycle() <= self.time.cycle():
             self.catch_probability = ptype.get_catch_probability(self.pos, self.body, ball.pos, 0.055, 0.5)
         
-        player2ball = (ball.pos - self.pos()).rotated_vector(-self.body)
+        player2ball = (ball.pos - self.pos).rotated_vector(-self.body)
         tackle_dist = SP.tackle_dist() if player2ball.x() > 0 else SP.tackle_back_dist()
         tackle_fail_prob = 1
         foul_fail_prob = 1

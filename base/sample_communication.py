@@ -377,7 +377,7 @@ class SampleCommunication:
         if len(send_players) >= 3 and available_len >= Messenger.SIZES[Messenger.Types.THREE_PLAYER]:
             for o in send_players:
                 log.os_log().debug(o.player)
-                log.os_log().debug(o.player.pos())
+                log.os_log().debug(o.player.pos)
             p0 = send_players[0].player
             p1 = send_players[1].player
             p2 = send_players[2].player
