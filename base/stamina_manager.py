@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
-    if wm.self().stamina_model().capacity_is_empty():
+    if wm.self().stamina_model.capacity_is_empty():
         return min(SP.i().max_dash_power(), wm.self().stamina() + wm.self().player_type.extra_stamina())
 
     self_min = wm.intercept_table().self_reach_cycle()
@@ -15,7 +15,7 @@ def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
     opp_min = wm.intercept_table().opponent_reach_cycle()
     ball_min_reach_cycle = min(self_min, mate_min, opp_min)
 
-    if wm.self().stamina_model().capacity_is_empty():
+    if wm.self().stamina_model.capacity_is_empty():
         s_recover_mode = False
     elif wm.self().stamina() < SP.i().stamina_max() * 0.5:
         s_recover_mode = True

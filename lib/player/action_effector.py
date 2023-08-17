@@ -457,11 +457,11 @@ class ActionEffector:
             log.os_log().error(f"(set turn neck) player({wm.self().unum}) moment is out of range at cycle {wm.time()}. moment={moment}")
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
 
-        next_neck_angle = wm.self().neck().degree() + moment
+        next_neck_angle = wm.self().neck.degree() + moment
         if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum}) \
                 next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
-            moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
+            moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck.degree()
         self._turn_neck_moment = moment
 
         self._neck_command = PlayerTurnNeckCommand(round(moment, 2))
@@ -620,7 +620,7 @@ class ActionEffector:
     def queued_next_view_width(self) -> ViewWidth:
         if self._change_view_command:
             return self._change_view_command.width()
-        return self._agent.world().self().view_width()
+        return self._agent.world().self().view_width
 
     def queued_next_self_face(self) -> AngleDeg:
         next_face = self.queued_next_self_neck() + self.queued_next_self_body()
@@ -632,8 +632,8 @@ class ActionEffector:
 
     def queued_next_focus_point(self) -> Vector2D:
         me = self._agent.world().self()
-        next_focus_dist = me.focus_point_dist() + self.get_change_focus_moment_dist()
-        next_focus_dir = me.focus_point_dir() + self.get_change_focus_moment_dir()
+        next_focus_dist = me.focus_point_dist + self.get_change_focus_moment_dist()
+        next_focus_dir = me.focus_point_dir + self.get_change_focus_moment_dir()
         next_view_width_half = self.queued_next_view_width().width() / 2.0
         next_focus_dir = min_max(-next_view_width_half, next_focus_dir.degree(), next_view_width_half)
         next_focus_dir_to_pos = self.queued_next_self_face() + next_focus_dir

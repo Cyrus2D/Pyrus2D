@@ -36,7 +36,7 @@ class SelfIntercept:
             log.sw_log().intercept().add_text("no ball position cache :(")
             return
 
-        save_recovery: bool = self._wm.self().stamina_model().capacity() != 0
+        save_recovery: bool = self._wm.self().stamina_model.capacity() != 0
 
         self.predict_one_step(self_cache)
         self.predict_short_step(max_cycle, save_recovery, self_cache)
@@ -88,7 +88,7 @@ class SelfIntercept:
 
         # if goalie immediately success
         if goalie_mode:
-            stamina_model: StaminaModel = me.stamina_model()
+            stamina_model: StaminaModel = me.stamina_model.copy()
             stamina_model.simulate_wait(me.player_type)
 
             self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
@@ -111,7 +111,7 @@ class SelfIntercept:
                 return False
 
         # at least, player can stop the ball
-        stamina_model = me.stamina_model()
+        stamina_model = me.stamina_model.copy()
         self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,
                                         1, 0,  # 1 turn
                                         0, 0,
@@ -305,7 +305,7 @@ class SelfIntercept:
         my_vel = me.vel + accel
         my_pos = me.pos + my_vel
 
-        stamina_model = me.stamina_model()
+        stamina_model = me.stamina_model.copy()
         stamina_model.simulate_dash(me.player_type, dash_power)
 
         if stamina_model.stamina() < SP.recover_dec_thr_value() and \
@@ -504,7 +504,7 @@ class SelfIntercept:
             first_dash_power = 0
             my_pos = me.pos.copy()
             my_vel = me.vel.copy()
-            stamina_model = me.stamina_model()
+            stamina_model = me.stamina_model.copy()
 
             n_omni_dash, first_dash_power = self.predict_adjust_omni_dash(cycle,
                                                                           ball_pos,
@@ -564,7 +564,7 @@ class SelfIntercept:
             if my_pos.dist2(ball_pos) < (control_area - control_area_buf) ** 2 or \
                     my_move.r() > (ball_pos - me.pos).rotated_vector(-my_move.th()).abs_x():
                 mode = (InterceptInfo.Mode.EXHAUST
-                        if stamina_model.recovery() < me.stamina_model().recovery()
+                        if stamina_model.recovery() < me.stamina_model.recovery()
                            and not stamina_model.capacity_is_empty()
                         else InterceptInfo.Mode.NORMAL)
                 self_cache.append(InterceptInfo(mode,
@@ -687,7 +687,7 @@ class SelfIntercept:
         my_pos = me.inertia_point(n_turn)
         my_vel = me.vel * ptype.player_decay() ** n_turn
 
-        stamina_model = me.stamina_model()
+        stamina_model = me.stamina_model.copy()
         stamina_model.simulate_waits(ptype, n_turn)
 
         if my_inertia.dist2(ball_pos) < (control_area - control_area_buf) ** 2:
@@ -1023,7 +1023,7 @@ class SelfIntercept:
         tmp_vel *= ptype.player_decay() ** n_turn
         tmp_vel.rotate(dash_angle_minus)
 
-        stamina_model = wm.self().stamina_model()
+        stamina_model = wm.self().stamina_model.copy()
         stamina_model.simulate_waits(ptype, n_turn)
 
         prev_effort = stamina_model.effort()
@@ -1140,7 +1140,7 @@ class SelfIntercept:
         if max_cycle > n_turn + n_dash:
             n_dash = max_cycle - n_turn
 
-        stamina_model = me.stamina_model()
+        stamina_model = me.stamina_model.copy()
         stamina_model.simulate_waits(ptype, n_turn)
         stamina_model.simulate_dashes(ptype, n_dash, ServerParam.i().max_dash_power())
         self_cache.append(InterceptInfo(InterceptInfo.Mode.NORMAL,

@@ -53,7 +53,7 @@ class TackleGenerator:
         if wm.self().is_kickable():
             return
 
-        if wm.self().tackle_probability() < 0.001 and wm.self().foul_probability() < 0.001:
+        if wm.self().tackle_probability < 0.001 and wm.self().foul_probability() < 0.001:
             return
 
         if wm.time().stopped_cycle() > 0:

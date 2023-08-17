@@ -35,7 +35,7 @@ class NeckTurnToPoint(NeckAction):
             rel_angle = rel_pos.th() - next_body
 
             if rel_angle.abs() < SP.max_neck_angle() + next_view_width - 5.:
-                return agent.do_turn_neck(rel_angle - agent.world().self().neck())
+                return agent.do_turn_neck(rel_angle - agent.world().self().neck)
 
         NeckScanField().execute(agent)
         return True

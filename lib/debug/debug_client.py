@@ -141,7 +141,7 @@ class DebugClient:
                           + str(round(world.self().vel.x(), 2)) + ' ' \
                           + str(round(world.self().vel.y(), 2)) + ' ' \
                           + str(round(world.self().body.degree(), 1)) + ' ' \
-                          + str(round(world.self().neck().degree(), 1)) \
+                          + str(round(world.self().neck.degree(), 1)) \
                           + ' (c "' + str(world.self().pos_count) + ' ' \
                           + str(world.self().vel_count) + ' ' + str(world.self().face_count)
             if world.self().card == Card.YELLOW:

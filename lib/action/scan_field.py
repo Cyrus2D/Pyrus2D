@@ -53,10 +53,10 @@ class ScanField(BodyAction):
         if agent.effector().queued_next_view_width() is not ViewWidth.WIDE:
             agent.set_view_action(ViewWide())
 
-        turn_moment=wm.self().view_width().width() + agent.effector().queued_next_view_width().width()
+        turn_moment=wm.self().view_width.width() + agent.effector().queued_next_view_width().width()
         turn_moment /= 2
         agent.do_turn(turn_moment)
-        agent.set_neck_action(NeckTurnToRelative(wm.self().neck()))
+        agent.set_neck_action(NeckTurnToRelative(wm.self().neck))
 
 
 

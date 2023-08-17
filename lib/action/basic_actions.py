@@ -99,7 +99,7 @@ class TackleToPoint(BodyAction):
         wm = agent.world()
         sp = ServerParam.i()
 
-        if wm.self().tackle_probability() < self._min_prob:
+        if wm.self().tackle_probability < self._min_prob:
             return False
 
         target_angle = (self._point - wm.ball().pos).th()
@@ -138,8 +138,8 @@ class SetFocusToPoint(FocusPointAction):
         next_view_width = agent.effector().queued_next_view_width().width()
         my_next_pos = agent.effector().queued_next_self_pos()
         my_next_face = agent.effector().queued_next_self_face()
-        current_focus_point_dist = agent.world().self().focus_point_dist()
-        current_focus_point_dir = agent.world().self().focus_point_dir()
+        current_focus_point_dist = agent.world().self().focus_point_dist
+        current_focus_point_dir = agent.world().self().focus_point_dir
         current_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, current_focus_point_dir.degree(), next_view_width / 2.0))
         next_focus_point_dist = my_next_pos.dist(self.next_focus_point)
         if not (0.0 < next_focus_point_dist < 40.0):

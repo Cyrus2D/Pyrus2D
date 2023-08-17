@@ -538,7 +538,7 @@ class SampleCommunication:
                     agent.do_attentionto(wm.our_side(), target_teammate.unum)
                     return
 
-                if wm.self().attentionto_unum() > 0:
+                if wm.self().attentionto_unum > 0:
                     log.sw_log().communication().add_text('(attentionto someone) attentionto off. maybe ball owner')
                     log.debug_client().add_message('AttOffBOwner')
                     agent.do_attentionto_off()

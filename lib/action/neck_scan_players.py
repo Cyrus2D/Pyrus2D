@@ -57,7 +57,7 @@ class NeckScanPlayers(NeckAction):
             return NeckScanField().execute(agent)
         
         target_angle = AngleDeg(NeckScanPlayers._cached_target_angle)
-        agent.do_turn_neck(target_angle - ef.queued_next_self_body().degree() - wm.self().neck().degree())
+        agent.do_turn_neck(target_angle - ef.queued_next_self_body().degree() - wm.self().neck.degree())
         return True
     
     @staticmethod

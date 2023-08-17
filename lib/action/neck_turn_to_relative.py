@@ -13,4 +13,4 @@ class NeckTurnToRelative(NeckAction):
         self._angle_rel_to_body: AngleDeg = AngleDeg(rel_angle)
 
     def execute(self, agent: 'PlayerAgent'):
-        return agent.do_turn_neck(self._angle_rel_to_body - agent.world().self().neck())
+        return agent.do_turn_neck(self._angle_rel_to_body - agent.world().self().neck)

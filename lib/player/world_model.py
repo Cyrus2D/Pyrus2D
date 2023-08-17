@@ -585,7 +585,7 @@ class WorldModel:
                       body: SenseBodyParser,
                       act: 'ActionEffector',
                       current_time: GameTime):
-        angle_face, angle_face_error = self._localizer.estimate_self_face(see, self.self().view_width())
+        angle_face, angle_face_error = self._localizer.estimate_self_face(see, self.self().view_width)
         if angle_face is None:
             return False
 
@@ -596,7 +596,7 @@ class WorldModel:
         self.self().update_vel_dir_after_see(body, current_time)
 
         # my_pos: Vector2D = self._localizer.localize_self_simple(see, angle_face)
-        my_pos, my_pos_err, my_possible_posses = self._localizer.localize_self(see, self.self().view_width(), angle_face, angle_face_error)
+        my_pos, my_pos_err, my_possible_posses = self._localizer.localize_self(see, self.self().view_width, angle_face, angle_face_error)
         if my_pos is None:
             return False
         if reverse_side:
@@ -612,8 +612,8 @@ class WorldModel:
         
         rpos, rpos_err, rvel, vel_err = self._localizer.localize_ball_relative(see,
                                                                                self.self().face,
-                                                                               self.self().face_error(),
-                                                                               self.self().view_width())
+                                                                               self.self().face_error,
+                                                                               self.self().view_width)
         
         if rpos is None or not rpos.is_valid():
             return
@@ -892,10 +892,10 @@ class WorldModel:
         my_pos = self.self().pos
         my_vel = self.self().vel
         my_face = self.self().face
-        my_face_err = self.self().face_error()
+        my_face_err = self.self().face_error
 
         for p in see.opponents() + see.unknown_opponents():
-            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width)
             if DEBUG:
                 log.os_log().debug(f'{"-"*30} opp {player}')
             if player is None:
@@ -907,7 +907,7 @@ class WorldModel:
                                    new_opponents)
             
         for p in see.teammates() + see.unknown_teammates():
-            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width)
             if DEBUG:
                 log.os_log().debug(f'{"-"*30} mate {player}')
             if player is None:
@@ -919,7 +919,7 @@ class WorldModel:
                                    new_teammates)
         
         for p in see.unknown_players():
-            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width())
+            player = self._localizer.localize_player(p, my_face, my_face_err, my_pos, my_vel, self.self().view_width)
             if DEBUG:
                 log.os_log().debug(f'{"-"*30} unk {player}')
             if player is None:
@@ -1007,7 +1007,7 @@ class WorldModel:
         self.update_player_type()
         
         if self.self().pos_count <= 10:
-            varea = ViewArea(self.self().view_width().width(),
+            varea = ViewArea(self.self().view_width.width(),
                              self.self().pos,
                              self.self().face,
                              current_time)
@@ -1025,7 +1025,7 @@ class WorldModel:
         if body_sensor.time() == agent_current_time:
             self.self().update_self_after_sense_body(body_sensor, act, agent_current_time)
             self._our_recovery[self.self().unum - 1] = self.self().recovery()
-            self._our_stamina_capacity[self.self().unum - 1] = self.self().stamina_model().capacity()
+            self._our_stamina_capacity[self.self().unum - 1] = self.self().stamina_model.capacity()
             self._our_card[self.self().unum - 1] = body_sensor.card
         else:
             log.os_log().error(f'body_sensor.time()[{body_sensor.time()}] != current_time[{agent_current_time}]')

@@ -31,7 +31,6 @@ class SelfObject(PlayerObject):
         self.last_catch_time: GameTime = GameTime()
         self.tackle_expires: int = 0
         self.charge_expires: int = 0
-        self.arm_moveable: int = 0
         self.arm_expires: int = 0
         self.pointto_rpos: Vector2D = Vector2D.invalid()
         self.pointto_pos: Vector2D = Vector2D.invalid()
@@ -51,6 +50,10 @@ class SelfObject(PlayerObject):
         self.last_move_: Vector2D = Vector2D(0, 0)
         self.last_moves: list[Vector2D] = [Vector2D(0, 0) for _ in range(4)]
         self.arm_movable: int = 0
+        self.change_focus_count: int  = 0
+        self.focus_point_dist: float = 0
+        self.focus_point_dir: AngleDeg = AngleDeg(0)
+
         self.face_count_thr: Union[None, int] = 5
 
     def init(self, side: SideID, unum: int, goalie: bool):
@@ -460,7 +463,7 @@ class SelfObject(PlayerObject):
                f'last_catch_time: {self.last_catch_time}, ' \
                f'tackle_expires: {self.tackle_expires}, ' \
                f'charge_expires: {self.charge_expires}, ' \
-               f'arm_moveable: {self.arm_moveable}, ' \
+               f'arm_movable: {self.arm_movable}, ' \
                f'arm_expires: {self.arm_expires}, ' \
                f'pointto_rpos: {self.pointto_rpos}, ' \
                f'pointto_pos: {self.pointto_pos}, ' \

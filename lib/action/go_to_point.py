@@ -53,7 +53,7 @@ class GoToPoint:
         target_dist = target_rel.r()
         max_turn = wm.self().player_type.effective_turn(SP.i().max_moment(), wm.self().vel.r())
         turn_moment: AngleDeg = target_rel.th() - wm.self().body
-        if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model().stamina() > SP.i().recover_dec_thr_value() + 500.0:
+        if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model.stamina() > SP.i().recover_dec_thr_value() + 500.0:
             effective_power = SP.i().max_dash_power() * wm.self().dash_rate()
             effective_back_power = SP.i().min_dash_power() * wm.self().dash_rate()
             if math.fabs(effective_back_power) > math.fabs(effective_power) * 0.75:

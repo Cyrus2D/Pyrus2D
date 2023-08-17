@@ -77,7 +77,7 @@ class Intercept:
         if self.do_wait_turn(agent, target_point, best_intercept):
             return True
 
-        if self._save_recovery and not wm.self().stamina_model().capacity_is_empty():
+        if self._save_recovery and not wm.self().stamina_model.capacity_is_empty():
             consumed_stamina = best_intercept.dash_power()
             if best_intercept.dash_power() < 0:
                 consumed_stamina *= -2

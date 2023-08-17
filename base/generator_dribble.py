@@ -162,7 +162,7 @@ class BhvDribbleGen(BhvKickGen):
 
         self_cache.clear()
 
-        stamina_model = wm.self().stamina_model()
+        stamina_model = wm.self().stamina_model.copy()
 
         my_pos = wm.self().pos.copy()
         my_vel = wm.self().vel.copy()

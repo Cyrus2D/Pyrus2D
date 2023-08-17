@@ -20,7 +20,7 @@ class ViewTactical(ViewAction):
 
     def execute(self, agent: 'PlayerAgent'):
         ViewTactical.PREV2 = ViewTactical.PREV1
-        ViewTactical.PREV1 = agent.world().self().view_width().width()
+        ViewTactical.PREV1 = agent.world().self().view_width.width()
 
         best_width = None
         gm = agent.world().game_mode().type()

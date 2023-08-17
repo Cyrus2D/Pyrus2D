@@ -24,7 +24,7 @@ class BasicTackle:
         wm = agent.world()
 
         use_foul = False
-        tackle_prob = wm.self().tackle_probability()
+        tackle_prob = wm.self().tackle_probability
 
         if wm.self().card == Card.NO_CARD \
                 and (wm.ball().pos.x() > SP.our_penalty_area_line_x() + 0.5
