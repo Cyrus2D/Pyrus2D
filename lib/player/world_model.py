@@ -505,7 +505,7 @@ class WorldModel:
         SP = ServerParam.i()
 
         if self.self().has_sensed_collision():
-            if self.self()._collides_with_player or self.self()._collides_with_post:
+            if self.self().collides_with_player or self.self().collides_with_post:
                 return 1000
         
         if self.ball().rpos_count == 1:
@@ -655,7 +655,7 @@ class WorldModel:
                 and self._prev_ball.rpos.r() < 5):
 
                 gvel = pos - self._prev_ball.pos
-                vel_err += pos_err + self._prev_ball._pos_error + self._prev_ball._vel_error
+                vel_err += pos_err + self._prev_ball.pos_error + self._prev_ball.vel_error
                 vel_count = 2
             elif (see.balls()[0].dist_ < 2
                   and not self.self().is_kicking()
@@ -1024,7 +1024,7 @@ class WorldModel:
 
         if body_sensor.time() == agent_current_time:
             self.self().update_self_after_sense_body(body_sensor, act, agent_current_time)
-            self._our_recovery[self.self().unum - 1] = self.self().recovery()
+            self._our_recovery[self.self().unum - 1] = self.self().stamina_model.recovery()
             self._our_stamina_capacity[self.self().unum - 1] = self.self().stamina_model.capacity()
             self._our_card[self.self().unum - 1] = body_sensor.card
         else:
@@ -1253,7 +1253,7 @@ class WorldModel:
         # TODO CHECK FULL STATE TIME
         log.sw_log().world().add_text(f'{"#"*20} UPDATE GOALIE BY HEAR {"#"*20}')
 
-        if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie) == 0:
+        if self._messenger_memory.goalie_time() != self.time() or len(self._messenger_memory.goalie()) == 0:
             return
 
         goalie: PlayerObject = None
@@ -1269,12 +1269,12 @@ class WorldModel:
         heard_pos = Vector2D(0, 0)
         heard_body = 0.
 
-        for g in self._messenger_memory.goalie:
+        for g in self._messenger_memory.goalie():
             heard_pos += g.pos_
             heard_body += AngleDeg(g.body_).degree()
 
-        heard_body /= len(self._messenger_memory.goalie)
-        heard_pos /= len(self._messenger_memory.goalie)
+        heard_body /= len(self._messenger_memory.goalie())
+        heard_pos /= len(self._messenger_memory.goalie())
 
         if goalie is not None:
             goalie.update_by_hear(self.their_side(), self._their_goalie_unum,True, heard_pos, heard_body)

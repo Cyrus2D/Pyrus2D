@@ -82,7 +82,7 @@ class Intercept:
             if best_intercept.dash_power() < 0:
                 consumed_stamina *= -2
 
-            if (wm.self().stamina() - consumed_stamina
+            if (wm.self().stamina_model.stamina() - consumed_stamina
                     < ServerParam.i().recover_dec_thr_value() + 1):
                 log.sw_log().intercept().add_text(
                               f"last if (do turn)")
@@ -451,7 +451,7 @@ class Intercept:
                 and wm.ball().vel.r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
                 and info.dash_angle().abs() < 5
                 and target_rel.abs_x() < (ptype.kickable_area()
-                                         + ptype.dash_rate(wm.self().effort())
+                                         + ptype.dash_rate(wm.self().stamina_model.effort())
                                          * ServerParam.i().max_dash_power()
                                          * 0.8)):
             first_speed = calc_first_term_geom_series(target_rel.x(),

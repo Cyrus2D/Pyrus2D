@@ -480,7 +480,7 @@ class SampleCommunication:
         if available_len < Messenger.SIZES[Messenger.Types.RECOVERY]:
             return False
 
-        agent.add_say_message(RecoveryMessenger(agent.world().self().recovery()))
+        agent.add_say_message(RecoveryMessenger(agent.world().self().stamina_model.recovery()))
         log.sw_log().communication().add_text('(sample communication) say self recovery')
         return True
 
@@ -492,7 +492,7 @@ class SampleCommunication:
         available_len = ServerParam.i().player_say_msg_size() - current_len
         if available_len < Messenger.SIZES[Messenger.Types.STAMINA]:
             return False
-        agent.add_say_message(StaminaMessenger(agent.world().self().stamina()))
+        agent.add_say_message(StaminaMessenger(agent.world().self().stamina_model.stamina()))
         log.sw_log().communication().add_text('(sample communication) say self stamina')
         return True
 
@@ -623,7 +623,7 @@ class SampleCommunication:
         if wm.game_mode().type() == GameModeType.PlayOn \
                 and not penalty_shootout \
                 and self._current_sender_unum == wm.self().unum \
-                and wm.self().recovery() < ServerParam.i().recover_init() - 0.002:
+                and wm.self().stamina_model.recovery() < ServerParam.i().recover_init() - 0.002:
             say_recovery = True
             self.say_recovery(agent)
 

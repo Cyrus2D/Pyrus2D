@@ -254,7 +254,7 @@ class ActionEffector:
             self._tackle_power = 0
             self._tackle_dir = 0
             self._tackle_foul = False
-            self._command_counter[CommandType.TACKLE.value] = body_sensor.tackle_count
+            self._command_counter[CommandType.TACKLE.value] = body_sensor.tackle_count()
 
         if body_sensor.turn_neck_count() != self._command_counter[CommandType.TURN_NECK.value]:
             log.os_log().error(f"player({wm.self().unum}) lost command TURN_NECK at cycle {wm.time()}")
@@ -303,7 +303,7 @@ class ActionEffector:
 
         SP = ServerParam.i()
         required_stamina = power
-        available_stamina = wm.self().stamina() + wm.self().player_type.extra_stamina()
+        available_stamina = wm.self().stamina_model.stamina() + wm.self().player_type.extra_stamina()
 
         if available_stamina < required_stamina:
             log.sw_log().action().add_text( f"(conserve dash power) not enough stamina. power={power} stamina={available_stamina}")

@@ -65,7 +65,7 @@ class Bhv_GoalieSetPlay:
         if time_diff < 50. \
                 or wm.set_play_count() < 3 \
                 or (time_diff < SP.drop_ball_time() - 15
-                    and (wm.self().stamina() < SP.stamina_max() * 0.9
+                    and (wm.self().stamina_model.stamina() < SP.stamina_max() * 0.9
                          or wm.exist_teammates_in(our_penalty_area, 20, True))):
             self.do_wait(agent)
             return True

@@ -43,7 +43,7 @@ def decision(agent: 'PlayerAgent'):
             return True
         return False
 
-    if (wm.time().cycle() > wm.self().catch_time().cycle() + SP.catch_ban_cycle()
+    if (wm.time().cycle() > wm.self().last_catch_time.cycle() + SP.catch_ban_cycle()
         and wm.ball().dist_from_self < SP.catchable_area() - 0.05
         and our_penalty.contains(wm.ball().pos)):
 

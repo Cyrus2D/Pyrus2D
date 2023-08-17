@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
     if wm.self().stamina_model.capacity_is_empty():
-        return min(SP.i().max_dash_power(), wm.self().stamina() + wm.self().player_type.extra_stamina())
+        return min(SP.i().max_dash_power(), wm.self().stamina_model.stamina() + wm.self().player_type.extra_stamina())
 
     self_min = wm.intercept_table().self_reach_cycle()
     mate_min = wm.intercept_table().teammate_reach_cycle()
@@ -17,13 +17,13 @@ def get_normal_dash_power(wm: 'WorldModel', s_recover_mode: bool):
 
     if wm.self().stamina_model.capacity_is_empty():
         s_recover_mode = False
-    elif wm.self().stamina() < SP.i().stamina_max() * 0.5:
+    elif wm.self().stamina_model.stamina() < SP.i().stamina_max() * 0.5:
         s_recover_mode = True
-    elif wm.self().stamina() > SP.i().stamina_max() * 0.7:
+    elif wm.self().stamina_model.stamina() > SP.i().stamina_max() * 0.7:
         s_recover_mode = False
 
     dash_power = SP.i().max_dash_power()
-    my_inc = wm.self().player_type.stamina_inc_max() * wm.self().recovery()
+    my_inc = wm.self().player_type.stamina_inc_max() * wm.self().stamina_model.recovery()
 
     # TODO wm.ourDefenseLineX() > wm.self().pos.x
     # TODO wm.ball().pos.x() < wm.ourDefenseLineX() + 20.0

@@ -165,10 +165,10 @@ class SelfIntercept:
 
             # check recovery save dash
             forward_dash_power = bound(0,
-                                       me.stamina() - SP.recover_dec_thr_value() - 1,
+                                       me.stamina_model.stamina() - SP.recover_dec_thr_value() - 1,
                                        SP.max_dash_power())
             back_dash_power = bound(SP.min_dash_power(),
-                                    (me.stamina() - SP.recover_dec_thr_value() - 1) * -0.5,
+                                    (me.stamina_model.stamina() - SP.recover_dec_thr_value() - 1) * -0.5,
                                     0)
 
             max_forward_accel = Vector2D.polar2vector(forward_dash_power * dash_rate,
@@ -975,9 +975,9 @@ class SelfIntercept:
         # check stamina consumed by one step
         total_consume = -ServerParam.i().min_dash_power() * 2 * cycle
         total_recover = (wm.self().player_type.stamina_inc_max()
-                         * wm.self().recovery()
+                         * wm.self().stamina_model.recovery()
                          * (cycle - 1))
-        result_stamina = (wm.self().stamina()
+        result_stamina = (wm.self().stamina_model.stamina()
                           - total_consume
                           + total_recover)
 
@@ -1085,7 +1085,7 @@ class SelfIntercept:
                     my_final_pos = Line2D(p1=my_inertia, p2=my_final_pos).projection(ball_pos)
                 stamina_model.simulate_waits(ptype, n_dash - (i + 1))
                 mode = (InterceptInfo.Mode.EXHAUST
-                        if stamina_model.recovery() < wm.self().recovery()
+                        if stamina_model.recovery() < wm.self().stamina_model.recovery()
                            and not stamina_model.capacity_is_empty()
                         else InterceptInfo.Mode.NORMAL)
                 self_cache.append(InterceptInfo(mode,
@@ -1108,7 +1108,7 @@ class SelfIntercept:
             my_final_pos = wm.self().pos + tmp_pos.rotate(dash_angle)
             result_recovery = stamina_model.recovery()
             mode = (InterceptInfo.Mode.EXHAUST
-                    if stamina_model.recovery() < wm.self().recovery()
+                    if stamina_model.recovery() < wm.self().stamina_model.recovery()
                        and not stamina_model.capacity_is_empty()
                     else InterceptInfo.Mode.NORMAL)
             self_cache.append(InterceptInfo(mode,

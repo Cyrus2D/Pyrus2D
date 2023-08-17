@@ -38,7 +38,7 @@ def get_decision(agent: 'PlayerAgent'):
     log.sw_log().team().add_text(f'is kickable? dist {wm.ball().dist_from_self} '
                                  f'ka {wm.self().player_type.kickable_area()} '
                                  f'seen pos count {wm.ball().seen_pos_count} '
-                                 f'is? {wm.self()._kickable}')
+                                 f'is? {wm.self().is_kickable()}')
     if wm.self().is_kickable():
         return BhvKick().execute(agent)
     if BhvMove().execute(agent):

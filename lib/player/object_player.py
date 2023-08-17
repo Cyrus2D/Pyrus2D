@@ -285,6 +285,9 @@ class PlayerObject(Object):
     def is_goalie(self):
         return self.goalie
 
+    def is_tackling(self):
+        return self.tackle
+
     def long_str(self):
         res = f'unum: {self.unum} ' \
               f'side: {self.side} ' \
