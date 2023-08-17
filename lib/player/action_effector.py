@@ -244,7 +244,7 @@ class ActionEffector:
             self._last_body_commands[0] = CommandType.ILLEGAL
             # self._catch_time = GameTime()
             self._command_counter[CommandType.CATCH.value] = body_sensor.catch_count()
-        if body_sensor.tackle_count != self._command_counter[CommandType.TACKLE.value]:
+        if body_sensor.tackle_count() != self._command_counter[CommandType.TACKLE.value]:
             if body_sensor.charged_expires() == 0:
                 log.os_log().error(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")
                 log.sw_log().action().add_text(f"player({wm.self().unum}) lost TACKLE at cycle {wm.time()}")

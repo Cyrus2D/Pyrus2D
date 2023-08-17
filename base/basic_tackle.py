@@ -29,8 +29,8 @@ class BasicTackle:
         if wm.self().card == Card.NO_CARD \
                 and (wm.ball().pos.x() > SP.our_penalty_area_line_x() + 0.5
                      or wm.ball().pos.abs_y() > SP.penalty_area_half_width() + 0.5) \
-                and tackle_prob < wm.self().foul_probability():
-            tackle_prob = wm.self().foul_probability()
+                and tackle_prob < wm.self().foul_probability:
+            tackle_prob = wm.self().foul_probability
             use_foul = True
 
         if tackle_prob < self._min_prob:
