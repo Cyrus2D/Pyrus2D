@@ -48,7 +48,7 @@ class SelfObject(PlayerObject):
         self.catch_probability: float = 0
         self.tackle_probability: float = 0
         self.foul_probability: float = 0
-        self._last_move: Vector2D = Vector2D(0, 0)
+        self.last_move_: Vector2D = Vector2D(0, 0)
         self.last_moves: list[Vector2D] = [Vector2D(0, 0) for _ in range(4)]
         self.arm_movable: int = 0
         self.face_count_thr: Union[None, int] = 5
@@ -95,7 +95,7 @@ class SelfObject(PlayerObject):
         if index:
             index = min_max(0, index, len(self.last_moves)-1)
             return self.last_moves[index] 
-        return self.last_move
+        return self.last_move_
     
     def is_kicking(self):
         return self.kicking
@@ -171,8 +171,8 @@ class SelfObject(PlayerObject):
         self.charge_expires = max(0, self.charge_expires - 1)
         self.arm_movable = max(0, self.arm_movable - 1)
         self.arm_expires = max(0, self.arm_expires - 1)
-        self.last_move = self.vel / self.player_type.player_decay()
-        self.last_moves = [self.last_move] + self.last_moves[0:-1]
+        self.last_move_ = self.vel / self.player_type.player_decay()
+        self.last_moves = [self.last_move_] + self.last_moves[0:-1]
         self.collision_estimated = False
         self.collides_with_none = False
         self.collides_with_ball = False
@@ -216,7 +216,7 @@ class SelfObject(PlayerObject):
 
             if not self.collision_estimated:
                 new_last_move = self.vel/self.player_type.player_decay()
-                self.last_move.assign(new_last_move.x(), new_last_move.y())
+                self.last_move_.assign(new_last_move.x(), new_last_move.y())
     
     def update_pos_by_see(self, pos: Vector2D, pos_err: Vector2D, my_possible_posses: list[Vector2D], face: float, face_err: float, current_time: GameTime):
         self.time = current_time.copy()
@@ -330,9 +330,9 @@ class SelfObject(PlayerObject):
             
             if not self.collision_estimated:
                 new_last_move=self.vel / self.player_type.player_decay()
-                self.last_move.assign(new_last_move.x(), new_last_move.y())
+                self.last_move_.assign(new_last_move.x(), new_last_move.y())
             else:
-                self.last_move.invalidate()
+                self.last_move_.invalidate()
             
             if self.collision_estimated or self.collides_with_ball:
                 self.last_moves[0].invalidate()
@@ -477,7 +477,7 @@ class SelfObject(PlayerObject):
                f'catch_probability: {self.catch_probability}, ' \
                f'tackle_probability: {self.tackle_probability}, ' \
                f'foul_probability: {self.foul_probability}, ' \
-               f'last_move: {self.last_move}, ' \
+               f'last_move: {self.last_move_}, ' \
                f'last_moves: {self.last_moves}, ' \
                f'arm_movable: {self.arm_movable}, '
         return res
@@ -551,9 +551,9 @@ class SelfObject(PlayerObject):
 
             if not self.collision_estimated:
                 new_last_move = self.vel / self.player_type.player_decay()
-                self.last_move.assign(new_last_move.x(), new_last_move.y())
+                self.last_move_.assign(new_last_move.x(), new_last_move.y())
             else:
-                self.last_move.invalidate()
+                self.last_move_.invalidate()
 
             if self.collision_estimated or self.collides_with_ball:
                 self.last_moves[0].invalidate()
