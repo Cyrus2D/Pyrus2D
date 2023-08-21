@@ -653,7 +653,7 @@ class _KickTable:
                 break
 
             opp_body = o.body if o.body_count <= 1 else (state.pos_ - opp_next).th()
-            player_2_pos = Vector2D(state.pos_ - opp_next)
+            player_2_pos = state.pos_ - opp_next
             player_2_pos.rotate(- opp_body)
             #
             # check tackle possibility

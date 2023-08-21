@@ -299,13 +299,13 @@ class Localizer:
             return None, Vector2D(0, 0), [None]
         self.update_points_by_markers(view_width, markers, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
-        possible_self_pos = [self_pos.copy() if isinstance(self_pos, Vector2D) else None]
+        possible_self_pos = [self_pos.copy() if self_pos is not None else None]
         if len(behind_markers) == 0:
             return self_pos, self_pos_err, possible_self_pos
 
         self.update_points_by_behind_marker(view_width, markers, behind_markers, self_pos, self_face, self_face_error)
         self_pos, self_pos_err = self.average_points()
-        possible_self_pos = [self_pos.copy() if isinstance(self_pos, Vector2D) else None]
+        possible_self_pos = [self_pos.copy() if self_pos is not None else None]
         return self_pos, self_pos_err, possible_self_pos
 
     def localize_ball_relative(self,

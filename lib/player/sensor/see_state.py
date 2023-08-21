@@ -21,11 +21,13 @@ class SeeState:
         if self._view_width != vw:
             if DEBUG:
                 log.sw_log().system().add_text(f"see state: (update by sense body)"
-                                               f"vew_width does not match."
+                                               f" view_width does not match."
+                                               f" @{sense_time}"
                                                f" old={self._view_width}, new={vw}")
                 log.os_log().info(f"see state: (update by sense body)"
-                                  f"vew_width does not match."
-                                  f" old={self._view_width}, new={vw}")
+                                   f" view_width does not match."
+                                   f" @{sense_time}"
+                                   f" old={self._view_width}, new={vw}")
             self._view_width = vw
 
     def update_by_see(self, see_time: GameTime, vw: ViewWidth):
