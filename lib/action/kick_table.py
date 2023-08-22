@@ -332,18 +332,13 @@ class _KickTable:
         self._player_size = 0.0
         self._kickable_margin = 0.0
         self._ball_size = 0.0
-        self._state_cache = []
-        for i in range(MAX_DEPTH):
-            self._state_cache.append([])
-            for j in range(NUM_STATE):
-                self._state_cache[i].append(0.0)
         # not  static state list
         self._state_list = []
         self._tables = []
 
         self._current_state = State()
 
-        self._state_cache = [[State()]] * DEST_DIR_DIVS
+        self._state_cache = [[State()] for _ in range(DEST_DIR_DIVS)]
 
         self._candidates = []  # :  list[Sequence] = []
 
