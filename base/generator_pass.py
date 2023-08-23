@@ -198,7 +198,7 @@ class BhvPassGen(BhvKickGen):
                         log.sw_log().pass_().add_text( '#####LPass to {} {}, pass is danger'.format(receiver.unum, receive_point))
                     continue
 
-                if wm.game_mode().type() in [GameModeType.GoalKick_Right, GameModeType.GoalKick_Left] \
+                if wm.game_mode().type().is_goal_kick() \
                         and receive_point.x() < sp.our_penalty_area_line_x() + 1.0 \
                         and receive_point.abs_y() < sp.penalty_area_half_width() + 1.0:
                     if debug_pass:
