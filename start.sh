@@ -13,4 +13,4 @@ while [ $i -le 11 ] ; do
 done
 
 sleep 2
-python coach_main.py ${1+"$@"}
+python base/coach_main.py ${1+"$@"}

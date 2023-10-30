@@ -43,19 +43,19 @@ class BhvDribbleGen(BhvKickGen):
         angle_step = 360.0 / angle_div
 
         sp = SP.i()
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
-        my_first_speed = wm.self().vel().r()
+        my_first_speed = wm.self().vel.r()
 
         for a in range(angle_div):
-            dash_angle = wm.self().body() + (angle_step * a)
+            dash_angle = wm.self().body + (angle_step * a)
 
-            if wm.self().pos().x() < 16.0 and dash_angle.abs() > 100.0:
+            if wm.self().pos.x() < 16.0 and dash_angle.abs() > 100.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( '#dash angle:{} cancel is not safe1'.format(dash_angle))
                 continue
 
-            if wm.self().pos().x() < -36.0 and wm.self().pos().abs_y() < 20.0 and dash_angle.abs() > 45.0:
+            if wm.self().pos.x() < -36.0 and wm.self().pos.abs_y() < 20.0 and dash_angle.abs() > 45.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( '#dash angle:{} cancel is not safe2'.format(dash_angle))
                 continue
@@ -93,7 +93,7 @@ class BhvDribbleGen(BhvKickGen):
         if debug_dribble:
             log.sw_log().dribble().add_text( '##self_cache:{}'.format(self_cache))
         sp = SP.i()
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
         # trap_rel = Vector2D.polar2vector(ptype.playerSize() + ptype.kickableMargin() * 0.2 + SP.ball_size(), dash_angle)
         trap_rel = Vector2D.polar2vector(ptype.player_size() + ptype.kickable_margin() * 0.2 + 0, dash_angle)
@@ -113,9 +113,9 @@ class BhvDribbleGen(BhvKickGen):
                 continue
 
             term = (1.0 - pow(sp.ball_decay(), 1 + n_turn + n_dash ) ) / (1.0 - sp.ball_decay())
-            first_vel: Vector2D = (ball_trap_pos - wm.ball().pos()) / term
-            kick_accel: Vector2D = first_vel - wm.ball().vel()
-            kick_power = kick_accel.r() / wm.self().kick_rate()
+            first_vel: Vector2D = (ball_trap_pos - wm.ball().pos) / term
+            kick_accel: Vector2D = first_vel - wm.ball().vel
+            kick_power = kick_accel.r() / wm.self().kick_rate
 
             if kick_power > sp.max_power() or kick_accel.r2() > pow(sp.ball_accel_max(), 2) or first_vel.r2() > pow(
                     sp.ball_speed_max(), 2):
@@ -126,7 +126,7 @@ class BhvDribbleGen(BhvKickGen):
                     self.debug_list.append((self.index, ball_trap_pos, False))
                 continue
 
-            if (wm.ball().pos() + first_vel).dist2(self_cache[0]) < pow(ptype.player_size() + sp.ball_size() + 0.1, 2):
+            if (wm.ball().pos + first_vel).dist2(self_cache[0]) < pow(ptype.player_size() + sp.ball_size() + 0.1, 2):
                 if debug_dribble:
                     log.sw_log().dribble().add_text(
                                   '#index:{} target:{} in body, power:{}, accel:{}, vel:{}'.format(
@@ -137,9 +137,9 @@ class BhvDribbleGen(BhvKickGen):
             if self.check_opponent(wm, ball_trap_pos, 1 + n_turn + n_dash):
                 candidate = KickAction()
                 candidate.type = KickActionType.Dribble
-                candidate.start_ball_pos = wm.ball().pos()
+                candidate.start_ball_pos = wm.ball().pos.copy()
                 candidate.target_ball_pos = ball_trap_pos
-                candidate.target_unum = wm.self().unum()
+                candidate.target_unum = wm.self().unum
                 candidate.start_ball_speed = first_vel.r()
                 candidate.index = self.index
                 candidate.evaluate(wm)
@@ -158,14 +158,14 @@ class BhvDribbleGen(BhvKickGen):
 
     def create_self_cache(self, wm: 'WorldModel', dash_angle, n_turn, n_dash, self_cache):
         sp = SP.i()
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
         self_cache.clear()
 
-        stamina_model = wm.self().stamina_model()
+        stamina_model = wm.self().stamina_model.copy()
 
-        my_pos = wm.self().pos()
-        my_vel = wm.self().vel()
+        my_pos = wm.self().pos.copy()
+        my_vel = wm.self().vel.copy()
 
         my_pos += my_vel
         my_vel *= ptype.player_decay()
@@ -194,31 +194,31 @@ class BhvDribbleGen(BhvKickGen):
 
     def check_opponent(self, wm: 'WorldModel', ball_trap_pos: Vector2D, dribble_step: int):
         sp = SP.i()
-        ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos()).th()
+        ball_move_angle:AngleDeg = (ball_trap_pos - wm.ball().pos).th()
 
         for o in range(12):
             opp: 'PlayerObject' = wm.their_player(o)
-            if opp is None or opp.unum() == 0:
+            if opp is None or opp.unum == 0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( "###OPP {} is ghost".format(o))
                 continue
 
-            if opp.dist_from_self() > 20.0:
+            if opp.dist_from_self > 20.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( "###OPP {} is far".format(o))
                 continue
 
-            ptype = opp.player_type()
+            ptype = opp.player_type
 
             control_area = (sp._catchable_area
-                            if opp.goalie()
+                            if opp.goalie
                                and ball_trap_pos.x() > sp.their_penalty_area_line_x()
                                and ball_trap_pos.abs_y() < sp.penalty_area_half_width()
                             else ptype.kickable_area())
 
             opp_pos = opp.inertia_point( dribble_step )
 
-            ball_to_opp_rel = (opp.pos() - wm.ball().pos()).rotated_vector(-ball_move_angle)
+            ball_to_opp_rel = (opp.pos - wm.ball().pos).rotated_vector(-ball_move_angle)
 
             if ball_to_opp_rel.x() < -4.0:
                 if debug_dribble:
@@ -237,9 +237,9 @@ class BhvDribbleGen(BhvKickGen):
             dash_dist -= 0.2
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            n_turn = 1 if opp.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
-                                                                                      opp.body(),
-                                                                                      opp.vel().r(),
+            n_turn = 1 if opp.body_count > 1 else Tools.predict_player_turn_cycle(ptype,
+                                                                                      opp.body,
+                                                                                      opp.vel.r(),
                                                                                       target_dist,
                                                                                       (ball_trap_pos - opp_pos).th(),
                                                                                       control_area,
@@ -258,9 +258,9 @@ class BhvDribbleGen(BhvKickGen):
                 bonus_step = -5
 
             if ball_to_opp_rel.x() > 0.5:
-                bonus_step += smath.bound(0, opp.pos_count(), 8)
+                bonus_step += smath.bound(0, opp.pos_count, 8)
             else:
-                bonus_step += smath.bound(0, opp.pos_count(), 4)
+                bonus_step += smath.bound(0, opp.pos_count, 4)
 
             if n_step - bonus_step <= dribble_step:
                 if debug_dribble:

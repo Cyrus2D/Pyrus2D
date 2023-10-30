@@ -31,9 +31,9 @@ class Bhv_GoalieSetPlay:
         wm = agent.world()
         gm = wm.game_mode()
 
-        if not gm.type().is_goalie_catch_ball() or gm.side() != wm.our_side() or not wm.self().is_kickable():
+        if not gm.type().is_goalie_catch_ball() or gm.side != wm.our_side() or not wm.self().is_kickable():
             log.os_log().debug(f'### goalie set play gm.catch?={gm.type().is_goalie_catch_ball()}')
-            log.os_log().debug(f'### goalie set play gm.side,ourside={gm.side()}, {wm.our_side()}')
+            log.os_log().debug(f'### goalie set play gm.side,ourside={gm.side}, {wm.our_side()}')
             log.os_log().debug(f'### goalie set play iskick?={wm.self().is_kickable()}')
             log.sw_log().team().add_text('not a goalie catch mode')
             return False
@@ -50,7 +50,7 @@ class Bhv_GoalieSetPlay:
             return True
 
         if not Bhv_GoalieSetPlay._first_move:
-            move_point = Vector2D(SP.our_penalty_area_line_x() - 1.5, -13. if wm.ball().pos().y() < 0 else 13.)
+            move_point = Vector2D(SP.our_penalty_area_line_x() - 1.5, -13. if wm.ball().pos.y() < 0 else 13.)
             log.os_log().debug(f'### goalie set play move_point={move_point}')
             Bhv_GoalieSetPlay._first_move = True
             Bhv_GoalieSetPlay._second_move = False
@@ -65,7 +65,7 @@ class Bhv_GoalieSetPlay:
         if time_diff < 50. \
                 or wm.set_play_count() < 3 \
                 or (time_diff < SP.drop_ball_time() - 15
-                    and (wm.self().stamina() < SP.stamina_max() * 0.9
+                    and (wm.self().stamina_model.stamina() < SP.stamina_max() * 0.9
                          or wm.exist_teammates_in(our_penalty_area, 20, True))):
             self.do_wait(agent)
             return True
@@ -107,7 +107,7 @@ class Bhv_GoalieSetPlay:
         for p in points:
             score = 0
             for o in agent.world().opponents_from_self():
-                score += 1. / o.pos().dist2(p)
+                score += 1. / o.pos.dist2(p)
             candids.append((p, score))
 
         best_pos = candids[0][0]

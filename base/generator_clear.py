@@ -30,7 +30,7 @@ class BhvClearGen(BhvKickGen):
     def add_to_candidate(self, wm: 'WorldModel', ball_pos: Vector2D):
         action = KickAction()
         action.target_ball_pos = ball_pos
-        action.start_ball_pos = wm.ball().pos()
+        action.start_ball_pos = wm.ball().pos.copy()
         action.start_ball_speed = 2.5
         action.type = KickActionType.Clear
         action.index = self.index
@@ -58,7 +58,7 @@ class BhvClearGen(BhvKickGen):
         angle_step = 360.0 / angle_div
 
         for a in range(angle_div):
-            ball_pos = wm.ball().pos()
+            ball_pos = wm.ball().pos.copy()
             angle = AngleDeg(a * angle_step)
             speed = 2.5
             log.sw_log().clear().add_text(f'========= a:{a} speed:{speed} angle:{angle} ball:{ball_pos}')
@@ -76,12 +76,12 @@ class BhvClearGen(BhvKickGen):
                 for opp in wm.opponents():
                     if not opp:
                         continue
-                    if opp.unum() <= 0:
+                    if opp.unum <= 0:
                         continue
-                    opp_cycle = opp.pos().dist(ball_pos) / opp.player_type().real_speed_max() - opp.player_type().kickable_area()
-                    opp_cycle -= min(0, opp.pos_count())
+                    opp_cycle = opp.pos.dist(ball_pos) / opp.player_type.real_speed_max() - opp.player_type.kickable_area()
+                    opp_cycle -= min(0, opp.pos_count)
                     if opp_cycle <= c:
-                        receiver_opp = opp.unum()
+                        receiver_opp = opp.unum
                         break
                 if receiver_opp != 0:
                     break

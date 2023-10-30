@@ -28,11 +28,11 @@ class TurnToPoint:
     def execute(self, agent: 'PlayerAgent'):
         me = agent.world().self()
 
-        if not me.pos().is_valid():
+        if not me.pos.is_valid():
             return agent.do_turn(60)
 
         my_point = me.inertia_point(self._cycle)
-        target_rel_angle = (self._point - my_point).th() - me.body()
+        target_rel_angle = (self._point - my_point).th() - me.body
 
         agent.do_turn(target_rel_angle)
         if target_rel_angle.abs() < 1:
@@ -58,7 +58,7 @@ class TurnToAngle(BodyAction):
         #     agent.do_turn(0.0)
         #     return False
 
-        agent.do_turn(self._angle - me.body())
+        agent.do_turn(self._angle - me.body)
         return True
 
 
@@ -99,11 +99,11 @@ class TackleToPoint(BodyAction):
         wm = agent.world()
         sp = ServerParam.i()
 
-        if wm.self().tackle_probability() < self._min_prob:
+        if wm.self().tackle_probability < self._min_prob:
             return False
 
-        target_angle = (self._point - wm.ball().pos()).th()
-        target_rel_angle = target_angle - wm.self().body()
+        target_angle = (self._point - wm.ball().pos).th()
+        target_rel_angle = target_angle - wm.self().body
 
         # if agent.config().version() < 12.0:
         #     if target_rel_angle.abs() < 90.0:
@@ -113,14 +113,14 @@ class TackleToPoint(BodyAction):
         #         return agent.do_tackle(- sp.maxBackTacklePower())
         #     return False
 
-        ball_rel_angle = wm.ball().rpos().th() - wm.self().body()
+        ball_rel_angle = wm.ball().rpos.th() - wm.self().body
 
         eff_power = sp.max_back_tackle_power() + (
                 (sp.max_tackle_power() - sp.max_back_tackle_power()) * (1.0 - target_rel_angle.abs() / 180.0))
         eff_power *= sp.tackle_power_rate()
         eff_power *= 1.0 - 0.5 * (ball_rel_angle.abs() / 180.0)
 
-        vel = wm.ball().vel() + Vector2D.polar2vector(eff_power, target_angle)
+        vel = wm.ball().vel + Vector2D.polar2vector(eff_power, target_angle)
 
         if ((vel.th() - target_angle).abs() > 90.0  # never accelerate to the target direction
                 or vel.r() < self._min_speed):  # too small speed
@@ -138,8 +138,8 @@ class SetFocusToPoint(FocusPointAction):
         next_view_width = agent.effector().queued_next_view_width().width()
         my_next_pos = agent.effector().queued_next_self_pos()
         my_next_face = agent.effector().queued_next_self_face()
-        current_focus_point_dist = agent.world().self().focus_point_dist()
-        current_focus_point_dir = agent.world().self().focus_point_dir()
+        current_focus_point_dist = agent.world().self().focus_point_dist
+        current_focus_point_dir = agent.world().self().focus_point_dir
         current_focus_point_dir = AngleDeg(min_max(-next_view_width / 2.0, current_focus_point_dir.degree(), next_view_width / 2.0))
         next_focus_point_dist = my_next_pos.dist(self.next_focus_point)
         if not (0.0 < next_focus_point_dist < 40.0):

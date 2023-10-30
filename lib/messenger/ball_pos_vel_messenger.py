@@ -27,8 +27,8 @@ class BallPosVelMessenger(Messenger):
             return
         
         SP = ServerParam.i()
-        pos = wm.ball().pos().copy()
-        vel = wm.ball().vel().copy()
+        pos = wm.ball().pos.copy()
+        vel = wm.ball().vel.copy()
         
         x:float = min_max(-SP.pitch_half_length(), pos.x(), SP.pitch_half_length()) + SP.pitch_half_length()
         y:float = min_max(-SP.pitch_half_width(), pos.y(), SP.pitch_half_width()) + SP.pitch_half_width()

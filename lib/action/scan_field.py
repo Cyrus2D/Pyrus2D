@@ -38,10 +38,10 @@ class ScanField(BodyAction):
         if agent.effector().queued_next_view_width() is not ViewWidth.WIDE:
             agent.set_view_action(ViewWide())
 
-        my_next = wm.self().pos() + wm.self().vel()
-        face_angle = (wm.ball().seen_pos() - my_next).th() if wm.ball().seen_pos().is_valid() else (my_next*-1).th()
+        my_next = wm.self().pos + wm.self().vel
+        face_angle = (wm.ball().seen_pos - my_next).th() if wm.ball().seen_pos.is_valid() else (my_next*-1).th()
 
-        search_flag = wm.ball().lost_count() //3
+        search_flag = wm.ball().lost_count //3
         if search_flag%2==1:
             face_angle += 180.
 
@@ -53,10 +53,10 @@ class ScanField(BodyAction):
         if agent.effector().queued_next_view_width() is not ViewWidth.WIDE:
             agent.set_view_action(ViewWide())
 
-        turn_moment=wm.self().view_width().width() + agent.effector().queued_next_view_width().width()
+        turn_moment=wm.self().view_width.width() + agent.effector().queued_next_view_width().width()
         turn_moment /= 2
         agent.do_turn(turn_moment)
-        agent.set_neck_action(NeckTurnToRelative(wm.self().neck()))
+        agent.set_neck_action(NeckTurnToRelative(wm.self().neck))
 
 
 

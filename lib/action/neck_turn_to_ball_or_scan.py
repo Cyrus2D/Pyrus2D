@@ -22,13 +22,13 @@ class NeckTurnToBallOrScan(NeckAction):
         ef = agent.effector()
         SP = ServerParam.i()
 
-        if wm.ball().pos_count() <= self._count_thr:
+        if wm.ball().pos_count <= self._count_thr:
             return NeckScanField().execute(agent)
 
         ball_next = ef.queued_next_ball_pos()
         my_next = ef.queued_next_self_pos()
 
-        if (wm.ball().pos_count() <= 0
+        if (wm.ball().pos_count <= 0
                 and not wm.kickable_opponent()
                 and not wm.kickable_teammate()
                 and my_next.dist(ball_next) < SP.visible_distance() - 0.2):

@@ -52,7 +52,7 @@ class Intercept:
         if best_intercept.dash_cycle() == 0:
             face_point = self._face_point.copy()
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.75)
+                face_point.assign(50.5, wm.self().pos.y() * 0.75)
 
             log.sw_log().intercept().add_text(
                           f"best_intercept.dash_cycle() == 0 (TurnToPoint)")
@@ -72,17 +72,17 @@ class Intercept:
 
             log.sw_log().intercept().add_text(
                           f"best_intercept.turn_cycle() > 0 (do_turn)")
-            return agent.do_turn(target_angle - wm.self().body())
+            return agent.do_turn(target_angle - wm.self().body)
 
         if self.do_wait_turn(agent, target_point, best_intercept):
             return True
 
-        if self._save_recovery and not wm.self().stamina_model().capacity_is_empty():
+        if self._save_recovery and not wm.self().stamina_model.capacity_is_empty():
             consumed_stamina = best_intercept.dash_power()
             if best_intercept.dash_power() < 0:
                 consumed_stamina *= -2
 
-            if (wm.self().stamina() - consumed_stamina
+            if (wm.self().stamina_model.stamina() - consumed_stamina
                     < ServerParam.i().recover_dec_thr_value() + 1):
                 log.sw_log().intercept().add_text(
                               f"last if (do turn)")
@@ -102,12 +102,12 @@ class Intercept:
     def do_kickable_opponent_check(self,
                                    agent: 'PlayerAgent') -> bool:
         wm = agent.world()
-        if wm.ball().dist_from_self() < 2 and wm.exist_kickable_opponents():
+        if wm.ball().dist_from_self < 2 and wm.exist_kickable_opponents():
             opp: PlayerObject = wm.opponents_from_ball()[0]
             if opp is not None:
                 goal_pos = Vector2D(-ServerParam.i().pitch_half_length(), 0)
-                my_next = wm.self().pos() + wm.self().vel()
-                attack_pos = opp.pos() + opp.vel()
+                my_next = wm.self().pos + wm.self().vel
+                attack_pos = opp.pos + opp.vel
 
                 if attack_pos.dist2(goal_pos) > my_next.dist2(goal_pos):
                     log.sw_log().intercept().add_text(
@@ -140,7 +140,7 @@ class Intercept:
         max_pitch_y = SP.pitch_half_width() - 1
         penalty_x = SP.our_penalty_area_line_x()
         penalty_y = SP.penalty_area_half_width()
-        speed_max = wm.self().player_type().real_speed_max() * 0.9
+        speed_max = wm.self().player_type.real_speed_max() * 0.9
         opp_min = table.opponent_reach_cycle()
         mate_min = table.teammate_reach_cycle()
 
@@ -171,19 +171,19 @@ class Intercept:
             cycle = cache[i].reach_cycle()
             self_pos = wm.self().inertia_point(cycle)
             ball_pos = wm.ball().inertia_point(cycle)
-            ball_vel = wm.ball().vel() * SP.ball_decay() ** cycle
+            ball_vel = wm.ball().vel * SP.ball_decay() ** cycle
 
             if ball_pos.abs_x() > max_pitch_x or \
                     ball_pos.abs_y() > max_pitch_y:
                 continue
 
-            if (wm.self().goalie()
+            if (wm.self().goalie
                     and wm.last_kicker_side() != wm.our_side()
                     and ball_pos.x() < penalty_x - 1
                     and ball_pos.abs_y() < penalty_y - 1
                     and cycle < opp_min - 1):
                 if ((cache[i].turn_cycle() == 0
-                     and cache[i].ball_dist() < wm.self().player_type().catchable_area() * 0.5)
+                     and cache[i].ball_dist() < wm.self().player_type.catchable_area() * 0.5)
                         or cache[i].ball_dist() < 0.01):
                     d = ball_pos.dist2(our_goal_pos)
                     if d > goalie_score:
@@ -252,7 +252,7 @@ class Intercept:
             return attacker_best
 
         if noturn_best is not None and forward_best is not None:
-            noturn_ball_vel = (wm.ball().vel()
+            noturn_ball_vel = (wm.ball().vel
                                * SP.ball_decay() ** noturn_best.reach_cycle())
             noturn_ball_speed = noturn_ball_vel.r()
             if (noturn_ball_vel.x() > 0.1
@@ -264,7 +264,7 @@ class Intercept:
             return forward_best
 
         fastest_pos = wm.ball().inertia_point(cache[0].reach_cycle())
-        fastest_vel = wm.ball().vel() * SP.ball_decay() ** cache[0].reach_cycle()
+        fastest_vel = wm.ball().vel * SP.ball_decay() ** cache[0].reach_cycle()
 
         if ((fastest_pos.x() > -33
              or fastest_pos.abs_y() > 20)
@@ -282,15 +282,15 @@ class Intercept:
                 return noturn_best
 
             if nearest_best.reach_cycle() <= noturn_best.reach_cycle() + 2:
-                nearest_ball_vel = (wm.ball().vel()
+                nearest_ball_vel = (wm.ball().vel
                                     * SP.ball_decay() ** nearest_best.reach_cycle())
                 nearest_ball_speed = nearest_ball_vel.r()
                 if nearest_ball_speed < 0.7:
                     return nearest_best
 
-                noturn_ball_vel = (wm.ball().vel()
+                noturn_ball_vel = (wm.ball().vel
                                    * SP.ball_decay() ** noturn_best.reach_cycle())
-                if (nearest_best.ball_dist() < wm.self().player_type().kickable_area() - 0.4
+                if (nearest_best.ball_dist() < wm.self().player_type.kickable_area() - 0.4
                         and nearest_best.ball_dist() < noturn_best.ball_dist()
                         and noturn_ball_vel.x() < 0.5
                         and noturn_ball_vel.r2() > 1 ** 2
@@ -299,7 +299,7 @@ class Intercept:
 
                 nearest_self_pos = wm.self().inertia_point(nearest_best.reach_cycle())
                 if nearest_ball_speed > 0.7 and \
-                        nearest_self_pos.dist2(nearest_ball_pos) < wm.self().player_type().kickable_area():
+                        nearest_self_pos.dist2(nearest_ball_pos) < wm.self().player_type.kickable_area():
                     return nearest_best
             return noturn_best
 
@@ -309,9 +309,9 @@ class Intercept:
         if nearest_best is not None:
             return nearest_best
 
-        if (wm.self().pos().x() > 40
-                and wm.ball().vel().r() > 1.8
-                and wm.ball().vel().th().abs() < 100
+        if (wm.self().pos.x() > 40
+                and wm.ball().vel.r() > 1.8
+                and wm.ball().vel.th().abs() < 100
                 and cache[0].reach_cycle() > 1):
             chance_best: InterceptInfo = None
             for i in range(MAX):
@@ -330,17 +330,17 @@ class Intercept:
                      info: InterceptInfo):
         wm = agent.world()
         opp: PlayerObject = wm.get_opponent_nearest_to_self(5)
-        if opp is not None and opp.dist_from_self() < 3:
+        if opp is not None and opp.dist_from_self < 3:
             return False
         opp_min = wm.intercept_table().opponent_reach_cycle()
         if info.reach_cycle() > opp_min - 5:
             return False
 
         my_inertia = wm.self().inertia_point(info.reach_cycle())
-        target_rel = (target_point - my_inertia).rotated_vector(-wm.self().body())
+        target_rel = (target_point - my_inertia).rotated_vector(-wm.self().body)
         target_dist = target_rel.r()
 
-        ball_travel = inertia_n_step_distance(wm.ball().vel().r(),
+        ball_travel = inertia_n_step_distance(wm.ball().vel.r(),
                                               info.reach_cycle(),
                                               ServerParam.i().ball_decay())
         ball_noise = ball_travel * ServerParam.i().ball_rand()
@@ -348,7 +348,7 @@ class Intercept:
         if info.reach_cycle() == 1 and info.turn_cycle() == 1:
             face_point = self._face_point
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.9)
+                face_point.assign(50.5, wm.self().pos.y() * 0.9)
 
             log.sw_log().intercept().add_text(
                           f"do wait turn (1) (TurnToPoint)")
@@ -360,31 +360,31 @@ class Intercept:
             return True
 
         extra_buf = 0.1 * bound(0, info.reach_cycle() - 1, 4)
-        angle_diff = (wm.ball().vel().th() - wm.self().body()).abs()
+        angle_diff = (wm.ball().vel.th() - wm.self().body).abs()
         if angle_diff < 10 or 170 < angle_diff:
             extra_buf = 0
 
-        dist_buf = wm.self().player_type().kickable_area() - 0.3 + extra_buf
-        dist_buf -= 0.1 * wm.ball().seen_pos_count()
+        dist_buf = wm.self().player_type.kickable_area() - 0.3 + extra_buf
+        dist_buf -= 0.1 * wm.ball().seen_pos_count
 
         if target_dist > dist_buf:
             return False
 
         face_point = self._face_point
         if info.reach_cycle() > 2:
-            face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(90)
+            face_point = my_inertia + (wm.ball().pos - my_inertia).rotated_vector(90)
             if face_point.x() < my_inertia.x():
-                face_point = my_inertia + (wm.ball().pos() - my_inertia).rotated_vector(-90)
+                face_point = my_inertia + (wm.ball().pos - my_inertia).rotated_vector(-90)
 
         if not face_point.is_valid():
-            face_point.assign(50.5, wm.self().pos().y() * 0.9)
+            face_point.assign(50.5, wm.self().pos.y() * 0.9)
 
         face_rel = face_point - my_inertia
         face_angle = face_rel.th()
 
         faced_rel = target_point - my_inertia
         faced_rel.rotate(face_angle)
-        if faced_rel.abs_y() > wm.self().player_type().kickable_area() - ball_noise - 0.2:
+        if faced_rel.abs_y() > wm.self().player_type.kickable_area() - ball_noise - 0.2:
             return False
 
         log.sw_log().intercept().add_text(
@@ -401,23 +401,23 @@ class Intercept:
                         target_point: Vector2D,
                         info: InterceptInfo):
         wm = agent.world()
-        ptype = wm.self().player_type()
+        ptype = wm.self().player_type
 
         if info.reach_cycle() == 1:
             agent.do_dash(info.dash_power(), info.dash_angle())
             return True
 
-        target_rel = target_point - wm.self().pos()
-        target_rel.rotate(-wm.self().body())
+        target_rel = target_point - wm.self().pos
+        target_rel.rotate(-wm.self().body)
 
-        accel_angle = wm.self().body()
+        accel_angle = wm.self().body.copy()
         if info.dash_power() < 0:
             accel_angle += 180
 
-        ball_vel = wm.ball().vel() * ServerParam.i().ball_decay() ** info.reach_cycle()
-        if ((not wm.self().goalie()
+        ball_vel = wm.ball().vel * ServerParam.i().ball_decay() ** info.reach_cycle()
+        if ((not wm.self().goalie
              or wm.last_kicker_side() == wm.our_side())
-                and wm.self().body().abs() < 50):
+                and wm.self().body.abs() < 50):
             buf = 0.3
             if info.reach_cycle() >= 8:
                 buf = 0
@@ -447,11 +447,11 @@ class Intercept:
             target_rel -= Vector2D(buf, 0)
 
         used_power = info.dash_power()
-        if (wm.ball().seen_pos_count() <= 2
-                and wm.ball().vel().r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
+        if (wm.ball().seen_pos_count <= 2
+                and wm.ball().vel.r() * ServerParam.i().ball_decay() ** info.reach_cycle() < ptype.kickable_area() * 1.5
                 and info.dash_angle().abs() < 5
                 and target_rel.abs_x() < (ptype.kickable_area()
-                                         + ptype.dash_rate(wm.self().effort())
+                                         + ptype.dash_rate(wm.self().stamina_model.effort())
                                          * ServerParam.i().max_dash_power()
                                          * 0.8)):
             first_speed = calc_first_term_geom_series(target_rel.x(),
@@ -460,7 +460,7 @@ class Intercept:
             first_speed = min_max(-ptype.player_speed_max(),
                                   first_speed,
                                   ptype.player_speed_max())
-            rel_vel = wm.self().vel().rotated_vector(-wm.self().body())
+            rel_vel = wm.self().vel.rotated_vector(-wm.self().body)
             required_accel = first_speed - rel_vel.x()
             used_power = required_accel / wm.self().dash_rate()
             used_power /= ServerParam.i().dash_dir_rate(info.dash_angle().degree())
@@ -475,10 +475,10 @@ class Intercept:
             my_inertia = wm.self().inertia_point(info.reach_cycle())
             face_point = self._face_point
             if not face_point.is_valid():
-                face_point.assign(50.5, wm.self().pos().y() * 0.75)
+                face_point.assign(50.5, wm.self().pos.y() * 0.75)
             face_angle = (face_point - my_inertia).th()
 
-            ball_next = wm.ball().pos() + wm.ball().vel()
+            ball_next = wm.ball().pos + wm.ball().vel
             ball_angle = (ball_next - my_inertia).th()
             # normal_half_width = ViewWidth.width(ViewWidth.Mode.NORMAL) # TODO FIX THIS after view mode
             normal_half_width = ServerParam.i().visible_angle()

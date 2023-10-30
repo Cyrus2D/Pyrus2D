@@ -29,7 +29,7 @@ class KickAction:
     def calculate_min_opp_dist(self, wm: 'WorldModel' = None):
         if wm is None:
             return 0.0
-        return min([opp.pos().dist(self.target_ball_pos) for opp in wm.opponents() if opp is not None and opp.unum() > 0])
+        return min([opp.pos.dist(self.target_ball_pos) for opp in wm.opponents() if opp is not None and opp.unum > 0])
 
     def evaluate(self, wm: 'WorldModel' = None):
         self.min_opp_dist = self.calculate_min_opp_dist(wm)
@@ -105,10 +105,10 @@ class BhvKickGen:
     def can_opponent_cut_ball(self, wm: 'WorldModel', ball_pos, cycle):
         for unum in range(1, 12):
             opp: 'PlayerObject' = wm.their_player(unum)
-            if opp.unum() == 0:
+            if opp.unum == 0:
                 continue
-            opp_cycle = opp.pos().dist(ball_pos) - opp.player_type().kickable_area()
-            opp_cycle /= opp.player_type().real_speed_max()
+            opp_cycle = opp.pos.dist(ball_pos) - opp.player_type.kickable_area()
+            opp_cycle /= opp.player_type.real_speed_max()
             if opp_cycle < cycle:
                 return True
         return False

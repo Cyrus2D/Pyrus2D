@@ -27,7 +27,7 @@ def get_decision(agent: 'PlayerAgent'):
     st = StrategyFormation().i()
     st.update(wm)
 
-    if wm.self().goalie():
+    if wm.self().goalie:
         if goalie_decision.decision(agent):
             return True
 
@@ -35,10 +35,10 @@ def get_decision(agent: 'PlayerAgent'):
         if Bhv_SetPlay().execute(agent):
             return True
 
-    log.sw_log().team().add_text(f'is kickable? dist {wm.ball().dist_from_self()} '
-                                 f'ka {wm.self().player_type().kickable_area()} '
-                                 f'seen pos count {wm.ball().seen_pos_count()} '
-                                 f'is? {wm.self()._kickable}')
+    log.sw_log().team().add_text(f'is kickable? dist {wm.ball().dist_from_self} '
+                                 f'ka {wm.self().player_type.kickable_area()} '
+                                 f'seen pos count {wm.ball().seen_pos_count} '
+                                 f'is? {wm.self().is_kickable()}')
     if wm.self().is_kickable():
         return BhvKick().execute(agent)
     if BhvMove().execute(agent):

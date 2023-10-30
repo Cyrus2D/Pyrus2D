@@ -57,7 +57,7 @@ class NeckScanPlayers(NeckAction):
             return NeckScanField().execute(agent)
         
         target_angle = AngleDeg(NeckScanPlayers._cached_target_angle)
-        agent.do_turn_neck(target_angle - ef.queued_next_self_body().degree() - wm.self().neck().degree())
+        agent.do_turn_neck(target_angle - ef.queued_next_self_body().degree() - wm.self().neck.degree())
         return True
     
     @staticmethod
@@ -122,27 +122,27 @@ class NeckScanPlayers(NeckAction):
             if p.is_self():
                 continue
             
-            pos = p.pos() + p.vel()
+            pos = p.pos + p.vel
             angle = (pos - next_self_pos).th()
             
             if not angle.is_right_of(reduced_left_angle) or not angle.is_left_of(reduced_right_angle):
                 continue
             
-            if p.ghost_count() >= 5:
+            if p.ghost_count >= 5:
                 continue
             
-            pos_count= p.seen_pos_count()
-            if p.is_ghost() and p.ghost_count() % 2 == 1:
+            pos_count= p.seen_pos_count
+            if p.is_ghost() and p.ghost_count % 2 == 1:
                 pos_count = min(2, pos_count)
             
             pos_count += 1
             
             if our_ball:
-                if p.side() == wm.our_side() and (p.pos().x() > wm.ball().pos().x() - 10 or p.pos().x() > 30):
+                if p.side == wm.our_side() and (p.pos.x() > wm.ball().pos.x() - 10 or p.pos.x() > 30):
                     pos_count *=2
             
             base_val = pos_count**2
-            rate = exp(-(p.dist_from_self() ** 2) / (2*(20**2)))
+            rate = exp(-(p.dist_from_self ** 2) / (2*(20**2)))
 
             score += base_val * rate
             buf = min((angle-left_angle).abs(), (angle-right_angle).abs())

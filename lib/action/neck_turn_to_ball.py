@@ -40,7 +40,7 @@ class NeckTurnToBall(NeckAction):
             return True
 
         if wm.intercept_table().opponent_reach_cycle() <= 1:
-            neck_moment = ball_rel_angle_next - wm.self().neck()
+            neck_moment = ball_rel_angle_next - wm.self().neck
             agent.do_turn_neck(neck_moment)
             return True
 
@@ -54,20 +54,20 @@ class NeckTurnToBall(NeckAction):
         if (SP.visible_distance() * 0.7 < ball_dist < 15
                 and (wm.kickable_teammate()
                     or wm.kickable_opponent()
-                    or (opp and opp.dist_from_ball() < opp.player_type().kickable_area()+0.3)
-                    or (mate and mate.dist_from_ball() < mate.player_type().kickable_area() + 0.3)
+                    or (opp and opp.dist_from_ball < opp.player_type.kickable_area()+0.3)
+                    or (mate and mate.dist_from_ball < mate.player_type.kickable_area() + 0.3)
                 )
             ):
             view_half = max(0, next_view_width*0.5 - 20)
 
         if (len(wm.opponents_from_self()) >= 11
-            and (wm.ball().pos().x() > 0
-                or wm.ball().pos().abs_y() > SP.pitch_half_width() - 8
+            and (wm.ball().pos.x() > 0
+                or wm.ball().pos.abs_y() > SP.pitch_half_width() - 8
                 or not opp
-                or opp.dist_from_ball() > 3)):
+                or opp.dist_from_ball > 3)):
             best_angle = NeckScanPlayers.INVALID_ANGLE
 
-            if ball_dist > SP.visible_distance() - 0.3 or wm.ball().seen_pos_count() > 0:
+            if ball_dist > SP.visible_distance() - 0.3 or wm.ball().seen_pos_count > 0:
                 min_neck_angle = bound(SP.min_neck_angle(),
                                        ball_rel_angle_next.degree() - view_half,
                                        SP.max_neck_angle())
@@ -83,7 +83,7 @@ class NeckTurnToBall(NeckAction):
 
             if best_angle != NeckScanPlayers.INVALID_ANGLE:
                 target_angle = best_angle
-                neck_moment = AngleDeg(target_angle - my_body_next.degree() - wm.self().neck().degree())
+                neck_moment = AngleDeg(target_angle - my_body_next.degree() - wm.self().neck.degree())
 
                 agent.do_turn_neck(neck_moment)
                 return True
@@ -98,9 +98,9 @@ class NeckTurnToBall(NeckAction):
         _, right_sum_count, _ = wm.dir_range_count(my_body_next + right_rel_angle, next_view_width)
 
         if left_sum_count > right_sum_count:
-            agent.do_turn_neck(left_rel_angle - wm.self().neck().degree())
+            agent.do_turn_neck(left_rel_angle - wm.self().neck.degree())
         else:
-            agent.do_turn_neck(right_rel_angle - wm.self().neck().degree())
+            agent.do_turn_neck(right_rel_angle - wm.self().neck.degree())
 
         return True
 

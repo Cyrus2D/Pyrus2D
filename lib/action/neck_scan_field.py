@@ -35,7 +35,7 @@ class NeckScanField(NeckAction):
         if (NeckScanField._last_calc_time == wm.time()
             and NeckScanField._last_calc_view_width != ef.queued_next_view_width()):
             
-            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck())
+            agent.do_turn_neck(NeckScanField._cached_target_angle - ef.queued_next_self_body() - wm.self().neck)
             return True
         
         NeckScanField._last_calc_time = wm.time().copy()
@@ -44,13 +44,13 @@ class NeckScanField(NeckAction):
         angle = self.calc_angle_for_wide_pitch_edge(agent)
         if angle != NeckScanField.INVALID_ANGLE:
             NeckScanField._cached_target_angle = angle
-            agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck())
+            agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck)
             return True
             
         
         existed_ghost = False
         for p in wm.all_players():
-            if p.is_ghost() and p.dist_from_self() < 30:
+            if p.is_ghost() and p.dist_from_self < 30:
                 existed_ghost = True
                 break
         
@@ -62,7 +62,7 @@ class NeckScanField(NeckAction):
             angle = NeckScanPlayers.get_best_angle(agent)
             if angle != NeckScanField.INVALID_ANGLE:
                 NeckScanField._cached_target_angle = angle
-                agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck())
+                agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck)
                 return True
         
         gt = wm.game_mode().type() 
@@ -71,16 +71,16 @@ class NeckScanField(NeckAction):
             or (
                 not gt.is_ind_free_kick()
                 and not gt.is_back_pass()
-                and wm.ball().dist_from_self() < wm.self().player_type().player_size() + 0.15
+                and wm.ball().dist_from_self < wm.self().player_type.player_size() + 0.15
             )
         )
         angle = self.calc_angle_default(agent, consider_patch)
         
-        if consider_patch and (AngleDeg(angle) - wm.self().face()).abs() < 5:
+        if consider_patch and (AngleDeg(angle) - wm.self().face).abs() < 5:
             angle = self.calc_angle_default(agent, False)
         
         NeckScanField._cached_target_angle = angle
-        agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck())
+        agent.do_turn_neck(AngleDeg(NeckScanField._cached_target_angle) - ef.queued_next_self_body() - wm.self().neck)
         
         return True
     
@@ -172,10 +172,10 @@ class NeckScanField(NeckAction):
             return NeckScanField.INVALID_ANGLE
         
         gt = wm.game_mode().type()
-        if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self() > 2:
+        if gt is not GameModeType.PlayOn and not gt.is_goal_kick() and wm.ball().dist_from_self > 2:
             return NeckScanField.INVALID_ANGLE
         
-        next_self_pos = wm.self().pos() + wm.self().vel()
+        next_self_pos = wm.self().pos + wm.self().vel
         pitch_x_thr = SP.pitch_half_length() - 15.
         pitch_y_thr = SP.pitch_half_length() - 10. # TODO WIDTH MAYBE(it was on librcsc tho...)
         

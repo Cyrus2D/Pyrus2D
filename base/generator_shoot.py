@@ -27,12 +27,12 @@ class BhvShhotGen(BhvKickGen):
         goal_l = Vector2D(SP.i().pitch_half_length(), -SP.i().goal_half_width())
         goal_r = Vector2D(SP.i().pitch_half_length(), +SP.i().goal_half_width())
 
-        goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos()) * 0.042)
-        goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos()) * 0.042)
+        goal_l._y += min(1.5, 0.6 + goal_l.dist(wm.ball().pos) * 0.042)
+        goal_r._y -= min(1.5, 0.6 + goal_r.dist(wm.ball().pos) * 0.042)
 
-        if wm.self().pos().x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos().abs_y() < SP.i().goal_half_width():
-            goal_l._x = wm.self().pos().x() + 1.5
-            goal_r._x = wm.self().pos().x() + 1.5
+        if wm.self().pos.x() > SP.i().pitch_half_length() - 1.0 and wm.self().pos.abs_y() < SP.i().goal_half_width():
+            goal_l._x = wm.self().pos.x() + 1.5
+            goal_r._x = wm.self().pos.x() + 1.5
 
         DIST_DIVS = 25
         dist_step = abs(goal_l.y() - goal_r.y()) / (DIST_DIVS - 1)
@@ -55,9 +55,9 @@ class BhvShhotGen(BhvKickGen):
         return self.candidates[0]
 
     def create_shoot(self, wm: 'WorldModel', target_point: Vector2D):
-        ball_move_angle = (target_point - wm.ball().pos()).th()
+        ball_move_angle = (target_point - wm.ball().pos).th()
         goalie = wm.get_opponent_goalie()
-        if goalie is None or (goalie.unum() > 0 and 5 < goalie.pos_count() < 30):
+        if goalie is None or (goalie.unum > 0 and 5 < goalie.pos_count < 30):
             # TODO  and wm.dirCount( ball_move_angle ) > 3
             log.sw_log().shoot().add_text( "#shoot {} didnt see goalie".format(self.total_count))
             return
@@ -66,11 +66,11 @@ class BhvShhotGen(BhvKickGen):
 
         ball_speed_max = sp.ball_speed_max() if wm.game_mode().type() == GameModeType.PlayOn \
                                                 or wm.game_mode().is_penalty_kick_mode() \
-            else wm.self().kick_rate() * sp.max_power()
+            else wm.self().kick_rate * sp.max_power()
 
-        ball_move_dist = wm.ball().pos().dist(target_point)
+        ball_move_dist = wm.ball().pos.dist(target_point)
 
-        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate(), wm.ball().vel())
+        max_one_step_vel = calc_max_velocity(ball_move_angle, wm.self().kick_rate, wm.ball().vel)
         max_one_step_speed = max_one_step_vel.r()
 
         first_ball_speed = max((ball_move_dist + 5.0) * (1.0 - sp.ball_decay()), max_one_step_speed, 1.5)
@@ -117,33 +117,35 @@ class BhvShhotGen(BhvKickGen):
 
         for o in range(1, 12):
             opp = wm.their_player(o)
-            if opp.unum() < 1:
+            if o is None:
+                continue
+            if opp.unum < 1:
                 log.sw_log().shoot().add_text( '## opp {} can not, unum')
                 continue
             if opp.is_tackling():
                 log.sw_log().shoot().add_text( '## opp {} can not, tackle')
                 continue
-            if opp.pos().x() < opponent_x_thr:
+            if opp.pos.x() < opponent_x_thr:
                 log.sw_log().shoot().add_text( '## opp {} can not, xthr')
                 continue
-            if opp.pos().abs_y() > opponent_y_thr:
+            if opp.pos.abs_y() > opponent_y_thr:
                 log.sw_log().shoot().add_text( '## opp {} can not, ythr')
                 continue
 
-            if (ball_move_angle - (opp.pos() - wm.ball().pos()).th()).abs() > 90.0:
+            if (ball_move_angle - (opp.pos - wm.ball().pos).th()).abs() > 90.0:
                 log.sw_log().shoot().add_text( '## opp {} can not, angle')
                 continue
 
-            if opp.goalie():
+            if opp.goalie:
                 if self.maybe_goalie_catch(opp, course, wm):
                     return False
                 log.sw_log().shoot().add_text( '## opp {} can not, goalie catch')
                 continue
 
-            if opp.pos_count() > 10:
+            if opp.pos_count > 10:
                 log.sw_log().shoot().add_text( '## opp {} can not, pos count')
                 continue
-            if opp.is_ghost() and opp.pos_count() > 5:
+            if opp.is_ghost() and opp.pos_count > 5:
                 log.sw_log().shoot().add_text( '## opp {} can not, ghost')
                 continue
 
@@ -158,18 +160,18 @@ class BhvShhotGen(BhvKickGen):
                               Size2D(SP.i().penalty_area_length(), SP.i().penalty_area_width()))
         CONTROL_AREA_BUF = 0.15
         sp = SP.i()
-        ptype = goalie.player_type()
-        min_cycle = Tools.estimate_min_reach_cycle(goalie.pos(), ptype.real_speed_max(), wm.ball().pos(),
+        ptype = goalie.player_type
+        min_cycle = Tools.estimate_min_reach_cycle(goalie.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
         if min_cycle < 0:
             return False
 
-        goalie_speed = goalie.vel().r()
-        seen_dist_noise = goalie.dist_from_self() * 0.02
+        goalie_speed = goalie.vel.r()
+        seen_dist_noise = goalie.dist_from_self * 0.02
         max_cycle = course.ball_reach_step
 
         for cycle in range(min_cycle, max_cycle):
-            ball_pos = smath.inertia_n_step_point(wm.ball().pos(), course.first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = smath.inertia_n_step_point(wm.ball().pos, course.first_ball_vel, cycle, sp.ball_decay())
             if ball_pos.x() > sp.pitch_half_length():
                 break
             in_penalty_area = penalty_area.contains(ball_pos)
@@ -191,18 +193,18 @@ class BhvShhotGen(BhvKickGen):
 
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            if n_dash > cycle + goalie.pos_count():
+            if n_dash > cycle + goalie.pos_count:
                 continue
             n_turn = 0
-            if goalie.body_count() <= 1:
-                Tools.predict_player_turn_cycle(ptype, goalie.body(), goalie_speed, target_dist,
+            if goalie.body_count <= 1:
+                Tools.predict_player_turn_cycle(ptype, goalie.body, goalie_speed, target_dist,
                                                 (ball_pos - inertia_pos).th(), control_area + 0.1, True)
             n_step = n_turn + n_dash
             if n_turn == 0:
                 n_step += 1
 
-            bonus_step = smath.bound(0, goalie.pos_count(), 5) if in_penalty_area else smath.bound(0,
-                                                                                                   goalie.pos_count() - 1,
+            bonus_step = smath.bound(0, goalie.pos_count, 5) if in_penalty_area else smath.bound(0,
+                                                                                                   goalie.pos_count - 1,
                                                                                                    1)
             if not in_penalty_area:
                 bonus_step -= 1
@@ -210,25 +212,25 @@ class BhvShhotGen(BhvKickGen):
             if n_step <= cycle + bonus_step:
                 return True
 
-            if in_penalty_area and n_step <= cycle + goalie.pos_count() + 1:
+            if in_penalty_area and n_step <= cycle + goalie.pos_count + 1:
                 course.goalie_never_reach_ = False
         return False
 
     def opponent_can_reach(self, opponent, course: ShootAction, wm: 'WorldModel'):
         sp = SP.i()
-        ptype = opponent.player_type()
+        ptype = opponent.player_type
         control_area = ptype.kickable_area()
-        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(), ptype.real_speed_max(), wm.ball().pos(),
+        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos, ptype.real_speed_max(), wm.ball().pos,
                                                    course.ball_move_angle)
         if min_cycle < 0:
             return False
 
-        opponent_speed = opponent.vel().r()
+        opponent_speed = opponent.vel.r()
         max_cycle = course.ball_reach_step
         maybe_reach = False
         nearest_step_diff = 1000
         for cycle in range(min_cycle, max_cycle):
-            ball_pos = smath.inertia_n_step_point(wm.ball().pos(), course.first_ball_vel, cycle, sp.ball_decay())
+            ball_pos = smath.inertia_n_step_point(wm.ball().pos, course.first_ball_vel, cycle, sp.ball_decay())
             inertia_pos = opponent.inertia_point(cycle)
             target_dist = inertia_pos.dist(ball_pos)
             if target_dist - control_area < 0.001:
@@ -238,17 +240,17 @@ class BhvShhotGen(BhvKickGen):
                 dash_dist -= control_area * 0.8
             n_dash = ptype.cycles_to_reach_distance(dash_dist)
 
-            if n_dash > cycle + opponent.pos_count():
+            if n_dash > cycle + opponent.pos_count:
                 continue
 
             n_turn = 1
-            if opponent.body_count() == 0:
-                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body(), opponent_speed, target_dist,
+            if opponent.body_count == 0:
+                n_turn = Tools.predict_player_turn_cycle(ptype, opponent.body, opponent_speed, target_dist,
                                                          (ball_pos - inertia_pos).th(), control_area, True)
             n_step =  n_turn + n_dash
             if n_turn == 0:
                 n_step += 1
-            bonus_step = smath.bound(0, opponent.pos_count(), 1)
+            bonus_step = smath.bound(0, opponent.pos_count, 1)
             penalty_step = -1
 
             if opponent.is_tackling():
@@ -257,9 +259,9 @@ class BhvShhotGen(BhvKickGen):
             if n_step <= cycle + bonus_step + penalty_step:
                 return True
 
-            if n_step <= cycle + opponent.pos_count() + 1:
+            if n_step <= cycle + opponent.pos_count + 1:
                 maybe_reach = True
-                diff = cycle + opponent.pos_count() - n_step
+                diff = cycle + opponent.pos_count - n_step
                 if diff < nearest_step_diff:
                     nearest_step_diff = diff
             if maybe_reach:
@@ -272,7 +274,7 @@ class BhvShhotGen(BhvKickGen):
 
         sp = SP.i()
         goalie = wm.get_opponent_goalie()
-        goalie_angle = (goalie.pos() - wm.ball().pos()).th() if goalie else 180.0
+        goalie_angle = (goalie.pos - wm.ball().pos).th() if goalie else 180.0
 
         for it in self.candidates:
             score = 1.0
@@ -287,13 +289,13 @@ class BhvShhotGen(BhvKickGen):
                 score += 100.0
 
             goalie_rate = 1.0
-            if goalie.unum() > 0:
+            if goalie.unum > 0:
                 variance2 = 1.0 if it.goalie_never_reach else pow(10.0, 2)
                 angle_diff = (it.ball_move_angle - goalie_angle).abs()
                 goalie_rate = 1.0 - math.exp(-pow(angle_diff, 2) / (2.0 * variance2) )
 
             y_rate = 1.0
-            if it.target_point.dist2(wm.ball().pos()) > y_dist_thr2:
+            if it.target_point.dist2(wm.ball().pos) > y_dist_thr2:
                 y_dist = max(0.0, it.target_point.abs_y() - 4.0 )
                 y_rate = math.exp(-pow(y_dist, 2.0) / (2.0 * pow( sp.goal_half_width() - 1.5, 2)))
 

@@ -12,10 +12,10 @@ class Bhv_BeforeKickOff:
         pass
 
     def execute(self, agent: 'PlayerAgent'):
-        unum = agent.world().self().unum()
+        unum = agent.world().self().unum
         st = StrategyFormation.i()
         target = st.get_pos(unum)
-        if target.dist(agent.world().self().pos()) > 1.:
+        if target.dist(agent.world().self().pos) > 1.:
             agent.do_move(target.x(), target.y())
             agent.set_neck_action(NeckScanField())
             return True

@@ -57,13 +57,13 @@ class BhvMove:
                 agent.set_neck_action(NeckTurnToBall())
                 return True
         st = StrategyFormation().i()
-        target = st.get_pos(agent.world().self().unum())
+        target = st.get_pos(agent.world().self().unum)
 
         log.debug_client().set_target(target)
         log.debug_client().add_message('bhv_move')
 
         dash_power, self._in_recovery_mode = get_normal_dash_power(wm, self._in_recovery_mode)
-        dist_thr = wm.ball().dist_from_self() * 0.1
+        dist_thr = wm.ball().dist_from_self * 0.1
 
         if dist_thr < 1.0:
             dist_thr = 1.0

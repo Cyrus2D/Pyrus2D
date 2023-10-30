@@ -53,7 +53,7 @@ class TackleGenerator:
         if wm.self().is_kickable():
             return
 
-        if wm.self().tackle_probability() < 0.001 and wm.self().foul_probability() < 0.001:
+        if wm.self().tackle_probability < 0.001 and wm.self().foul_probability() < 0.001:
             return
 
         if wm.time().stopped_cycle() > 0:
@@ -80,7 +80,7 @@ class TackleGenerator:
         max_angle = SP.max_moment()
         angle_step = abs(max_angle - min_angle) / TackleGenerator.ANGLE_DIVS
 
-        ball_rel_angle = wm.ball().angle_from_self() - wm.self().body()
+        ball_rel_angle = wm.ball().angle_from_self - wm.self().body
         tackle_rate = SP.tackle_power_rate() * (1 - 0.5*ball_rel_angle.abs()/ 180.)
 
         for a in range(TackleGenerator.ANGLE_DIVS):
@@ -90,10 +90,10 @@ class TackleGenerator:
                 * (1. - (dir.abs() / 180.))
             eff_power *= tackle_rate
 
-            angle = wm.self().body() + dir
+            angle = wm.self().body + dir
             accel = Vector2D(r=eff_power, a=angle)
 
-            vel = wm.ball().vel() + accel
+            vel = wm.ball().vel + accel
             speed = vel.r()
             if speed > SP.ball_speed_max():
                 vel.set_length(SP.ball_speed_max())
@@ -110,16 +110,16 @@ class TackleGenerator:
 
     def evaluate(self, wm, result: TackleAction):
         SP = ServerParam.i()
-        ball_end_point = inertia_final_point(wm.ball().pos(),
+        ball_end_point = inertia_final_point(wm.ball().pos,
                                              result._ball_vel,
                                              SP.ball_decay())
 
-        ball_line = Segment2D(wm.ball().pos(), ball_end_point)
+        ball_line = Segment2D(wm.ball().pos, ball_end_point)
         ball_speed = result._ball_speed
         ball_move_angle = result._ball_move_angle
 
         if ball_end_point.x() > SP.pitch_half_length() \
-            and wm.ball().pos().dist2(SP.their_team_goal_pos()) < 20**2:
+            and wm.ball().pos.dist2(SP.their_team_goal_pos()) < 20**2:
 
             goal_line = Line2D(Vector2D(SP.pitch_half_length(), 10),
                                Vector2D(SP.pitch_half_length(), -10))
@@ -145,17 +145,17 @@ class TackleGenerator:
                 shoot_score = y_penalty + speed_bonus
                 return shoot_score
 
-        opponent_reach_step = self.predict_opponents_reach_step(wm, wm.ball().pos(), result._ball_vel, ball_move_angle)
-        final_point = inertia_n_step_point(wm.ball().pos(), result._ball_vel, opponent_reach_step, SP.ball_decay())
+        opponent_reach_step = self.predict_opponents_reach_step(wm, wm.ball().pos, result._ball_vel, ball_move_angle)
+        final_point = inertia_n_step_point(wm.ball().pos, result._ball_vel, opponent_reach_step, SP.ball_decay())
 
-        final_segment = Segment2D(wm.ball().pos(), final_point)
+        final_segment = Segment2D(wm.ball().pos, final_point)
         pitch = Rect2D.from_center(0., 0., SP.pitch_length(), SP.pitch_width())
         intersections = pitch.intersection(final_segment)
 
         if len(intersections) > 0:
             final_point = intersections[0]
 
-        our_goal_angle = (SP.our_team_goal_pos() - wm.ball().pos()).th()
+        our_goal_angle = (SP.our_team_goal_pos() - wm.ball().pos).th()
         our_goal_angle_diff = (our_goal_angle - ball_move_angle).abs()
         our_goal_angle_rate = 1 - exp(-our_goal_angle_diff**2 / (2*40**2))
 
@@ -206,11 +206,11 @@ class TackleGenerator:
                                     ball_move_angle: AngleDeg,
                                     max_cycle):
         SP = ServerParam.i()
-        ptype = opponent.player_type()
+        ptype = opponent.player_type
 
-        opponent_speed = opponent.vel().r()
+        opponent_speed = opponent.vel.r()
 
-        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos(),
+        min_cycle = Tools.estimate_min_reach_cycle(opponent.pos,
                                                    ptype.real_speed_max(),
                                                    first_ball_pos,
                                                    ball_move_angle)
@@ -245,8 +245,8 @@ class TackleGenerator:
             if n_dash > cycle:
                 continue
 
-            n_turn = 0 if opponent.body_count() > 1 else Tools.predict_player_turn_cycle(ptype,
-                                                                                         opponent.body(),
+            n_turn = 0 if opponent.body_count > 1 else Tools.predict_player_turn_cycle(ptype,
+                                                                                         opponent.body,
                                                                                          opponent_speed,
                                                                                          target_dist,
                                                                                          (ball_pos - inertia_pos).th(),
@@ -257,7 +257,7 @@ class TackleGenerator:
             if opponent.is_tackling():
                 n_step += 5
 
-            n_step -= min(3, opponent.pos_count())
+            n_step -= min(3, opponent.pos_count)
             if n_step <= cycle:
                 return cycle
         return 1000

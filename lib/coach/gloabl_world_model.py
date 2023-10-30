@@ -93,12 +93,12 @@ class GlobalWorldModel:
                 player = GlobalPlayerObject()
                 player.init_dic(player_dic)
                 # player.set_player_type(self._player_types[player.type()])
-                if player.side().value == self._our_side:
-                    self._our_players[player.unum() - 1] = player
-                elif player.side() == SideID.NEUTRAL:
-                    self._unknown_player[player.unum() - 1] = player
+                if player.side.value == self._our_side:
+                    self._our_players[player.unum - 1] = player
+                elif player.side == SideID.NEUTRAL:
+                    self._unknown_player[player.unum - 1] = player
                 else:
-                    self._their_players[player.unum() - 1] = player
+                    self._their_players[player.unum - 1] = player
             # TODO check reversion
 
     def __repr__(self):

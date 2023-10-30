@@ -106,7 +106,7 @@ class PlayerAgent(SoccerAgent):
                                self._team_name,
                                self._current_time)
         self._see_state.update_by_see(self._current_time,
-                                      self.real_world().self().view_width())
+                                      self.real_world().self().view_width)
 
         if DEBUG:
             log.sw_log().sensor().add_text('===Received See Message Sensor===\n' + message)
@@ -237,7 +237,7 @@ class PlayerAgent(SoccerAgent):
         if self._last_decision_time == self._current_time:
             return False
 
-        if self.world().self().unum() == UNUM_UNKNOWN:
+        if self.world().self().unum == UNUM_UNKNOWN:
             return False
 
         if self.world().see_time() == self._current_time:
@@ -343,16 +343,16 @@ class PlayerAgent(SoccerAgent):
     def debug_players(self):
         for p in self.world()._teammates + self.world()._opponents + self.world()._unknown_players:
             if p.pos_valid():
-                log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='blue'))
+                log.sw_log().world().add_circle(1, center=p.pos, color=Color(string='blue'))
         if self.world().ball().pos_valid():
-            log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="blue"), fill=True)
+            log.sw_log().world().add_circle(center=self.world().ball().pos, r=0.5, color=Color(string="blue"), fill=True)
 
         if self.full_world_exists():
             for p in self.full_world()._teammates + self.full_world()._opponents + self.full_world()._unknown_players:
                 if p.pos_valid():
-                    log.sw_log().world().add_circle(1, center=p.pos(), color=Color(string='red'))
+                    log.sw_log().world().add_circle(1, center=p.pos, color=Color(string='red'))
             if self.world().ball().pos_valid():
-                log.sw_log().world().add_circle(center=self.world().ball().pos(), r=0.5, color=Color(string="red"),
+                log.sw_log().world().add_circle(center=self.world().ball().pos, r=0.5, color=Color(string="red"),
                                                 fill=True)
 
     def change_player_type_parser(self, msg: str):
@@ -431,7 +431,7 @@ class PlayerAgent(SoccerAgent):
             log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is frozen!")
             return False
 
-        if not wm.self().goalie():
+        if not wm.self().goalie:
             log.os_log().error(f"(do catch) player({self._real_world.self_unum()} is not goalie!")
             return False
 
@@ -458,18 +458,18 @@ class PlayerAgent(SoccerAgent):
             moment_dir = AngleDeg(moment_dir)
 
         aligned_moment_dist = moment_dist
-        if self.world().self().focus_point_dist() + aligned_moment_dist < 0.0:
+        if self.world().self().focus_point_dist + aligned_moment_dist < 0.0:
             log.os_log().warn(f"(do_change_focus) player({self._real_world.self_unum()} focus dist can not be less than 0")
-            aligned_moment_dist = -self.world().self().focus_point_dist()
-        if self.world().self().focus_point_dist() + aligned_moment_dist > 40.0:
+            aligned_moment_dist = -self.world().self().focus_point_dist
+        if self.world().self().focus_point_dist + aligned_moment_dist > 40.0:
             log.os_log().warn(f"(do_change_focus) player({self._real_world.self_unum()} focus dist can not be more than 40")
-            aligned_moment_dist = 40.0 - self.world().self().focus_point_dist()
+            aligned_moment_dist = 40.0 - self.world().self().focus_point_dist
         next_view = self.effector().queued_next_view_width()
         next_half_angle = next_view.width() * 0.5
 
         aligned_moment_dir = moment_dir
         focus_point_dir_after_change_view = AngleDeg(
-            min_max(-next_half_angle, self.world().self().focus_point_dir().degree(), next_half_angle))
+            min_max(-next_half_angle, self.world().self().focus_point_dir.degree(), next_half_angle))
         if focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() < -next_half_angle:
             aligned_moment_dir = -next_half_angle - focus_point_dir_after_change_view.degree()
         elif focus_point_dir_after_change_view.degree() + aligned_moment_dir.degree() > next_half_angle:
@@ -491,11 +491,11 @@ class PlayerAgent(SoccerAgent):
             # log.os_log().error(f"(player agent do attentionto) unum is not in range! unum={unum}")
             return False
 
-        if self.world().our_side() == side and self.world().self().unum() == unum:
+        if self.world().our_side() == side and self.world().self().unum == unum:
             # log.os_log().error(f"(player agent do attentionto) attentioning to self!")
             return False
 
-        if self.world().self().attentionto_side() == side and self.world().self().attentionto_unum() == unum:
+        if self.world().self().attentionto_side == side and self.world().self().attentionto_unum == unum:
             # log.os_log().error(f"(player agent do attentionto) already attended to the player! unum={unum}")
             return False
 
@@ -594,10 +594,10 @@ class PlayerAgent(SoccerAgent):
 
     def action(self):
         if (self.world().self_unum() is None
-                or self.world().self().unum() != self.world().self_unum()):
+                or self.world().self().unum != self.world().self_unum()):
             return
         self.update_before_decision()
-        KickTable.instance().create_tables(self.world().self().player_type())  # TODO should be moved!
+        KickTable.instance().create_tables(self.world().self().player_type)  # TODO should be moved!
         self._effector.reset()
         self.action_impl()
         self.do_view_action()
@@ -607,8 +607,8 @@ class PlayerAgent(SoccerAgent):
         self.communicate_impl()
 
         self._last_decision_time = self._current_time.copy()
-        log.os_log().debug("body " + str(self.world().self().body()))
-        log.os_log().debug("pos " + str(self.world().self().pos()))
+        log.os_log().debug("body " + str(self.world().self().body))
+        log.os_log().debug("pos " + str(self.world().self().pos))
 
         self.real_world().update_just_after_decision(self._effector)
         if self.full_world_exists():
@@ -621,7 +621,7 @@ class PlayerAgent(SoccerAgent):
             log.os_log().debug("next pos " + str(self.effector().queued_next_self_pos()))
             # log.os_log().debug(str(self.world().self().long_str()))
 
-        self._see_state.set_view_mode(self.world().self().view_width())
+        self._see_state.set_view_mode(self.world().self().view_width)
 
         message_command = self._effector.make_say_message_command(self.world())
         if message_command:
