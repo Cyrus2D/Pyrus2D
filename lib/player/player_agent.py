@@ -336,8 +336,8 @@ class PlayerAgent(SoccerAgent):
                 if self.is_decision_time(timeout_count, waited_msec) or (self._last_decision_time != self._current_time and self.world().see_time() == self._current_time):
                     self.action()
             self.flush_logs()
-            if len(message) > 0:
-                print(pt.get())
+            # if len(message) > 0:
+            #     print(pt.get())
         self.send_bye_command()
 
     def debug_players(self):
