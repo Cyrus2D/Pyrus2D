@@ -444,6 +444,7 @@ class PlayerAgent(SoccerAgent):
             return False
 
         self._last_body_command.append(self.effector().set_catch())
+        return True
 
     def do_turn_neck(self, moment: AngleDeg) -> bool:
         self._last_body_command.append(self._effector.set_turn_neck(moment))
