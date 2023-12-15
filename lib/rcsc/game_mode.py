@@ -79,7 +79,7 @@ class GameMode:
             GameModeType.PenaltyReady_Left,
             GameModeType.PenaltyReady_Right,
             GameModeType.PenaltyTaken_Left,
-            GameModeType.PenaltyReady_Right,
+            GameModeType.PenaltyTaken_Right,
             GameModeType.PenaltyMiss_Left,
             GameModeType.PenaltyMiss_Right,
             GameModeType.PenaltyScore_Left,
