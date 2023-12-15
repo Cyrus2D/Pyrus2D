@@ -33,6 +33,7 @@ class SoccerAgent:
         parser.add_argument('-g', '--goalie',
                             help='Server Trainer port',
                             action='store_true')
+        parser.add_argument("-n",help="number of players",type=int,default=11)
         args = parser.parse_args()
 
         if args.team_name:
