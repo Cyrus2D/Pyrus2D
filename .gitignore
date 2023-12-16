@@ -2,6 +2,7 @@
 */__pycache__/
 */__pycache__/*
 *.pyc
+.vscode/
 venv/
 lib/network/__pycache__/udp_socket.cpython-36.pyc
 lib/Player/__pycache__/

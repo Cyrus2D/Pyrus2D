@@ -177,6 +177,13 @@ class GameModeType(Enum):
     PenaltyMiss_Right = "penalty_miss_r"
     PenaltyScore_Left = "penalty_score_l"
     PenaltyScore_Right = "penalty_score_r"
+    PenaltyOnfield_Left = "penalty_onfield_l"
+    PenaltyOnfield_Right = "penalty_onfield_r"
+    PenaltyFoul_Left = "penalty_foul_l"
+    PenaltyFoul_Right = "penalty_foul_r"
+    PenaltyWinner_Left = "penalty_winner_l"
+    PenaltyWinner_Right = "penalty_winner_r"
+
     GoalieCatchBall_Left = "goalie_catch_ball_l"
     GoalieCatchBall_Right = "goalie_catch_ball_r"
     IllegalDefense_Left = "illegal_defense_l"
@@ -231,6 +238,7 @@ class GameModeType(Enum):
 
     def is_ind_free_kick(self):
         return self == GameModeType.IndFreeKick_Left or self == GameModeType.IndFreeKick_Right
+    
 
     def is_penalty_setup(self):
         return self == GameModeType.PenaltySetup_Left or self == GameModeType.PenaltySetup_Right
