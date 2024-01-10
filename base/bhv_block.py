@@ -11,6 +11,7 @@ from lib.debug.debug import log
 
 if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
+    from lib.player.object_player import PlayerObject
 
 class Bhv_Block:
     def execute(self, agent: 'PlayerAgent'):
@@ -23,14 +24,14 @@ class Bhv_Block:
         block_cycle = 1000
         block_pos = Vector2D(0, 0)
         for unum in range(1, 12):
-            tm = wm.our_player(unum)
+            tm: PlayerObject = wm.our_player(unum)
             if tm is None:
                 continue
             if tm.unum() < 1:
                 continue
             for c in range(1, 40):
                 dribble_pos = ball_pos + Vector2D.polar2vector(c * dribble_speed_etimate, dribble_angle_estimate)
-                turn_cycle = Tools.predict_player_turn_cycle(tm.player_type(), tm.body(), tm.vel().r(), tm.pos().dist(dribble_pos), (dribble_pos - tm.pos()).th(), 0.2, False)
+                turn_cycle = Tools.predict_player_turn_cycle(tm.player_type(), tm._body, tm._vel_r, tm._pos.dist(dribble_pos), (dribble_pos - tm._pos).th(), 0.2, False)
                 tm_cycle = tm.player_type().cycles_to_reach_distance(tm.inertia_point(opp_min).dist(dribble_pos)) + turn_cycle
                 if tm_cycle <= opp_min + c:
                     if tm_cycle < block_cycle:

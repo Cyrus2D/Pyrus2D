@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class BallObject(Object):
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, string=None):
         super().__init__()

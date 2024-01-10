@@ -17,7 +17,7 @@ from lib.rcsc.types import SideID, ViewWidth
 
 class SelfObject(PlayerObject):
     FACE_COUNT_THR = 5
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self, player: PlayerObject = None):
         super().__init__()

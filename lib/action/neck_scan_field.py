@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class NeckScanField(NeckAction):
-    DEBUG = True
+    DEBUG = False
     
     INVALID_ANGLE = -360.
     

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class InterceptTable:
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self):
         self._last_update_time: GameTime = GameTime(-10, -100)

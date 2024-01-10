@@ -17,7 +17,7 @@ import math
 
 
 class Localizer:
-    DEBUG = True
+    DEBUG = False
     class PlayerT:
         def __init__(self) -> None:
             self.side_: SideID = SideID.NEUTRAL

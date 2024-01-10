@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 class NeckScanPlayers(NeckAction):
-    DEBUG = True
+    DEBUG = False
     
     INVALID_ANGLE = -360.0
     

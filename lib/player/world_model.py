@@ -19,7 +19,7 @@ from pyrusgeom.soccer_math import *
 from typing import List
 
 
-DEBUG=True
+DEBUG=False
 
 
 from typing import TYPE_CHECKING
@@ -43,7 +43,7 @@ def player_valid_check(p: PlayerObject):
     return p.pos_valid()
 
 class WorldModel:
-    DEBUG = True
+    DEBUG = False
     
     DIR_CONF_DIVS = 72
     DIR_STEP = 360. / DIR_CONF_DIVS

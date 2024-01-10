@@ -29,7 +29,7 @@ from lib.debug.timer import ProfileTimer as pt
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 
 
-DEBUG = True
+DEBUG = False
 
 
 def get_time_msec():

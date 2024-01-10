@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Messenger:
-    DEBUG = True
+    DEBUG = False
 
     class Types(Enum):
         BALL = 'b'

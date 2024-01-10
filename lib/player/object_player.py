@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class PlayerObject(Object):
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self, side: SideID = None, player: Localizer.PlayerT = None):
         super().__init__()

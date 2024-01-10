@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 control_area_buf = 0.15
 
-DEBUG = True
+DEBUG = False
 
 
 class SelfIntercept:
