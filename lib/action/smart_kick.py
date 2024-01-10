@@ -67,14 +67,14 @@ class SmartKick(BodyAction):
         if ans[0]:
             self._sequence = ans[1]
             if self._sequence.speed_ >= first_speed_thr:  # double check
-                vel = self._sequence.pos_list_[0] - wm.ball().pos()
-                kick_accel = vel - wm.ball().vel()
+                vel = self._sequence.pos_list_[0] - wm.ball()._pos
+                kick_accel = vel - wm.ball()._vel
                 if SmartKick.debug_print_DEBUG:
-                    log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
-                    log.sw_log().kick().add_text(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self().body()}")
+                    log.os_log().debug(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self()._body}")
+                    log.sw_log().kick().add_text(f"Kick Vel : {vel}, Kick Power : {kick_accel.r() / wm.self().kick_rate()}, Kick Angle : {kick_accel.th() - wm.self()._body}")
 
                 agent.do_kick(kick_accel.r() / wm.self().kick_rate(),
-                              kick_accel.th() - wm.self().body())
+                              kick_accel.th() - wm.self()._body)
                 if SmartKick.debug_print_DEBUG:
                     log.os_log().debug(f"----------------#### Player Number {wm.self().unum()} 'DO_KICK'ed in SmartKick at Time: {wm.time().cycle()} ####----------------")
                     log.sw_log().kick().add_text(f"----------------#### Player Number {wm.self().unum()} 'DO_KICK'ed in SmartKick at Time: {wm.time().cycle()} ####----------------")
