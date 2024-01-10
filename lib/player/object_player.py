@@ -217,6 +217,9 @@ class PlayerObject(Object):
         self._pointto_count = min(1000, self._pointto_count + 1)
         # self._kicking = min(1000, self._kicking + 1)
         self._tackle_count = min(1000, self._tackle_count + 1)
+        
+        # at end
+        self._update_helpers()
     
     def forgot(self):
         self._pos_count = 1000

@@ -27,12 +27,12 @@ class TurnToPoint:
 
     def execute(self, agent: 'PlayerAgent'):
         me = agent.world().self()
-
-        if not me.pos().is_valid():
+        
+        if not me._pos.is_valid():
             return agent.do_turn(60)
 
         my_point = me.inertia_point(self._cycle)
-        target_rel_angle = (self._point - my_point).th() - me.body()
+        target_rel_angle = (self._point - my_point).th() - me._body
 
         agent.do_turn(target_rel_angle)
         if target_rel_angle.abs() < 1:
@@ -58,7 +58,7 @@ class TurnToAngle(BodyAction):
         #     agent.do_turn(0.0)
         #     return False
 
-        agent.do_turn(self._angle - me.body())
+        agent.do_turn(self._angle - me._body)
         return True
 
 
@@ -74,7 +74,7 @@ class TurnToBall(BodyAction):
         self._cycle = cycle
 
     def execute(self, agent: 'PlayerAgent'):
-        if not agent.world().ball().posValid():
+        if not agent.world().ball().pos_valid():
             return False
 
         ball_point = agent.world().ball().inertia_point(self._cycle)
@@ -102,8 +102,8 @@ class TackleToPoint(BodyAction):
         if wm.self().tackle_probability() < self._min_prob:
             return False
 
-        target_angle = (self._point - wm.ball().pos()).th()
-        target_rel_angle = target_angle - wm.self().body()
+        target_angle = (self._point - wm.ball()._pos).th()
+        target_rel_angle = target_angle - wm.self()._body
 
         # if agent.config().version() < 12.0:
         #     if target_rel_angle.abs() < 90.0:
@@ -113,14 +113,14 @@ class TackleToPoint(BodyAction):
         #         return agent.do_tackle(- sp.maxBackTacklePower())
         #     return False
 
-        ball_rel_angle = wm.ball().rpos().th() - wm.self().body()
+        ball_rel_angle = wm.ball()._rpos.th() - wm.self()._body
 
         eff_power = sp.max_back_tackle_power() + (
                 (sp.max_tackle_power() - sp.max_back_tackle_power()) * (1.0 - target_rel_angle.abs() / 180.0))
         eff_power *= sp.tackle_power_rate()
         eff_power *= 1.0 - 0.5 * (ball_rel_angle.abs() / 180.0)
 
-        vel = wm.ball().vel() + Vector2D.polar2vector(eff_power, target_angle)
+        vel = wm.ball()._vel + Vector2D.polar2vector(eff_power, target_angle)
 
         if ((vel.th() - target_angle).abs() > 90.0  # never accelerate to the target direction
                 or vel.r() < self._min_speed):  # too small speed
@@ -199,6 +199,6 @@ class ArmOff(ArmAction):
     """
 
     def execute(self, agent: 'PlayerAgent'):
-        if agent.world().self().arm_movable() > 0:
+        if agent.world().self()._arm_movable > 0:
             return False
-        return agent.doPointtoOff()
+        return agent.do_pointto_off()

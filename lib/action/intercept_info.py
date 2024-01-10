@@ -67,11 +67,11 @@ class InterceptInfo:
         return self._stamina
 
     @staticmethod
-    def compare(lhs, rhs):
+    def compare(lhs: 'InterceptInfo', rhs: 'InterceptInfo'):
         return True if lhs.reach_cycle() < rhs.reach_cycle() else (
                 lhs.reach_cycle() == rhs.reach_cycle() and lhs.turn_cycle() < rhs.turn_cycle())
 
-    def __lt__(self, other):
+    def __lt__(self, other: 'InterceptInfo'):
         if self.reach_cycle() < other.reach_cycle():
             return True
         return self.reach_cycle() == other.reach_cycle() and self.turn_cycle() < other.turn_cycle()

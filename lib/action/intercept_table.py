@@ -81,7 +81,7 @@ class InterceptTable:
                 log.sw_log().intercept().add_text( "(intercept update) GAMEMODE RETURN")
             return
 
-        if not wm.self().pos().is_valid() or not wm.ball().pos().is_valid():
+        if not wm.self()._pos.is_valid() or not wm.ball()._pos.is_valid():
             log.sw_log().intercept().add_text( "(intercept update) self pos or ball pos is not valid")
             return
         
