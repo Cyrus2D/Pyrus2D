@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 class NeckScanPlayers(NeckAction):
-    DEBUG = True
+    DEBUG = False
     
     INVALID_ANGLE = -360.0
     
@@ -122,7 +122,7 @@ class NeckScanPlayers(NeckAction):
             if p.is_self():
                 continue
             
-            pos = p.pos() + p.vel()
+            pos = p._pos + p._vel
             angle = (pos - next_self_pos).th()
             
             if not angle.is_right_of(reduced_left_angle) or not angle.is_left_of(reduced_right_angle):
@@ -138,7 +138,7 @@ class NeckScanPlayers(NeckAction):
             pos_count += 1
             
             if our_ball:
-                if p.side() == wm.our_side() and (p.pos().x() > wm.ball().pos().x() - 10 or p.pos().x() > 30):
+                if p.side() == wm.our_side() and (p._pos.x() > wm.ball()._pos.x() - 10 or p._pos.x() > 30):
                     pos_count *=2
             
             base_val = pos_count**2

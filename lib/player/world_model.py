@@ -19,7 +19,7 @@ from pyrusgeom.soccer_math import *
 from typing import List
 
 
-DEBUG=True
+DEBUG=False
 
 
 from typing import TYPE_CHECKING
@@ -43,7 +43,7 @@ def player_valid_check(p: PlayerObject):
     return p.pos_valid()
 
 class WorldModel:
-    DEBUG = True
+    DEBUG = False
     
     DIR_CONF_DIVS = 72
     DIR_STEP = 360. / DIR_CONF_DIVS
@@ -598,12 +598,15 @@ class WorldModel:
         # my_pos: Vector2D = self._localizer.localize_self_simple(see, angle_face)
         my_pos, my_pos_err, my_possible_posses = self._localizer.localize_self(see, self.self().view_width(), angle_face, angle_face_error)
         if my_pos is None:
+            self.self()._update_helpers()
             return False
         if reverse_side:
             my_pos *= -1.0
 
         if my_pos.is_valid():
             self.self().update_pos_by_see(my_pos, my_pos_err, my_possible_posses, team_angle_face, angle_face_error, current_time)
+            
+        self.self()._update_helpers()
         
     def localize_ball(self, see: SeeParser, act: 'ActionEffector'):
         SP = ServerParam.i()
@@ -629,6 +632,7 @@ class WorldModel:
                 tvel_err *= SP.ball_decay()
                 self._ball.update_only_vel(tvel, tvel_err, 1)
             self._ball.update_only_relative_pos(rpos, rpos_err)
+            self._ball._update_helpers()
             return
         
         pos = self.self().pos() + rpos
@@ -677,6 +681,8 @@ class WorldModel:
                                   gvel, vel_err, vel_count)
         else:
             self._ball.update_pos(pos, pos_err, self.self().pos_count(), rpos, rpos_err)
+        
+        self._ball._update_helpers()
     
     def their_side(self):
         return SideID.LEFT if self._our_side is SideID.RIGHT else SideID.RIGHT
@@ -963,6 +969,9 @@ class WorldModel:
         self._teammates = list(filter(player_valid_check, self._teammates))
         self._opponents = list(filter(player_valid_check, self._opponents))
         log.os_log().debug(f'opp len {len(self._opponents)} E')
+        
+        for p in self._teammates + self._opponents + self._unknown_players:
+            p._update_helpers()
 
     def update_player_type(self):
         for p in self._teammates:
@@ -1353,6 +1362,7 @@ class WorldModel:
 
         for o in [self.ball()] + self._teammates + self._opponents + self._unknown_players:
             o.update_more_with_full_state(self)
+            o._update_helpers()
 
     def update_just_before_decision(self, act: 'ActionEffector', current_time: GameTime):
         self._set_play_count += 1
@@ -1379,7 +1389,8 @@ class WorldModel:
                                           self.intercept_table().self_reach_cycle(),
                                           self.intercept_table().teammate_reach_cycle(),
                                           self.intercept_table().opponent_reach_cycle())
-
+        for o in self._teammates + self._opponents + self._unknown_players + [self._ball]:
+            o._update_helpers()
         if DEBUG:
             log.sw_log().world().add_text('===After processing see message===')
             log.sw_log().world().add_text(f'self.kickrate={self.self().kick_rate()}')

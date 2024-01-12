@@ -17,7 +17,7 @@ from lib.rcsc.types import SideID, ViewWidth
 
 class SelfObject(PlayerObject):
     FACE_COUNT_THR = 5
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self, player: PlayerObject = None):
         super().__init__()
@@ -187,6 +187,9 @@ class SelfObject(PlayerObject):
         self._collides_with_ball = False
         self._collides_with_player = False
         self._collides_with_post = False
+        
+        # at end
+        self._update_helpers()
 
     def update_angle_by_see(self, face: float, angle_face_error, current_time: GameTime):
         self._time = current_time.copy()
@@ -356,6 +359,9 @@ class SelfObject(PlayerObject):
         self._change_focus_count = sense_body.change_focus_count()
         self._focus_point_dist = sense_body.focus_point_dist()
         self._focus_point_dir = AngleDeg(sense_body.focus_point_dir())
+        
+        # at end
+        self._update_helpers()
 
     def set_pointto(self,point: Vector2D, done_time: GameTime):
         self._pointto_pos = point.copy()

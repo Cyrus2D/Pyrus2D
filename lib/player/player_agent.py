@@ -29,7 +29,7 @@ from lib.debug.timer import ProfileTimer as pt
 from lib.parser.parser_message_fullstate_world import FullStateWorldMessageParser
 
 
-DEBUG = True
+DEBUG = False
 
 
 def get_time_msec():
@@ -504,6 +504,10 @@ class PlayerAgent(SoccerAgent):
 
     def do_attentionto_off(self):
         self._last_body_command.append(self._effector.set_attentionto_off())
+        return True
+    
+    def do_pointto_off(self):
+        self._last_body_command.append(self._effector.set_pointto_off())
         return True
 
     if team_config.WORLD_IS_REAL_WORLD:

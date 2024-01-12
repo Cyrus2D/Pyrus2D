@@ -6,6 +6,7 @@ from pyrusgeom.geom_2d import *
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
+    from lib.player.player_agent import PlayerAgent
     
 class GoToPoint:
     _dir_thr: float
@@ -20,7 +21,7 @@ class GoToPoint:
         self._dir_thr = dir_thr
         self._back_mode = False
 
-    def execute(self, agent):
+    def execute(self, agent: 'PlayerAgent'):
         if math.fabs(self._max_dash_power) < 0.1 or math.fabs(self._dash_speed) < 0.01:
             agent.do_turn(0)
             return True
@@ -52,7 +53,7 @@ class GoToPoint:
         target_rel: Vector2D = self._target - inertia_pos
         target_dist = target_rel.r()
         max_turn = wm.self().player_type().effective_turn(SP.i().max_moment(), wm.self().vel().r())
-        turn_moment: AngleDeg = target_rel.th() - wm.self().body()
+        turn_moment: AngleDeg = target_rel.th() - wm.self()._body
         if turn_moment.abs() > max_turn and turn_moment.abs() > 90.0 and target_dist < 2.0 and wm.self().stamina_model().stamina() > SP.i().recover_dec_thr_value() + 500.0:
             effective_power = SP.i().max_dash_power() * wm.self().dash_rate()
             effective_back_power = SP.i().min_dash_power() * wm.self().dash_rate()
@@ -112,8 +113,8 @@ class GoToPoint:
         goal_post_r = Vector2D(-SP.i().pitch_half_length() + SP.i().goal_post_radius(),
                                +SP.i().goal_half_width() + SP.i().goal_post_radius())
 
-        dist_post_l = wm.self().pos().dist2(goal_post_l)
-        dist_post_r = wm.self().pos().dist2(goal_post_r)
+        dist_post_l = wm.self()._pos.dist2(goal_post_l)
+        dist_post_r = wm.self()._pos.dist2(goal_post_r)
 
         nearest_post = goal_post_l
         if dist_post_l > dist_post_r:
@@ -124,14 +125,14 @@ class GoToPoint:
             return
 
         post_circle = Circle2D(nearest_post, collision_dist)
-        move_line = Segment2D(wm.self().pos(), self._target)
+        move_line = Segment2D(wm.self()._pos, self._target)
         if len(post_circle.intersection(move_line)) == 0:
             return
 
-        post_angle: AngleDeg = AngleDeg((nearest_post - wm.self().pos()).th())
+        post_angle: AngleDeg = AngleDeg((nearest_post - wm.self()._pos).th())
         new_target: Vector2D = nearest_post
 
-        if post_angle.is_left_of(wm.self().body()):
+        if post_angle.is_left_of(wm.self()._body):
             new_target += Vector2D.from_polar(collision_dist + 0.1, post_angle + 90.0)
         else:
             new_target += Vector2D.from_polar(collision_dist + 0.1, post_angle - 90.0)

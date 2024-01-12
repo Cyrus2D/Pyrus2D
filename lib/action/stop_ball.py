@@ -39,11 +39,11 @@ class StopBall(BodyAction):
         if not wm.self().is_kickable():
             return False
         if not wm.ball().vel_valid():  # Always true until NFS nice :)
-            required_accel = wm.self().vel() - (wm.self().pos() - wm.ball().pos())
+            required_accel = wm.self()._vel - (wm.self()._pos - wm.ball()._pos)
             kick_power = required_accel.r() / wm.self().kick_rate()
             kick_power *= 0.5
             agent.do_kick(min(kick_power, ServerParam.i().max_power()),
-                          required_accel.th() - wm.self().body())
+                          required_accel.th() - wm.self()._body)
             return True
 
         self._accel_radius = 0.0
@@ -59,7 +59,7 @@ class StopBall(BodyAction):
         # kick_power = min(kick_power, i.maxPower())
 
         return agent.do_kick(kick_power,
-                             self._accel_angle - wm.self().body())
+                             self._accel_angle - wm.self()._body)
 
     def calcAccel(self, agent):
 
@@ -74,13 +74,13 @@ class StopBall(BodyAction):
         if target_dist > wm.self().player_type().kickable_area() - 0.1:
             target_dist = wm.self().player_type().kickable_area() - 0.1
 
-        target_rel = wm.self().pos() - wm.ball().pos()
+        target_rel = wm.self()._pos - wm.ball()._pos
         target_rel.set_length(target_dist)
 
         required_accel = wm.self().vel()
         required_accel += target_rel  # target relative to current
-        required_accel -= wm.self().pos() - wm.ball().pos()  # vel = pos diff
-        required_accel -= wm.ball().vel()  # required accel
+        required_accel -= wm.self()._pos - wm.ball()._pos  # vel = pos diff
+        required_accel -= wm.ball()._vel  # required accel
 
         self._accel_radius = required_accel.r()
 
@@ -99,8 +99,8 @@ class StopBall(BodyAction):
         # keep the ball as much as possible near the best point
 
         next_ball_to_self = wm.self().vel()
-        next_ball_to_self -= wm.self().pos() - wm.ball().pos()
-        next_ball_to_self -= wm.ball().vel()
+        next_ball_to_self -= wm.self()._pos - wm.ball()._pos
+        next_ball_to_self -= wm.ball()._vel
 
         keep_dist = wm.self().player_type().player_size() + wm.self().player_type().kickable_margin() * 0.4
 
