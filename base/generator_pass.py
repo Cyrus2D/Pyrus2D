@@ -319,12 +319,13 @@ class BhvPassGen(BhvKickGen):
                     continue
 
                 nearest_receiver = Tools.get_nearest_teammate(wm, receive_point, self.receivers)
-                if nearest_receiver.unum() != receiver.unum():
-                    if debug_pass:
-                        log.sw_log().pass_().add_text(
-                            '#####TPass to {} {}, {} is closer than receiver '.format(receiver.unum(), receive_point,
-                                                                                      nearest_receiver.unum()))
-                    continue
+                if nearest_receiver is not None:
+                    if nearest_receiver.unum() != receiver.unum():
+                        if debug_pass:
+                            log.sw_log().pass_().add_text(
+                                '#####TPass to {} {}, {} is closer than receiver '.format(receiver.unum(), receive_point,
+                                                                                        nearest_receiver.unum()))
+                        continue
 
                 receiver_step = self.predict_receiver_reach_step(receiver, receive_point, True,
                                                                  'T') + move_dist_penalty_step
