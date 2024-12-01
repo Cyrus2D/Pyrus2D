@@ -7,22 +7,34 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._pos_error = Vector2D(0, 0)
         self._pos_count: int = 1000
         self._possible_poses: list[Vector2D] = []
+        self._pos_r: float = 0
+        self._pos_th: AngleDeg = AngleDeg(0)
 
         self._seen_pos: Vector2D = Vector2D.invalid()
         self._seen_pos_count: int = 1000
+        self._seen_pos_r: float = 0
+        self._seen_pos_th: AngleDeg = AngleDeg(0)
 
         self._heard_pos: Vector2D = Vector2D.invalid()
         self._heard_pos_count: int = 1000
+        self._heard_pos_r: float = 0
+        self._heard_pos_th: AngleDeg = AngleDeg(0)
 
         self._vel = Vector2D.invalid()
         self._vel_error = Vector2D(0, 0)
         self._vel_count: int = 1000
-
+        self._vel_r: float = 0
+        self._vel_th: AngleDeg = AngleDeg(0)
+        
         self._seen_vel: Vector2D = Vector2D.invalid()
         self._seen_vel_count: int = 1000
+        self._seen_vel_r: float = 0
+        self._seen_vel_th: AngleDeg = AngleDeg(0)
 
         self._heard_vel: Vector2D = Vector2D.invalid()
         self._heard_vel_count: int = 100
+        self._heard_vel_r: float = 0
+        self._heard_vel_th: AngleDeg = AngleDeg(0)
 
         self._rpos = Vector2D.invalid()
         self._rpos_error = Vector2D(0, 0)
@@ -150,6 +162,20 @@ class Object: # TODO IMPORTANT; Getter functions do not have to return a copy of
         self._dist_from_ball: float = (wm.ball().pos() - self.pos())
         self._angle_from_ball: AngleDeg = (wm.ball().pos() - self.pos()).th()
 
+    def _update_helpers(self):
+        self._pos_th = self._pos.th()
+        self._vel_th = self._vel.th()
+        self._seen_pos_th = self._seen_pos.th()
+        self._seen_vel_th = self._seen_vel.th()
+        self._heard_pos_th = self._heard_pos.th()
+        self._heard_vel_th = self._heard_vel.th()
+        self._pos_r = self._pos.r()
+        self._vel_r = self._vel.r()
+        self._seen_pos_r = self._seen_pos.r()
+        self._seen_vel_r = self._seen_vel.r()
+        self._heard_pos_r = self._heard_pos.r()
+        self._heard_vel_r = self._heard_vel.r()
+        
     def _update_rpos(self, wm):
         self._rpos: Vector2D = self._pos - wm.self().pos()
 

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from lib.player.player_agent import PlayerAgent
 
 
-DEBUG = True
+DEBUG = False
 
 def decision(agent: 'PlayerAgent'):
     SP = ServerParam.i()

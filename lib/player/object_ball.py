@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class BallObject(Object):
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, string=None):
         super().__init__()
@@ -126,6 +126,9 @@ class BallObject(Object):
         self._seen_vel_count = min(1000, self._seen_vel_count + 1)
         self._heard_vel_count = min(1000, self._heard_vel_count + 1)
         self._lost_count = min(1000, self._lost_count + 1)
+        
+        # at end
+        self._update_helpers()
     
     def update_only_vel(self, vel: Vector2D, vel_err: Vector2D, vel_count:int):
         self._vel = vel.copy()
