@@ -6,7 +6,9 @@ python_env=.venv/bin/activate
 source $python_env
 
 # Set the options, all the options are passed as environment variables
-options=$@
+log_path="logs/$(date +%Y-%m-%d_%H-%M-%S)"
+options="--log-path $log_path"
+options="$options $@"
 
 echo "Options: $options"
 

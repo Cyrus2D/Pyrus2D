@@ -29,23 +29,24 @@ def get_logger(unum: Union[int, str] = None):
             lineno=dict(color='white'),
         )
     )
-    if unum == 'coach':
-        file_name = 'coach.txt'
-    elif unum > 0:
-        file_name = f'player-{unum}.txt'
-    else:
-        file_name = f'before-set-log.txt'
-    path = team_config.LOG_PATH
-    
     # remove all handlers
     for handler in logger.handlers:
         logger.removeHandler(handler)
 
-    file_ch = logging.StreamHandler(stream=open(f'{path}/{file_name}', 'w'))
-    file_ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
-                                        '%H:%M:%S:%s'))
-    file_ch.setLevel(level=team_config.FILE_LOG_LEVEL)
-    logger.addHandler(hdlr=file_ch)
+    if not team_config.DISABLE_FILE_LOG:
+        if unum == 'coach':
+            file_name = 'coach.txt'
+        elif unum > 0:
+            file_name = f'player-{unum}.txt'
+        else:
+            file_name = f'before-set-log.txt'
+        path = team_config.LOG_PATH
+        
+        file_ch = logging.StreamHandler(stream=open(f'{path}/{file_name}', 'w'))
+        file_ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
+                                            '%H:%M:%S:%s'))
+        file_ch.setLevel(level=team_config.FILE_LOG_LEVEL)
+        logger.addHandler(hdlr=file_ch)
     
     console_ch = logging.StreamHandler(stream=sys.stdout)
     console_ch.setFormatter(fmt=coloredFormatter)

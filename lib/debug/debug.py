@@ -10,13 +10,15 @@ from lib.rcsc.game_time import GameTime
 
 class DebugLogger:
     def __init__(self):
-        if not os.path.exists(team_config.LOG_PATH):
+        if not team_config.DISABLE_FILE_LOG and not os.path.exists(team_config.LOG_PATH):
             os.makedirs(team_config.LOG_PATH)
         self._sw_log: SoccerWindow_Logger = SoccerWindow_Logger('NA', 1, GameTime(0, 0))
         self._os_log: Logger = get_logger(0)
         self._debug_client: DebugClient = None
 
     def setup(self, team_name, unum, time):
+        if not team_config.DISABLE_FILE_LOG and not os.path.exists(team_config.LOG_PATH):
+            os.makedirs(team_config.LOG_PATH)
         self.set_stderr(unum)
         self._sw_log = SoccerWindow_Logger(team_name, unum, time)
         self._os_log = get_logger(unum)
@@ -35,6 +37,8 @@ class DebugLogger:
         self._time.assign(t.cycle(), t.stopped_cycle())
         
     def set_stderr(self, unum):
+        if team_config.DISABLE_FILE_LOG:
+            return
         if unum == 'coach':
             file_name = 'coach.err'
         elif unum > 0:
