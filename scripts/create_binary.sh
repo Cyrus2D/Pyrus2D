@@ -14,20 +14,20 @@ mkdir binary
 
 # create binary
 
-nuitka --standalone --onefile --output-dir=binary ../main_player.py
-nuitka --standalone --onefile --output-dir=binary ../main_coach.py
+nuitka --standalone --onefile --output-dir=binary ../main.py
 
 # remove build directory
 
-rm -rf binary/main_player.build
-rm -rf binary/main_player.dist
-rm -rf binary/main_player.onefile-build
-
-rm -rf binary/main_coach.build
-rm -rf binary/main_coach.dist
-rm -rf binary/main_coach.onefile-build
+rm -rf binary/main.build
+rm -rf binary/main.dist
+rm -rf binary/main.onefile-build
 
 # # copy start to binary directory
 
 cp start binary/start
 cp startAll binary/startAll
+
+# make base/formation_dt
+
+mkdir binary/base
+cp -r ../base/formation_dt binary/base/formation_dt

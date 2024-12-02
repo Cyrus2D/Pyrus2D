@@ -4,20 +4,20 @@ HOST=$1
 BASEDIR=$2
 NUM=$3
 
-teamname="PYRUS"
+teamname="PYRUS2"
 
 cd $BASEDIR
 
-options=""
+options="-t $teamname --disable-file-log"
 
 case $NUM in
     1)
-        ./main_player.bin $options -g
+        ./main.bin $options --goalie > /dev/null 2>&1
         ;;
     12)
-        ./main_coach.bin $options
+        ./main.bin $options --coach > /dev/null 2>&1
         ;;
     *)
-        ./main_player.bin $options
+        ./main.bin $options --player > /dev/null 2>&1
         ;;
 esac
