@@ -5,6 +5,7 @@ from base.sample_coach import SampleCoach
 from base.sample_player import SamplePlayer
 import team_config
 import logging
+import sys
 
 
 def update_team_config(args):
@@ -66,7 +67,12 @@ def main():
     if not agent.handle_start():
         agent.handle_exit()
         return
-    agent.run()
+    try:
+        agent.run()
+    except KeyboardInterrupt:
+        print("\nApplication interrupted. Exiting...")
+        agent.handle_exit()
+        sys.exit(0)
         
 if __name__ == "__main__":
     main()
