@@ -1,0 +1,23 @@
+#!/bin/sh
+
+HOST=$1
+BASEDIR=$2
+NUM=$3
+
+teamname="PYRUS"
+
+cd $BASEDIR
+
+options=""
+
+case $NUM in
+    1)
+        ./main_player.bin $options -g
+        ;;
+    12)
+        ./main_coach.bin $options
+        ;;
+    *)
+        ./main_player.bin $options
+        ;;
+esac
