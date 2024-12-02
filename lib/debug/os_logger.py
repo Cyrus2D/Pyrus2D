@@ -1,18 +1,20 @@
 import logging
 from typing import Union
-
+import datetime
 import coloredlogs
 import sys
+import os
+import team_config
 
 
-def get_logger(unum: Union[int, str] = None, on_file=False):
+def get_logger(unum: Union[int, str] = None):
     logging.basicConfig()
     logger = logging.getLogger(name='mylogger')
     coloredlogs.install(logger=logger)
     logger.propagate = False
     coloredFormatter = coloredlogs.ColoredFormatter(
         datefmt='%H:%M:%S:%s',
-        fmt=f'%(asctime)s %(filename)s %(lineno)-3d {unum} %(message)s',
+        fmt=f'%(asctime)s %(filename)s u{unum} %(lineno)-3d %(levelname)s %(message)s',
         level_styles=dict(
             debug=dict(color='white'),
             info=dict(color='green'),
@@ -27,21 +29,28 @@ def get_logger(unum: Union[int, str] = None, on_file=False):
             lineno=dict(color='white'),
         )
     )
-    if on_file:
-        if unum == 'coach':
-            file_name = 'coach.txt'
-        elif unum > 0:
-            file_name = f'player-{unum}.txt'
-        else:
-            file_name = f'coach-log.txt'
-        ch = logging.StreamHandler(stream=open(file_name, 'w'))
-        ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
-                                          '%H:%M:%S:%s'))
+    if unum == 'coach':
+        file_name = 'coach.txt'
+    elif unum > 0:
+        file_name = f'player-{unum}.txt'
     else:
-        ch = logging.StreamHandler(stream=sys.stdout)
-        ch.setFormatter(fmt=coloredFormatter)
-    logger.addHandler(hdlr=ch)
-    logger.setLevel(level=logging.DEBUG)
+        file_name = f'before-set-log.txt'
+    path = team_config.LOG_PATH
+    
+    # remove all handlers
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+
+    file_ch = logging.StreamHandler(stream=open(f'{path}/{file_name}', 'w'))
+    file_ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
+                                        '%H:%M:%S:%s'))
+    file_ch.setLevel(level=team_config.FILE_LOG_LEVEL)
+    logger.addHandler(hdlr=file_ch)
+    
+    console_ch = logging.StreamHandler(stream=sys.stdout)
+    console_ch.setFormatter(fmt=coloredFormatter)
+    console_ch.setLevel(level=team_config.CONSOLE_LOG_LEVEL)
+    logger.addHandler(hdlr=console_ch)
     return logger
 
 # logger = get_logger()

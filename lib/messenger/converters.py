@@ -29,11 +29,9 @@ class MessengerConverter:
         n_chars = len(chars)
         words = []
         while s != 0:
-            # print(s)
             words.append(s % n_chars)
             s = s // n_chars
             log.os_log().debug(f's={s}')
-        # print(s)
         # words.append(s)
         msg = ''
         for word in words:
@@ -80,10 +78,8 @@ def convert_to_bits(values_min_max_sizes: list[tuple[float, float, float, int]])
 
         s += int(v)
 
-        print(f'{int(v)}, {s}', end=', ')
         if i != len(values_min_max_sizes) - 1:
             s *= values_min_max_sizes[i + 1][-1]
-        print(s)
     return s
 
 

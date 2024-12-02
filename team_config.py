@@ -1,4 +1,6 @@
 from enum import Enum
+import datetime
+import logging
 
 
 class OUT_OPTION(Enum):
@@ -7,7 +9,9 @@ class OUT_OPTION(Enum):
 
 
 TEAM_NAME = "PYRUS"
-OUT = OUT_OPTION.TEXTFILE
+LOG_PATH = f'logs/{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}'
+FILE_LOG_LEVEL = logging.ERROR
+CONSOLE_LOG_LEVEL = logging.ERROR
 HOST = 'localhost'
 PLAYER_PORT = 6000
 TRAINER_PORT = 6001

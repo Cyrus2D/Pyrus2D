@@ -337,7 +337,7 @@ class PlayerAgent(SoccerAgent):
                     self.action()
             self.flush_logs()
             if len(message) > 0:
-                print(pt.get())
+                log.os_log().debug(pt.get())
         self.send_bye_command()
 
     def debug_players(self):

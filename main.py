@@ -4,6 +4,7 @@ from lib.player.basic_client import BasicClient
 from base.sample_coach import SampleCoach
 from base.sample_player import SamplePlayer
 import team_config
+import logging
 
 
 def update_team_config(args):
@@ -25,6 +26,15 @@ def update_team_config(args):
     if args.trainer_port:
         team_config.TRAINER_PORT = args.trainer_port
         
+    if args.log_path:
+        team_config.LOG_PATH = args.log_path
+    
+    if args.file_log_level:
+        team_config.FILE_LOG_LEVEL = getattr(logging, args.file_log_level.upper(), logging.INFO)
+
+    if args.console_log_level:
+        team_config.CONSOLE_LOG_LEVEL = getattr(logging, args.console_log_level.upper(), logging.INFO)
+        
 def main():
     parser = argparse.ArgumentParser(description='Run a player or a coach')
     parser.add_argument('--player', action='store_true', help='Run a player')
@@ -36,6 +46,9 @@ def main():
     parser.add_argument('-p', '--player-port', help='Server Player port')
     parser.add_argument('-P', '--coach-port', help='Server Coach port')
     parser.add_argument('--trainer-port', help='Server Trainer port')
+    parser.add_argument('--log-path', help='Path to store logs')
+    parser.add_argument('--file-log-level', help='Log level for file')
+    parser.add_argument('--console-log-level', help='Log level for console')
     args = parser.parse_args()
     
     update_team_config(args)
