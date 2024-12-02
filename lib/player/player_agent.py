@@ -37,8 +37,8 @@ def get_time_msec():
 
 
 class PlayerAgent(SoccerAgent):
-    def __init__(self):
-        self._goalie: bool = False
+    def __init__(self, goalie: bool = False):
+        self._goalie: bool = goalie
         super(PlayerAgent, self).__init__()
         self._think_received = False
         self._current_time: GameTime = GameTime()
