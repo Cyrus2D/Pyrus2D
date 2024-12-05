@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import team_config
+from lib.debug.debug import log
+
 
 parser = argparse.ArgumentParser(description='Run a player or a coach')
 parser.add_argument('--player', action='store_true', help='Run a player', default=True)
@@ -46,4 +48,10 @@ def main():
         sys.exit(0)
         
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        log.os_log().error(f"Error: {e}")
+        log.os_log().error(traceback.format_exc())
