@@ -3,11 +3,10 @@ import argparse
 import team_config
 
 parser = argparse.ArgumentParser(description='Run a player or a coach')
-parser.add_argument('--player', action='store_true', help='Run a player')
+parser.add_argument('--player', action='store_true', help='Run a player', default=True)
 parser.add_argument('--coach', action='store_true', help='Run a coach')
 parser.add_argument('--goalie', action='store_true', help='Run a goalie')
 parser.add_argument('-t', '--team-name', help='Team name to display')
-parser.add_argument('-o', '--out', help='Output type(values->[std, textfile]). std for print on standard stream, unum for print to seperated files.')
 parser.add_argument('-H', '--host', help='Server IP address')
 parser.add_argument('-p', '--player-port', help='Server Player port')
 parser.add_argument('-P', '--coach-port', help='Server Coach port')
