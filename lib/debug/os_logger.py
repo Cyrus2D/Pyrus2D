@@ -42,7 +42,7 @@ def get_logger(unum: Union[int, str] = None):
             file_name = f'before-set-log.txt'
         path = team_config.LOG_PATH
         
-        file_ch = logging.StreamHandler(stream=open(f'{path}/{file_name}', 'w'))
+        file_ch = logging.FileHandler(filename=f'{path}/{file_name}', mode='w')
         file_ch.setFormatter(logging.Formatter('%(asctime)s %(filename)s %(lineno)-3d  %(message)s',
                                             '%H:%M:%S:%s'))
         file_ch.setLevel(level=team_config.FILE_LOG_LEVEL)
@@ -52,6 +52,9 @@ def get_logger(unum: Union[int, str] = None):
     console_ch.setFormatter(fmt=coloredFormatter)
     console_ch.setLevel(level=team_config.CONSOLE_LOG_LEVEL)
     logger.addHandler(hdlr=console_ch)
+    
+    logger.setLevel(logging.DEBUG)  # Set the logger level to DEBUG to capture all levels
+
     return logger
 
 # logger = get_logger()
