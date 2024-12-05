@@ -387,6 +387,8 @@ class PlayerAgent(SoccerAgent):
             self._full_world.parse(message)
         elif message.startswith("(think"):
             self._think_received = True
+        elif message.startswith("(ok synch_see)"):
+            log.os_log().info("synch_see is ok")
         else:
             log.os_log().error(f'Pyrus can not parse this message: {message}')
 
@@ -508,12 +510,18 @@ class PlayerAgent(SoccerAgent):
 
     if team_config.WORLD_IS_REAL_WORLD:
         def world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
 
         def main_world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
 
         def first_world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
     else:
         def world(self) -> WorldModel:
