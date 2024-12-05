@@ -3,11 +3,6 @@ import datetime
 import logging
 
 
-class OUT_OPTION(Enum):
-    STDOUT = 'std'
-    TEXTFILE = 'textfile'
-
-
 TEAM_NAME = "PYRUS"
 LOG_PATH = f'logs/{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}'
 FILE_LOG_LEVEL = logging.ERROR
@@ -36,9 +31,6 @@ def update_team_config(args):
     import team_config
     if args.team_name:
         team_config.TEAM_NAME = args.team_name
-
-    if args.out:
-        team_config.OUT = team_config.OUT_OPTION(args.out)
 
     if args.host:
         team_config.HOST = args.host
