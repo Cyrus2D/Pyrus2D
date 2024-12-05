@@ -458,9 +458,11 @@ class ActionEffector:
             moment = min_max(SP.min_neck_moment(), moment, SP.max_neck_moment())
 
         next_neck_angle = wm.self().neck().degree() + moment
-        if not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
+        if SP.min_neck_angle() - 0.1 <= next_neck_angle <= SP.max_neck_angle() + 0.1:
+            moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
+        elif not(SP.min_neck_angle() < next_neck_angle < SP.max_neck_angle()):
             log.os_log().error(f"(set turn neck) player({wm.self().unum()}) \
-                next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle}")
+                next neck angle is out of range at cycle {wm.time()}. next neck angle={next_neck_angle} {SP.min_neck_angle()} {SP.max_neck_angle()}")
             moment = min_max(SP.min_neck_angle(), next_neck_angle, SP.max_neck_angle()) - wm.self().neck().degree()
         self._turn_neck_moment = moment
 
