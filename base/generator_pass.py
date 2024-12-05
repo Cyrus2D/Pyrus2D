@@ -111,9 +111,6 @@ class BhvPassGen(BhvKickGen):
         receive_point = ptype.inertiaFinalPoint(receiver.pos(), receiver.vel())
         ball_move_dist = wm.ball().pos().dist(receive_point)
 
-        if receive_point.x() >= wm.offside_line_x():
-            receive_point = Vector2D(wm.offside_line_x() - 0.5, receive_point.y())
-
         if ball_move_dist < min_direct_pass_dist or max_direct_pass_dist < ball_move_dist:
             if debug_pass:
                 log.sw_log().pass_().add_text( '#DPass to {} {}, far or close'.format(receiver.unum(), receiver.pos()))
@@ -183,10 +180,6 @@ class BhvPassGen(BhvKickGen):
             for a in range(abgle_divs + 1):
                 angle = angle_from_ball + angle_step * a
                 receive_point = receiver.inertia_point(1) + Vector2D.from_polar(player_move_dist, angle)
-                
-                if receive_point.x() >= wm.offside_line_x():
-                    receive_point = Vector2D(wm.offside_line_x() - 0.5, receive_point.y())
-
                 move_dist_penalty_step = 0
                 ball_move_line = Line2D(wm.ball().pos(), receive_point)
                 player_line_dist = ball_move_line.dist(receiver.pos())
