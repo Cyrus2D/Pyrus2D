@@ -25,3 +25,4 @@ log
 .gitignore
 test-log
 main_tmp.py
+logs/

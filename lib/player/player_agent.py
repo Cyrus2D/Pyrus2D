@@ -37,8 +37,8 @@ def get_time_msec():
 
 
 class PlayerAgent(SoccerAgent):
-    def __init__(self):
-        self._goalie: bool = False
+    def __init__(self, goalie: bool = False):
+        self._goalie: bool = goalie
         super(PlayerAgent, self).__init__()
         self._think_received = False
         self._current_time: GameTime = GameTime()
@@ -337,7 +337,7 @@ class PlayerAgent(SoccerAgent):
                     self.action()
             self.flush_logs()
             if len(message) > 0:
-                print(pt.get())
+                log.os_log().debug(pt.get())
         self.send_bye_command()
 
     def debug_players(self):
@@ -387,6 +387,8 @@ class PlayerAgent(SoccerAgent):
             self._full_world.parse(message)
         elif message.startswith("(think"):
             self._think_received = True
+        elif message.startswith("(ok synch_see)"):
+            log.os_log().info("synch_see is ok")
         else:
             log.os_log().error(f'Pyrus can not parse this message: {message}')
 
@@ -508,12 +510,18 @@ class PlayerAgent(SoccerAgent):
 
     if team_config.WORLD_IS_REAL_WORLD:
         def world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
 
         def main_world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
 
         def first_world(self):
+            if team_config.WORLD_IS_FULL_WORLD_IF_EXIST and self.full_world_exists():
+                return self._full_world
             return self._real_world
     else:
         def world(self) -> WorldModel:

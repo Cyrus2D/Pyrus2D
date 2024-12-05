@@ -1,25 +1,57 @@
+#!/usr/bin/python3
 import argparse
-from time import sleep
-import base.main_player as main_p
-import base.main_coach as main_c
-import multiprocessing as mp
 import team_config
+from lib.debug.debug import log
 
 
-players = []
+parser = argparse.ArgumentParser(description='Run a player or a coach')
+parser.add_argument('--player', action='store_true', help='Run a player', default=True)
+parser.add_argument('--coach', action='store_true', help='Run a coach')
+parser.add_argument('--goalie', action='store_true', help='Run a goalie')
+parser.add_argument('-t', '--team-name', help='Team name to display')
+parser.add_argument('-H', '--host', help='Server IP address')
+parser.add_argument('-p', '--player-port', help='Server Player port')
+parser.add_argument('-P', '--coach-port', help='Server Coach port')
+parser.add_argument('--trainer-port', help='Server Trainer port')
+parser.add_argument('--log-path', help='Path to store logs')
+parser.add_argument('--file-log-level', help='Log level for file')
+parser.add_argument('--console-log-level', help='Log level for console')
+parser.add_argument('--disable-file-log', action='store_true', help='Disable file logging')
+args = parser.parse_args()
 
-goalie = mp.Process(target=main_p.main, args=(1,True))
-goalie.start()
+team_config.update_team_config(args)
 
-players.append(goalie)
+from base.sample_coach import SampleCoach
+from base.sample_player import SamplePlayer
+import sys
 
-for i in range(2,12):
-    proc = mp.Process(target=main_p.main, args=(i,False))
-    proc.start()
-    players.append(proc)
-    sleep(0.25)
-
-sleep(5)
-
-coach = mp.Process(target=main_c.main)
-coach.start()
+        
+def main():
+    if args.player:
+        agent = SamplePlayer()
+    elif args.coach:
+        agent = SampleCoach()
+    elif args.goalie:
+        agent = SamplePlayer(True)
+    else:
+        print("Please specify --player or --coach")
+        return
+        
+    if not agent.handle_start():
+        agent.handle_exit()
+        return
+    try:
+        agent.run()
+    except KeyboardInterrupt:
+        print("\nApplication interrupted. Exiting...")
+        agent.handle_exit()
+        sys.exit(0)
+        
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        log.os_log().error(f"Error: {e}")
+        log.os_log().error(traceback.format_exc())

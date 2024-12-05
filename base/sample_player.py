@@ -15,8 +15,8 @@ from lib.rcsc.types import GameModeType
 
 
 class SamplePlayer(PlayerAgent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, goalie=False):
+        super().__init__(goalie)
 
         self._communication = SampleCommunication()
     

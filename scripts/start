@@ -1,0 +1,23 @@
+#!/bin/sh
+
+HOST=$1
+BASEDIR=$2
+NUM=$3
+
+teamname="PYRUS2"
+
+cd $BASEDIR
+
+options="-t $teamname --disable-file-log"
+
+case $NUM in
+    1)
+        ./main.bin $options --goalie > /dev/null 2>&1
+        ;;
+    12)
+        ./main.bin $options --coach > /dev/null 2>&1
+        ;;
+    *)
+        ./main.bin $options --player > /dev/null 2>&1
+        ;;
+esac
