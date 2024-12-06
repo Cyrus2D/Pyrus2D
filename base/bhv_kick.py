@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from lib.player.world_model import WorldModel
     from lib.player.player_agent import PlayerAgent
 
+from pyrusgeom.geom_2d import Vector2D
 
 class BhvKick:
     def __init__(self):
@@ -40,12 +41,17 @@ class BhvKick:
 
             if len(action_candidates) == 0:
                 return self.no_candidate_action(agent)
-
+        
             best_action: KickAction = max(action_candidates)
 
             target = best_action.target_ball_pos
+            if target.x() >= wm.offside_line_x():
+                target = Vector2D(wm.offside_line_x() - 0.5, target.y())
+            if len(wm.opponents()) == 0 and best_action.type is KickActionType.Pass:
+                best_action = max(action_candidates, key=lambda x: x.eval and x.type is not KickActionType.Pass)         
             log.debug_client().set_target(target)
             log.debug_client().add_message(best_action.type.value + 'to ' + best_action.target_ball_pos.__str__() + ' ' + str(best_action.start_ball_speed))
+
             SmartKick(target, best_action.start_ball_speed, best_action.start_ball_speed - 1, 3).execute(agent)
 
             if best_action.type is KickActionType.Pass:

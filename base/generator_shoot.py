@@ -117,6 +117,9 @@ class BhvShhotGen(BhvKickGen):
 
         for o in range(1, 12):
             opp = wm.their_player(o)
+            if opp is None:
+                log.sw_log().shoot().add_text( '## opp {} can not, none')
+                continue
             if opp.unum() < 1:
                 log.sw_log().shoot().add_text( '## opp {} can not, unum')
                 continue

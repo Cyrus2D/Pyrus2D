@@ -180,7 +180,6 @@ class BhvPassGen(BhvKickGen):
             for a in range(abgle_divs + 1):
                 angle = angle_from_ball + angle_step * a
                 receive_point = receiver.inertia_point(1) + Vector2D.from_polar(player_move_dist, angle)
-
                 move_dist_penalty_step = 0
                 ball_move_line = Line2D(wm.ball().pos(), receive_point)
                 player_line_dist = ball_move_line.dist(receiver.pos())

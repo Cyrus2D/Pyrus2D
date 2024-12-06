@@ -50,7 +50,7 @@ class BhvDribbleGen(BhvKickGen):
         for a in range(angle_div):
             dash_angle = wm.self().body() + (angle_step * a)
 
-            if wm.self().pos().x() < 16.0 and dash_angle.abs() > 100.0:
+            if dash_angle.abs() > 100.0:
                 if debug_dribble:
                     log.sw_log().dribble().add_text( '#dash angle:{} cancel is not safe1'.format(dash_angle))
                 continue
